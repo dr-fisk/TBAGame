@@ -29,8 +29,9 @@ class RenderTarget {
     public:
       RenderTarget();
       ~RenderTarget();
-      void draw(Rect shape);
-      virtual void render();
+      virtual void clear() = 0;
+      virtual void display() = 0;
+      virtual void draw(Rect shape) = 0;
       virtual uint32_t getWindowHeight() = 0;
       virtual uint32_t getWindowWidth() = 0;
       virtual VertexArray* getVao() = 0;

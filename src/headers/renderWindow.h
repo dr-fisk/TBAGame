@@ -11,10 +11,10 @@ class RenderWindow : public RenderTarget {
       bool isOpen();
       virtual uint32_t getWindowWidth();
       virtual uint32_t getWindowHeight();
-      virtual void render();
+      virtual void clear();
+      virtual void display();
+      virtual void draw(Rect shape);
       virtual VertexArray* getVao();
-      void clear();
-      void display();
       void pollEvent();
     private:
       uint32_t wHeight;

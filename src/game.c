@@ -55,16 +55,16 @@ Game::~Game() {
    Returns:     None 
  */
 void Game::render(RenderTarget *target) {
-  //Rect test(0, 0, 100, 100);
+  Rect test(0, 0, 100, 100);
   /* Need to update code to handle multiple renders */
   //Rect test2(600, 600, 100, 100);
 
  // All these calls will eventually be abstracted
-  window->clear();
-  window->render();
+  target->clear();
+  target->draw(test);
   //target->draw(test);
   //target->draw(test2);
-  window->display();
+  target->display();
 }
 
 /* Function:    gameLoop

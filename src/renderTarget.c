@@ -67,28 +67,36 @@ RenderTarget::RenderTarget() {
 RenderTarget::~RenderTarget() {
 }
 
+/* Function:    clear
+   Description: Virtual Function
+   Parameters:  None
+   Returns:     None 
+ */
+void RenderTarget::clear() {
+}
+
+/* Function:    display
+   Description: Virtual Function
+   Parameters:  None
+   Returns:     None 
+ */
+void RenderTarget::display() {
+}
+
 /* Function:    draw
    Description: TBD since might get deleted
    Parameters:  None
    Returns:     None 
  */
 void RenderTarget::draw(Rect shape) {
-  uint32_t left, top, width, height;
-  Vector2f vertices[4] = {};
-  shape.getDimensions(&left, &top, &width, &height);
-  createRectTarget(vertices, (GLfloat) left, (GLfloat) top, (GLfloat) width, (GLfloat) height);
+  //uint32_t left, top, width, height;
+  //Vector2f vertices[4] = {};
+  //shape.getDimensions(&left, &top, &width, &height);
+  //createRectTarget(vertices, (GLfloat) left, (GLfloat) top, (GLfloat) width, (GLfloat) height);
   /*glBufferData(GL_ARRAY_BUFFER, SQUARE_BYTE_SIZE, vertices, GL_DYNAMIC_DRAW);
   glVertexAttribPointer(0, 2,  GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *) 0);
   glBindBuffer(GL_ARRAY_BUFFER, 0 );*/
-  render();
-}
-
-/* Function:    render
-   Description: Virtual Function
-   Parameters:  None
-   Returns:     None 
- */
-void RenderTarget::render() {
+  //render();
 }
 
 /* Function:    getWindowWidth

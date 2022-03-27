@@ -124,13 +124,15 @@ VertexArray* RenderWindow::getVao() {
     return vao;
 }
 
-/* Function:    render
+/* Function:    draw
    Description: Handles rendering all buffers to be displayed on window
                 Calls should look like clear()->render()->display() then loop
    Parameters:  None
    Returns:     None 
  */
-void RenderWindow::render() {
+
+/* TODO: Handle drawing shapes */
+void RenderWindow::draw(Rect shape) {
     glUseProgram(shader);
     vao->bind();
     ib->bind();
