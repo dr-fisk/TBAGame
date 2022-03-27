@@ -1,6 +1,6 @@
 #include "vertexArray.h"
 
-/* Function VertexArray
+/* Function:    VertexArray
    Description: Creates a VertexArray, if not on the main stack allocate
                 memory otherwise your VAO will delete
    Parameters:  uint32_t - The number of Vertex Arrays to generate
@@ -10,7 +10,7 @@ VertexArray::VertexArray(uint32_t num) {
   GLCall(glGenVertexArrays(num, &vaID));
 }
 
-/* Function ~VertexArray
+/* Function:    ~VertexArray
    Description: Deletes the VAO
    Parameters:  None
    Returns:     None 
@@ -19,7 +19,7 @@ VertexArray::~VertexArray() {
   glDeleteVertexArrays(1, &vaID);
 }
 
-/* Function addBuffer
+/* Function:    addBuffer
    Description: Prepares the VAO for rendering by mapping attributes
    Parameters:  VertexBuffer - The object buffer containing all vertexes
                 and attributes
@@ -44,7 +44,7 @@ void VertexArray::addBuffer(const VertexBuffer *vb, const VertexBufferLayout &la
   }
 }
 
-/* Function bind
+/* Function:    bind
    Description: Attaches VAO so that it is the element that will be drawn
                 Call bind before Drawing each time
    Parameters:  None
@@ -54,7 +54,7 @@ void VertexArray::bind() const {
   GLCall(glBindVertexArray(vaID));
 }
 
-/* Function unbind
+/* Function:    unbind
    Description: Unattaches VAO from elements to be drawn
                 Call unbind after Drawing each time
    Parameters:  None

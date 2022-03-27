@@ -1,5 +1,6 @@
 #include "renderWindow.h"
 
+/* TODO: Abstract shaders */
 const char *vertexShader = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
 "void main()\n"
@@ -14,6 +15,14 @@ const char* fragmentShader = "#version 330 core\n"
 "   FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f);\n"
 "}\n\0";
 
+/* Function:    RenderWindow
+   Description: Initializes opengl window, shaders (until abstraction) and
+                VAO, VBO, and IBO
+   Parameters:  uint32_t - Window width
+                uint32_t - Window height
+                char*    - Window title
+   Returns:     None 
+ */
 RenderWindow::RenderWindow(uint32_t wWidth, uint32_t wHeight, const char *title) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -67,6 +76,11 @@ RenderWindow::RenderWindow(uint32_t wWidth, uint32_t wHeight, const char *title)
   glClearColor(0.0, 0.0, 0.0, 1.0);
 }
 
+/* Function:    ~RenderWindow
+   Description: Cleans up Window memory and terminates opengl
+   Parameters:  None
+   Returns:     None 
+ */
 RenderWindow::~RenderWindow(){
   if (vao != NULL)
     delete vao;
@@ -81,20 +95,41 @@ RenderWindow::~RenderWindow(){
   glfwTerminate();
 }
 
+/* Function:    clear
+   Description: Sets window to background color
+   Parameters:  None
+   Returns:     None 
+ */
 void RenderWindow::clear() {
     GLCall(glClear(GL_COLOR_BUFFER_BIT));
 }
 
+/* Function:    display
+   Description: Handles displaying data stored in all buffers
+   Parameters:  None
+   Returns:     None 
+ */
 void RenderWindow::display() {
     GLCall(glfwSwapBuffers(window));
     GLCall(glfwPollEvents());
     GLCall(glFlush());
 }
 
+/* Function:    getVao
+   Description: Returns the VAO associated to window
+   Parameters:  None
+   Returns:     VertexArray* - Window VAO 
+ */
 VertexArray* RenderWindow::getVao() {
     return vao;
 }
 
+/* Function:    render
+   Description: Handles rendering all buffers to be displayed on window
+                Calls should look like clear()->render()->display() then loop
+   Parameters:  None
+   Returns:     None 
+ */
 void RenderWindow::render() {
     glUseProgram(shader);
     vao->bind();
@@ -104,14 +139,29 @@ void RenderWindow::render() {
     vao->unbind();
 }
 
+/* Function:    getWindowWidth
+   Description: Gets window width
+   Parameters:  None
+   Returns:     uint32_t - Window width 
+ */
 uint32_t RenderWindow::getWindowWidth() {
     return wWidth;
 }
 
+/* Function:    getWindowHeight
+   Description: Gets window height
+   Parameters:  None
+   Returns:     uint32_t - Window height
+ */
 uint32_t RenderWindow::getWindowHeight() {
     return wHeight;
 }
 
+/* Function:    getWindowWidth
+   Description: Checks whether window has been closed
+   Parameters:  None
+   Returns:     bool - Window open 
+ */
 bool RenderWindow::isOpen(){
     return !glfwWindowShouldClose(window);
 }

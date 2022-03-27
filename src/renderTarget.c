@@ -3,6 +3,11 @@
 
 enum TARGETS{RECTANGLE, TRIANGLE};
 
+/* Function:    Rect
+   Description: Default Constructor
+   Parameters:  None
+   Returns:     None 
+ */
 Rect::Rect() {
   this->left   = 0;
   this->top    = 0;
@@ -10,8 +15,14 @@ Rect::Rect() {
   this->height = 0;
 }
 
-/* Creates Rect coords, used int instead of normalized floats since
-   it's a little easier to know where ex. (400, 400) is versus (0.0f, 0.0f) */
+/* Function:    Rect
+   Description: Creates rectangle shape
+   Parameters:  uint32_t - leftmost coordinate
+                uint32_t - topmost coordinate
+                uint32_t - height of rect
+                uint32_t - width of rect
+   Returns:     None 
+ */
 Rect::Rect(uint32_t left, uint32_t top, uint32_t height, uint32_t width) {
   this->left   = left;
   this->top    = top;
@@ -19,6 +30,12 @@ Rect::Rect(uint32_t left, uint32_t top, uint32_t height, uint32_t width) {
   this->height = height;
 }
 
+/* Function:    getDimensions
+   Description: Assigns dimensions of rectangle use function with either pointers
+                or pass by reference
+   Parameters:  None
+   Returns:     None 
+ */
 void Rect::getDimensions(uint32_t *left, uint32_t *top, uint32_t *height, uint32_t *width) {
   *left   = this->left;
   *top    = this->top;
@@ -26,16 +43,35 @@ void Rect::getDimensions(uint32_t *left, uint32_t *top, uint32_t *height, uint32
   *width  = this->width;
 }
 
+/* Function:    ~Rect
+   Description: Destructor
+   Parameters:  None
+   Returns:     None 
+ */
 Rect::~Rect() {
 }
 
+/* Function:    RenderTarget
+   Description: Default Contructor
+   Parameters:  None
+   Returns:     None 
+ */
 RenderTarget::RenderTarget() {
 }
 
+/* Function:    ~RenderTarget
+   Description: Destructor
+   Parameters:  None
+   Returns:     None 
+ */
 RenderTarget::~RenderTarget() {
 }
 
-/* Handles to opengl to draw a square */
+/* Function:    draw
+   Description: TBD since might get deleted
+   Parameters:  None
+   Returns:     None 
+ */
 void RenderTarget::draw(Rect shape) {
   uint32_t left, top, width, height;
   Vector2f vertices[4] = {};
@@ -47,22 +83,48 @@ void RenderTarget::draw(Rect shape) {
   render();
 }
 
+/* Function:    render
+   Description: Virtual Function
+   Parameters:  None
+   Returns:     None 
+ */
 void RenderTarget::render() {
 }
 
+/* Function:    getWindowWidth
+   Description: Virtual Function
+   Parameters:  None
+   Returns:     None 
+ */
 uint32_t RenderTarget::getWindowWidth() {
-
 }
 
+/* Function:    getWindowHeight
+   Description: Virtual Function
+   Parameters:  None
+   Returns:     None 
+ */
 uint32_t RenderTarget::getWindowHeight() {
-
 }
 
+/* Function:    getVao
+   Description: Virtual Function
+   Parameters:  None
+   Returns:     None 
+ */
 VertexArray* RenderTarget::getVao() {
-
 }
 
-/* Creates Rectangle in normalized coordinates */
+/* Function:    createRectTarget
+   Description: Normalizes Rect coords to be drawn on window this allows us
+                to not have to worry about resolution
+   Parameters:  Vector2f - Buffer to store normalized rect coordinates
+                GLfloat  - Rect left coord
+                GLfloat  - Rect top coord
+                GLfloat  - Rect width
+                GLfloat  - Rect height
+   Returns:     None 
+ */
 void RenderTarget::createRectTarget(Vector2f *vertices, GLfloat left, GLfloat top, GLfloat width, 
                                 GLfloat height) {
   GLfloat wWidth = (GLfloat) getWindowWidth() / 2.0f;
@@ -81,7 +143,11 @@ void RenderTarget::createRectTarget(Vector2f *vertices, GLfloat left, GLfloat to
   vertices[3] = Vector2f(x2, y1);
 }
 
-/* Bounds our coordinates so we always render inside our window */
+/* Function:    boundCoords
+   Description: Ensures coordinates are never out of bounds from resolution
+   Parameters:  None
+   Returns:     None 
+ */
 void RenderTarget::boundCoords(GLfloat *left, GLfloat *width, GLfloat *top, GLfloat *height) {
   uint32_t wWidth = getWindowWidth();
   uint32_t wHeight = getWindowHeight();

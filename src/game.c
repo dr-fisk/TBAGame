@@ -1,9 +1,20 @@
 #include "game.h"
 
+/* Function:    initMainState
+   Description: Helper function which starts our stack of states
+                Always start on main menu state
+   Parameters:  None
+   Returns:     None 
+ */
 void Game::initMainState() {
   states.push(new MainMenu(window, states));
 }
 
+/* Function:    Game
+   Description: Initializes core components for the game
+   Parameters:  None
+   Returns:     None 
+ */
 Game::Game() {
   window = new RenderWindow(800, 800, "Test");
   initMainState();
@@ -19,6 +30,11 @@ Game::Game() {
   this->gameRuntime = clock();
 }
 
+/* Function:    ~Game
+   Description: Cleans up all allocated memory
+   Parameters:  None
+   Returns:     None 
+ */
 Game::~Game() {
   if (window)
     delete window;
@@ -31,13 +47,19 @@ Game::~Game() {
   }
 }
 
-/* Temp parameters for development */
-/* Remove rects, this is development testing at the moment */
+/* TODO: Remove temp parameters for development */
+/* TODO: Remove rects, this is development testing at the moment */
+/* Function:    render
+   Description: Renders window
+   Parameters:  None
+   Returns:     None 
+ */
 void Game::render(RenderTarget *target) {
   //Rect test(0, 0, 100, 100);
   /* Need to update code to handle multiple renders */
   //Rect test2(600, 600, 100, 100);
 
+ // All these calls will eventually be abstracted
   window->clear();
   window->render();
   //target->draw(test);
@@ -45,8 +67,11 @@ void Game::render(RenderTarget *target) {
   window->display();
 }
 
-/* Runs the main game loop which only exits when
-either window is closed or state stack is empty */
+/* Function:    gameLoop
+   Description: Runs gameloop until window has been closed
+   Parameters:  None
+   Returns:     None 
+ */
 void Game::gameLoop() {
   while(window->isOpen()) {
     if (states.empty())
@@ -60,6 +85,10 @@ void Game::gameLoop() {
   gameEnd();
 }
 
+/* Function:    gameEnd
+   Description: Handles how application should act when game is closed
+   Parameters:  None
+   Returns:     None 
+ */
 void Game::gameEnd() {
-
 }
