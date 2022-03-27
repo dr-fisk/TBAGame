@@ -65,13 +65,6 @@ RenderWindow::RenderWindow(uint32_t wWidth, uint32_t wHeight, const char *title)
 
   /* init vao and vbo must be after glewInit*/
   vao = new VertexArray(1);
-  Vector2f vc[4] = {{-0.5f, -0.5f}, {0.5f, -0.5f}, {0.5f, 0.5f}, {-0.5f, 0.5f}};
-  uint32_t indeces [] = {0,1,2,2,3,0};
-  vbo = new VertexBuffer(vc, SQUARE_BYTE_SIZE);
-  ib = new IndexBuffer(indeces, 6);
-  VertexBufferLayout layout;
-  layout.push(2);
-  vao->addBuffer(vbo, layout);
 
   glClearColor(0.0, 0.0, 0.0, 1.0);
 }
@@ -133,12 +126,24 @@ VertexArray* RenderWindow::getVao() {
 
 /* TODO: Handle drawing shapes */
 void RenderWindow::draw(Rect shape) {
+    uint32_t left, top, width, height;
+    Vector2f vc[4];
+    uint32_t indeces [] = {0,1,2,2,3,0};
+    shape.getDimensions(&left, &top, &width, &height);
+    createRectTarget(vc, (GLfloat) left, (GLfloat) top, (GLfloat) width, (GLfloat) height);
+    vbo = new VertexBuffer(vc, SQUARE_BYTE_SIZE);
+    ib = new IndexBuffer(indeces, 6);
+    VertexBufferLayout layout;
+    layout.push(2);
+    vao->addBuffer(vbo, layout);
     glUseProgram(shader);
     vao->bind();
     ib->bind();
     GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
     ib->unbind();
     vao->unbind();
+    delete ib;
+    delete vbo;
 }
 
 /* Function:    getWindowWidth
@@ -166,6 +171,70 @@ uint32_t RenderWindow::getWindowHeight() {
  */
 bool RenderWindow::isOpen(){
     return !glfwWindowShouldClose(window);
+}
+
+/* Function:    createRectTarget
+   Description: Normalizes Rect coords to be drawn on window this allows us
+                to not have to worry about resolution
+   Parameters:  Vector2f - Buffer to store normalized rect coordinates
+                GLfloat  - Rect left coord
+                GLfloat  - Rect top coord
+                GLfloat  - Rect width
+                GLfloat  - Rect height
+   Returns:     None 
+ */
+void RenderWindow::createRectTarget(Vector2f *vertices, GLfloat left, GLfloat top, GLfloat width, 
+                                GLfloat height) {
+  GLfloat wWidth = (GLfloat) getWindowWidth() / 2.0f;
+  GLfloat wHeight = (GLfloat) getWindowHeight() / 2.0f;
+
+  boundCoords(&left, &width, &top, &height);
+
+  GLfloat x1 = (left / wWidth) - 1.0f;
+  GLfloat x2 = ((left + width)/ wWidth) - 1.0f;
+  GLfloat y1 = -1 * ((top / wHeight) - 1.0f);
+  GLfloat y2 = -1 * (((top + height) / wHeight) - 1.0f);
+  
+  vertices[0] = Vector2f(x1, y1);
+  vertices[1] = Vector2f(x1, y2);
+  vertices[2] = Vector2f(x2, y2);
+  vertices[3] = Vector2f(x2, y1);
+}
+
+/* Function:    boundCoords
+   Description: Ensures coordinates are never out of bounds from resolution
+   Parameters:  None
+   Returns:     None 
+ */
+void RenderWindow::boundCoords(GLfloat *left, GLfloat *width, GLfloat *top, GLfloat *height) {
+  uint32_t wWidth = getWindowWidth();
+  uint32_t wHeight = getWindowHeight();
+
+  if (*width > wWidth)
+    *width = wWidth;
+
+  if (*height > wHeight)
+    *height = wHeight;
+
+  if (*left > wWidth)
+    *left = wWidth;
+  
+  if (*height > wHeight)
+    *height = wHeight;
+
+  if ((*left + *width) > wWidth) {
+    *left -= *width;
+
+    if (*left < 0.0f)
+      *left = 0.0f;
+  }
+
+  if ((*top + *height) > wHeight) {
+    *top -= *height;
+
+    if (*top < 0.0f)
+      *top = 0.0f;
+  }
 }
 
 void RenderWindow::pollEvent() {

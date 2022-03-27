@@ -36,9 +36,6 @@ class RenderTarget {
       virtual uint32_t getWindowWidth() = 0;
       virtual VertexArray* getVao() = 0;
     private:
-      void createRectTarget(Vector2f *vertices, GLfloat left, GLfloat top, GLfloat width, 
-                        GLfloat height);
-      void boundCoords(GLfloat *left, GLfloat *width, GLfloat *top, GLfloat *height);
 };
 
 #endif

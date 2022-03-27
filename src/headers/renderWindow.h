@@ -25,6 +25,9 @@ class RenderWindow : public RenderTarget {
       uint32_t shader;
       std::string title;
       GLFWwindow *window;
+      void createRectTarget(Vector2f *vertices, GLfloat left, GLfloat top, 
+                            GLfloat width, GLfloat height);
+      void boundCoords(GLfloat *left, GLfloat *width, GLfloat *top, GLfloat *height);
 };
 
 #endif
