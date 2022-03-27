@@ -10,6 +10,12 @@ class IndexBuffer {
     ~IndexBuffer();
     void bind() const;
     void unbind() const;
+
+    /* Function:    getCount
+       Description: Returns the IndexBuffer count
+       Parameters:  None
+       Returns:     uint32_t - IndexBuffer count
+    */
     inline uint32_t getCount() const {return count;}
   private:
     uint32_t indexID;
