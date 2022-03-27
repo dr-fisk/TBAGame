@@ -1,6 +1,9 @@
 # Prerequisites
 *.d
 
+# Shell Scripts
+*.sh
+
 # Compiled Object files
 *.slo
 *.lo
@@ -30,3 +33,6 @@
 *.exe
 *.out
 *.app
+
+# Directory
+objs-wind64/
