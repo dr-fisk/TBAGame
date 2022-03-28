@@ -22,7 +22,7 @@ class RenderWindow : public RenderTarget {
       VertexArray *vao;
       VertexBuffer *vbo;
       IndexBuffer *ib;
-      uint32_t shader;
+      Shader *shader;
       std::string title;
       GLFWwindow *window;
       void createRectTarget(Vector2f *vertices, GLfloat left, GLfloat top, 

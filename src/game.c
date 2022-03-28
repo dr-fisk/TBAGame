@@ -57,13 +57,16 @@ Game::~Game() {
 void Game::render(RenderTarget *target) {
   Rect test(0, 0, 100, 100);
   /* Need to update code to handle multiple renders */
-  //Rect test2(600, 600, 100, 100);
+  Rect test2(800, 800, 100, 100);
+  Rect test3(800, 0, 100, 100);
+  Rect test4(0, 800, 100, 100);
 
  // All these calls will eventually be abstracted
   target->clear();
   target->draw(test);
-  //target->draw(test);
-  //target->draw(test2);
+  target->draw(test2);
+  target->draw(test3);
+  target->draw(test4);
   target->display();
 }
 

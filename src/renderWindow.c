@@ -1,20 +1,5 @@
 #include "renderWindow.h"
 
-/* TODO: Abstract shaders */
-const char *vertexShader = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
-
-const char* fragmentShader = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f);\n"
-"}\n\0";
-
 /* Function:    RenderWindow
    Description: Initializes opengl window, shaders (until abstraction) and
                 VAO, VBO, and IBO
@@ -49,23 +34,12 @@ RenderWindow::RenderWindow(uint32_t wWidth, uint32_t wHeight, const char *title)
   }
 
   /* inits the shaders */
-  uint32_t vs = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vs, 1, &vertexShader, NULL);
-  glCompileShader(vs);
-  uint32_t fs = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fs, 1, &fragmentShader, NULL);
-  glCompileShader(fs);
-  this->shader = glCreateProgram();
-  glAttachShader(shader, vs);
-  glAttachShader(shader, fs);
-  glLinkProgram(shader);
-
-  glDeleteShader(vs);
-  glDeleteShader(fs);
+  shader = new Shader();
 
   /* init vao and vbo must be after glewInit*/
+  uint32_t indeces [] = {0,1,2,2,3,0};
   vao = new VertexArray(1);
-
+  ib  = new IndexBuffer(indeces, 6);
   glClearColor(0.0, 0.0, 0.0, 1.0);
 }
 
@@ -77,12 +51,12 @@ RenderWindow::RenderWindow(uint32_t wWidth, uint32_t wHeight, const char *title)
 RenderWindow::~RenderWindow(){
   if (vao != NULL)
     delete vao;
-  
-  if (vbo != NULL)
-    delete vbo;
 
   if (ib != NULL)
     delete ib;
+
+  if (shader != NULL)
+    delete shader;
 
   glfwDestroyWindow(window);
   glfwTerminate();
@@ -128,21 +102,15 @@ VertexArray* RenderWindow::getVao() {
 void RenderWindow::draw(Rect shape) {
     uint32_t left, top, width, height;
     Vector2f vc[4];
-    uint32_t indeces [] = {0,1,2,2,3,0};
     shape.getDimensions(&left, &top, &width, &height);
     createRectTarget(vc, (GLfloat) left, (GLfloat) top, (GLfloat) width, (GLfloat) height);
     vbo = new VertexBuffer(vc, SQUARE_BYTE_SIZE);
-    ib = new IndexBuffer(indeces, 6);
     VertexBufferLayout layout;
-    layout.push(2);
+    layout.push(TWO_D_COORDS);
     vao->addBuffer(vbo, layout);
-    glUseProgram(shader);
-    vao->bind();
+    shader->bind();
     ib->bind();
-    GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
-    ib->unbind();
-    vao->unbind();
-    delete ib;
+    GLCall(glDrawElements(GL_TRIANGLES, ib->getCount(), GL_UNSIGNED_INT, nullptr));
     delete vbo;
 }
 

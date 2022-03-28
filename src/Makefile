@@ -16,7 +16,15 @@ programs = main.exe
 
 all : $(programs)
 
-linkFiles  = common.c game.c state.c renderWindow.c renderTarget.c vertexBuffer.c vertexArray.c indexBuffer.c
+linkFiles  = common.c \
+             game.c \
+			 state.c \
+			 renderWindow.c \
+			 renderTarget.c \
+			 vertexBuffer.c \
+			 vertexArray.c \
+			 indexBuffer.c \
+			 shader.c
 stateFiles = mainMenuState.c
 guiFiles   = gui.c
 
