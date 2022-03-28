@@ -8,6 +8,7 @@
 #include <ctime>
 #include <stdint.h>
 #include <string>
+#include <sstream>
 #include <cassert>
 #include <vector>
 #include <fstream>

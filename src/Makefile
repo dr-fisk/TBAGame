@@ -7,6 +7,7 @@ PATHTOEXEC = ../objs-wind64
 STATEPATH = ./states
 GUIPATH = ./gui
 SRC = ./src
+SHADERSPATH = ./shaders
 CFLAGS  = -g -std=c++17 -MMD -I$(INCLPATH) -I$(LIBPATH) -I$(HEADERS)
 LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32
 
@@ -18,13 +19,13 @@ all : $(programs)
 
 linkFiles  = common.c \
              game.c \
-			 state.c \
-			 renderWindow.c \
-			 renderTarget.c \
-			 vertexBuffer.c \
-			 vertexArray.c \
-			 indexBuffer.c \
-			 shader.c
+             state.c \
+             renderWindow.c \
+             renderTarget.c \
+             vertexBuffer.c \
+             vertexArray.c \
+             indexBuffer.c \
+             shader.c
 stateFiles = mainMenuState.c
 guiFiles   = gui.c
 
@@ -66,6 +67,7 @@ $(GUIPATH)/%.o : $(GUIPATH)/%.c
 		echo "Adding opengldll"; \
 		cp $(LIBPATH)/glfw3.dll $(PATHTOEXEC); \
 		cp $(LIBPATH)/glew32.dll $(PATHTOEXEC); \
+		cp -r $(SHADERSPATH) $(PATHTOEXEC); \
 	fi
 	@echo "Transfering .exe"
 	$(Q)cp $@ $(PATHTOEXEC)

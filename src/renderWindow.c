@@ -34,7 +34,7 @@ RenderWindow::RenderWindow(uint32_t wWidth, uint32_t wHeight, const char *title)
   }
 
   /* inits the shaders */
-  shader = new Shader();
+  shader = new Shader("./shaders/shader1.txt");
 
   /* init vao and vbo must be after glewInit*/
   uint32_t indeces [] = {0,1,2,2,3,0};
@@ -68,7 +68,7 @@ RenderWindow::~RenderWindow(){
    Returns:     None 
  */
 void RenderWindow::clear() {
-    GLCall(glClear(GL_COLOR_BUFFER_BIT));
+  GLCall(glClear(GL_COLOR_BUFFER_BIT));
 }
 
 /* Function:    display
@@ -77,9 +77,9 @@ void RenderWindow::clear() {
    Returns:     None 
  */
 void RenderWindow::display() {
-    GLCall(glfwSwapBuffers(window));
-    GLCall(glfwPollEvents());
-    GLCall(glFlush());
+  GLCall(glfwSwapBuffers(window));
+  GLCall(glfwPollEvents());
+  GLCall(glFlush());
 }
 
 /* Function:    getVao
@@ -88,7 +88,7 @@ void RenderWindow::display() {
    Returns:     VertexArray* - Window VAO 
  */
 VertexArray* RenderWindow::getVao() {
-    return vao;
+  return vao;
 }
 
 /* Function:    draw
@@ -97,21 +97,20 @@ VertexArray* RenderWindow::getVao() {
    Parameters:  None
    Returns:     None 
  */
-
 /* TODO: Handle drawing shapes */
 void RenderWindow::draw(Rect shape) {
-    uint32_t left, top, width, height;
-    Vector2f vc[4];
-    shape.getDimensions(&left, &top, &width, &height);
-    createRectTarget(vc, (GLfloat) left, (GLfloat) top, (GLfloat) width, (GLfloat) height);
-    vbo = new VertexBuffer(vc, SQUARE_BYTE_SIZE);
-    VertexBufferLayout layout;
-    layout.push(TWO_D_COORDS);
-    vao->addBuffer(vbo, layout);
-    shader->bind();
-    ib->bind();
-    GLCall(glDrawElements(GL_TRIANGLES, ib->getCount(), GL_UNSIGNED_INT, nullptr));
-    delete vbo;
+  uint32_t left, top, width, height;
+  Vector2f vc[4];
+  shape.getDimensions(&left, &top, &width, &height);
+  createRectTarget(vc, (GLfloat) left, (GLfloat) top, (GLfloat) width, (GLfloat) height);
+  vbo = new VertexBuffer(vc, SQUARE_BYTE_SIZE);
+  VertexBufferLayout layout;
+  layout.push(TWO_D_COORDS);
+  vao->addBuffer(vbo, layout);
+  shader->bind();
+  ib->bind();
+  GLCall(glDrawElements(GL_TRIANGLES, ib->getCount(), GL_UNSIGNED_INT, nullptr));
+  delete vbo;
 }
 
 /* Function:    getWindowWidth
