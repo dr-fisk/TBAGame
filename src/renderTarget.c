@@ -120,5 +120,5 @@ uint32_t RenderTarget::getWindowHeight() {
    Parameters:  None
    Returns:     None 
  */
-VertexArray* RenderTarget::getVao() {
+std::shared_ptr<VertexArray> RenderTarget::getVao() {
 }

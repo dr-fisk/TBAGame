@@ -13,12 +13,20 @@ IndexBuffer::IndexBuffer(const uint32_t *data, uint32_t count) : count(count) {
 }
 
 /* Function:    ~IndexBuffer
-   Description: Destroys IndexBuffer
+   Description: Destructor
    Parameters:  None
    Returns:     None 
  */
 IndexBuffer::~IndexBuffer() {
-  glDeleteBuffers(1, &indexID);
+}
+
+/* Function:    deleteIndexBuffer
+   Description: Destroys Index Buffer needs to be explicitly called
+   Parameters:  None
+   Returns:     None 
+ */
+void IndexBuffer::deleteIndexBuffer() const {
+  GLCall(glDeleteBuffers(1, &indexID));
 }
 
 /* Function:    bind

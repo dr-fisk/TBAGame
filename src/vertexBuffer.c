@@ -13,11 +13,19 @@ VertexBuffer::VertexBuffer(const void *data, uint32_t size) {
 }
 
 /* Function:    ~VertexBuffer
-   Description: Deletes the buffer when VBO not needed anymore
+   Description: Destructor
    Parameters:  None
    Returns:     None 
  */
 VertexBuffer::~VertexBuffer() {
+}
+
+/* Function:    deleteVBO
+   Description: Deletes the buffer when VBO not needed anymore
+   Parameters:  None
+   Returns:     None 
+ */
+void VertexBuffer::deleteVBO() const {
   GLCall(glDeleteBuffers(1, &bufID));
 }
 

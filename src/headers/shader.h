@@ -15,6 +15,7 @@ class Shader {
     ~Shader();
     void bind() const;
     void unbind() const;
+    void deleteShader() const;
   private:
     uint32_t shaderID;
     ShaderProgSource parseShader(const std::string &filePath);

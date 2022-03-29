@@ -11,11 +11,19 @@ VertexArray::VertexArray(uint32_t num) {
 }
 
 /* Function:    ~VertexArray
-   Description: Deletes the VAO
+   Description: Destructor
    Parameters:  None
    Returns:     None 
  */
 VertexArray::~VertexArray() {
+}
+
+/* Function:    deleteVAO
+   Description: Deletes VAO
+   Parameters:  None
+   Returns:     None 
+ */
+void VertexArray::deleteVAO() const {
   glDeleteVertexArrays(1, &vaID);
 }
 
@@ -27,7 +35,7 @@ VertexArray::~VertexArray() {
                 interpret and render data accordingly
    Returns:     None 
  */
-void VertexArray::addBuffer(const VertexBuffer *vb, const VertexBufferLayout &layout) {
+void VertexArray::addBuffer(const std::shared_ptr<VertexBuffer> vb, const VertexBufferLayout &layout) {
   this->bind();
   vb->bind();
 

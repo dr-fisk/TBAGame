@@ -10,6 +10,7 @@ class IndexBuffer {
     ~IndexBuffer();
     void bind() const;
     void unbind() const;
+    void deleteIndexBuffer() const;
 
     /* Function:    getCount
        Description: Returns the IndexBuffer count

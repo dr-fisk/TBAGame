@@ -6,11 +6,11 @@
 
 class State {
   public:
-    State(RenderWindow *wind, std::stack<State *> s);
+    State(std::shared_ptr<RenderWindow> wind, std::stack<std::shared_ptr<State>> s);
     ~State();
   private:
-    RenderWindow *window;
-    std::stack<State *> states;
+    std::shared_ptr<RenderWindow> window;
+    std::stack<std::shared_ptr<State>> states;
 };
 
 #endif

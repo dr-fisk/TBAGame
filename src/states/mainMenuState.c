@@ -1,6 +1,6 @@
 #include "mainMenuState.h"
 
-MainMenu::MainMenu(RenderWindow *wind, std::stack<State *> s) : State(wind, s) {
+MainMenu::MainMenu(std::shared_ptr<RenderWindow> wind, std::stack<std::shared_ptr<State>> s) : State(wind, s) {
 
 }
 

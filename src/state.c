@@ -5,7 +5,7 @@
    Parameters:  None
    Returns:     None 
  */
-State::State(RenderWindow *wind, std::stack<State *> s) {
+State::State(std::shared_ptr<RenderWindow> wind, std::stack<std::shared_ptr<State>> s) {
   this->window = wind;
   this->states = s;
 }

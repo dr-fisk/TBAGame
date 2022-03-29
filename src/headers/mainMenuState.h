@@ -5,7 +5,7 @@
 
 class MainMenu : public State {
   public:
-    MainMenu(RenderWindow *wind, std::stack<State *> s);
+    MainMenu(std::shared_ptr<RenderWindow> wind, std::stack<std::shared_ptr<State>> s);
     ~MainMenu();
 };
 

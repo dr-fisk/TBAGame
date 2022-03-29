@@ -36,7 +36,7 @@ class RenderTarget {
       virtual void draw(Rect shape) = 0;
       virtual uint32_t getWindowHeight() = 0;
       virtual uint32_t getWindowWidth() = 0;
-      virtual VertexArray* getVao() = 0;
+      virtual std::shared_ptr<VertexArray> getVao() = 0;
     private:
 };
 

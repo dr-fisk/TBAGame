@@ -11,13 +11,13 @@ class Game {
     ~Game();
     void gameLoop();
   private:
-    std::stack<State *> states;
-    RenderWindow *window;
+    std::stack<std::shared_ptr<State>> states;
+    std::shared_ptr<RenderWindow> window;
     clock_t gameRuntime;
 
     void initMainState();
     void gameEnd(); 
-    void render(RenderTarget *target);
+    void render(std::shared_ptr<RenderTarget> target);
 };
 
 #endif

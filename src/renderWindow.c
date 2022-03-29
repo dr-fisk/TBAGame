@@ -34,30 +34,25 @@ RenderWindow::RenderWindow(uint32_t wWidth, uint32_t wHeight, const char *title)
   }
 
   /* inits the shaders */
-  shader = new Shader("./shaders/shader1.txt");
+  shader = std::make_shared<Shader>("./shaders/shader1.txt");
 
   /* init vao and vbo must be after glewInit*/
   uint32_t indeces [] = {0,1,2,2,3,0};
-  vao = new VertexArray(1);
-  ib  = new IndexBuffer(indeces, 6);
+  vao = std::make_shared<VertexArray>(1);
+  ib  = std::make_shared<IndexBuffer>(indeces, 6);
   glClearColor(0.0, 0.0, 0.0, 1.0);
 }
 
 /* Function:    ~RenderWindow
    Description: Cleans up Window memory and terminates opengl
+                Due to using smart pts, we need to explicitly destroy
    Parameters:  None
    Returns:     None 
  */
 RenderWindow::~RenderWindow(){
-  if (vao != NULL)
-    delete vao;
-
-  if (ib != NULL)
-    delete ib;
-
-  if (shader != NULL)
-    delete shader;
-
+  shader->deleteShader();
+  ib->deleteIndexBuffer();
+  vao->deleteVAO();
   glfwDestroyWindow(window);
   glfwTerminate();
 }
@@ -85,9 +80,9 @@ void RenderWindow::display() {
 /* Function:    getVao
    Description: Returns the VAO associated to window
    Parameters:  None
-   Returns:     VertexArray* - Window VAO 
+   Returns:     shared_ptr<VertexArray> - Window VAO 
  */
-VertexArray* RenderWindow::getVao() {
+std::shared_ptr<VertexArray> RenderWindow::getVao() {
   return vao;
 }
 
@@ -103,14 +98,14 @@ void RenderWindow::draw(Rect shape) {
   Vector2f vc[4];
   shape.getDimensions(&left, &top, &width, &height);
   createRectTarget(vc, (GLfloat) left, (GLfloat) top, (GLfloat) width, (GLfloat) height);
-  vbo = new VertexBuffer(vc, SQUARE_BYTE_SIZE);
+  vbo = std::make_shared<VertexBuffer>(vc, SQUARE_BYTE_SIZE);
   VertexBufferLayout layout;
   layout.push(TWO_D_COORDS);
   vao->addBuffer(vbo, layout);
   shader->bind();
   ib->bind();
   GLCall(glDrawElements(GL_TRIANGLES, ib->getCount(), GL_UNSIGNED_INT, nullptr));
-  delete vbo;
+  vbo->deleteVBO();
 }
 
 /* Function:    getWindowWidth

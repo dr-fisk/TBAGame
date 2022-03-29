@@ -7,7 +7,7 @@
    Returns:     None 
  */
 void Game::initMainState() {
-  states.push(new MainMenu(window, states));
+  states.push(std::make_shared<MainMenu>(window, states));
 }
 
 /* Function:    Game
@@ -16,7 +16,7 @@ void Game::initMainState() {
    Returns:     None 
  */
 Game::Game() {
-  window = new RenderWindow(800, 800, "Test");
+  window = std::make_shared<RenderWindow>(800, 800, "Test");
   initMainState();
   
   /* vbo holds vertex data (cooridnates and RGB color)
@@ -36,13 +36,7 @@ Game::Game() {
    Returns:     None 
  */
 Game::~Game() {
-  if (window)
-    delete window;
-
   while(!states.empty()) {
-    if (states.top())
-      delete states.top();
-
     states.pop();
   }
 }
@@ -54,7 +48,7 @@ Game::~Game() {
    Parameters:  None
    Returns:     None 
  */
-void Game::render(RenderTarget *target) {
+void Game::render(std::shared_ptr<RenderTarget> target) {
   Rect test(0, 0, 100, 100);
   /* Need to update code to handle multiple renders */
   Rect test2(800, 800, 100, 100);

@@ -9,6 +9,9 @@ Shader::Shader(const std::string &filePath) {
 }
 
 Shader::~Shader() {
+}
+
+void Shader::deleteShader() const {
   GLCall(glDeleteProgram(shaderID));
 }
 
@@ -18,6 +21,7 @@ void Shader::bind() const {
 
 void Shader::unbind() const {
   GLCall(glUseProgram(0));
+  std::cout << "What\n";
 }
 
 ShaderProgSource Shader::parseShader(const std::string &filePath) {

@@ -14,15 +14,15 @@ class RenderWindow : public RenderTarget {
       virtual void clear();
       virtual void display();
       virtual void draw(Rect shape);
-      virtual VertexArray* getVao();
+      virtual std::shared_ptr<VertexArray> getVao();
       void pollEvent();
     private:
       uint32_t wHeight;
       uint32_t wWidth;
-      VertexArray *vao;
-      VertexBuffer *vbo;
-      IndexBuffer *ib;
-      Shader *shader;
+      std::shared_ptr<VertexArray> vao;
+      std::shared_ptr<VertexBuffer> vbo;
+      std::shared_ptr<IndexBuffer> ib;
+      std::shared_ptr<Shader> shader;
       std::string title;
       GLFWwindow *window;
       void createRectTarget(Vector2f *vertices, GLfloat left, GLfloat top, 
