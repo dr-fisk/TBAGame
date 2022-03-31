@@ -93,8 +93,9 @@ void RenderTarget::draw(Rect shape) {
 /* Function:    draw
    Description: Virtual Function
    Parameters:  VertexBuffer - VBO to draw
-                uint32_t     - Number of vertexes
-                uint32_t     - Size of each vertex
+                VertexArray  - VAO to draw
+                IndexBuffer  - IBO to draw VBO
+                VertexBufferLayout - Layout of VBO
    Returns:     None
  */
 void RenderTarget::draw(const std::shared_ptr<VertexBuffer> &VBO, const std::shared_ptr<VertexArray> &VAO,

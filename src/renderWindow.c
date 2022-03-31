@@ -89,7 +89,13 @@ std::shared_ptr<VertexArray> RenderWindow::getVao() {
   return vao;
 }
 
-/* TODO: Handle drawing shapes */
+//TODO: add different shapes?
+/* Function:    draw
+   Description: Renders one shape at a time, only use for non-intensive operations
+                like menus
+   Parameters:  Rect - Rectangle to draw
+   Returns:     None
+ */
 void RenderWindow::draw(Rect shape) {
   RectVertices vc;
   vc = createRectVertices(shape);
@@ -103,9 +109,13 @@ void RenderWindow::draw(Rect shape) {
   vbo.reset();
 }
 
+//TODO: Allow different shaders to be used
 /* Function:    draw
    Description: Handles batched rendering
-   Parameters:  None
+   Parameters:  VertexBuffer - Vertex Buffer to draw
+                VertexArray  - Vertex Array to draw
+                IndexBuffer  - Index Buffer to draw
+                VertexBufferLayout - Layout of VertexBuffer for VAO
    Returns:     None
  */
 void RenderWindow::draw(const std::shared_ptr<VertexBuffer> &VBO, const std::shared_ptr<VertexArray> &VAO, 
