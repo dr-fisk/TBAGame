@@ -21,7 +21,7 @@ class VertexBufferLayout {
     */
     void push(uint32_t count) {
         elements.push_back({GL_FLOAT, count, true});
-        stride += sizeof(float) * count;
+        stride += sizeof(GLfloat) * count;
     }
 
     /* Function:    getElements

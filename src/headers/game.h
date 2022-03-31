@@ -2,7 +2,7 @@
 #define GAME_H
 
 #include "mainMenuState.h"
-#include "renderTarget.h"
+#include "batchBuffer.h"
 #include "renderWindow.h"
 
 class Game {
@@ -17,7 +17,7 @@ class Game {
 
     void initMainState();
     void gameEnd(); 
-    void render(std::shared_ptr<RenderTarget> target);
+    void render(const std::shared_ptr<RenderTarget> &target);
 };
 
 #endif

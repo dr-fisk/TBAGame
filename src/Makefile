@@ -25,7 +25,9 @@ linkFiles  = common.c \
              vertexBuffer.c \
              vertexArray.c \
              indexBuffer.c \
-             shader.c
+             shader.c \
+             batchBuffer.c
+
 stateFiles = mainMenuState.c
 guiFiles   = gui.c
 

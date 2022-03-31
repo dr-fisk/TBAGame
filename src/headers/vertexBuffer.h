@@ -10,7 +10,6 @@ class VertexBuffer {
     ~VertexBuffer();
     void bind() const;
     void unbind() const;
-    void deleteVBO() const;
   private:
     uint32_t bufID;
 };

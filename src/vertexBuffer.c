@@ -13,19 +13,11 @@ VertexBuffer::VertexBuffer(const void *data, uint32_t size) {
 }
 
 /* Function:    ~VertexBuffer
-   Description: Destructor
+   Description: Deletes VertexBuffer
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 VertexBuffer::~VertexBuffer() {
-}
-
-/* Function:    deleteVBO
-   Description: Deletes the buffer when VBO not needed anymore
-   Parameters:  None
-   Returns:     None 
- */
-void VertexBuffer::deleteVBO() const {
   GLCall(glDeleteBuffers(1, &bufID));
 }
 
@@ -34,18 +26,17 @@ void VertexBuffer::deleteVBO() const {
                 Use addBuffer in VAO to bind VBO do not call on it's own
                 unless not using VAO
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 void VertexBuffer::bind() const {
   GLCall(glBindBuffer(GL_ARRAY_BUFFER, bufID));
 }
 
-
 /* Function:    unbind
    Description: Unbinds the VBO when no longer in use
                 Call after drawing
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 void VertexBuffer::unbind() const {
   GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));

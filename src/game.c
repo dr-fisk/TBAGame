@@ -4,7 +4,7 @@
    Description: Helper function which starts our stack of states
                 Always start on main menu state
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 void Game::initMainState() {
   states.push(std::make_shared<MainMenu>(window, states));
@@ -13,7 +13,7 @@ void Game::initMainState() {
 /* Function:    Game
    Description: Initializes core components for the game
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 Game::Game() {
   window = std::make_shared<RenderWindow>(800, 800, "Test");
@@ -33,7 +33,7 @@ Game::Game() {
 /* Function:    ~Game
    Description: Cleans up all allocated memory
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 Game::~Game() {
   while(!states.empty()) {
@@ -46,28 +46,43 @@ Game::~Game() {
 /* Function:    render
    Description: Renders window
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
-void Game::render(std::shared_ptr<RenderTarget> target) {
+void Game::render(const std::shared_ptr<RenderTarget> &target) {
+  std::vector<RectVertices> vertexes;
+  VertexBufferLayout layout;
   Rect test(0, 0, 100, 100);
   /* Need to update code to handle multiple renders */
   Rect test2(800, 800, 100, 100);
   Rect test3(800, 0, 100, 100);
   Rect test4(0, 800, 100, 100);
+  Rect test5(100, 100, 10, 10);
+  Rect test6(100, 200, 10, 10);
+  Rect test7(400, 300, 5, 5);
+  vertexes.push_back(target->createRectVertices(test));
+  vertexes.push_back(target->createRectVertices(test2));
+  vertexes.push_back(target->createRectVertices(test3));
+  vertexes.push_back(target->createRectVertices(test4));
+  vertexes.push_back(target->createRectVertices(test5));
+  vertexes.push_back(target->createRectVertices(test6));
+  vertexes.push_back(target->createRectVertices(test7));
+  BatchBuffer testBB(vertexes, RECTANGLE);
 
  // All these calls will eventually be abstracted
   target->clear();
-  target->draw(test);
-  target->draw(test2);
-  target->draw(test3);
-  target->draw(test4);
+  testBB.render(target);
+  //target->draw(vbo, layout);
+  //target->draw(test);
+  //target->draw(test2);
+  //target->draw(test3);
+  //target->draw(test4);
   target->display();
 }
 
 /* Function:    gameLoop
    Description: Runs gameloop until window has been closed
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 void Game::gameLoop() {
   while(window->isOpen()) {
@@ -85,7 +100,7 @@ void Game::gameLoop() {
 /* Function:    gameEnd
    Description: Handles how application should act when game is closed
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 void Game::gameEnd() {
 }

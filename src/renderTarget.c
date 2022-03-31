@@ -1,12 +1,10 @@
 #include "renderTarget.h"
 #include "renderWindow.h"
 
-enum TARGETS{RECTANGLE, TRIANGLE};
-
 /* Function:    Rect
    Description: Default Constructor
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 Rect::Rect() {
   this->left   = 0;
@@ -21,7 +19,7 @@ Rect::Rect() {
                 uint32_t - topmost coordinate
                 uint32_t - height of rect
                 uint32_t - width of rect
-   Returns:     None 
+   Returns:     None
  */
 Rect::Rect(uint32_t left, uint32_t top, uint32_t height, uint32_t width) {
   this->left   = left;
@@ -34,9 +32,9 @@ Rect::Rect(uint32_t left, uint32_t top, uint32_t height, uint32_t width) {
    Description: Assigns dimensions of rectangle use function with either pointers
                 or pass by reference
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
-void Rect::getDimensions(uint32_t *left, uint32_t *top, uint32_t *height, uint32_t *width) {
+void Rect::getDimensions(GLfloat *left, GLfloat *top, GLfloat *height, GLfloat *width) {
   *left   = this->left;
   *top    = this->top;
   *height = this->height;
@@ -46,7 +44,7 @@ void Rect::getDimensions(uint32_t *left, uint32_t *top, uint32_t *height, uint32
 /* Function:    ~Rect
    Description: Destructor
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 Rect::~Rect() {
 }
@@ -54,7 +52,7 @@ Rect::~Rect() {
 /* Function:    RenderTarget
    Description: Default Contructor
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 RenderTarget::RenderTarget() {
 }
@@ -62,7 +60,7 @@ RenderTarget::RenderTarget() {
 /* Function:    ~RenderTarget
    Description: Destructor
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 RenderTarget::~RenderTarget() {
 }
@@ -70,7 +68,7 @@ RenderTarget::~RenderTarget() {
 /* Function:    clear
    Description: Virtual Function
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 void RenderTarget::clear() {
 }
@@ -78,31 +76,35 @@ void RenderTarget::clear() {
 /* Function:    display
    Description: Virtual Function
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 void RenderTarget::display() {
 }
 
 /* Function:    draw
-   Description: TBD since might get deleted
-   Parameters:  None
-   Returns:     None 
+   Description: Virtual Function
+   Parameters:  Rect - Shape to draw
+   Returns:     None
  */
 void RenderTarget::draw(Rect shape) {
-  //uint32_t left, top, width, height;
-  //Vector2f vertices[4] = {};
-  //shape.getDimensions(&left, &top, &width, &height);
-  //createRectTarget(vertices, (GLfloat) left, (GLfloat) top, (GLfloat) width, (GLfloat) height);
-  /*glBufferData(GL_ARRAY_BUFFER, SQUARE_BYTE_SIZE, vertices, GL_DYNAMIC_DRAW);
-  glVertexAttribPointer(0, 2,  GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *) 0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0 );*/
-  //render();
+}
+
+//TODO: Fix Description
+/* Function:    draw
+   Description: Virtual Function
+   Parameters:  VertexBuffer - VBO to draw
+                uint32_t     - Number of vertexes
+                uint32_t     - Size of each vertex
+   Returns:     None
+ */
+void RenderTarget::draw(const std::shared_ptr<VertexBuffer> &VBO, const std::shared_ptr<VertexArray> &VAO,
+                        const std::shared_ptr<IndexBuffer> &IBO, const VertexBufferLayout &layout) {
 }
 
 /* Function:    getWindowWidth
    Description: Virtual Function
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 uint32_t RenderTarget::getWindowWidth() {
 }
@@ -110,7 +112,7 @@ uint32_t RenderTarget::getWindowWidth() {
 /* Function:    getWindowHeight
    Description: Virtual Function
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 uint32_t RenderTarget::getWindowHeight() {
 }
@@ -118,7 +120,15 @@ uint32_t RenderTarget::getWindowHeight() {
 /* Function:    getVao
    Description: Virtual Function
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 std::shared_ptr<VertexArray> RenderTarget::getVao() {
+}
+
+/* Function:    createRectVertices
+   Description: Virtual Function
+   Parameters:  None
+   Returns:     None
+ */
+RectVertices RenderTarget::createRectVertices(Rect shape) {
 }

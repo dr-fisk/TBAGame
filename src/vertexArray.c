@@ -4,26 +4,18 @@
    Description: Creates a VertexArray, if not on the main stack allocate
                 memory otherwise your VAO will delete
    Parameters:  uint32_t - The number of Vertex Arrays to generate
-   Returns:     None 
+   Returns:     None
  */
 VertexArray::VertexArray(uint32_t num) {
   GLCall(glGenVertexArrays(num, &vaID));
 }
 
 /* Function:    ~VertexArray
-   Description: Destructor
+   Description: Deletes VertexArray
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 VertexArray::~VertexArray() {
-}
-
-/* Function:    deleteVAO
-   Description: Deletes VAO
-   Parameters:  None
-   Returns:     None 
- */
-void VertexArray::deleteVAO() const {
   glDeleteVertexArrays(1, &vaID);
 }
 
@@ -33,19 +25,18 @@ void VertexArray::deleteVAO() const {
                 and attributes
                 VertexBufferLayout - The format of the VBO so that the VAO can
                 interpret and render data accordingly
-   Returns:     None 
+   Returns:     None
  */
 void VertexArray::addBuffer(const std::shared_ptr<VertexBuffer> vb, const VertexBufferLayout &layout) {
   this->bind();
   vb->bind();
-
   const auto& elements = layout.getElements();
   uintptr_t offset = 0;
 
   for (uint32_t i = 0; i < elements.size(); i ++) {
       const auto& element = elements[i];
       GLCall(glEnableVertexAttribArray(i));
-      GLCall(glVertexAttribPointer(i, element.count, element.type, false, //element.normalized, 
+      GLCall(glVertexAttribPointer(i, element.count, element.type, element.normalized, 
                             layout.getStride(), (const void *) offset));
 
       offset += element.count * sizeof(GLfloat);
@@ -56,7 +47,7 @@ void VertexArray::addBuffer(const std::shared_ptr<VertexBuffer> vb, const Vertex
    Description: Attaches VAO so that it is the element that will be drawn
                 Call bind before Drawing each time
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 void VertexArray::bind() const {
   GLCall(glBindVertexArray(vaID));
@@ -66,7 +57,7 @@ void VertexArray::bind() const {
    Description: Unattaches VAO from elements to be drawn
                 Call unbind after Drawing each time
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 void VertexArray::unbind() const {
   GLCall(glBindVertexArray(0));

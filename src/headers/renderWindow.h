@@ -14,7 +14,10 @@ class RenderWindow : public RenderTarget {
       virtual void clear();
       virtual void display();
       virtual void draw(Rect shape);
+      virtual void draw(const std::shared_ptr<VertexBuffer> &VBO, const std::shared_ptr<VertexArray> &VAO,
+                        const std::shared_ptr<IndexBuffer> &IBO, const VertexBufferLayout &layout);
       virtual std::shared_ptr<VertexArray> getVao();
+      virtual RectVertices createRectVertices(Rect shape);
       void pollEvent();
     private:
       uint32_t wHeight;
@@ -25,8 +28,6 @@ class RenderWindow : public RenderTarget {
       std::shared_ptr<Shader> shader;
       std::string title;
       GLFWwindow *window;
-      void createRectTarget(Vector2f *vertices, GLfloat left, GLfloat top, 
-                            GLfloat width, GLfloat height);
       void boundCoords(GLfloat *left, GLfloat *width, GLfloat *top, GLfloat *height);
 };
 

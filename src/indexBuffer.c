@@ -4,7 +4,7 @@
    Description: Creates IndexBuffer as an Element Array Buffer
    Parameters:  uint32_t* - Indeces describing VBO
                 uint32_t  - Size of array
-   Returns:     None 
+   Returns:     None
  */
 IndexBuffer::IndexBuffer(const uint32_t *data, uint32_t count) : count(count) {
   GLCall(glGenBuffers(1, &indexID));
@@ -13,19 +13,11 @@ IndexBuffer::IndexBuffer(const uint32_t *data, uint32_t count) : count(count) {
 }
 
 /* Function:    ~IndexBuffer
-   Description: Destructor
+   Description: Deletes IndexBuffer
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 IndexBuffer::~IndexBuffer() {
-}
-
-/* Function:    deleteIndexBuffer
-   Description: Destroys Index Buffer needs to be explicitly called
-   Parameters:  None
-   Returns:     None 
- */
-void IndexBuffer::deleteIndexBuffer() const {
   GLCall(glDeleteBuffers(1, &indexID));
 }
 
@@ -33,7 +25,7 @@ void IndexBuffer::deleteIndexBuffer() const {
    Description: Prepares IBO to be rendered
                 Always call before drawing
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 void IndexBuffer::bind() const {
   GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexID));
@@ -42,7 +34,7 @@ void IndexBuffer::bind() const {
 /* Function:    unbind
    Description: Cleans up IBO after being drawn
    Parameters:  None
-   Returns:     None 
+   Returns:     None
  */
 void IndexBuffer::unbind() const {
   GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));

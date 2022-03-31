@@ -13,7 +13,6 @@ class VertexArray {
     void addBuffer(const std::shared_ptr<VertexBuffer> vb, const VertexBufferLayout &layout);
     void bind() const;
     void unbind() const;
-    void deleteVAO() const;
   private:
     uint32_t vaID;
 };
