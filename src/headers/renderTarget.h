@@ -2,12 +2,12 @@
 #define RENDERTARGET_H
 
 #include "common.h"
-#include "Vector2D.h"
 #include "vertexBuffer.h"
 #include "vertexArray.h"
 #include "vertexBufferLayout.h"
 #include "indexBuffer.h"
 #include "shader.h"
+#include "rectangle.h"
 
 #define TWO_D_COORDS 2
 #define TRIANGLE_VERTICES2D 3
@@ -16,26 +16,6 @@
 #define SQUARE_BYTE_SIZE 32
 
 enum TARGETS{RECTANGLE, TRIANGLE};
-
-struct RectVertices {
-  Vector2f bottomLeft;
-  Vector2f bottomRight;
-  Vector2f topRight;
-  Vector2f topLeft;
-};
-
-class Rect {
-  public:
-    Rect();
-    Rect(uint32_t left, uint32_t top, uint32_t width, uint32_t height);
-    ~Rect();
-    void getDimensions(GLfloat *left, GLfloat *top, GLfloat *width, GLfloat *height);
-  private:
-    uint32_t left;
-    uint32_t top;
-    uint32_t height;
-    uint32_t width;
-};
 
 class RenderTarget {
     public:

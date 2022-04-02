@@ -13,6 +13,7 @@
 #include <vector>
 #include <fstream>
 #include <memory>
+#include "Vector2D.h"
 
 #define ASSERT(x) if (!(x)) __debugbreak();
 #define GLCall(x) GLClearError();\
