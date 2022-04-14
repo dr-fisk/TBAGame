@@ -5,10 +5,11 @@ INCLPATH = ../include
 HEADERS= ./headers
 PATHTOEXEC = ../objs-wind64
 STATEPATH = ./states
+GRAPHICSPATH = ./graphics
 GUIPATH = ./gui
 SRC = ./src
 SHADERSPATH = ./shaders
-CFLAGS  = -g -std=c++17 -MMD -I$(INCLPATH) -I$(LIBPATH) -I$(HEADERS)
+CFLAGS  = -g -std=c++17 -Wall -Wextra -MMD -I$(INCLPATH) -I$(LIBPATH) -I$(HEADERS)
 LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32
 
 MAKEFLAGS += -rR
@@ -20,27 +21,32 @@ all : $(programs)
 linkFiles  = common.c \
              game.c \
              state.c \
-             renderWindow.c \
-             renderTarget.c \
-             vertexBuffer.c \
-             vertexArray.c \
-             indexBuffer.c \
-             shader.c \
-             batchBuffer.c \
              rectangle.c
 
 stateFiles = mainMenuState.c
+
 guiFiles   = gui.c
+
+graphicFiles = renderWindow.c \
+               renderTarget.c \
+               vertexBuffer.c \
+               vertexArray.c \
+               indexBuffer.c \
+               shader.c \
+               batchBuffer.c
 
 objs := $(patsubst %.exe, %.o, $(programs))
 
 objs += $(patsubst %.c, %.o, $(linkFiles))
 
 states = $(patsubst %.c, %.o, $(stateFiles))
-statesObjs = $(addprefix $(STATEPATH)/, $(states))
+stateObjs = $(addprefix $(STATEPATH)/, $(states))
 
 GUI = $(patsubst %.c, %.o, $(guiFiles))
 guiObjs = $(addprefix $(GUIPATH)/, $(GUI))
+
+graphics = $(patsubst %.c, %.o, $(graphicFiles))
+graphicObjs = $(addprefix $(GRAPHICSPATH)/, $(graphics))
 
 ifneq ($(DEBUG), 1)
   Q=@
@@ -60,9 +66,13 @@ $(GUIPATH)/%.o : $(GUIPATH)/%.c
 	@echo "MAKE	Gui"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(GUIPATH)
 
-%.exe: $(objs) $(statesObjs) $(guiObjs)
+$(GRAPHICSPATH)/%.o : $(GRAPHICSPATH)/%.c
+	@echo "MAKE	Graphics"
+	$(Q)$(MAKE) V=$(V) D=$(D) -C $(GRAPHICSPATH)
+
+%.exe: $(objs) $(stateObjs) $(guiObjs) $(graphicObjs)
 	@echo "MAKE $@"
-	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(statesObjs) $(guiObjs) $(LDFLAGS)
+	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(guiObjs) $(graphicObjs) $(LDFLAGS)
 	@echo "Checking DIR"
 	$(Q)if [ ! -d $(PATHTOEXEC) ]; then \
 	  	echo "Creating Win DIR"; \
@@ -92,4 +102,4 @@ clean:
 		rm -rf $(PATHTOEXEC); \
 	fi
 
-.PRECIOUS: %.o $(STATEPATH)/%.o $(GUIPATH)/%.o
+.PRECIOUS: %.o $(STATEPATH)/%.o $(GUIPATH)/%.o $(GRAPHICSPATH)/%.o
