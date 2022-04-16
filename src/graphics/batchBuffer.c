@@ -6,10 +6,12 @@
                 uint32_t  - Shape to draw
    Returns:     None
  */
-BatchBuffer::BatchBuffer(std::vector<RectVertices> &bufferData, uint32_t shape) {
+//TODO: change sizes depending on shape
+BatchBuffer::BatchBuffer(std::vector<RectVertexData> &bufferData, uint32_t shape) {
   vao = std::make_shared<VertexArray>(1);
-  vbo = std::make_shared<VertexBuffer>(bufferData.data(), bufferData.size() * SQUARE_BYTE_SIZE);
+  vbo = std::make_shared<VertexBuffer>(bufferData.data(), bufferData.size() * sizeof(RectVertexData));
   layout.push(TWO_D_COORDS);
+  layout.push(RGBA);
 
   std::vector<uint32_t> indices = shape == RECTANGLE? createRectIndices(bufferData.size()) : 
                                                       createTriIndices(bufferData.size());

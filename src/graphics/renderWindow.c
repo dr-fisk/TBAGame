@@ -97,11 +97,12 @@ std::shared_ptr<VertexArray> RenderWindow::getVao() {
    Returns:     None
  */
 void RenderWindow::draw(Rect shape) {
-  RectVertices vc;
-  vc = createRectVertices(shape);
-  vbo = std::make_shared<VertexBuffer>(&vc, SQUARE_BYTE_SIZE);
+  RectVertexData vc;
+  vc = createRectVertexData(shape); 
+  vbo = std::make_shared<VertexBuffer>(&vc, sizeof(vc));
   VertexBufferLayout layout;
   layout.push(TWO_D_COORDS);
+  layout.push(RGBA);
   vao->addBuffer(vbo, layout);
   shader->bind();
   ib->bind();
@@ -155,15 +156,17 @@ bool RenderWindow::isOpen(){
 }
 
 
-/* Function:    createRectVertices
+/* Function:    createRectVertexData
    Description: Normalizes Rect coords to be drawn on window this allows us
                 to not have to worry about resolution
    Parameters:  Rect - Rectangle shape to extract coordinates
-   Returns:     vector<Vector2f> - Vertexes from shape;
+   Returns:     RectVertexData - Vertexes from shape;
  */
-RectVertices RenderWindow::createRectVertices(Rect shape) {
+//TODO: Make RectVertexData a better size rn it's 96 bytes
+RectVertexData RenderWindow::createRectVertexData(Rect shape) {
   std::vector<Vector2f> vertices;
   GLfloat left, top, width, height;
+  Vector4f rgba = shape.getRGBA();
   shape.getDimensions(&left, &top, &width, &height);
   GLfloat wWidth = (GLfloat) getWindowWidth() / 2.0f;
   GLfloat wHeight = (GLfloat) getWindowHeight() / 2.0f;
@@ -174,9 +177,9 @@ RectVertices RenderWindow::createRectVertices(Rect shape) {
   GLfloat x2 = ((left + width)/ wWidth) - 1.0f;
   GLfloat y1 = -1 * ((top / wHeight) - 1.0f);
   GLfloat y2 = -1 * (((top + height) / wHeight) - 1.0f);
-  
-  return { Vector2f(x1, y2), Vector2f(x2, y2),
-           Vector2f(x2, y1), Vector2f(x1, y1) };
+
+  return { Vector2f(x1, y2), rgba, Vector2f(x2, y2), rgba,
+           Vector2f(x2, y1), rgba, Vector2f(x1, y1), rgba};
 }
 
 /* Function:    boundCoords

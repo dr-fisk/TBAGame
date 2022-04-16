@@ -12,6 +12,7 @@
 #define TWO_D_COORDS 2
 #define TRIANGLE_VERTICES2D 3
 #define SQUARE_VERTICES2D 4
+#define RGBA 4
 #define SQUARE_INDICES 6
 #define SQUARE_BYTE_SIZE 32
 
@@ -29,7 +30,7 @@ class RenderTarget {
       virtual uint32_t getWindowHeight() = 0;
       virtual uint32_t getWindowWidth() = 0;
       virtual std::shared_ptr<VertexArray> getVao() = 0;
-      virtual RectVertices createRectVertices(Rect shape) = 0;
+      virtual RectVertexData createRectVertexData(Rect shape) = 0;
     private:
 };
 

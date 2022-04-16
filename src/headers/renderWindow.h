@@ -17,7 +17,7 @@ class RenderWindow : public RenderTarget {
       virtual void draw(const std::shared_ptr<VertexBuffer> &VBO, const std::shared_ptr<VertexArray> &VAO,
                         const std::shared_ptr<IndexBuffer> &IBO, const VertexBufferLayout &layout);
       virtual std::shared_ptr<VertexArray> getVao();
-      virtual RectVertices createRectVertices(Rect shape);
+      virtual RectVertexData createRectVertexData(Rect shape);
       void pollEvent();
     private:
       uint32_t wHeight;

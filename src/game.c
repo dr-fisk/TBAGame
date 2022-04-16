@@ -49,33 +49,33 @@ Game::~Game() {
    Returns:     None
  */
 void Game::render(const std::shared_ptr<RenderTarget> &target) {
-  std::vector<RectVertices> vertexes;
-  VertexBufferLayout layout;
+  std::vector<RectVertexData> vertexes;
+
   Rect test(0, 0, 100, 100);
-  /* Need to update code to handle multiple renders */
+  test.setColor(255, 120, 55);
   Rect test2(800, 800, 100, 100);
+  test2.setColor(255, 0, 0);
   Rect test3(800, 0, 100, 100);
+  test3.setColor(255, 0, 0);
   Rect test4(0, 800, 100, 100);
+  test4.setColor(255, 0, 0);
   Rect test5(100, 100, 10, 10);
+  test5.setColor(255, 0, 0);
   Rect test6(100, 200, 10, 10);
+  test6.setColor(255, 0, 0);
   Rect test7(400, 300, 5, 5);
-  vertexes.push_back(target->createRectVertices(test));
-  vertexes.push_back(target->createRectVertices(test2));
-  vertexes.push_back(target->createRectVertices(test3));
-  vertexes.push_back(target->createRectVertices(test4));
-  vertexes.push_back(target->createRectVertices(test5));
-  vertexes.push_back(target->createRectVertices(test6));
-  vertexes.push_back(target->createRectVertices(test7));
+  test7.setColor(255, 0, 0);
+  vertexes.push_back(target->createRectVertexData(test));
+  vertexes.push_back(target->createRectVertexData(test2));
+  vertexes.push_back(target->createRectVertexData(test3));
+  vertexes.push_back(target->createRectVertexData(test4));
+  vertexes.push_back(target->createRectVertexData(test5));
+  vertexes.push_back(target->createRectVertexData(test6));
+  vertexes.push_back(target->createRectVertexData(test7));
   BatchBuffer testBB(vertexes, RECTANGLE);
 
- // All these calls will eventually be abstracted
   target->clear();
   testBB.render(target);
-  //target->draw(vbo, layout);
-  //target->draw(test);
-  //target->draw(test2);
-  //target->draw(test3);
-  //target->draw(test4);
   target->display();
 }
 

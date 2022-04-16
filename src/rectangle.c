@@ -10,6 +10,7 @@ Rect::Rect() {
   this->top    = 0;
   this->width  = 0;
   this->height = 0;
+  this->rgba = Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 /* Function:    Rect
@@ -25,6 +26,24 @@ Rect::Rect(uint32_t left, uint32_t top, uint32_t height, uint32_t width) {
   this->top    = top;
   this->width  = width;
   this->height = height;
+}
+
+/* Function:    setColor
+   Description: Sets the color for the rectangle
+   Parameters:  None
+   Returns:     None
+ */
+void Rect::setColor(uint8_t red, uint8_t green, uint8_t blue) {
+  this->rgba = Vector4f((GLfloat) (red /255.0), (GLfloat) (green /255.0), (GLfloat) (blue /255.0), 1.0f);
+}
+
+/* Function:    getRBGA
+   Description: Returns the color attached to the rect shape
+   Parameters:  None
+   Returns:     Vector4f - Color of rectangle
+ */
+Vector4f Rect::getRGBA() {
+  return rgba;
 }
 
 /* Function:    getDimensions

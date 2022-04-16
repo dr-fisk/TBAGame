@@ -78,10 +78,10 @@ uint32_t RenderTarget::getWindowHeight() {
 std::shared_ptr<VertexArray> RenderTarget::getVao() {
 }
 
-/* Function:    createRectVertices
+/* Function:    createRectVertexData
    Description: Virtual Function
    Parameters:  None
    Returns:     None
  */
-RectVertices RenderTarget::createRectVertices(Rect shape) {
+RectVertexData RenderTarget::createRectVertexData(Rect shape) {
 }
