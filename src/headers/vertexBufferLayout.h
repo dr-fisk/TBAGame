@@ -19,9 +19,18 @@ class VertexBufferLayout {
        Parameters:  uint32_t - Number of elements describing VBO for VAO to understand
        Returns:     None 
     */
-    void push(uint32_t count) {
-        elements.push_back({GL_FLOAT, count, true});
-        stride += sizeof(GLfloat) * count;
+    void push(uint32_t count, uint16_t type) {
+        elements.push_back({type, count, true});
+
+        switch(type) {
+           case GL_FLOAT:
+             stride += sizeof(GLfloat) * count;
+             break;
+           case GL_UNSIGNED_BYTE:
+             stride += sizeof(GLuint) * count;
+             break;
+        }
+        
     }
 
     /* Function:    getElements

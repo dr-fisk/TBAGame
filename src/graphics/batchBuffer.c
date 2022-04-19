@@ -10,8 +10,8 @@
 BatchBuffer::BatchBuffer(std::vector<RectVertexData> &bufferData, uint32_t shape) {
   vao = std::make_shared<VertexArray>(1);
   vbo = std::make_shared<VertexBuffer>(bufferData.data(), bufferData.size() * sizeof(RectVertexData));
-  layout.push(TWO_D_COORDS);
-  layout.push(RGBA);
+  layout.push(TWO_D_COORDS, GL_FLOAT);
+  layout.push(RGBA, GL_FLOAT);
 
   std::vector<uint32_t> indices = shape == RECTANGLE? createRectIndices(bufferData.size()) : 
                                                       createTriIndices(bufferData.size());

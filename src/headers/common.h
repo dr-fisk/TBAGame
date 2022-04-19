@@ -14,7 +14,7 @@
 #include <fstream>
 #include <memory>
 #include "Vector2D.h"
-#include "Vector4f.h"
+#include "color.h"
 
 #define ASSERT(x) if (!(x)) __debugbreak();
 #define GLCall(x) GLClearError();\

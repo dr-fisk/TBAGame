@@ -5,13 +5,13 @@
 
 struct RectVertexData {
   Vector2f bottomLeft;
-  Vector4f rgba1;
+  lg::Color rgba1;
   Vector2f bottomRight;
-  Vector4f rgba2;
+  lg::Color rgba2;
   Vector2f topRight;
-  Vector4f rgba3;
+  lg::Color rgba3;
   Vector2f topLeft;
-  Vector4f rgba4;
+  lg::Color rgba4;
 };
 
 class Rect {
@@ -21,13 +21,14 @@ class Rect {
     ~Rect();
     void getDimensions(GLfloat *left, GLfloat *top, GLfloat *width, GLfloat *height);
     void setColor(uint8_t red, uint8_t green, uint8_t blue);
-    Vector4f getRGBA();
+    void setColor(lg::Color color);
+    lg::Color getRGBA();
   private:
     uint32_t left;
     uint32_t top;
     uint32_t height;
     uint32_t width;
-    Vector4f rgba;
+    lg::Color rgba;
 };
 
 #endif

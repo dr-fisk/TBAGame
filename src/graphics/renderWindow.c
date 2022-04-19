@@ -101,8 +101,8 @@ void RenderWindow::draw(Rect shape) {
   vc = createRectVertexData(shape); 
   vbo = std::make_shared<VertexBuffer>(&vc, sizeof(vc));
   VertexBufferLayout layout;
-  layout.push(TWO_D_COORDS);
-  layout.push(RGBA);
+  layout.push(TWO_D_COORDS, GL_FLOAT);
+  layout.push(RGBA, GL_FLOAT);
   vao->addBuffer(vbo, layout);
   shader->bind();
   ib->bind();
@@ -155,7 +155,6 @@ bool RenderWindow::isOpen(){
     return !glfwWindowShouldClose(window);
 }
 
-
 /* Function:    createRectVertexData
    Description: Normalizes Rect coords to be drawn on window this allows us
                 to not have to worry about resolution
@@ -166,7 +165,7 @@ bool RenderWindow::isOpen(){
 RectVertexData RenderWindow::createRectVertexData(Rect shape) {
   std::vector<Vector2f> vertices;
   GLfloat left, top, width, height;
-  Vector4f rgba = shape.getRGBA();
+  Color rgba = shape.getRGBA();
   shape.getDimensions(&left, &top, &width, &height);
   GLfloat wWidth = (GLfloat) getWindowWidth() / 2.0f;
   GLfloat wHeight = (GLfloat) getWindowHeight() / 2.0f;

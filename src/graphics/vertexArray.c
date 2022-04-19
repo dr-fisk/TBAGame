@@ -27,6 +27,8 @@ VertexArray::~VertexArray() {
                 interpret and render data accordingly
    Returns:     None
  */
+
+//TODO: make switch a function
 void VertexArray::addBuffer(const std::shared_ptr<VertexBuffer> vb, const VertexBufferLayout &layout) {
   this->bind();
   vb->bind();
@@ -36,8 +38,18 @@ void VertexArray::addBuffer(const std::shared_ptr<VertexBuffer> vb, const Vertex
   for (uint32_t i = 0; i < elements.size(); i ++) {
       const auto& element = elements[i];
       GLCall(glEnableVertexAttribArray(i));
-      GLCall(glVertexAttribPointer(i, element.count, element.type, element.normalized, 
-                            layout.getStride(), (const void *) offset));
+
+      switch (element.type) {
+        case GL_FLOAT:
+          GLCall(glVertexAttribPointer(i, element.count, element.type, element.normalized, 
+                 layout.getStride(), (const void *) offset));
+          break;
+        case GL_UNSIGNED_BYTE:
+          GLCall(glVertexAttribIPointer(i, element.count, element.type,
+                 layout.getStride(), (const void *) offset));
+          break;
+      }
+      
 
       offset += element.count * sizeof(GLfloat);
   }

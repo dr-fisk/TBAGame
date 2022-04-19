@@ -52,19 +52,19 @@ void Game::render(const std::shared_ptr<RenderTarget> &target) {
   std::vector<RectVertexData> vertexes;
 
   Rect test(0, 0, 100, 100);
-  test.setColor(255, 120, 55);
+  test.setColor(lg::Blue);
   Rect test2(800, 800, 100, 100);
-  test2.setColor(255, 0, 0);
+  test2.setColor(lg::Pink);
   Rect test3(800, 0, 100, 100);
-  test3.setColor(255, 0, 0);
+  test3.setColor(lg::Purple);
   Rect test4(0, 800, 100, 100);
-  test4.setColor(255, 0, 0);
+  test4.setColor(lg::Yellow);
   Rect test5(100, 100, 10, 10);
-  test5.setColor(255, 0, 0);
+  test5.setColor(lg::Green);
   Rect test6(100, 200, 10, 10);
-  test6.setColor(255, 0, 0);
+  test6.setColor(lg::White);
   Rect test7(400, 300, 5, 5);
-  test7.setColor(255, 0, 0);
+  test7.setColor(lg::Orange);
   vertexes.push_back(target->createRectVertexData(test));
   vertexes.push_back(target->createRectVertexData(test2));
   vertexes.push_back(target->createRectVertexData(test3));
@@ -76,6 +76,7 @@ void Game::render(const std::shared_ptr<RenderTarget> &target) {
 
   target->clear();
   testBB.render(target);
+  //target->draw(test);
   target->display();
 }
 
