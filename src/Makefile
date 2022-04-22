@@ -5,10 +5,14 @@ INCLPATH = ../include
 HEADERS= ./headers
 PATHTOEXEC = ../objs-wind64
 STATEPATH = ./states
-GRAPHICSPATH = ./graphics
+RENDERERSPATH = ./renderer
 GUIPATH = ./gui
+DRAWABLESPATH = ./drawable
 SRC = ./src
 SHADERSPATH = ./shaders
+
+SHADER = $(SHADERSPATH)/shader1.txt
+
 CFLAGS  = -g -std=c++17 -Wall -Wextra -MMD -I$(INCLPATH) -I$(LIBPATH) -I$(HEADERS)
 LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32
 
@@ -27,13 +31,14 @@ stateFiles = mainMenuState.c
 
 guiFiles   = gui.c
 
-graphicFiles = renderWindow.c \
-               renderTarget.c \
-               vertexBuffer.c \
-               vertexArray.c \
-               indexBuffer.c \
-               shader.c \
-               batchBuffer.c
+rendererFiles =  renderWindow.c \
+                renderTarget.c
+
+drawableFiles = indexBuffer.c \
+                shader.c \
+                batchBuffer.c \
+                vertexBuffer.c \
+                vertexArray.c
 
 objs := $(patsubst %.exe, %.o, $(programs))
 
@@ -45,8 +50,11 @@ stateObjs = $(addprefix $(STATEPATH)/, $(states))
 GUI = $(patsubst %.c, %.o, $(guiFiles))
 guiObjs = $(addprefix $(GUIPATH)/, $(GUI))
 
-graphics = $(patsubst %.c, %.o, $(graphicFiles))
-graphicObjs = $(addprefix $(GRAPHICSPATH)/, $(graphics))
+renderers = $(patsubst %.c, %.o, $(rendererFiles))
+rendererObjs = $(addprefix $(RENDERERSPATH)/, $(renderers))
+
+drawables = $(patsubst %.c, %.o, $(drawableFiles))
+drawableObjs = $(addprefix $(DRAWABLESPATH)/, $(drawables))
 
 ifneq ($(DEBUG), 1)
   Q=@
@@ -58,34 +66,41 @@ deps := $(patsubst %.o, %.d, $(objs))
 
 export
 
-$(STATEPATH)/%.o : $(STATEPATH)/%.c
+$(STATEPATH):
 	@echo "MAKE	States"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(STATEPATH)
 
-$(GUIPATH)/%.o : $(GUIPATH)/%.c
+$(GUIPATH):
 	@echo "MAKE	Gui"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(GUIPATH)
 
-$(GRAPHICSPATH)/%.o : $(GRAPHICSPATH)/%.c
-	@echo "MAKE	Graphics"
-	$(Q)$(MAKE) V=$(V) D=$(D) -C $(GRAPHICSPATH)
+$(DRAWABLESPATH):
+	@echo "MAKE	Drawables"
+	$(Q)$(MAKE) V=$(V) D=$(D) -C $(DRAWABLESPATH)
 
-%.exe: $(objs) $(stateObjs) $(guiObjs) $(graphicObjs)
+$(RENDERERSPATH):
+	@echo "MAKE	Renderers"
+	$(Q)$(MAKE) V=$(V) D=$(D) -C $(RENDERERSPATH)
+
+$(SHADER):
+		cp -r $(SHADERSPATH) $(PATHTOEXEC)
+
+%.exe: $(objs) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH)
 	@echo "MAKE $@"
-	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(guiObjs) $(graphicObjs) $(LDFLAGS)
+	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(guiObjs) $(rendererObjs) $(drawableObjs) $(LDFLAGS)
 	@echo "Checking DIR"
 	$(Q)if [ ! -d $(PATHTOEXEC) ]; then \
-	  	echo "Creating Win DIR"; \
+		echo "Creating Win DIR"; \
 		mkdir $(PATHTOEXEC); \
 		echo "Adding opengldll"; \
 		cp $(LIBPATH)/glfw3.dll $(PATHTOEXEC); \
 		cp $(LIBPATH)/glew32.dll $(PATHTOEXEC); \
 		cp -r $(SHADERSPATH) $(PATHTOEXEC); \
 	fi
-	@echo "Transfering .exe"
+	@echo "Transferring .exe"
 	$(Q)cp $@ $(PATHTOEXEC)
 
-%.o: %.cxx
+main.o: main.cxx
 	@echo "MAKE $<"
 	$(Q)$(CC) $(CFLAGS) $< $(LDFLAGS) -c
 
@@ -95,11 +110,13 @@ $(GRAPHICSPATH)/%.o : $(GRAPHICSPATH)/%.c
 
 clean:
 	@echo "CLEAN ALL"
-	$(Q)rm *.o *.exe *.d $(STATEPATH)/*.o $(STATEPATH)/*.d $(GUIPATH)/*.o $(GUIPATH)/*.d
+	$(Q)rm *.o *.exe *.d $(STATEPATH)/*.o $(STATEPATH)/*.d $(GUIPATH)/*.o $(GUIPATH)/*.d \
+	 $(RENDERERSPATH)/*.o $(RENDERERSPATH)/*.d $(DRAWABLESPATH)/*.o $(DRAWABLESPATH)/*.d
 	@echo "Checking win DIR"
 	$(Q)if [ -d $(PATHTOEXEC) ]; then \
 		echo "RM Win DIR"; \
 		rm -rf $(PATHTOEXEC); \
 	fi
 
-.PRECIOUS: %.o $(STATEPATH)/%.o $(GUIPATH)/%.o $(GRAPHICSPATH)/%.o
+.PRECIOUS: %.o $(STATEPATH)/%.o $(GUIPATH)/%.o $(RENDERERSPATH)/%.o $(DRAWABLESPATH)/%.o
+.PHONY: $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH)

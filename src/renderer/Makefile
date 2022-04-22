@@ -1,4 +1,4 @@
-all : $(graphics)
+all : $(renderers)
 
 LIBPATH = ../../lib
 INCLPATH = ../../include

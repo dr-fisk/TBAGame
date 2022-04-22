@@ -5,6 +5,8 @@
 #include "batchBuffer.h"
 #include "renderWindow.h"
 
+#define ONE_SEC 1
+
 class Game {
   public:
     Game();
@@ -13,7 +15,10 @@ class Game {
   private:
     std::stack<std::shared_ptr<State>> states;
     std::shared_ptr<RenderWindow> window;
-    clock_t gameRuntime;
+    int gameRuntime;
+    int startTime;
+    int endTime;
+    static int fps;
 
     void initMainState();
     void gameEnd(); 

@@ -1,5 +1,7 @@
 #include "game.h"
 
+int Game::fps = 0;
+
 /* Function:    initMainState
    Description: Helper function which starts our stack of states
                 Always start on main menu state
@@ -16,9 +18,8 @@ void Game::initMainState() {
    Returns:     None
  */
 Game::Game() {
-  window = std::make_shared<RenderWindow>(800, 800, "Test");
+  window = std::make_shared<RenderWindow>(800, 800, "Lest Window");
   initMainState();
-  
   /* vbo holds vertex data (cooridnates and RGB color)
      You can combine both in one vbo or separate vbo, if
      combining you must specify which are coords and which
@@ -27,7 +28,8 @@ Game::Game() {
 
     /* I probably need a class to handle texture data for VBO's and stuff*/
 
-  this->gameRuntime = clock();
+  this->gameRuntime = time(nullptr);
+  this->startTime = time(nullptr);
 }
 
 /* Function:    ~Game
@@ -93,6 +95,13 @@ void Game::gameLoop() {
     render(window);
     //update data
     //render
+    Game::fps ++;
+    endTime = time(nullptr);
+    if ((endTime - startTime) > 0) {
+      std::cout << "FPS: " << Game::fps / (endTime - startTime) << std::endl;
+      fps = 0;
+      startTime = endTime;
+    }
   }
 
   gameEnd();

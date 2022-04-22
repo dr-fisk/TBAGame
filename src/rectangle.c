@@ -30,7 +30,9 @@ Rect::Rect(uint32_t left, uint32_t top, uint32_t height, uint32_t width) {
 
 /* Function:    setColor
    Description: Sets the color for the rectangle
-   Parameters:  None
+   Parameters:  uint8_t - Red color attribute
+                uint8_t - Green color attribute
+                uint8_t - Blue color attribute
    Returns:     None
  */
 void Rect::setColor(uint8_t red, uint8_t green, uint8_t blue) {

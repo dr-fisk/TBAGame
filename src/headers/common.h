@@ -15,6 +15,8 @@
 #include <memory>
 #include "Vector2D.h"
 #include "color.h"
+//#define STB_TRUETYPE_IMPLEMENTATION
+//#include "glad/stb_truetype.h"
 
 #define ASSERT(x) if (!(x)) __debugbreak();
 #define GLCall(x) GLClearError();\

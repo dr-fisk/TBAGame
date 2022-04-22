@@ -24,6 +24,8 @@ RenderWindow::RenderWindow(uint32_t wWidth, uint32_t wHeight, const char *title)
   this->window = glfwCreateWindow(wWidth, wHeight, title, NULL, NULL);
   glfwMakeContextCurrent(window);
 
+  //Vsync off later make it toggable (limits fps)
+  glfwSwapInterval(0);
   glewExperimental = GL_TRUE;
   glewInit();
 
@@ -161,11 +163,10 @@ bool RenderWindow::isOpen(){
    Parameters:  Rect - Rectangle shape to extract coordinates
    Returns:     RectVertexData - Vertexes from shape;
  */
-//TODO: Make RectVertexData a better size rn it's 96 bytes
 RectVertexData RenderWindow::createRectVertexData(Rect shape) {
   std::vector<Vector2f> vertices;
   GLfloat left, top, width, height;
-  Color rgba = shape.getRGBA();
+  lg::Color rgba = shape.getRGBA();
   shape.getDimensions(&left, &top, &width, &height);
   GLfloat wWidth = (GLfloat) getWindowWidth() / 2.0f;
   GLfloat wHeight = (GLfloat) getWindowHeight() / 2.0f;
