@@ -16,7 +16,7 @@ SHADER = $(SHADERSPATH)/shader1.txt
 CFLAGS  = -g -std=c++17 -Wall -Wextra -MMD -I$(INCLPATH) -I$(LIBPATH) -I$(HEADERS)
 LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32
 
-MAKEFLAGS += -rR
+MAKEFLAGS += -rR --no-print-directory
 
 programs = main.exe
 
@@ -24,24 +24,23 @@ all : $(programs)
 
 linkFiles  = common.c \
              game.c \
-             state.c \
-             rectangle.c
+             state.c
 
 stateFiles = mainMenuState.c
 
 guiFiles   = gui.c
 
 rendererFiles =  renderWindow.c \
-                renderTarget.c
+                 renderTarget.c
 
 drawableFiles = indexBuffer.c \
                 shader.c \
                 batchBuffer.c \
                 vertexBuffer.c \
-                vertexArray.c
+                vertexArray.c \
+                rectangle.c
 
 objs := $(patsubst %.exe, %.o, $(programs))
-
 objs += $(patsubst %.c, %.o, $(linkFiles))
 
 states = $(patsubst %.c, %.o, $(stateFiles))
@@ -68,7 +67,7 @@ export
 
 $(STATEPATH):
 	@echo "MAKE	States"
-	$(Q)$(MAKE) V=$(V) D=$(D) -C $(STATEPATH)
+	$(Q)$(MAKE)  V=$(V) D=$(D) -C $(STATEPATH)
 
 $(GUIPATH):
 	@echo "MAKE	Gui"
@@ -82,8 +81,9 @@ $(RENDERERSPATH):
 	@echo "MAKE	Renderers"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(RENDERERSPATH)
 
-$(SHADER):
-		cp -r $(SHADERSPATH) $(PATHTOEXEC)
+shader:
+		@echo "Copying Shaders"
+		$(Q)cp -r $(SHADERSPATH) $(PATHTOEXEC)
 
 %.exe: $(objs) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH)
 	@echo "MAKE $@"
