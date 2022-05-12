@@ -37,7 +37,7 @@ std::vector<uint32_t> BatchBuffer::createRectIndices(uint32_t vboSize) {
   uint32_t offset = SQUARE_VERTICES2D;
 
   /* Squares contain 6 Vertices indexed from 0-5*/
-  for (int i = 1; i < vboSize; i++) {
+  for (uint32_t i = 1; i < vboSize; i++) {
     indices.push_back(indices[0] + (offset * i)); 
     indices.push_back(indices[1] + (offset * i));
     indices.push_back(indices[2] + (offset * i));

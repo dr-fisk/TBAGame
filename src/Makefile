@@ -10,6 +10,7 @@ GUIPATH = ./gui
 DRAWABLESPATH = ./drawable
 SRC = ./src
 SHADERSPATH = ./shaders
+FONTSPATH = ./fonts
 
 SHADER = $(SHADERSPATH)/shader1.txt
 
@@ -31,7 +32,8 @@ stateFiles = mainMenuState.c
 guiFiles   = gui.c
 
 rendererFiles =  renderWindow.c \
-                 renderTarget.c
+                 renderTarget.c \
+                 font.c
 
 drawableFiles = indexBuffer.c \
                 shader.c \
@@ -85,6 +87,10 @@ shader:
 		@echo "Copying Shaders"
 		$(Q)cp -r $(SHADERSPATH) $(PATHTOEXEC)
 
+font:
+		@echo "Copying Fonts"
+		$(Q)cp -r $(FONTSPATH) $(PATHTOEXEC)
+
 %.exe: $(objs) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH)
 	@echo "MAKE $@"
 	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(guiObjs) $(rendererObjs) $(drawableObjs) $(LDFLAGS)
@@ -96,6 +102,7 @@ shader:
 		cp $(LIBPATH)/glfw3.dll $(PATHTOEXEC); \
 		cp $(LIBPATH)/glew32.dll $(PATHTOEXEC); \
 		cp -r $(SHADERSPATH) $(PATHTOEXEC); \
+		cp -r $(FONTSPATH) $(PATHTOEXEC); \
 	fi
 	@echo "Transferring .exe"
 	$(Q)cp $@ $(PATHTOEXEC)
