@@ -5,7 +5,7 @@
 <ol>
   <li>On the terminal CD into the src directory</li>
   <li>On the terminal run make</li>
-  <li>That's it! If there are no issues with the code, this should build every file automatically/li>
+  <li>That's it! If there are no issues with the code, this should build every file automatically</li>
 </ol>
 <h1>TODO</h1>
 <p>There is lots to do but here is a quick run down of what is needed.</p>
@@ -21,5 +21,5 @@
 <p>Vertex Buffer Object or VBO: This is a big blob of memory that contains our data for a shape. For example when creating a square a VBO would contain <x,y,z> coordinartes and an RGB value for each square within the VBO</p>
 <p>Vertex Attribute Object or VAO: This object is used to interpret the VBO. Without it the computer would not understand what the hell our VBO is. It would just be memory. The above VBO would be described as follows in a VAO, 3 floats for <x,y,z> coordinates and 4 8-bit values for RGB.</p>
 <p>Index Buffer Object or IBO: This allows the computer to differentiate when the shapes we are drawing should be two separate shapes. Otherwise, if we wanted to draw to squares, without an IBO we would get 1 giant weird square.</p>
-<p>Batch Buffer: This is an original created class. It essentially abstracts the creation of a VAO, VBO, and IBO (may add shaders later.) This means that all you need to do is create a Batch Buffer object.</p>
+<p>Batch Buffer: This is an original created class. It essentially abstracts the creation of a VAO, VBO, and IBO (may add shaders later.) This means that all you need to do is create a Batch Buffer object and call it's draw call. No other setup necessary!</p>
 <p>With the current graphics library, setting up a window should be rather easy. Simply call the constructor for our RenderWindow class and call these two functions in this order: RenderWindow::clear() and RenderWindow::display(). Ensure you are using an infinite loop to keep the window rendered. When drawing shapes you would creaate a VBO, VAO, IBO, and Shader for each shape or opt for the BatchBuffer class.</p>
