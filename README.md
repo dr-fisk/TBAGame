@@ -3,6 +3,8 @@
 <h1>How to Setup Workspace</h1>
 <p>Ensure you create a development branch for your changes. Master will be the fall back branch if something breaks. Follow the steps below once you've pulled the branch and created a remote branch on your computer: </p>
 <ol>
+  <li>Run command sudo apt-get update</li>
+  <li>Run command sudo apt-get install gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 wine64 </li>
   <li>On the terminal CD into the src directory</li>
   <li>On the terminal run make</li>
   <li>That's it! If there are no issues with the code, this should build every file automatically</li>
