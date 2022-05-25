@@ -14,7 +14,7 @@ FONTSPATH = ./fonts
 
 SHADER = $(SHADERSPATH)/shader1.txt
 
-CFLAGS  = -g -std=c++17 -Wall -Wextra -MMD -I$(INCLPATH) -I$(LIBPATH) -I$(HEADERS)
+CFLAGS  = -g -std=c++17 -Wall -Wextra -MMD -static-libgcc -static-libstdc++ -I$(INCLPATH) -I$(LIBPATH) -I$(HEADERS)
 LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32
 
 MAKEFLAGS += -rR --no-print-directory
