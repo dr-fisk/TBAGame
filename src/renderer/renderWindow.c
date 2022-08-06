@@ -42,7 +42,7 @@ RenderWindow::RenderWindow(uint32_t wWidth, uint32_t wHeight, const char *title)
   uint32_t indeces [] = {0,1,2,2,3,0};
   vao = std::make_shared<VertexArray>(1);
   ib  = std::make_shared<IndexBuffer>(indeces, 6);
-  glClearColor(0.0, 0.0, 0.0, 1.0);
+  glClearColor(0.3, 0.0, 0.0, 1.0);
 }
 
 /* Function:    ~RenderWindow
@@ -100,7 +100,7 @@ std::shared_ptr<VertexArray> RenderWindow::getVao() {
  */
 void RenderWindow::draw(Rect shape) {
   RectVertexData vc;
-  vc = createRectVertexData(shape); 
+  vc = createRectVertexDataBounded(shape); 
   vbo = std::make_shared<VertexBuffer>(&vc, sizeof(vc));
   VertexBufferLayout layout;
   layout.push(TWO_D_COORDS, GL_FLOAT);
@@ -163,8 +163,7 @@ bool RenderWindow::isOpen(){
    Parameters:  Rect - Rectangle shape to extract coordinates
    Returns:     RectVertexData - Vertexes from shape;
  */
-RectVertexData RenderWindow::createRectVertexData(Rect shape) {
-  std::vector<Vector2f> vertices;
+RectVertexData RenderWindow::createRectVertexDataBounded(Rect shape) {
   GLfloat left, top, width, height;
   lg::Color rgba = shape.getRGBA();
   shape.getDimensions(&left, &top, &width, &height);

@@ -52,8 +52,9 @@ Game::~Game() {
  */
 void Game::render(const std::shared_ptr<RenderTarget> &target) {
   std::vector<RectVertexData> vertexes;
-
-  Rect test(0, 0, 100, 100);
+  std::vector<RectVertexData> vert;
+  /*Rect test;
+  test = Rect(0, 0, 100, 100);
   test.setColor(lg::Blue);
   Rect test2(800, 800, 100, 100);
   test2.setColor(lg::Pink);
@@ -67,15 +68,19 @@ void Game::render(const std::shared_ptr<RenderTarget> &target) {
   test6.setColor(lg::White);
   Rect test7(400, 300, 5, 5);
   test7.setColor(lg::Orange);
-  vertexes.push_back(target->createRectVertexData(test));
-  vertexes.push_back(target->createRectVertexData(test2));
-  vertexes.push_back(target->createRectVertexData(test3));
-  vertexes.push_back(target->createRectVertexData(test4));
-  vertexes.push_back(target->createRectVertexData(test5));
-  vertexes.push_back(target->createRectVertexData(test6));
-  vertexes.push_back(target->createRectVertexData(test7));
+  vertexes.push_back(target->createRectVertexDataBounded(test));
+  vertexes.push_back(target->createRectVertexDataBounded(test2));
+  vertexes.push_back(target->createRectVertexDataBounded(test3));
+  vertexes.push_back(target->createRectVertexDataBounded(test4));
+  vertexes.push_back(target->createRectVertexDataBounded(test5));
+  vertexes.push_back(target->createRectVertexDataBounded(test6));
+  vertexes.push_back(target->createRectVertexDataBounded(test7)); */
+  Mesh16 mesh16(target->getWindowWidth(), target->getWindowHeight(), 0, 0, 8);
+  Mesh16 mesh162(target->getWindowWidth(), target->getWindowHeight(), 0, 16, 8);
+  vertexes = mesh16.getMesh16Data();
+  vert = mesh162.getMesh16Data();
+  vertexes.insert(vertexes.end(), vert.begin(), vert.end());
   BatchBuffer testBB(vertexes, RECTANGLE);
-
   target->clear();
   testBB.render(target);
   //target->draw(test);

@@ -70,6 +70,25 @@ void Rect::getDimensions(GLfloat *left, GLfloat *top, GLfloat *height, GLfloat *
   *width  = this->width;
 }
 
+/* Function:    createRectVertexData
+   Description: Normalizes Rect coords to be drawn on window this allows us
+                to not have to worry about resolution
+   Parameters:  Rect - Rectangle shape to extract coordinates
+   Returns:     RectVertexData - Vertexes from shape;
+ */
+RectVertexData Rect::createRectVertexData(GLfloat windWidth, GLfloat windHeight) {
+  GLfloat wWidth = windWidth / 2.0f;
+  GLfloat wHeight = windHeight / 2.0f;
+
+  GLfloat x1 = ((GLfloat) left / wWidth) - 1.0f;
+  GLfloat x2 = (((GLfloat) left + (GLfloat) width)/ wWidth) - 1.0f;
+  GLfloat y1 = -1 * (((GLfloat) top / wHeight) - 1.0f);
+  GLfloat y2 = -1 * ((((GLfloat) top + (GLfloat) height) / wHeight) - 1.0f);
+
+  return { Vector2f(x1, y2), rgba, Vector2f(x2, y2), rgba,
+           Vector2f(x2, y1), rgba, Vector2f(x1, y1), rgba};
+}
+
 /* Function:    ~Rect
    Description: Destructor
    Parameters:  None

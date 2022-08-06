@@ -34,6 +34,7 @@ class Color {
     static const Color Yellow;
     static const Color Purple;
     static const Color Pink;
+    static const Color Grey;
   private:
     GLfloat red;
     GLfloat green;
@@ -49,6 +50,7 @@ class Color {
   const Color Green = Color(0.0f, 255.0f, 0.0f);
   const Color Purple = Color(204.0f, 0.0f, 204.0f);
   const Color Pink = Color(255.0f, 153.0f, 204.0f);
+  const Color Grey = Color(128.0f, 128.0f, 128.0f);
 }
 
 

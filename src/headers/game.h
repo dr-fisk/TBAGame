@@ -4,6 +4,7 @@
 #include "mainMenuState.h"
 #include "batchBuffer.h"
 #include "renderWindow.h"
+#include "mesh16.h"
 
 #define ONE_SEC 1
 

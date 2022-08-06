@@ -83,5 +83,5 @@ std::shared_ptr<VertexArray> RenderTarget::getVao() {
    Parameters:  None
    Returns:     None
  */
-RectVertexData RenderTarget::createRectVertexData(Rect shape) {
+RectVertexData RenderTarget::createRectVertexDataBounded(Rect shape) {
 }

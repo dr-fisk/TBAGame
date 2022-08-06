@@ -40,7 +40,8 @@ drawableFiles = indexBuffer.c \
                 batchBuffer.c \
                 vertexBuffer.c \
                 vertexArray.c \
-                rectangle.c
+                rectangle.c \
+                mesh16.c
 
 objs := $(patsubst %.exe, %.o, $(programs))
 objs += $(patsubst %.c, %.o, $(linkFiles))

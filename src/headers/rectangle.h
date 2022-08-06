@@ -2,6 +2,7 @@
 #define RECTANGLE_H
 
 #include "common.h"
+#define PIXEL_SIZE 1
 
 struct RectVertexData {
   Vector2f bottomLeft;
@@ -23,6 +24,7 @@ class Rect {
     void setColor(uint8_t red, uint8_t green, uint8_t blue);
     void setColor(lg::Color color);
     lg::Color getRGBA();
+    RectVertexData createRectVertexData(GLfloat windWidth, GLfloat windHeight);
   private:
     uint32_t left;
     uint32_t top;

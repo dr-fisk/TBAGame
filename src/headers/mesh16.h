@@ -7,7 +7,7 @@
 
 class Mesh16{
   public:
-    Mesh16(GLfloat wWidth, GLfloat wHeight);
+    Mesh16(GLfloat wWidth, GLfloat wHeight, uint8_t left = 0, uint8_t top = 0, uint8_t size = 1);
     ~Mesh16();
     std::vector<RectVertexData>& getMesh16Data();
   private:
