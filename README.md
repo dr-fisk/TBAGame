@@ -4,6 +4,8 @@
 <p>Ensure you create a development branch for your changes. Master will be the fall back branch if something breaks. Follow the steps below once you've pulled the branch and created a remote branch on your computer: </p>
 <ol>
   <li>Run command sudo apt-get update</li>
+  <li>Run command sudo apt-get upgrade</li>
+  <li>Run command sudo apt-get make</li>
   <li>Run command sudo apt-get install gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 wine64 </li>
   <li>On the terminal CD into the src directory</li>
   <li>On the terminal run make</li>

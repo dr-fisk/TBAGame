@@ -1,3 +1,8 @@
+#ifdef __linux__
+  #define LINUX
+#elif _WIN32
+  #define WINDOWS
+#endif
 #define GLEW_STATIC
 #include <iostream>
 #include <cmath>
@@ -13,8 +18,16 @@
 #include <vector>
 #include <fstream>
 #include <memory>
+#include "zlib.h"
+
+#ifdef LINUX
+  #include <arpa/inet.h>
+#elif defined(WINDOWS)
+  #include <winsock2.h>
+#endif
 #include "Vector2D.h"
 #include "color.h"
+
 //#define STB_TRUETYPE_IMPLEMENTATION
 //#include "glad/stb_truetype.h"
 
