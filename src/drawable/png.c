@@ -1,76 +1,76 @@
-#include <string.h>
-#include "common.h"
+#include "png.h"
 
-#define IHDR_MASK  0x01
-#define IDAT_MASK  0x02
-#define IEND_MASK  0x04
-#define IDAT_CHAIN 0x08
-#define CHUNK_SIZE 16384
 
-enum FilterMethods {NONE, SUB, UP, AVERAGE, PAETH};
 const std::vector<uint8_t> png = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, '\0'};
 
-struct IHDR {
-  uint32_t width;
-  uint32_t height;
-  uint8_t  bitDepth;
-  uint8_t  colorType;
-  uint8_t  compressionMethod;
-  uint8_t  filterMethod;
-  uint8_t  interfaceMethod;
-};
-
-struct RGB {
-  uint8_t Red;
-  uint8_t Green;
-  uint8_t Blue;
-};
-
-/* There is no endian issues for 1 byte values which is why only width and height needs to be rearranged */
+/* Function:    parseIHDR
+   Description: Parses IHDR from png file
+   Parameters:  ifstream - file descriptor for file we are reading
+                uint32_t - The amount of bytes to read
+                struct IHDR - IHDR struct to store values from parsed IHDR
+   Returns:     None
+ */
 void parseIHDR(std::ifstream &in, uint32_t chunkLength, struct IHDR *ihdr) {
   in.read((char *) ihdr, chunkLength);
+  /* There is no endian issues for 1 byte values which is why only width and height needs to be rearranged */
   ihdr->width = htonl(ihdr->width);
   ihdr->height = htonl(ihdr->height);
-
+  /*std::ofstream f("ihdr.txt");
+  f << ihdr->width << std::endl;
+  f << ihdr->height << std::endl;
+  f <<  (unsigned int)ihdr->bitDepth << std::endl;
+  f <<  (unsigned int)ihdr->colorType << std::endl;
+  f <<  (unsigned int)ihdr->compressionMethod << std::endl;
+  f <<  (unsigned int)ihdr->filterMethod << std::endl;
+  f <<  (unsigned int)ihdr->interfaceMethod << std::endl;
+  f.close();*/
   if ((ihdr->width == 0) || (ihdr->height == 0)) {
     std::cout << "Error! Invalid image dimensions." << std::endl;
     exit(0);
   }
 }
 
+/* Function:    subPixelRGB
+   Description: subtracts the RGB vals from two Pixels
+   Parameters:  struct RGB - Pixel 1 RGB values
+                struct RGB - Pixel 2 RGB values
+   Returns:     struct RGB - New pixel RGB values
+ */
 struct RGB subPixelRGB(struct RGB pixel1, struct RGB pixel2) {
   return {(uint8_t)((pixel1.Red - pixel2.Red)), (uint8_t)((pixel1.Green - pixel2.Green)),
           (uint8_t)((pixel1.Blue - pixel2.Blue))};
 }
 
+/* Function:    addPixelRGB
+   Description: Adds the RGB vals from two Pixels
+   Parameters:  struct RGB - Pixel 1 RGB values
+                struct RGB - Pixel 2 RGB values
+   Returns:     struct RGB - New pixel RGB values
+ */
 struct RGB addPixelRGB(struct RGB pixel1, struct RGB pixel2) {
   return {(uint8_t)((pixel1.Red + pixel2.Red)), (uint8_t)((pixel1.Green + pixel2.Green)),
           (uint8_t)((pixel1.Blue + pixel2.Blue))};
 }
 
-struct RGB absPixelRGB(struct RGB pixel) {
-  return {(uint8_t)abs(pixel.Red), (uint8_t)abs(pixel.Green), (uint8_t)abs(pixel.Blue)};
-}
-
-bool lessThanEqualPix(struct RGB pixel1, struct RGB pixel2) {
-  return (pixel1.Red <= pixel2.Red) && (pixel1.Green <= pixel2.Green) && (pixel1.Blue <= pixel2.Blue);
-}
-
+/* Function:    convertRGBToInt
+   Description: Converts pixel RGB values to an int for Paeth Algorithm
+   Parameters:  struct RGB - Pixel RGB values
+   Returns:     int32_t - Byte value to be used in Paeth Algorithm
+ */
 int32_t convertRGBToInt(struct RGB pixel) {
-  int32_t rgb = 0;
-  int32_t temp = 0;
-
-  rgb = pixel.Red;
-  rgb = rgb << 16;
-  temp = pixel.Green;
-  temp = temp << 8;
-  rgb += temp;
-  rgb += pixel.Blue;
-
+  int32_t rgb = pixel.Red + pixel.Green + pixel.Blue;
   return rgb;
 }
 
-/*
+/* Function:    calcPaeth
+   Description: Applies the Paeth Algorithm to the current row of pixels
+   Parameters:  uint8t * - Buffer data containing decompressed png IDAT chunk values
+                uint32_t - The end of the a row of pixels in the buffer
+                int32_t  - Current index in the buffer data
+   Returns:     struct RGB - RGB values to be used to filter pixel at index
+ */
+struct RGB calcPaeth(uint8_t *rgbVals, uint32_t width, int32_t index) {
+  /*
   Calculates the PAETH algorithm.
   The PAETH algorithm works on bytes, which means that one byte values will not work.
   For example you need to add two rgb values and compare that with another value.
@@ -80,8 +80,8 @@ int32_t convertRGBToInt(struct RGB pixel) {
   To Overcome this I converted the rgbs into an integer as 0x0000RRRRGGGGBBBB
   This allows us to add integers without worrying about overflows.
 */
-struct RGB calcPaeth(uint8_t *rgbVals, uint32_t width, int32_t index) {
   struct RGB a, b, c, pr;
+  const int32_t ULPix = width + 3;
   int32_t iA, iB, iC, p, pa, pb, pc;
   iA = 0;
   iB = 0;
@@ -94,13 +94,13 @@ struct RGB calcPaeth(uint8_t *rgbVals, uint32_t width, int32_t index) {
   a.Green = (index - 1) % width != 0 ? rgbVals[index - 2] : 0;
   a.Blue  = (index - 1) % width != 0 ? rgbVals[index - 1] : 0;
 
-  b.Red   = (index - 49) > 0 ? rgbVals[index - 49] : 0;
-  b.Green = (index - 49) > 0 ? rgbVals[index + 1 - 49] : 0;
-  b.Blue  = (index - 49) > 0 ? rgbVals[index + 2 - 49] : 0;
+  b.Red   = (index - width) > 0 ? rgbVals[index - width] : 0;
+  b.Green = (index - width) > 0 ? rgbVals[index + 1 - width] : 0;
+  b.Blue  = (index - width) > 0 ? rgbVals[index + 2 - width] : 0;
 
-  c.Red   = (index - 52) > 0 ? rgbVals[index - 52] : 0;
-  c.Green = (index - 52) > 0 ? rgbVals[index + 1 - 52] : 0;
-  c.Blue  = (index - 52) > 0 ? rgbVals[index + 2 - 52] : 0;
+  c.Red   = (index - ULPix) > 0 ? rgbVals[index - ULPix] : 0;
+  c.Green = (index - ULPix) > 0 ? rgbVals[index + 1 - ULPix] : 0;
+  c.Blue  = (index - ULPix) > 0 ? rgbVals[index + 2 - ULPix] : 0;
 
   iA = convertRGBToInt(a);
   iB = convertRGBToInt(b);
@@ -124,29 +124,36 @@ struct RGB calcPaeth(uint8_t *rgbVals, uint32_t width, int32_t index) {
   return pr;
 }
 
-/*
-  index i will always be either the filter method or a pixel starting on the Red color value_comp
-  index i will never be Blue nor Green, to extract the blue and green for the current pixel do i + 1 for Green and i + 2 for red
+/* Function:    applyFilterMethod
+   Description: Iterates through buffer data applying the correct filter on decompressed IDAT chunk data
+   Parameters:  uint8t * - Buffer data containing decompressed png IDAT chunk values
+                uint32_t - The end of the a row of pixels in the buffer
+                uint32_t - The end of the a col of pixels in the buffer
+   Returns:     None
+ */
+void applyFilterMethod(uint8_t *rgbVals, uint32_t width, uint32_t height, uint32_t bytes) {
+  /*
+    index i will always be either the filter method or a pixel starting on the Red color value_comp
+    index i will never be Blue nor Green, to extract the blue and green for the current pixel do i + 1 for Green and i + 2 for red
   
-  Here is an example below:
-  We have a uint8_t array with 1 byte values represented as F (filter method), R (Red color value), G (Green Color Value), B (Blue Color Value)
-  If our index i lands on F, we will add 1 to our index and that will put our index on R. Each time our index i is on R we will add 3 to our index i.
-  We add 3 because each pixel contains an RGB value, so adding 3 to our index i essentially puts us on the next pixel
+    Here is an example below:
+    We have a uint8_t array with 1 byte values represented as F (filter method), R (Red color value), G (Green Color Value), B (Blue Color Value)
+    If our index i lands on F, we will add 1 to our index and that will put our index on R. Each time our index i is on R we will add 3 to our index i.
+    We add 3 because each pixel contains an RGB value, so adding 3 to our index i essentially puts us on the next pixel
   
-  F RGB RGB RGB RGB
-  F RGB RGB RGB RGB
-  F RGB RGB RGB RGB
-  Filter UP adds the pixel RGB to the current pixel RGB 
-*/
-void applyFilterMethod(uint8_t *rgbVals, uint32_t width, uint32_t height) {
+    F RGB RGB RGB RGB
+    F RGB RGB RGB RGB
+    F RGB RGB RGB RGB
+    Filter UP adds the pixel RGB to the current pixel RGB 
+  */
   struct RGB filterPix;
   uint8_t filterValue = 0;
   uint32_t decompressedWidth = (width * 3) + 1;
 
- for (int i = 0; i < (width * height) * 3 + width;) {
+ for (int i = 0; i < bytes;) {
     if (i % decompressedWidth == 0) {
       filterValue = rgbVals[i];
-      i += 1;
+      i ++;
     }
     else {
       switch(filterValue) {
@@ -162,14 +169,14 @@ void applyFilterMethod(uint8_t *rgbVals, uint32_t width, uint32_t height) {
           filterPix.Blue  = (i - 1) % decompressedWidth != 0 ? rgbVals[i - 1] : 0;
           break;
         case UP:
-          filterPix.Red   = (i - 49) > 0 ? rgbVals[i - 49] : 0;
-          filterPix.Green = (i - 49) > 0 ? rgbVals[i + 1 - 49] : 0;
-          filterPix.Blue  = (i - 49) > 0 ? rgbVals[i + 2 - 49] : 0;
+          filterPix.Red   = (i - decompressedWidth) > 0 ? rgbVals[i - decompressedWidth] : 0;
+          filterPix.Green = (i - decompressedWidth) > 0 ? rgbVals[i + 1 - decompressedWidth] : 0;
+          filterPix.Blue  = (i - decompressedWidth) > 0 ? rgbVals[i + 2 - decompressedWidth] : 0;
           break;
         case AVERAGE:
-          filterPix.Red   = (uint32_t) floor((((i - 49) > 0 ? rgbVals[i - 49] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 3] : 0)) / 2) % 256;
-          filterPix.Green = (uint32_t) floor((((i - 49) > 0 ? rgbVals[i + 1 - 49] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 2] : 0)) / 2) % 256;
-          filterPix.Blue  = (uint32_t) floor((((i - 49) > 0 ? rgbVals[i + 2 - 49] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 1] : 0)) / 2) % 256;
+          filterPix.Red   = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 3] : 0)) / 2) % 256;
+          filterPix.Green = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i + 1 - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 2] : 0)) / 2) % 256;
+          filterPix.Blue  = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i + 2 - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 1] : 0)) / 2) % 256;
           break;
         case PAETH:
             filterPix = calcPaeth(rgbVals, decompressedWidth, i);
@@ -186,41 +193,100 @@ void applyFilterMethod(uint8_t *rgbVals, uint32_t width, uint32_t height) {
   }
 }
 
-// Decompression works, note that if png size IDAT chunk has more than 16384 bytes uncompressed, then while loop will keep running til empty
-// as well as subsequent IDAT chunks can occur, these two things are still not handled properly
-// When multiple IDAT chunks, you need to concatenate data all together then inflate
-void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> *buffer, uint32_t width, uint32_t height) {
+/* Function:    uncompressIDAT
+   Description: Decompresses IDAT chunk data and fills a buffer with the data
+   Parameters:  ifstream - File descriptor to read data from
+                vector<uint8_t> - Compressed IDAT chunk data
+                uint32_t - The end of the a row of pixels in the buffer
+                uint32_t - The end of the a col of pixels in the buffer
+   Returns:     None
+ */
+void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<struct RGB> *finalImgData, uint32_t width, uint32_t height) {
+  // Decompression works, note that if png size IDAT chunk has more than 16384 bytes uncompressed, then while loop will keep running til empty
+  // as well as subsequent IDAT chunks can occur, these two things are still not handled properly
+  // When multiple IDAT chunks, you need to concatenate data all together then inflate
   // For some reason rgbVals as a vector cashes on inflate end so leaving as is
   uint8_t rgbVals[CHUNK_SIZE];
+  uint32_t inflateNums = 0;
+  int8_t error = 0;
 
   //zlib struct needed for decompression (inflate is decompression, deflate is compression)
 
   z_stream infstream;
   infstream.zalloc = Z_NULL;
+  infstream.zfree = Z_NULL;
   infstream.opaque = Z_NULL;
-  infstream.avail_in = (uInt)buffer->size(); // size of input
-  infstream.next_in = (Bytef *)buffer->data(); // input char array
-  infstream.avail_out = (uInt)CHUNK_SIZE; // size of output
-  infstream.next_out = (Bytef *)rgbVals; // output char array
+  infstream.avail_in = (uInt)buffer.size(); // size of input
+  infstream.next_in = (Bytef *)buffer.data(); // input char array
 
-  inflateInit(&infstream);
+  inflateInit2(&infstream, 47);
+  //std::ofstream uf("unfiltered.txt");
+ // std::ofstream f("filter.txt");
 
-  while(infstream.avail_in != 0) {
-    inflate(&infstream, Z_NO_FLUSH);
-  }
+  do {
+    infstream.avail_out = (uInt)CHUNK_SIZE; // size of output
+    infstream.next_out = (Bytef *)rgbVals; // output char array
+    error = inflate(&infstream, Z_NO_FLUSH);
 
-  applyFilterMethod(rgbVals, width, height);
+    if ( error == Z_DATA_ERROR || error == Z_MEM_ERROR) {
+      exit(0);
+    }
+
+    /*for(int i = 0; i < infstream.total_out - (inflateNums * CHUNK_SIZE);) {
+      if (i % ((width * 3) + 1) != 0) {
+        uf <<'(' <<  (unsigned int)rgbVals[i] << ',' << (unsigned int)rgbVals[i + 1] << ',' << (unsigned int)rgbVals[i + 2] <<')';
+        i += 3;
+      }
+      else {
+        uf << std::endl << "Filter: "  << (unsigned int) rgbVals[i] << '(' << i / 49 << ')' << std::endl;
+        i ++;
+
+      }
+    }*/
+    applyFilterMethod(rgbVals, width, height, abs((int)infstream.total_out - (int)(inflateNums * CHUNK_SIZE)));
+
+    for(int i = 0; i < abs((int)infstream.total_out - (int)(inflateNums * CHUNK_SIZE));) {
+      if (i % ((width * 3) + 1) != 0) {
+        //f <<'(' <<  (unsigned int)rgbVals[i] << ',' << (unsigned int)rgbVals[i + 1] << ',' << (unsigned int)rgbVals[i + 2] <<')';
+        finalImgData->push_back({(uint8_t)rgbVals[i], (uint8_t)rgbVals[i + 1], (uint8_t)rgbVals[i + 2]});
+        i += 3;
+      }
+      else {
+        i ++;
+        //f << std::endl << i / 49 << std::endl;
+      }
+    }
+
+    inflateNums ++;
+  } while(infstream.avail_in != 0);
+
   inflateEnd(&infstream);
+ // f.close();
+ // uf.close();
+  //exit(0);
 }
 
+/* Function:    parseICCP
+   Description: Parses ICCP chunk, but currently doesn't do that, just used to parse items
+                that are not IHDR and IDAT from png
+   Parameters:  ifstream - File descriptor to read data from
+                uint32_t - Amount of bytes to read
+   Returns:     None
+ */
 void parseICCP(std::ifstream &in, uint32_t chunkLength) {
   std::vector<uint8_t> buffer(chunkLength);
 
   in.read((char *) buffer.data(), chunkLength);
 }
 
-void readPng(std::string pngFile) {
+/* Function:    readPng
+   Description: Parses an entire png file and stores rgb values to recreate img
+   Parameters:  string - Location of file to read data from
+   Returns:     None
+ */
+std::vector<struct RGB> readPng(std::string pngFile) {
   std::ifstream in;
+  std::vector<struct RGB> finalImgData;
   struct IHDR ihdr;
   uint8_t validPngMask = 0;
   uint32_t chunkLength;
@@ -258,7 +324,7 @@ void readPng(std::string pngFile) {
     if ((((validPngMask & IDAT_CHAIN) >> 3) == 1) && (strcmp((char *) chunkType.data(), "IDAT\0") != 0)) {
       validPngMask &= 0xF7;
       //temp
-      uncompressIDAT(in, &idatBuffer, ihdr.width, ihdr.height);
+      uncompressIDAT(in, idatBuffer, &finalImgData, ihdr.width, ihdr.height);
       idatBuffer.clear();
     }
 
@@ -304,4 +370,6 @@ void readPng(std::string pngFile) {
   }
 
   in.close();
+
+  return finalImgData;
 }
