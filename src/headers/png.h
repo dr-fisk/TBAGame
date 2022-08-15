@@ -53,12 +53,14 @@ struct RGB subPixelRGB(struct RGB pixel1, struct RGB pixel2);
  */
 struct RGB addPixelRGB(struct RGB pixel1, struct RGB pixel2);
 
-/* Function:    convertRGBToInt
-   Description: Converts pixel RGB values to an int for Paeth Algorithm
-   Parameters:  struct RGB - Pixel RGB values
-   Returns:     int32_t - Byte value to be used in Paeth Algorithm
+/* Function:    calcPaethByte
+   Description: Paeth Algorightm requires it to be run on each RGB byte
+   Parameters:  uint8_t - A pixel RGB byte
+                uint8_t - B pixel RGB byte
+                uint8_t - C pixel RGB byte
+   Returns:     uint8_t - Correct predictor pixel
  */
-int32_t convertRGBToInt(struct RGB pixel);
+uint8_t calcPaethByte(struct RGB pixel);
 
 /* Function:    calcPaeth
    Description: Applies the Paeth Algorithm to the current row of pixels

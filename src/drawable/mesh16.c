@@ -7,7 +7,7 @@ Mesh16::Mesh16(GLfloat wWidth, GLfloat wHeight, uint8_t left, uint8_t top,uint8_
   uint32_t l = 0;
   uint32_t t = 0;
   std::vector<struct RGB> imgData;
-  imgData = readPng("../../art.png");
+  imgData = readPng("../../heart.png");
   // If size = 0 then there will be rectangles with area 0 so skip
   for (int i = 0; i < MESH16_MAX_SIZE && size > 0; i ++) {
     t = ((i / 16) + top) * size;

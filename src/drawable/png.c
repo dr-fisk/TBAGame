@@ -1,5 +1,6 @@
 #include "png.h"
 
+#define WINDOW_BITS 47
 
 const std::vector<uint8_t> png = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, '\0'};
 
@@ -52,14 +53,32 @@ struct RGB addPixelRGB(struct RGB pixel1, struct RGB pixel2) {
           (uint8_t)((pixel1.Blue + pixel2.Blue))};
 }
 
-/* Function:    convertRGBToInt
-   Description: Converts pixel RGB values to an int for Paeth Algorithm
-   Parameters:  struct RGB - Pixel RGB values
-   Returns:     int32_t - Byte value to be used in Paeth Algorithm
+/* Function:    calcPaethByte
+   Description: Paeth Algorightm requires it to be run on each RGB byte
+   Parameters:  uint8_t - A pixel RGB byte
+                uint8_t - B pixel RGB byte
+                uint8_t - C pixel RGB byte
+   Returns:     uint8_t - Correct predictor pixel
  */
-int32_t convertRGBToInt(struct RGB pixel) {
-  int32_t rgb = pixel.Red + pixel.Green + pixel.Blue;
-  return rgb;
+uint8_t calcPaethByte(uint8_t a, uint8_t b, uint8_t c) {
+  int32_t iA, iB, iC, p, pa, pb, pc;
+  iA = a;
+  iB = b;
+  iC = c;
+  p = iA + iB - iC;
+  pa = abs(p - iA);
+  pb = abs(p - iB);
+  pc = abs(p - iC); 
+
+  if ((pa <= pb) && (pa <= pc)) {
+    return a;
+  }
+  else if (pb <= pc) {
+    return b;
+  }
+  else {
+    return c;
+  }
 }
 
 /* Function:    calcPaeth
@@ -81,11 +100,7 @@ struct RGB calcPaeth(uint8_t *rgbVals, uint32_t width, int32_t index) {
   This allows us to add integers without worrying about overflows.
 */
   struct RGB a, b, c, pr;
-  const int32_t ULPix = width + 3;
-  int32_t iA, iB, iC, p, pa, pb, pc;
-  iA = 0;
-  iB = 0;
-  iC = 0;
+  const uint32_t ULPix = width + 3;
 
   /* The below blocks gathers the pixel RGB to the left of the current index, the Pixel RGB to the upper left of the current index,
      and the Pixel RGB above the current index
@@ -98,37 +113,23 @@ struct RGB calcPaeth(uint8_t *rgbVals, uint32_t width, int32_t index) {
   b.Green = (index - width) > 0 ? rgbVals[index + 1 - width] : 0;
   b.Blue  = (index - width) > 0 ? rgbVals[index + 2 - width] : 0;
 
-  c.Red   = (index - ULPix) > 0 ? rgbVals[index - ULPix] : 0;
-  c.Green = (index - ULPix) > 0 ? rgbVals[index + 1 - ULPix] : 0;
-  c.Blue  = (index - ULPix) > 0 ? rgbVals[index + 2 - ULPix] : 0;
+  c.Red   = ((index - 1) % width != 0) && ((index - width) > 0) ? rgbVals[index - ULPix] : 0;
+  c.Green = ((index - 1) % width != 0) && ((index - width) > 0) ? rgbVals[index + 1 - ULPix] : 0;
+  c.Blue  = ((index - 1) % width != 0) && ((index - width) > 0) ? rgbVals[index + 2 - ULPix] : 0;
 
-  iA = convertRGBToInt(a);
-  iB = convertRGBToInt(b);
-  iC = convertRGBToInt(c);
-
-  p = iA + iB - iC;
-  pa = abs(p - iA);
-  pb = abs(p - iB);
-  pc = abs(p - iC);
-
-  if (pa <= pb && pa <= pc) {
-    pr = a;
-  }
-  else if (pb <= pc) {
-    pr = b;
-  }
-  else {
-    pr = c;
-  }
+  pr.Red   = calcPaethByte(a.Red, b.Red, c.Red);
+  pr.Green = calcPaethByte(a.Green, b.Green, c.Green);
+  pr.Blue  = calcPaethByte(a.Blue, b.Blue, c.Blue);
 
   return pr;
 }
 
 /* Function:    applyFilterMethod
    Description: Iterates through buffer data applying the correct filter on decompressed IDAT chunk data
-   Parameters:  uint8t * - Buffer data containing decompressed png IDAT chunk values
+   Parameters:  uint8t * - Buffer Data containing decompressed png IDAT chunk values
                 uint32_t - The end of the a row of pixels in the buffer
                 uint32_t - The end of the a col of pixels in the buffer
+                uint32_t - Number of bytes valid in Buffer Data
    Returns:     None
  */
 void applyFilterMethod(uint8_t *rgbVals, uint32_t width, uint32_t height, uint32_t bytes) {
@@ -205,7 +206,6 @@ void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<
   // Decompression works, note that if png size IDAT chunk has more than 16384 bytes uncompressed, then while loop will keep running til empty
   // as well as subsequent IDAT chunks can occur, these two things are still not handled properly
   // When multiple IDAT chunks, you need to concatenate data all together then inflate
-  // For some reason rgbVals as a vector cashes on inflate end so leaving as is
   uint8_t rgbVals[CHUNK_SIZE];
   uint32_t inflateNums = 0;
   int8_t error = 0;
@@ -219,7 +219,10 @@ void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<
   infstream.avail_in = (uInt)buffer.size(); // size of input
   infstream.next_in = (Bytef *)buffer.data(); // input char array
 
-  inflateInit2(&infstream, 47);
+  /* WINDOW_BITS = 47 since this tells zlib to automatically check if 
+     gzip or zlib header exists in decompressed data
+  */ 
+  inflateInit2(&infstream, WINDOW_BITS);
   //std::ofstream uf("unfiltered.txt");
  // std::ofstream f("filter.txt");
 
