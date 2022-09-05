@@ -16,15 +16,15 @@ void parseIHDR(std::ifstream &in, uint32_t chunkLength, struct IHDR *ihdr) {
   /* There is no endian issues for 1 byte values which is why only width and height needs to be rearranged */
   ihdr->width = htonl(ihdr->width);
   ihdr->height = htonl(ihdr->height);
-  /*std::ofstream f("ihdr.txt");
-  f << ihdr->width << std::endl;
-  f << ihdr->height << std::endl;
-  f <<  (unsigned int)ihdr->bitDepth << std::endl;
-  f <<  (unsigned int)ihdr->colorType << std::endl;
-  f <<  (unsigned int)ihdr->compressionMethod << std::endl;
-  f <<  (unsigned int)ihdr->filterMethod << std::endl;
-  f <<  (unsigned int)ihdr->interfaceMethod << std::endl;
-  f.close();*/
+  std::ofstream f("ihdr.txt");
+  f << "Width " << ihdr->width << std::endl;
+  f << "Height " << ihdr->height << std::endl;
+  f << "BitDepth " << (unsigned int)ihdr->bitDepth << std::endl;
+  f << "ColorType " << (unsigned int)ihdr->colorType << std::endl;
+  f << "Compression Method " << (unsigned int)ihdr->compressionMethod << std::endl;
+  f << "Filter Method " << (unsigned int)ihdr->filterMethod << std::endl;
+  f << "Interface Method " << (unsigned int)ihdr->interfaceMethod << std::endl;
+  f.close();
   if ((ihdr->width == 0) || (ihdr->height == 0)) {
     std::cout << "Error! Invalid image dimensions." << std::endl;
     exit(0);
@@ -38,8 +38,8 @@ void parseIHDR(std::ifstream &in, uint32_t chunkLength, struct IHDR *ihdr) {
    Returns:     struct RGB - New pixel RGB values
  */
 struct RGB subPixelRGB(struct RGB pixel1, struct RGB pixel2) {
-  return {(uint8_t)((pixel1.Red - pixel2.Red)), (uint8_t)((pixel1.Green - pixel2.Green)),
-          (uint8_t)((pixel1.Blue - pixel2.Blue))};
+  return {(uint16_t)((pixel1.Red - pixel2.Red)), (uint16_t)((pixel1.Green - pixel2.Green)),
+          (uint16_t)((pixel1.Blue - pixel2.Blue))};
 }
 
 /* Function:    addPixelRGB
@@ -49,8 +49,8 @@ struct RGB subPixelRGB(struct RGB pixel1, struct RGB pixel2) {
    Returns:     struct RGB - New pixel RGB values
  */
 struct RGB addPixelRGB(struct RGB pixel1, struct RGB pixel2) {
-  return {(uint8_t)((pixel1.Red + pixel2.Red)), (uint8_t)((pixel1.Green + pixel2.Green)),
-          (uint8_t)((pixel1.Blue + pixel2.Blue))};
+  return {(uint16_t)((pixel1.Red + pixel2.Red)), (uint16_t)((pixel1.Green + pixel2.Green)),
+          (uint16_t)((pixel1.Blue + pixel2.Blue))};
 }
 
 /* Function:    calcPaethByte
@@ -60,15 +60,13 @@ struct RGB addPixelRGB(struct RGB pixel1, struct RGB pixel2) {
                 uint8_t - C pixel RGB byte
    Returns:     uint8_t - Correct predictor pixel
  */
-uint8_t calcPaethByte(uint8_t a, uint8_t b, uint8_t c) {
-  int32_t iA, iB, iC, p, pa, pb, pc;
-  iA = a;
-  iB = b;
-  iC = c;
-  p = iA + iB - iC;
-  pa = abs(p - iA);
-  pb = abs(p - iB);
-  pc = abs(p - iC); 
+uint8_t calcPaethByte(uint16_t a, uint16_t b, uint16_t c) {
+  int32_t p, pa, pb, pc;
+  // int32_t type cast needed because values can be negative
+  p = (int32_t)a + (int32_t)b - (int32_t)c;
+  pa = abs(p - a);
+  pb = abs(p - b);
+  pc = abs(p - c); 
 
   if ((pa <= pb) && (pa <= pc)) {
     return a;
@@ -132,7 +130,7 @@ struct RGB calcPaeth(uint8_t *rgbVals, uint32_t width, int32_t index) {
                 uint32_t - Number of bytes valid in Buffer Data
    Returns:     None
  */
-void applyFilterMethod(uint8_t *rgbVals, uint32_t width, uint32_t height, uint32_t bytes) {
+void colorType2(uint8_t *rgbVals, uint32_t bytes, struct IHDR ihdr) {
   /*
     index i will always be either the filter method or a pixel starting on the Red color value_comp
     index i will never be Blue nor Green, to extract the blue and green for the current pixel do i + 1 for Green and i + 2 for red
@@ -149,7 +147,8 @@ void applyFilterMethod(uint8_t *rgbVals, uint32_t width, uint32_t height, uint32
   */
   struct RGB filterPix;
   uint8_t filterValue = 0;
-  uint32_t decompressedWidth = (width * 3) + 1;
+  uint32_t decompressedWidth = (ihdr.width * 3) + 1;
+  uint32_t mod = ihdr.bitDepth == 8 ? 0x000000FF + 1 : 0x0000FFFF + 1;
 
  for (int i = 0; i < bytes;) {
     if (i % decompressedWidth == 0) {
@@ -175,9 +174,9 @@ void applyFilterMethod(uint8_t *rgbVals, uint32_t width, uint32_t height, uint32
           filterPix.Blue  = (i - decompressedWidth) > 0 ? rgbVals[i + 2 - decompressedWidth] : 0;
           break;
         case AVERAGE:
-          filterPix.Red   = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 3] : 0)) / 2) % 256;
-          filterPix.Green = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i + 1 - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 2] : 0)) / 2) % 256;
-          filterPix.Blue  = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i + 2 - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 1] : 0)) / 2) % 256;
+          filterPix.Red   = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 3] : 0)) / 2) % mod;
+          filterPix.Green = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i + 1 - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 2] : 0)) / 2) % mod;
+          filterPix.Blue  = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i + 2 - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 1] : 0)) / 2) % mod;
           break;
         case PAETH:
             filterPix = calcPaeth(rgbVals, decompressedWidth, i);
@@ -186,11 +185,22 @@ void applyFilterMethod(uint8_t *rgbVals, uint32_t width, uint32_t height, uint32
           break;
       }
 
-      rgbVals[i]     += filterPix.Red;
-      rgbVals[i + 1] += filterPix.Green;
-      rgbVals[i + 2] += filterPix.Blue;
+      rgbVals[i]     = (rgbVals[i] + filterPix.Red) % mod;
+      rgbVals[i + 1] = (rgbVals[i + 1] + filterPix.Green) % mod;
+      rgbVals[i + 2] = (rgbVals[i + 2] + filterPix.Blue) % mod;
       i += 3;
     }
+  }
+}
+
+void handlePngColorType(uint8_t *rgbVals, uint32_t bytes, struct IHDR ihdr) {
+  switch (ihdr.colorType) {
+    case 2:
+      colorType2(rgbVals, bytes, ihdr);
+      break;
+    default:
+      std::cout << "Not existent \n";
+      exit(0);
   }
 }
 
@@ -202,7 +212,7 @@ void applyFilterMethod(uint8_t *rgbVals, uint32_t width, uint32_t height, uint32
                 uint32_t - The end of the a col of pixels in the buffer
    Returns:     None
  */
-void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<struct RGB> *finalImgData, uint32_t width, uint32_t height) {
+void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<struct RGB> *finalImgData, struct IHDR ihdr) {
   // Decompression works, note that if png size IDAT chunk has more than 16384 bytes uncompressed, then while loop will keep running til empty
   // as well as subsequent IDAT chunks can occur, these two things are still not handled properly
   // When multiple IDAT chunks, you need to concatenate data all together then inflate
@@ -246,10 +256,10 @@ void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<
 
       }
     }*/
-    applyFilterMethod(rgbVals, width, height, abs((int)infstream.total_out - (int)(inflateNums * CHUNK_SIZE)));
+    handlePngColorType(rgbVals, abs((int)infstream.total_out - (int)(inflateNums * CHUNK_SIZE)), ihdr);
 
     for(int i = 0; i < abs((int)infstream.total_out - (int)(inflateNums * CHUNK_SIZE));) {
-      if (i % ((width * 3) + 1) != 0) {
+      if (i % ((ihdr.width * 3) + 1) != 0) {
         //f <<'(' <<  (unsigned int)rgbVals[i] << ',' << (unsigned int)rgbVals[i + 1] << ',' << (unsigned int)rgbVals[i + 2] <<')';
         finalImgData->push_back({(uint8_t)rgbVals[i], (uint8_t)rgbVals[i + 1], (uint8_t)rgbVals[i + 2]});
         i += 3;
@@ -327,7 +337,7 @@ std::vector<struct RGB> readPng(std::string pngFile) {
     if ((((validPngMask & IDAT_CHAIN) >> 3) == 1) && (strcmp((char *) chunkType.data(), "IDAT\0") != 0)) {
       validPngMask &= 0xF7;
       //temp
-      uncompressIDAT(in, idatBuffer, &finalImgData, ihdr.width, ihdr.height);
+      uncompressIDAT(in, idatBuffer, &finalImgData, ihdr);
       idatBuffer.clear();
     }
 

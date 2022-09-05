@@ -21,9 +21,9 @@ struct IHDR {
 };
 
 struct RGB {
-  uint8_t Red;
-  uint8_t Green;
-  uint8_t Blue;
+  uint16_t Red;
+  uint16_t Green;
+  uint16_t Blue;
 };
 
 enum FilterMethods {NONE, SUB, UP, AVERAGE, PAETH};
@@ -60,7 +60,7 @@ struct RGB addPixelRGB(struct RGB pixel1, struct RGB pixel2);
                 uint8_t - C pixel RGB byte
    Returns:     uint8_t - Correct predictor pixel
  */
-uint8_t calcPaethByte(struct RGB pixel);
+uint8_t calcPaethByte(uint16_t a, uint16_t b, uint16_t c);
 
 /* Function:    calcPaeth
    Description: Applies the Paeth Algorithm to the current row of pixels
@@ -71,24 +71,23 @@ uint8_t calcPaethByte(struct RGB pixel);
  */
 struct RGB calcPaeth(uint8_t *rgbVals, uint32_t width, int32_t index);
 
-/* Function:    applyFilterMethod
+/* Function:    colorType2
    Description: Iterates through buffer data applying the correct filter on decompressed IDAT chunk data
    Parameters:  uint8t * - Buffer data containing decompressed png IDAT chunk values
-                uint32_t - The end of the a row of pixels in the buffer
-                uint32_t - The end of the a col of pixels in the buffer
+                uint32_t - The amount of bytes existing in rgbVals
+                IHDR     - ihdr properties
    Returns:     None
  */
-void applyFilterMethod(uint8_t *rgbVals, uint32_t width, uint32_t height, uint32_t bytes);
+void colorType2(uint8_t &rgbVals, uint32_t bytes, struct IHDR ihdr);
 
 /* Function:    uncompressIDAT
    Description: Decompresses IDAT chunk data and fills a buffer with the data
    Parameters:  ifstream - File descriptor to read data from
                 vector<uint8_t> - Compressed IDAT chunk data
-                uint32_t - The end of the a row of pixels in the buffer
-                uint32_t - The end of the a col of pixels in the buffer
+                IHDR - ihdr properties
    Returns:     None
  */
-void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<struct RGB> *finalImgData, uint32_t width, uint32_t height);
+void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<struct RGB> *finalImgData, struct IHDR ihdr);
 
 /* Function:    parseICCP
    Description: Parses ICCP chunk, but currently doesn't do that, just used to parse items

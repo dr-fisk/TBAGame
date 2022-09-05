@@ -18,7 +18,7 @@
 #include <vector>
 #include <fstream>
 #include <memory>
-#include "zlib.h"
+#include <zlib.h>
 
 #ifdef LINUX
   #include <arpa/inet.h>
@@ -27,6 +27,7 @@
 #endif
 #include "Vector2D.h"
 #include "color.h"
+#include "exception.h"
 
 //#define STB_TRUETYPE_IMPLEMENTATION
 //#include "glad/stb_truetype.h"

@@ -27,6 +27,11 @@ Game::Game() {
      and holds vbo's */
 
     /* I probably need a class to handle texture data for VBO's and stuff*/
+/*     try {
+      throw Exception("This is a test\n");
+    } catch(Exception &e) {
+      std::cout << e.what();
+    }  */
 
   this->gameRuntime = time(nullptr);
   this->startTime = time(nullptr);
