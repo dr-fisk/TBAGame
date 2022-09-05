@@ -26,15 +26,21 @@ Game::Game() {
      are rgb, vao is like a file descriptor table but for a vertex
      and holds vbo's */
 
-    /* I probably need a class to handle texture data for VBO's and stuff*/
 /*     try {
       throw Exception("This is a test\n");
     } catch(Exception &e) {
       std::cout << e.what();
     }  */
-
+  std::vector<RectVertexData> vertexes;
+  std::vector<RectVertexData> vert;
   this->gameRuntime = time(nullptr);
   this->startTime = time(nullptr);
+  mesh16 = Mesh16(window->getWindowWidth(), window->getWindowHeight(), 0, 0, 8);
+  mesh16_2 = Mesh16(window->getWindowWidth(), window->getWindowHeight(), 0, 16, 8);
+  vertexes = mesh16.getMesh16Data();
+  vert = mesh16_2.getMesh16Data();
+  vertexes.insert(vertexes.end(), vert.begin(), vert.end());
+  testBB = BatchBuffer(vertexes, RECTANGLE);
 }
 
 /* Function:    ~Game
@@ -56,8 +62,6 @@ Game::~Game() {
    Returns:     None
  */
 void Game::render(const std::shared_ptr<RenderTarget> &target) {
-  std::vector<RectVertexData> vertexes;
-  std::vector<RectVertexData> vert;
   /*Rect test;
   test = Rect(0, 0, 100, 100);
   test.setColor(lg::Blue);
@@ -80,12 +84,6 @@ void Game::render(const std::shared_ptr<RenderTarget> &target) {
   vertexes.push_back(target->createRectVertexDataBounded(test5));
   vertexes.push_back(target->createRectVertexDataBounded(test6));
   vertexes.push_back(target->createRectVertexDataBounded(test7)); */
-  Mesh16 mesh16(target->getWindowWidth(), target->getWindowHeight(), 0, 0, 8);
-  Mesh16 mesh162(target->getWindowWidth(), target->getWindowHeight(), 0, 16, 8);
-  vertexes = mesh16.getMesh16Data();
-  vert = mesh162.getMesh16Data();
-  vertexes.insert(vertexes.end(), vert.begin(), vert.end());
-  BatchBuffer testBB(vertexes, RECTANGLE);
   target->clear();
   testBB.render(target);
   //target->draw(test);

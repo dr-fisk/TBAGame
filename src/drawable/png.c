@@ -79,14 +79,14 @@ uint8_t calcPaethByte(uint16_t a, uint16_t b, uint16_t c) {
   }
 }
 
-/* Function:    calcPaeth
+/* Function:    paethColorType2BitDepth8
    Description: Applies the Paeth Algorithm to the current row of pixels
    Parameters:  uint8t * - Buffer data containing decompressed png IDAT chunk values
                 uint32_t - The end of the a row of pixels in the buffer
                 int32_t  - Current index in the buffer data
    Returns:     struct RGB - RGB values to be used to filter pixel at index
  */
-struct RGB calcPaeth(uint8_t *rgbVals, uint32_t width, int32_t index) {
+struct RGB paethColorType2BitDepth8(uint8_t *rgbVals, uint32_t width, int32_t index) {
   /*
   Calculates the PAETH algorithm.
   The PAETH algorithm works on bytes, which means that one byte values will not work.
@@ -122,7 +122,50 @@ struct RGB calcPaeth(uint8_t *rgbVals, uint32_t width, int32_t index) {
   return pr;
 }
 
-/* Function:    applyFilterMethod
+/* Function:    paethColorType6BitDepth8
+   Description: Applies the Paeth Algorithm to the current row of pixels
+   Parameters:  uint8t * - Buffer data containing decompressed png IDAT chunk values
+                uint32_t - The end of the a row of pixels in the buffer
+                int32_t  - Current index in the buffer data
+   Returns:     struct RGB - RGB values to be used to filter pixel at index
+ */
+struct RGB paethColorType6BitDepth8(uint8_t *rgbVals, uint32_t width, int32_t index) {
+  /*
+  Calculates the PAETH algorithm.
+  The PAETH algorithm works on bytes, which means that one byte values will not work.
+  For example you need to add two rgb values and compare that with another value.
+  Assume 1 byte values 255 and 1. 255 + 1 overflows a uint8_t and results in 0.
+  The above would mean that 255 + 1 <= 255 which is wrong in the paeth algorithm.
+  
+  To Overcome this I converted the rgbs into an integer as 0x0000RRRRGGGGBBBB
+  This allows us to add integers without worrying about overflows.
+*/
+  struct RGB a, b, c, pr;
+  const uint32_t ULPix = width + 4;
+
+  /* The below blocks gathers the pixel RGB to the left of the current index, the Pixel RGB to the upper left of the current index,
+     and the Pixel RGB above the current index
+  */
+  a.Red   = (index - 1) % width != 0 ? rgbVals[index - 4] : 0;
+  a.Green = (index - 1) % width != 0 ? rgbVals[index - 3] : 0;
+  a.Blue  = (index - 1) % width != 0 ? rgbVals[index - 2] : 0;
+
+  b.Red   = (index - width) > 0 ? rgbVals[index - width] : 0;
+  b.Green = (index - width) > 0 ? rgbVals[index + 1 - width] : 0;
+  b.Blue  = (index - width) > 0 ? rgbVals[index + 2 - width] : 0;
+
+  c.Red   = ((index - 1) % width != 0) && ((index - width) > 0) ? rgbVals[index - ULPix] : 0;
+  c.Green = ((index - 1) % width != 0) && ((index - width) > 0) ? rgbVals[index + 1 - ULPix] : 0;
+  c.Blue  = ((index - 1) % width != 0) && ((index - width) > 0) ? rgbVals[index + 2 - ULPix] : 0;
+
+  pr.Red   = calcPaethByte(a.Red, b.Red, c.Red);
+  pr.Green = calcPaethByte(a.Green, b.Green, c.Green);
+  pr.Blue  = calcPaethByte(a.Blue, b.Blue, c.Blue);
+
+  return pr;
+}
+
+/* Function:    colorType2BitDepth8
    Description: Iterates through buffer data applying the correct filter on decompressed IDAT chunk data
    Parameters:  uint8t * - Buffer Data containing decompressed png IDAT chunk values
                 uint32_t - The end of the a row of pixels in the buffer
@@ -130,7 +173,7 @@ struct RGB calcPaeth(uint8_t *rgbVals, uint32_t width, int32_t index) {
                 uint32_t - Number of bytes valid in Buffer Data
    Returns:     None
  */
-void colorType2(uint8_t *rgbVals, uint32_t bytes, struct IHDR ihdr) {
+void colorType2BitDepth8(uint8_t *rgbVals, uint32_t bytes, struct IHDR ihdr) {
   /*
     index i will always be either the filter method or a pixel starting on the Red color value_comp
     index i will never be Blue nor Green, to extract the blue and green for the current pixel do i + 1 for Green and i + 2 for red
@@ -148,7 +191,7 @@ void colorType2(uint8_t *rgbVals, uint32_t bytes, struct IHDR ihdr) {
   struct RGB filterPix;
   uint8_t filterValue = 0;
   uint32_t decompressedWidth = (ihdr.width * 3) + 1;
-  uint32_t mod = ihdr.bitDepth == 8 ? 0x000000FF + 1 : 0x0000FFFF + 1;
+  uint16_t mod = 256;
 
  for (int i = 0; i < bytes;) {
     if (i % decompressedWidth == 0) {
@@ -179,7 +222,7 @@ void colorType2(uint8_t *rgbVals, uint32_t bytes, struct IHDR ihdr) {
           filterPix.Blue  = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i + 2 - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 1] : 0)) / 2) % mod;
           break;
         case PAETH:
-            filterPix = calcPaeth(rgbVals, decompressedWidth, i);
+            filterPix = paethColorType2BitDepth8(rgbVals, decompressedWidth, i);
           break;
         default:
           break;
@@ -193,10 +236,86 @@ void colorType2(uint8_t *rgbVals, uint32_t bytes, struct IHDR ihdr) {
   }
 }
 
+/* Function:    colorType2BitDepth8
+   Description: Iterates through buffer data applying the correct filter on decompressed IDAT chunk data
+   Parameters:  uint8t * - Buffer Data containing decompressed png IDAT chunk values
+                uint32_t - The end of the a row of pixels in the buffer
+                uint32_t - The end of the a col of pixels in the buffer
+                uint32_t - Number of bytes valid in Buffer Data
+   Returns:     None
+ */
+void colorType6BitDepth8(uint8_t *rgbVals, uint32_t bytes, struct IHDR ihdr) {
+  /*
+    index i will always be either the filter method or a pixel starting on the Red color value_comp
+    index i will never be Blue nor Green, to extract the blue and green for the current pixel do i + 1 for Green and i + 2 for red
+  
+    Here is an example below:
+    We have a uint8_t array with 1 byte values represented as F (filter method), R (Red color value), G (Green Color Value), B (Blue Color Value)
+    If our index i lands on F, we will add 1 to our index and that will put our index on R. Each time our index i is on R we will add 3 to our index i.
+    We add 3 because each pixel contains an RGB value, so adding 3 to our index i essentially puts us on the next pixel
+  
+    F RGB RGB RGB RGB
+    F RGB RGB RGB RGB
+    F RGB RGB RGB RGB
+    Filter UP adds the pixel RGB to the current pixel RGB 
+  */
+  struct RGB filterPix;
+  uint8_t filterValue = 0;
+  uint32_t decompressedWidth = (ihdr.width * 4) + 1;
+  uint16_t mod = 256;
+
+ for (int i = 0; i < bytes;) {
+    if (i % decompressedWidth == 0) {
+      filterValue = rgbVals[i];
+      i ++;
+    }
+    else {
+      switch(filterValue) {
+        case NONE:
+          // No filter do nothing but set filter pixels as to avoid any junk memory
+          filterPix.Red   = 0;
+          filterPix.Green = 0;
+          filterPix.Blue  = 0;
+          break;
+        case SUB:
+          filterPix.Red   = (i - 1) % decompressedWidth != 0 ? rgbVals[i - 4] : 0;
+          filterPix.Green = (i - 1) % decompressedWidth != 0 ? rgbVals[i - 3] : 0;
+          filterPix.Blue  = (i - 1) % decompressedWidth != 0 ? rgbVals[i - 2] : 0;
+          break;
+        case UP:
+          filterPix.Red   = (i - decompressedWidth) > 0 ? rgbVals[i - decompressedWidth] : 0;
+          filterPix.Green = (i - decompressedWidth) > 0 ? rgbVals[i + 1 - decompressedWidth] : 0;
+          filterPix.Blue  = (i - decompressedWidth) > 0 ? rgbVals[i + 2 - decompressedWidth] : 0;
+          break;
+        case AVERAGE:
+          filterPix.Red   = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 4] : 0)) / 2) % mod;
+          filterPix.Green = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i + 1 - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 3] : 0)) / 2) % mod;
+          filterPix.Blue  = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i + 2 - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 2] : 0)) / 2) % mod;
+          break;
+        case PAETH:
+            filterPix = paethColorType6BitDepth8(rgbVals, decompressedWidth, i);
+          break;
+        default:
+          break;
+      }
+
+      rgbVals[i]     = (rgbVals[i] + filterPix.Red) % mod;
+      rgbVals[i + 1] = (rgbVals[i + 1] + filterPix.Green) % mod;
+      rgbVals[i + 2] = (rgbVals[i + 2] + filterPix.Blue) % mod;
+      i += 4;
+    }
+  }
+}
+
 void handlePngColorType(uint8_t *rgbVals, uint32_t bytes, struct IHDR ihdr) {
   switch (ihdr.colorType) {
     case 2:
-      colorType2(rgbVals, bytes, ihdr);
+      if (ihdr.bitDepth == 8)
+        colorType2BitDepth8(rgbVals, bytes, ihdr);
+      break;
+    case 6:
+      if (ihdr.bitDepth == 8)
+        colorType6BitDepth8(rgbVals, bytes, ihdr);
       break;
     default:
       std::cout << "Not existent \n";
@@ -257,12 +376,20 @@ void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<
       }
     }*/
     handlePngColorType(rgbVals, abs((int)infstream.total_out - (int)(inflateNums * CHUNK_SIZE)), ihdr);
+    int8_t adder = 3;
+    uint32_t width = (ihdr.width * adder) + 1;
+
+    if (ihdr.colorType == 6) {
+      adder ++;
+      width = (ihdr.width * adder) + 1;
+    }
 
     for(int i = 0; i < abs((int)infstream.total_out - (int)(inflateNums * CHUNK_SIZE));) {
-      if (i % ((ihdr.width * 3) + 1) != 0) {
+      if (i % width != 0) {
         //f <<'(' <<  (unsigned int)rgbVals[i] << ',' << (unsigned int)rgbVals[i + 1] << ',' << (unsigned int)rgbVals[i + 2] <<')';
         finalImgData->push_back({(uint8_t)rgbVals[i], (uint8_t)rgbVals[i + 1], (uint8_t)rgbVals[i + 2]});
-        i += 3;
+        
+        i += adder;
       }
       else {
         i ++;

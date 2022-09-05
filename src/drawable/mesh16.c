@@ -1,6 +1,9 @@
 #include "mesh16.h"
 #include "png.h"
 
+Mesh16::Mesh16() {
+}
+
 Mesh16::Mesh16(GLfloat wWidth, GLfloat wHeight, uint8_t left, uint8_t top,uint8_t size) {
   Rect rect;
   uint32_t l = 0;

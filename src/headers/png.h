@@ -26,6 +26,13 @@ struct RGB {
   uint16_t Blue;
 };
 
+struct RGBA {
+  uint16_t Red;
+  uint16_t Green;
+  uint16_t Blue;
+  uint8_t  Alpha;
+};
+
 enum FilterMethods {NONE, SUB, UP, AVERAGE, PAETH};
 
 /* Function:    parseIHDR
@@ -53,14 +60,23 @@ struct RGB subPixelRGB(struct RGB pixel1, struct RGB pixel2);
  */
 struct RGB addPixelRGB(struct RGB pixel1, struct RGB pixel2);
 
-/* Function:    calcPaethByte
+/* Function:    paethColorType6BitDepth8
+   Description: Paeth Algorightm requires it to be run on each RGB byte
+   Parameters:  uint16_t - A pixel RGB byte
+                uint16_t - B pixel RGB byte
+                uint16_t - C pixel RGB byte
+   Returns:     uint16_t - Correct predictor pixel
+ */
+uint8_t paethColorType6BitDepth8(uint16_t a, uint16_t b, uint16_t c);
+
+/* Function:    paethColorType2BitDepth8
    Description: Paeth Algorightm requires it to be run on each RGB byte
    Parameters:  uint8_t - A pixel RGB byte
                 uint8_t - B pixel RGB byte
                 uint8_t - C pixel RGB byte
    Returns:     uint8_t - Correct predictor pixel
  */
-uint8_t calcPaethByte(uint16_t a, uint16_t b, uint16_t c);
+uint8_t paethColorType2BitDepth8(uint16_t a, uint16_t b, uint16_t c);
 
 /* Function:    calcPaeth
    Description: Applies the Paeth Algorithm to the current row of pixels
@@ -71,14 +87,14 @@ uint8_t calcPaethByte(uint16_t a, uint16_t b, uint16_t c);
  */
 struct RGB calcPaeth(uint8_t *rgbVals, uint32_t width, int32_t index);
 
-/* Function:    colorType2
+/* Function:    colorType2BitDepth8
    Description: Iterates through buffer data applying the correct filter on decompressed IDAT chunk data
    Parameters:  uint8t * - Buffer data containing decompressed png IDAT chunk values
                 uint32_t - The amount of bytes existing in rgbVals
                 IHDR     - ihdr properties
    Returns:     None
  */
-void colorType2(uint8_t &rgbVals, uint32_t bytes, struct IHDR ihdr);
+void colorType2BitDepth8(uint8_t &rgbVals, uint32_t bytes, struct IHDR ihdr);
 
 /* Function:    uncompressIDAT
    Description: Decompresses IDAT chunk data and fills a buffer with the data

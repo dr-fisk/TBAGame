@@ -20,6 +20,9 @@ class Game {
     int startTime;
     int endTime;
     static int fps;
+    Mesh16 mesh16;
+    Mesh16 mesh16_2;
+    BatchBuffer testBB;
 
     void initMainState();
     void gameEnd(); 

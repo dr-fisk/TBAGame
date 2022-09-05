@@ -1,5 +1,8 @@
 #include "batchBuffer.h"
 
+BatchBuffer::BatchBuffer() {
+}
+
 /* Function:    BatchBuffer
    Description: Creates Batch Buffer object which easily handles batch rendering
    Parameters:  Vector - Buffer data to pass to VBO

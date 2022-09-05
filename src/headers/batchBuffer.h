@@ -6,6 +6,7 @@
 
 class BatchBuffer {
   public:
+    BatchBuffer();
     BatchBuffer(std::vector<RectVertexData> &bufferData, uint32_t shape);
     ~BatchBuffer();
     void render(const std::shared_ptr<RenderTarget> &target);
