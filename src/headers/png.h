@@ -119,6 +119,6 @@ void parseICCP(std::ifstream &in, uint32_t chunkLength);
    Parameters:  string - Location of file to read data from
    Returns:     None
  */
-std::vector<struct RGB> readPng(std::string pngFile);
+std::vector<struct RGB> readPng(std::string pngFile, uint32_t &width, uint32_t &height);
 
 #endif

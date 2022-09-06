@@ -318,7 +318,7 @@ void handlePngColorType(uint8_t *rgbVals, uint32_t bytes, struct IHDR ihdr) {
         colorType6BitDepth8(rgbVals, bytes, ihdr);
       break;
     default:
-      std::cout << "Not existent \n";
+      std::cout << "ColorType not implemented" << std::endl;
       exit(0);
   }
 }
@@ -352,7 +352,7 @@ void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<
      gzip or zlib header exists in decompressed data
   */ 
   inflateInit2(&infstream, WINDOW_BITS);
-  //std::ofstream uf("unfiltered.txt");
+  std::ofstream uf("unfiltered.txt");
  // std::ofstream f("filter.txt");
 
   do {
@@ -364,18 +364,6 @@ void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<
       exit(0);
     }
 
-    /*for(int i = 0; i < infstream.total_out - (inflateNums * CHUNK_SIZE);) {
-      if (i % ((width * 3) + 1) != 0) {
-        uf <<'(' <<  (unsigned int)rgbVals[i] << ',' << (unsigned int)rgbVals[i + 1] << ',' << (unsigned int)rgbVals[i + 2] <<')';
-        i += 3;
-      }
-      else {
-        uf << std::endl << "Filter: "  << (unsigned int) rgbVals[i] << '(' << i / 49 << ')' << std::endl;
-        i ++;
-
-      }
-    }*/
-    handlePngColorType(rgbVals, abs((int)infstream.total_out - (int)(inflateNums * CHUNK_SIZE)), ihdr);
     int8_t adder = 3;
     uint32_t width = (ihdr.width * adder) + 1;
 
@@ -383,6 +371,19 @@ void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<
       adder ++;
       width = (ihdr.width * adder) + 1;
     }
+    for(int i = 0; i < infstream.total_out - (inflateNums * CHUNK_SIZE);) {
+      if (i % width != 0) {
+        uf <<'(' <<  (unsigned int)rgbVals[i] << ',' << (unsigned int)rgbVals[i + 1] << ',' << (unsigned int)rgbVals[i + 2] <<')';
+        i += adder;
+      }
+      else {
+        uf << std::endl << "Filter: "  << (unsigned int) rgbVals[i] << '(' << i / width << ')' << std::endl;
+        i ++;
+
+      }
+    }
+    
+    handlePngColorType(rgbVals, abs((int)infstream.total_out - (int)(inflateNums * CHUNK_SIZE)), ihdr);
 
     for(int i = 0; i < abs((int)infstream.total_out - (int)(inflateNums * CHUNK_SIZE));) {
       if (i % width != 0) {
@@ -393,7 +394,7 @@ void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<
       }
       else {
         i ++;
-        //f << std::endl << i / 49 << std::endl;
+        //f << std::endl << i / width << std::endl;
       }
     }
 
@@ -401,8 +402,8 @@ void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<
   } while(infstream.avail_in != 0);
 
   inflateEnd(&infstream);
- // f.close();
- // uf.close();
+  //f.close();
+  uf.close();
   //exit(0);
 }
 
@@ -424,7 +425,7 @@ void parseICCP(std::ifstream &in, uint32_t chunkLength) {
    Parameters:  string - Location of file to read data from
    Returns:     None
  */
-std::vector<struct RGB> readPng(std::string pngFile) {
+std::vector<struct RGB> readPng(std::string pngFile, uint32_t &width, uint32_t &height) {
   std::ifstream in;
   std::vector<struct RGB> finalImgData;
   struct IHDR ihdr;
@@ -510,6 +511,9 @@ std::vector<struct RGB> readPng(std::string pngFile) {
   }
 
   in.close();
+
+  width = ihdr.width;
+  height = ihdr.height;
 
   return finalImgData;
 }
