@@ -5,9 +5,9 @@
 <ol>
   <li>Run command sudo apt-get update</li>
   <li>Run command sudo apt-get upgrade</li>
-  <li>Run command sudo apt-get make</li>
+  <li>Run command sudo apt-get install make</li>
   <li>Run command sudo apt-get install gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 wine64 </li>
-  <li>Run command sudo apt-get libz-mingw-w64-dev</li>
+  <li>Run command sudo apt-get install libz-mingw-w64-dev</li>
   <li>On the terminal CD into the src directory</li>
   <li>On the terminal run make</li>
   <li>That's it! If there are no issues with the code, this should build every file automatically</li>

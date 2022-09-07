@@ -86,7 +86,7 @@ uint8_t calcPaethByte(uint16_t a, uint16_t b, uint16_t c) {
                 int32_t  - Current index in the buffer data
    Returns:     struct RGB - RGB values to be used to filter pixel at index
  */
-struct RGB paethColorType2BitDepth8(uint8_t *rgbVals, uint32_t width, int32_t index) {
+struct RGB paethColorType2BitDepth8(uint8_t *rgbVals, uint32_t scanlineSize, int32_t index) {
   /*
   Calculates the PAETH algorithm.
   The PAETH algorithm works on bytes, which means that one byte values will not work.
@@ -98,22 +98,22 @@ struct RGB paethColorType2BitDepth8(uint8_t *rgbVals, uint32_t width, int32_t in
   This allows us to add integers without worrying about overflows.
 */
   struct RGB a, b, c, pr;
-  const uint32_t ULPix = width + 3;
+  const uint32_t ULPix = scanlineSize + 3;
 
   /* The below blocks gathers the pixel RGB to the left of the current index, the Pixel RGB to the upper left of the current index,
      and the Pixel RGB above the current index
   */
-  a.Red   = (index - 1) % width != 0 ? rgbVals[index - 3] : 0;
-  a.Green = (index - 1) % width != 0 ? rgbVals[index - 2] : 0;
-  a.Blue  = (index - 1) % width != 0 ? rgbVals[index - 1] : 0;
+  a.Red   = (index - 1) % scanlineSize != 0 ? rgbVals[index - 3] : 0;
+  a.Green = (index - 1) % scanlineSize != 0 ? rgbVals[index - 2] : 0;
+  a.Blue  = (index - 1) % scanlineSize != 0 ? rgbVals[index - 1] : 0;
 
-  b.Red   = (index - width) > 0 ? rgbVals[index - width] : 0;
-  b.Green = (index - width) > 0 ? rgbVals[index + 1 - width] : 0;
-  b.Blue  = (index - width) > 0 ? rgbVals[index + 2 - width] : 0;
+  b.Red   = (index - scanlineSize) > 0 ? rgbVals[index - scanlineSize] : 0;
+  b.Green = (index - scanlineSize) > 0 ? rgbVals[index + 1 - scanlineSize] : 0;
+  b.Blue  = (index - scanlineSize) > 0 ? rgbVals[index + 2 - scanlineSize] : 0;
 
-  c.Red   = ((index - 1) % width != 0) && ((index - width) > 0) ? rgbVals[index - ULPix] : 0;
-  c.Green = ((index - 1) % width != 0) && ((index - width) > 0) ? rgbVals[index + 1 - ULPix] : 0;
-  c.Blue  = ((index - 1) % width != 0) && ((index - width) > 0) ? rgbVals[index + 2 - ULPix] : 0;
+  c.Red   = ((index - 1) % scanlineSize != 0) && ((index - scanlineSize) > 0) ? rgbVals[index - ULPix] : 0;
+  c.Green = ((index - 1) % scanlineSize != 0) && ((index - scanlineSize) > 0) ? rgbVals[index + 1 - ULPix] : 0;
+  c.Blue  = ((index - 1) % scanlineSize != 0) && ((index - scanlineSize) > 0) ? rgbVals[index + 2 - ULPix] : 0;
 
   pr.Red   = calcPaethByte(a.Red, b.Red, c.Red);
   pr.Green = calcPaethByte(a.Green, b.Green, c.Green);
@@ -129,7 +129,7 @@ struct RGB paethColorType2BitDepth8(uint8_t *rgbVals, uint32_t width, int32_t in
                 int32_t  - Current index in the buffer data
    Returns:     struct RGB - RGB values to be used to filter pixel at index
  */
-struct RGB paethColorType6BitDepth8(uint8_t *rgbVals, uint32_t width, int32_t index) {
+struct RGB paethColorType6BitDepth8(uint8_t *rgbVals, uint32_t scanlineSize, int32_t index) {
   /*
   Calculates the PAETH algorithm.
   The PAETH algorithm works on bytes, which means that one byte values will not work.
@@ -141,22 +141,22 @@ struct RGB paethColorType6BitDepth8(uint8_t *rgbVals, uint32_t width, int32_t in
   This allows us to add integers without worrying about overflows.
 */
   struct RGB a, b, c, pr;
-  const uint32_t ULPix = width + 4;
+  const uint32_t ULPix = scanlineSize + 4;
 
   /* The below blocks gathers the pixel RGB to the left of the current index, the Pixel RGB to the upper left of the current index,
      and the Pixel RGB above the current index
   */
-  a.Red   = (index - 1) % width != 0 ? rgbVals[index - 4] : 0;
-  a.Green = (index - 1) % width != 0 ? rgbVals[index - 3] : 0;
-  a.Blue  = (index - 1) % width != 0 ? rgbVals[index - 2] : 0;
+  a.Red   = (index - 1) % scanlineSize != 0 ? rgbVals[index - 4] : 0;
+  a.Green = (index - 1) % scanlineSize != 0 ? rgbVals[index - 3] : 0;
+  a.Blue  = (index - 1) % scanlineSize != 0 ? rgbVals[index - 2] : 0;
 
-  b.Red   = (index - width) > 0 ? rgbVals[index - width] : 0;
-  b.Green = (index - width) > 0 ? rgbVals[index + 1 - width] : 0;
-  b.Blue  = (index - width) > 0 ? rgbVals[index + 2 - width] : 0;
+  b.Red   = (index - scanlineSize) > 0 ? rgbVals[index - scanlineSize] : 0;
+  b.Green = (index - scanlineSize) > 0 ? rgbVals[index + 1 - scanlineSize] : 0;
+  b.Blue  = (index - scanlineSize) > 0 ? rgbVals[index + 2 - scanlineSize] : 0;
 
-  c.Red   = ((index - 1) % width != 0) && ((index - width) > 0) ? rgbVals[index - ULPix] : 0;
-  c.Green = ((index - 1) % width != 0) && ((index - width) > 0) ? rgbVals[index + 1 - ULPix] : 0;
-  c.Blue  = ((index - 1) % width != 0) && ((index - width) > 0) ? rgbVals[index + 2 - ULPix] : 0;
+  c.Red   = ((index - 1) % scanlineSize != 0) && ((index - scanlineSize) > 0) ? rgbVals[index - ULPix] : 0;
+  c.Green = ((index - 1) % scanlineSize != 0) && ((index - scanlineSize) > 0) ? rgbVals[index + 1 - ULPix] : 0;
+  c.Blue  = ((index - 1) % scanlineSize != 0) && ((index - scanlineSize) > 0) ? rgbVals[index + 2 - ULPix] : 0;
 
   pr.Red   = calcPaethByte(a.Red, b.Red, c.Red);
   pr.Green = calcPaethByte(a.Green, b.Green, c.Green);
@@ -190,11 +190,11 @@ void colorType2BitDepth8(uint8_t *rgbVals, uint32_t bytes, struct IHDR ihdr) {
   */
   struct RGB filterPix;
   uint8_t filterValue = 0;
-  uint32_t decompressedWidth = (ihdr.width * 3) + 1;
+  uint32_t scanlineSize = (ihdr.width * 3) + 1;
   uint16_t mod = 256;
 
  for (int i = 0; i < bytes;) {
-    if (i % decompressedWidth == 0) {
+    if (i % scanlineSize == 0) {
       filterValue = rgbVals[i];
       i ++;
     }
@@ -207,22 +207,22 @@ void colorType2BitDepth8(uint8_t *rgbVals, uint32_t bytes, struct IHDR ihdr) {
           filterPix.Blue  = 0;
           break;
         case SUB:
-          filterPix.Red   = (i - 1) % decompressedWidth != 0 ? rgbVals[i - 3] : 0;
-          filterPix.Green = (i - 1) % decompressedWidth != 0 ? rgbVals[i - 2] : 0;
-          filterPix.Blue  = (i - 1) % decompressedWidth != 0 ? rgbVals[i - 1] : 0;
+          filterPix.Red   = (i - 1) % scanlineSize != 0 ? rgbVals[i - 3] : 0;
+          filterPix.Green = (i - 1) % scanlineSize != 0 ? rgbVals[i - 2] : 0;
+          filterPix.Blue  = (i - 1) % scanlineSize != 0 ? rgbVals[i - 1] : 0;
           break;
         case UP:
-          filterPix.Red   = (i - decompressedWidth) > 0 ? rgbVals[i - decompressedWidth] : 0;
-          filterPix.Green = (i - decompressedWidth) > 0 ? rgbVals[i + 1 - decompressedWidth] : 0;
-          filterPix.Blue  = (i - decompressedWidth) > 0 ? rgbVals[i + 2 - decompressedWidth] : 0;
+          filterPix.Red   = (i - scanlineSize) > 0 ? rgbVals[i - scanlineSize] : 0;
+          filterPix.Green = (i - scanlineSize) > 0 ? rgbVals[i + 1 - scanlineSize] : 0;
+          filterPix.Blue  = (i - scanlineSize) > 0 ? rgbVals[i + 2 - scanlineSize] : 0;
           break;
         case AVERAGE:
-          filterPix.Red   = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 3] : 0)) / 2) % mod;
-          filterPix.Green = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i + 1 - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 2] : 0)) / 2) % mod;
-          filterPix.Blue  = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i + 2 - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 1] : 0)) / 2) % mod;
+          filterPix.Red   = (uint32_t) floor((((i - scanlineSize) > 0 ? rgbVals[i - scanlineSize] : 0) + ((i - 1) % scanlineSize != 0 ? rgbVals[i - 3] : 0)) / 2) % mod;
+          filterPix.Green = (uint32_t) floor((((i - scanlineSize) > 0 ? rgbVals[i + 1 - scanlineSize] : 0) + ((i - 1) % scanlineSize != 0 ? rgbVals[i - 2] : 0)) / 2) % mod;
+          filterPix.Blue  = (uint32_t) floor((((i - scanlineSize) > 0 ? rgbVals[i + 2 - scanlineSize] : 0) + ((i - 1) % scanlineSize != 0 ? rgbVals[i - 1] : 0)) / 2) % mod;
           break;
         case PAETH:
-            filterPix = paethColorType2BitDepth8(rgbVals, decompressedWidth, i);
+            filterPix = paethColorType2BitDepth8(rgbVals, scanlineSize, i);
           break;
         default:
           break;
@@ -261,11 +261,11 @@ void colorType6BitDepth8(uint8_t *rgbVals, uint32_t bytes, struct IHDR ihdr) {
   */
   struct RGB filterPix;
   uint8_t filterValue = 0;
-  uint32_t decompressedWidth = (ihdr.width * 4) + 1;
+  uint32_t scanlineSize = (ihdr.width * 4) + 1;
   uint16_t mod = 256;
 
  for (int i = 0; i < bytes;) {
-    if (i % decompressedWidth == 0) {
+    if (i % scanlineSize == 0) {
       filterValue = rgbVals[i];
       i ++;
     }
@@ -278,22 +278,22 @@ void colorType6BitDepth8(uint8_t *rgbVals, uint32_t bytes, struct IHDR ihdr) {
           filterPix.Blue  = 0;
           break;
         case SUB:
-          filterPix.Red   = (i - 1) % decompressedWidth != 0 ? rgbVals[i - 4] : 0;
-          filterPix.Green = (i - 1) % decompressedWidth != 0 ? rgbVals[i - 3] : 0;
-          filterPix.Blue  = (i - 1) % decompressedWidth != 0 ? rgbVals[i - 2] : 0;
+          filterPix.Red   = (i - 1) % scanlineSize != 0 ? rgbVals[i - 4] : 0;
+          filterPix.Green = (i - 1) % scanlineSize != 0 ? rgbVals[i - 3] : 0;
+          filterPix.Blue  = (i - 1) % scanlineSize != 0 ? rgbVals[i - 2] : 0;
           break;
         case UP:
-          filterPix.Red   = (i - decompressedWidth) > 0 ? rgbVals[i - decompressedWidth] : 0;
-          filterPix.Green = (i - decompressedWidth) > 0 ? rgbVals[i + 1 - decompressedWidth] : 0;
-          filterPix.Blue  = (i - decompressedWidth) > 0 ? rgbVals[i + 2 - decompressedWidth] : 0;
+          filterPix.Red   = (i - scanlineSize) > 0 ? rgbVals[i - scanlineSize] : 0;
+          filterPix.Green = (i - scanlineSize) > 0 ? rgbVals[i + 1 - scanlineSize] : 0;
+          filterPix.Blue  = (i - scanlineSize) > 0 ? rgbVals[i + 2 - scanlineSize] : 0;
           break;
         case AVERAGE:
-          filterPix.Red   = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 4] : 0)) / 2) % mod;
-          filterPix.Green = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i + 1 - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 3] : 0)) / 2) % mod;
-          filterPix.Blue  = (uint32_t) floor((((i - decompressedWidth) > 0 ? rgbVals[i + 2 - decompressedWidth] : 0) + ((i - 1) % decompressedWidth != 0 ? rgbVals[i - 2] : 0)) / 2) % mod;
+          filterPix.Red   = (uint32_t) floor((((i - scanlineSize) > 0 ? rgbVals[i - scanlineSize] : 0) + ((i - 1) % scanlineSize != 0 ? rgbVals[i - 4] : 0)) / 2) % mod;
+          filterPix.Green = (uint32_t) floor((((i - scanlineSize) > 0 ? rgbVals[i + 1 - scanlineSize] : 0) + ((i - 1) % scanlineSize != 0 ? rgbVals[i - 3] : 0)) / 2) % mod;
+          filterPix.Blue  = (uint32_t) floor((((i - scanlineSize) > 0 ? rgbVals[i + 2 - scanlineSize] : 0) + ((i - 1) % scanlineSize != 0 ? rgbVals[i - 2] : 0)) / 2) % mod;
           break;
         case PAETH:
-            filterPix = paethColorType6BitDepth8(rgbVals, decompressedWidth, i);
+            filterPix = paethColorType6BitDepth8(rgbVals, scanlineSize, i);
           break;
         default:
           break;
