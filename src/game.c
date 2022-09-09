@@ -35,7 +35,7 @@ Game::Game() {
   std::vector<RectVertexData> vert;
   this->gameRuntime = time(nullptr);
   this->startTime = time(nullptr);
-  mesh16 = Mesh16(window->getWindowWidth(), window->getWindowHeight(), "../src/grp9WT.png", 0, 0, 1);
+  mesh16 = Mesh16(window->getWindowWidth(), window->getWindowHeight(), "../src/heart.png", 0, 0, 8);
   //mesh16_2 = Mesh16(window->getWindowWidth(), window->getWindowHeight(), 0, 16, 1);
   vertexes = mesh16.getMesh16Data();
   //vert = mesh16_2.getMesh16Data();

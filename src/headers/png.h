@@ -21,9 +21,9 @@ struct IHDR {
 };
 
 struct RGB {
-  uint16_t Red;
-  uint16_t Green;
-  uint16_t Blue;
+  uint8_t Red;
+  uint8_t Green;
+  uint8_t Blue;
 };
 
 struct RGBA {
@@ -67,7 +67,7 @@ struct RGB addPixelRGB(struct RGB pixel1, struct RGB pixel2);
                 uint16_t - C pixel RGB byte
    Returns:     uint16_t - Correct predictor pixel
  */
-uint8_t paethColorType6BitDepth8(uint16_t a, uint16_t b, uint16_t c);
+struct RGB paethColorType6BitDepth8(uint16_t a, uint16_t b, uint16_t c);
 
 /* Function:    paethColorType2BitDepth8
    Description: Paeth Algorightm requires it to be run on each RGB byte
@@ -76,7 +76,7 @@ uint8_t paethColorType6BitDepth8(uint16_t a, uint16_t b, uint16_t c);
                 uint8_t - C pixel RGB byte
    Returns:     uint8_t - Correct predictor pixel
  */
-uint8_t paethColorType2BitDepth8(uint16_t a, uint16_t b, uint16_t c);
+struct RGB paethColorType2BitDepth8(std::vector<uint8_t> imgData, uint32_t scanlineSize);
 
 /* Function:    calcPaeth
    Description: Applies the Paeth Algorithm to the current row of pixels
@@ -94,7 +94,7 @@ struct RGB calcPaeth(uint8_t *rgbVals, uint32_t width, int32_t index);
                 IHDR     - ihdr properties
    Returns:     None
  */
-void colorType2BitDepth8(uint8_t &rgbVals, uint32_t bytes, struct IHDR ihdr);
+void colorType2BitDepth8(uint8_t *rgbVals, std::vector<uint8_t> &imgData, uint32_t bytes, struct IHDR ihdr, uint32_t &bytesRead);
 
 /* Function:    uncompressIDAT
    Description: Decompresses IDAT chunk data and fills a buffer with the data
@@ -103,7 +103,7 @@ void colorType2BitDepth8(uint8_t &rgbVals, uint32_t bytes, struct IHDR ihdr);
                 IHDR - ihdr properties
    Returns:     None
  */
-void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<struct RGB> *finalImgData, struct IHDR ihdr);
+void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<uint8_t> &finalImgData, struct IHDR ihdr);
 
 /* Function:    parseICCP
    Description: Parses ICCP chunk, but currently doesn't do that, just used to parse items
@@ -119,6 +119,6 @@ void parseICCP(std::ifstream &in, uint32_t chunkLength);
    Parameters:  string - Location of file to read data from
    Returns:     None
  */
-std::vector<struct RGB> readPng(std::string pngFile, uint32_t &width, uint32_t &height);
+std::vector<uint8_t> readPng(std::string pngFile, uint32_t &width, uint32_t &height);
 
 #endif

@@ -10,7 +10,8 @@ Mesh16::Mesh16(GLfloat wWidth, GLfloat wHeight, std::string pngFile, uint8_t lef
   uint32_t t = 0;
   uint32_t width = 0;
   uint32_t height = 0;
-  std::vector<struct RGB> imgData;
+  uint32_t currPixel = 0;
+  std::vector<uint8_t> imgData;
   /* Temp until I update makefile */
   imgData = readPng(pngFile, width, height);
   // If size = 0 then there will be rectangles with area 0 so skip
@@ -19,9 +20,10 @@ Mesh16::Mesh16(GLfloat wWidth, GLfloat wHeight, std::string pngFile, uint8_t lef
     l = ((i % width) + left) * size;
 
     rect = Rect(l, t, size, size);
-    rect.setColor(imgData[i].Red, imgData[i].Green, imgData[i].Blue);
+    rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2]);
 
     mesh.push_back(rect.createRectVertexData(wWidth, wHeight));
+    currPixel += 3;
   }
 }
 
