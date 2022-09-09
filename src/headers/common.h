@@ -29,9 +29,6 @@
 #include "color.h"
 #include "exception.h"
 
-//#define STB_TRUETYPE_IMPLEMENTATION
-//#include "glad/stb_truetype.h"
-
 #define ASSERT(x) if (!(x)) __debugbreak();
 #define GLCall(x) GLClearError();\
     x;\

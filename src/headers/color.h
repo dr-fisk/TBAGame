@@ -5,11 +5,11 @@
 namespace lg {
 class Color {
   public:
-    Color(GLfloat r, GLfloat g, GLfloat b, GLfloat a = 1.0f) {
+    Color(GLfloat r, GLfloat g, GLfloat b, GLfloat a=255.0) {
       red = r / 255.0f;
       green = g / 255.0f;
       blue = b / 255.0f;
-      alpha = a;
+      alpha = a / 255.0f;
     }
     Color(){}
     ~Color(){}

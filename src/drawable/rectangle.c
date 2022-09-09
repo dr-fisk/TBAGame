@@ -35,8 +35,8 @@ Rect::Rect(uint32_t left, uint32_t top, uint32_t height, uint32_t width) {
                 uint8_t - Blue color attribute
    Returns:     None
  */
-void Rect::setColor(uint8_t red, uint8_t green, uint8_t blue) {
-  this->rgba = lg::Color(red, green, blue);
+void Rect::setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {
+  this->rgba = lg::Color(red, green, blue, alpha);
 }
 
 /* Function:    setColor

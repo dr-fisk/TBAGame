@@ -35,11 +35,8 @@ Game::Game() {
   std::vector<RectVertexData> vert;
   this->gameRuntime = time(nullptr);
   this->startTime = time(nullptr);
-  mesh16 = Mesh16(window->getWindowWidth(), window->getWindowHeight(), "../src/heart.png", 0, 0, 8);
-  //mesh16_2 = Mesh16(window->getWindowWidth(), window->getWindowHeight(), 0, 16, 1);
-  vertexes = mesh16.getMesh16Data();
-  //vert = mesh16_2.getMesh16Data();
-  //vertexes.insert(vertexes.end(), vert.begin(), vert.end());
+  mesh = Mesh(window->getWindowWidth(), window->getWindowHeight(), "../src/alphamelon.png", 0, 0, 1);
+  vertexes = mesh.getMeshData();
   testBB = BatchBuffer(vertexes, RECTANGLE);
 }
 

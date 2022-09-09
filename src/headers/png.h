@@ -10,6 +10,17 @@
 #define IDAT_CHAIN 0x08
 #define CHUNK_SIZE 16384
 
+#define RGBSIZE 3
+#define RGBASIZE 4
+
+enum colorType {
+  GRAYSCALE  = 0,
+  RGBTRIP  = 2,
+  PLTE       = 3,
+  GRAYSCALEA = 4,
+  RGBTRIPA = 6
+};
+
 struct IHDR {
   uint32_t width;
   uint32_t height;
@@ -60,50 +71,49 @@ struct RGB subPixelRGB(struct RGB pixel1, struct RGB pixel2);
  */
 struct RGB addPixelRGB(struct RGB pixel1, struct RGB pixel2);
 
-/* Function:    paethColorType6BitDepth8
+/* Function:    paethRGBBitDepth8
    Description: Paeth Algorightm requires it to be run on each RGB byte
-   Parameters:  uint16_t - A pixel RGB byte
-                uint16_t - B pixel RGB byte
-                uint16_t - C pixel RGB byte
-   Returns:     uint16_t - Correct predictor pixel
+   Parameters:  std::vector<uint8_t> - Structure containing unfiltered img data
+                uint32_t - Size of scanline row
+                uint8_t  - Number of bytes per pixel
+   Returns:     struct RGB - Unfiltered Pixel Color
  */
-struct RGB paethColorType6BitDepth8(uint16_t a, uint16_t b, uint16_t c);
+struct RGB paethRGBBitDepth8(std::vector<uint8_t> imgData, uint32_t scanlineSize, uint8_t rgbSize);
 
-/* Function:    paethColorType2BitDepth8
+/* Function:    calcPaethByte
    Description: Paeth Algorightm requires it to be run on each RGB byte
    Parameters:  uint8_t - A pixel RGB byte
                 uint8_t - B pixel RGB byte
                 uint8_t - C pixel RGB byte
    Returns:     uint8_t - Correct predictor pixel
  */
-struct RGB paethColorType2BitDepth8(std::vector<uint8_t> imgData, uint32_t scanlineSize);
+uint8_t calcPaethByte(uint8_t a, uint8_t b, uint8_t c);
 
-/* Function:    calcPaeth
-   Description: Applies the Paeth Algorithm to the current row of pixels
-   Parameters:  uint8t * - Buffer data containing decompressed png IDAT chunk values
-                uint32_t - The end of the a row of pixels in the buffer
-                int32_t  - Current index in the buffer data
-   Returns:     struct RGB - RGB values to be used to filter pixel at index
- */
-struct RGB calcPaeth(uint8_t *rgbVals, uint32_t width, int32_t index);
-
-/* Function:    colorType2BitDepth8
+/* Function:    rgbBitDepth8
    Description: Iterates through buffer data applying the correct filter on decompressed IDAT chunk data
-   Parameters:  uint8t * - Buffer data containing decompressed png IDAT chunk values
-                uint32_t - The amount of bytes existing in rgbVals
-                IHDR     - ihdr properties
+   Parameters:  std::vector<uint8_t> - Concatenated decompressed IDAT data
+                std::vector<uint8_t> - Structure containing unfiltered img data
+                struct IHDR - Png information for performing calculations
    Returns:     None
  */
-void colorType2BitDepth8(uint8_t *rgbVals, std::vector<uint8_t> &imgData, uint32_t bytes, struct IHDR ihdr, uint32_t &bytesRead);
+void rgbBitDepth8(std::vector<uint8_t> rgbData, std::vector<uint8_t> &imgData, struct IHDR ihdr);
+
+/* Function:    handlePngColorType
+   Description: Handles different colortype PNG configurations
+   Parameters:  std::vector<uint8_t> - Concatenated decompressed IDAT data
+                std::vector<uint8_t> - Structure containing unfiltered img data
+                struct IHDR - Png information for performing calculations
+   Returns:     None
+ */
+void handlePngColorType(std::vector<uint8_t> rgbData, std::vector<uint8_t> &imgData, struct IHDR ihdr);
 
 /* Function:    uncompressIDAT
    Description: Decompresses IDAT chunk data and fills a buffer with the data
-   Parameters:  ifstream - File descriptor to read data from
-                vector<uint8_t> - Compressed IDAT chunk data
-                IHDR - ihdr properties
+   Parameters:  std::vector<uint8_t> - Concatenated uncompressed IDAT data
+                std::vector<uint8_t> - Concatenated decompressed IDAT data
    Returns:     None
  */
-void uncompressIDAT(std::ifstream &in, std::vector<uint8_t> buffer, std::vector<uint8_t> &finalImgData, struct IHDR ihdr);
+void uncompressIDAT(std::vector<uint8_t> buffer, std::vector<uint8_t> &decompressedData);
 
 /* Function:    parseICCP
    Description: Parses ICCP chunk, but currently doesn't do that, just used to parse items
@@ -117,8 +127,9 @@ void parseICCP(std::ifstream &in, uint32_t chunkLength);
 /* Function:    readPng
    Description: Parses an entire png file and stores rgb values to recreate img
    Parameters:  string - Location of file to read data from
-   Returns:     None
+                struct IHDR - Png information for performing calculations
+   Returns:     std::vector<uint8_t> - Unfiltered IMG data
  */
-std::vector<uint8_t> readPng(std::string pngFile, uint32_t &width, uint32_t &height);
+std::vector<uint8_t> readPng(std::string pngFile, struct IHDR &pihdr);
 
 #endif

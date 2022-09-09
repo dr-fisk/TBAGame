@@ -21,7 +21,7 @@ class Rect {
     Rect(uint32_t left, uint32_t top, uint32_t width, uint32_t height);
     ~Rect();
     void getDimensions(GLfloat *left, GLfloat *top, GLfloat *width, GLfloat *height);
-    void setColor(uint8_t red, uint8_t green, uint8_t blue);
+    void setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha=255);
     void setColor(lg::Color color);
     lg::Color getRGBA();
     RectVertexData createRectVertexData(GLfloat windWidth, GLfloat windHeight);

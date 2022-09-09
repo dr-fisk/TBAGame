@@ -4,7 +4,7 @@
 #include "mainMenuState.h"
 #include "batchBuffer.h"
 #include "renderWindow.h"
-#include "mesh16.h"
+#include "mesh.h"
 
 #define ONE_SEC 1
 
@@ -20,8 +20,7 @@ class Game {
     int startTime;
     int endTime;
     static int fps;
-    Mesh16 mesh16;
-    Mesh16 mesh16_2;
+    Mesh mesh;
     BatchBuffer testBB;
 
     void initMainState();
