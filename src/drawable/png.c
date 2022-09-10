@@ -364,20 +364,40 @@ void Png::readPng() {
 
 }
 
+/* Function:    Png
+   Description: Constructs png object
+   Parameters:  std::string - Filepath for png file to read from
+   Returns:     None
+ */
 Png::Png(std::string pngPath) {
   pngFile.open(pngPath.c_str(), std::ios::binary);
   readPng();
 }
 
+/* Function:    ~Png
+   Description: Destroys png object
+   Parameters:  None
+   Returns:     None
+ */
 Png::~Png() {
   imgData.clear();
   pngFile.close();
 }
 
-std::vector<uint8_t>& Png::getImgData() {
+/* Function:    getImgData
+   Description: Getter function for imgData
+   Parameters:  None
+   Returns:     std::vector<uint8_t> - Unfiltered image data
+ */
+std::vector<uint8_t> Png::getImgData() {
   return imgData;
 }
 
+/* Function:    getIhdr
+   Description: Getter function for ihdr
+   Parameters:  None
+   Returns:     struct RGB - Metadata for png file that was read
+ */
 struct Png::IHDR Png::getIhdr() {
   return ihdr;
 }

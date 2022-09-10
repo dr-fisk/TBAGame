@@ -50,7 +50,7 @@ enum FilterMethods {NONE, SUB, UP, AVERAGE, PAETH};
 
 Png(std::string pngFile);
 ~Png();
-std::vector<uint8_t>& getImgData();
+std::vector<uint8_t> getImgData();
 struct IHDR getIhdr();
 
 private:
