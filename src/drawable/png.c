@@ -102,17 +102,30 @@ struct Png::RGB Png::paethRGBBitDepth8(uint32_t scanlineSize, uint8_t rgbSize) {
   a.Green = (leftBound != 0) ? imgData[imgDataSize - (rgbSize - 1)] : 0;
   a.Blue  = (leftBound != 0) ? imgData[imgDataSize - (rgbSize - 2)] : 0;
 
+  if (ihdr.colorType == RGBTRIPA)
+    a.Alpha  = (leftBound != 0) ? imgData[imgDataSize - (rgbSize - 3)] : 0;
+
   b.Red   = (upperBound >= 0) ? imgData[upperBound] : 0;
   b.Green = (upperBound >= 0) ? imgData[upperBound + 1] : 0;
   b.Blue  = (upperBound >= 0) ? imgData[upperBound + 2] : 0;
+
+  if (ihdr.colorType == RGBTRIPA)
+    b.Alpha = (upperBound >= 0) ? imgData[upperBound + 3] : 0;
 
   c.Red   = (leftBound != 0) && (upperBound >= 0) ? imgData[ULPix] : 0;
   c.Green = (leftBound != 0) && (upperBound >= 0) ? imgData[ULPix + 1] : 0;
   c.Blue  = (leftBound != 0) && (upperBound >= 0) ? imgData[ULPix + 2] : 0;
 
+  if (ihdr.colorType == RGBTRIPA)
+    c.Alpha = (leftBound != 0) && (upperBound >= 0) ? imgData[ULPix + 3] : 0;
+
   pr.Red   = calcPaethByte(a.Red, b.Red, c.Red);
   pr.Green = calcPaethByte(a.Green, b.Green, c.Green);
   pr.Blue  = calcPaethByte(a.Blue, b.Blue, c.Blue);
+
+  if (ihdr.colorType == RGBTRIPA)
+    pr.Alpha  = calcPaethByte(a.Alpha, b.Alpha, c.Alpha);
+    
   return pr;
 }
 
@@ -144,6 +157,10 @@ void Png::rgbBitDepth8(std::vector<uint8_t> rgbData) {
   uint32_t imgDataSize = 0;
   uint32_t leftBound = 0;
   int32_t upperBound = 0;
+  std::ofstream originalData;
+  std::ofstream newData;
+  originalData.open("original.txt");
+  newData.open("imgData.txt");
 
  for (int i = 0; i < (int) rgbData.size();) {
     imgDataSize = imgData.size();
@@ -153,6 +170,7 @@ void Png::rgbBitDepth8(std::vector<uint8_t> rgbData) {
     if (i % (scanlineSize + 1) == 0) {
       filterValue = rgbData[i];
       i ++;
+      originalData << "Filter: " << (int)filterValue << '(' << i / (scanlineSize+1) << ')' << std::endl;
     }
     else {
       switch(filterValue) {
@@ -161,21 +179,31 @@ void Png::rgbBitDepth8(std::vector<uint8_t> rgbData) {
           filterPix.Red   = 0;
           filterPix.Green = 0;
           filterPix.Blue  = 0;
+          filterPix.Alpha  = 0;
           break;
         case SUB:
           filterPix.Red   = (leftBound != 0) ? imgData[imgDataSize - rgbSize] : 0;
           filterPix.Green = (leftBound != 0) ? imgData[imgDataSize - (rgbSize - 1)] : 0;
           filterPix.Blue  = (leftBound != 0) ? imgData[imgDataSize - (rgbSize - 2)] : 0;
+
+          if (ihdr.colorType == RGBTRIPA)
+            filterPix.Alpha = (leftBound != 0) ? imgData[imgDataSize - (rgbSize - 3)] : 0;
           break;
         case UP:
           filterPix.Red   = (upperBound >= 0) ? imgData[upperBound] : 0;
           filterPix.Green = (upperBound >= 0) ? imgData[upperBound + 1] : 0;
           filterPix.Blue  = (upperBound >= 0) ? imgData[upperBound + 2] : 0;
+
+          if (ihdr.colorType == RGBTRIPA)
+            filterPix.Alpha = (upperBound >= 0) ? imgData[upperBound + 3] : 0;
           break;
         case AVERAGE:
           filterPix.Red   = (uint32_t) floor((((upperBound >= 0) ? imgData[upperBound] : 0)     + ((leftBound != 0) ? imgData[leftBound - rgbSize] : 0)) / 2) % mod;
-          filterPix.Green = (uint32_t) floor((((upperBound >= 0) ? imgData[upperBound + 1] : 0) + ((leftBound != 0) ? imgData[leftBound - (rgbSize - 2)] : 0)) / 2) % mod;
+          filterPix.Green = (uint32_t) floor((((upperBound >= 0) ? imgData[upperBound + 1] : 0) + ((leftBound != 0) ? imgData[leftBound - (rgbSize - 1)] : 0)) / 2) % mod;
           filterPix.Blue  = (uint32_t) floor((((upperBound >= 0) ? imgData[upperBound + 2] : 0) + ((leftBound != 0) ? imgData[leftBound - (rgbSize - 2)] : 0)) / 2) % mod;
+
+          if (ihdr.colorType == RGBTRIPA)
+            filterPix.Alpha = (uint32_t) floor((((upperBound >= 0) ? imgData[upperBound + 3] : 0) + ((leftBound != 0) ? imgData[leftBound - (rgbSize - 3)] : 0)) / 2) % mod;
           break;
         case PAETH:
             filterPix = paethRGBBitDepth8(scanlineSize, rgbSize);
@@ -187,13 +215,18 @@ void Png::rgbBitDepth8(std::vector<uint8_t> rgbData) {
       imgData.push_back((rgbData[i] + filterPix.Red) % mod);
       imgData.push_back((rgbData[i + 1] + filterPix.Green) % mod);
       imgData.push_back((rgbData[i + 2] + filterPix.Blue) % mod);
+      originalData << '(' << (int) rgbData[i] << ", " <<(int) rgbData[i + 1] << ", " <<(int) rgbData[i + 2] << ", " << (int)rgbData[i + 3] << ')' << std::endl;
 
-      if (rgbSize == RGBASIZE)
-        imgData.push_back(rgbData[i + 3]);
-  
+      if (ihdr.colorType == RGBTRIPA)
+        imgData.push_back(rgbData[i + 3] + filterPix.Alpha);
+      newData << '(' << (int)imgData[imgData.size() - 4] << ", " << (int)imgData[imgData.size() - 3] << ", " << (int)imgData[imgData.size() - 2] << ", " << (int)imgData[imgData.size() - 1] << ')' << std::endl;
       i += rgbSize;
     }
   }
+
+  std::cout << imgData.size() << std::endl;
+  newData.close();
+  originalData.close();
 }
 
 /* Function:    handlePngColorType
@@ -231,6 +264,7 @@ void Png::uncompressIDAT(std::vector<uint8_t> buffer, std::vector<uint8_t> &deco
   // When multiple IDAT chunks, you need to concatenate data all together then inflate
   std::vector<uint8_t> decompressedChunk(CHUNK_SIZE);
   int8_t error = 0;
+  uint32_t numInflates = 1;
 
   //zlib struct needed for decompression (inflate is decompression, deflate is compression)
 
@@ -255,7 +289,9 @@ void Png::uncompressIDAT(std::vector<uint8_t> buffer, std::vector<uint8_t> &deco
       exit(0);
     }
 
-    decompressedData.insert(decompressedData.end(), decompressedChunk.begin(), decompressedChunk.end());
+    // We only sub from decompressedChunk.end() when an inflate does not use up all 16384 bytes. Otherwise our decompressedData size will be wrong
+    decompressedData.insert(decompressedData.end(), decompressedChunk.begin(), decompressedChunk.end() - abs((int)(infstream.total_out - (CHUNK_SIZE * numInflates))));
+    numInflates ++;
   } while(infstream.avail_in != 0);
 
   inflateEnd(&infstream);
@@ -372,6 +408,7 @@ void Png::readPng() {
 Png::Png(std::string pngPath) {
   pngFile.open(pngPath.c_str(), std::ios::binary);
   readPng();
+  std::cout << (int) ihdr.colorType << ' ' << (int) ihdr.bitDepth << std::endl;
 }
 
 /* Function:    ~Png

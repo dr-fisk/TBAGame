@@ -5,7 +5,7 @@
 namespace lg {
 class Color {
   public:
-    Color(GLfloat r, GLfloat g, GLfloat b, GLfloat a=255.0) {
+    Color(GLfloat r, GLfloat g, GLfloat b, GLfloat a=255.0f) {
       red = r / 255.0f;
       green = g / 255.0f;
       blue = b / 255.0f;

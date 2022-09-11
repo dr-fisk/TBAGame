@@ -37,13 +37,7 @@ struct RGB {
   uint8_t Red;
   uint8_t Green;
   uint8_t Blue;
-};
-
-struct RGBA {
-  uint16_t Red;
-  uint16_t Green;
-  uint16_t Blue;
-  uint8_t  Alpha;
+  uint8_t Alpha;
 };
 
 enum FilterMethods {NONE, SUB, UP, AVERAGE, PAETH};

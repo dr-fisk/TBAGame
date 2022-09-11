@@ -42,6 +42,8 @@ RenderWindow::RenderWindow(uint32_t wWidth, uint32_t wHeight, const char *title)
   uint32_t indeces [] = {0,1,2,2,3,0};
   vao = std::make_shared<VertexArray>(1);
   ib  = std::make_shared<IndexBuffer>(indeces, 6);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glClearColor(0.3, 0.0, 0.0, 1.0);
 }
 

@@ -32,22 +32,22 @@ Mesh::Mesh(GLfloat wWidth, GLfloat wHeight, std::string pngFile, uint8_t left, u
 
   // If size = 0 then there will be rectangles with area 0 so skip
   for (int i = 0; i < ihdr.width * ihdr.height && size > 0; i ++) {
-    t = ((i / ihdr.height) + top) * size;
+    t = ((i / ihdr.width) + top) * size;
     l = ((i % ihdr.width) + left) * size;
 
     rect = Rect(l, t, size, size);
     // handle diff colortypes still
     if (ihdr.colorType == Png::ColorType::RGBTRIP)
       rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2]);
-    else
+    else if(ihdr.colorType == Png::ColorType::RGBTRIPA)
        rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2], imgData[currPixel + 3]);
 
     mesh.push_back(rect.createRectVertexData(wWidth, wHeight));
 
     if (ihdr.colorType == Png::ColorType::RGBTRIP)
       currPixel += RGBSIZE;
-    else
-       currPixel += RGBASIZE;
+    else if(ihdr.colorType == Png::ColorType::RGBTRIPA)
+      currPixel += RGBASIZE;
   }
 
   imgData.clear();
