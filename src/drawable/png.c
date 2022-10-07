@@ -76,9 +76,10 @@ uint8_t Png::calcPaethByte(uint8_t a, uint8_t b, uint8_t c) {
    Parameters:  std::vector<uint8_t> - Structure containing unfiltered img data
                 uint32_t - Size of scanline row
                 uint8_t  - Number of bytes per pixel
+                uint32_t - Current index in imgData vector
    Returns:     struct RGB - Unfiltered Pixel Color
  */
-struct Png::RGB Png::paethRGBBitDepth8(uint32_t scanlineSize, uint8_t rgbSize) {
+struct Png::RGB Png::paethRGBBitDepth8(uint32_t scanlineSize, uint8_t rgbSize, uint32_t currByte) {
   /*
   Calculates the PAETH algorithm.
   The PAETH algorithm works on bytes, which means that one byte values will not work.
@@ -90,20 +91,19 @@ struct Png::RGB Png::paethRGBBitDepth8(uint32_t scanlineSize, uint8_t rgbSize) {
   This allows us to add integers without worrying about overflows.
 */
   struct RGB a, b, c, pr;
-  const uint32_t imgDataSize = imgData.size();
-  const uint32_t ULPix = imgDataSize - (scanlineSize + rgbSize);
-  const uint32_t leftBound = imgDataSize % scanlineSize;
-  const int32_t upperBound = imgDataSize - scanlineSize;
+  const uint32_t ULPix = currByte - (scanlineSize + rgbSize);
+  const uint32_t leftBound = currByte % scanlineSize;
+  const int32_t upperBound = currByte - scanlineSize;
 
   /* The below blocks gathers the pixel RGB to the left of the current index, the Pixel RGB to the upper left of the current index,
      and the Pixel RGB above the current index
   */
-  a.Red   = (leftBound != 0) ? imgData[imgDataSize - rgbSize] : 0;
-  a.Green = (leftBound != 0) ? imgData[imgDataSize - (rgbSize - 1)] : 0;
-  a.Blue  = (leftBound != 0) ? imgData[imgDataSize - (rgbSize - 2)] : 0;
+  a.Red   = (leftBound != 0) ? imgData[currByte - rgbSize] : 0;
+  a.Green = (leftBound != 0) ? imgData[currByte - (rgbSize - 1)] : 0;
+  a.Blue  = (leftBound != 0) ? imgData[currByte - (rgbSize - 2)] : 0;
 
   if (ihdr.colorType == RGBTRIPA)
-    a.Alpha  = (leftBound != 0) ? imgData[imgDataSize - (rgbSize - 3)] : 0;
+    a.Alpha  = (leftBound != 0) ? imgData[currByte - (rgbSize - 3)] : 0;
 
   b.Red   = (upperBound >= 0) ? imgData[upperBound] : 0;
   b.Green = (upperBound >= 0) ? imgData[upperBound + 1] : 0;
@@ -154,18 +154,18 @@ void Png::rgbBitDepth8(std::vector<uint8_t> rgbData) {
   uint8_t rgbSize = (ihdr.colorType == RGBTRIP) ? RGBSIZE : RGBASIZE;
   uint32_t scanlineSize = (ihdr.width * rgbSize);
   uint16_t mod = 256;
-  uint32_t imgDataSize = 0;
+  uint32_t currByte = 0;
   uint32_t leftBound = 0;
   int32_t upperBound = 0;
   std::ofstream originalData;
   std::ofstream newData;
+  imgData.resize(ihdr.width * ihdr.height * rgbSize);
   originalData.open("original.txt");
   newData.open("imgData.txt");
 
  for (int i = 0; i < (int) rgbData.size();) {
-    imgDataSize = imgData.size();
-    leftBound   = imgDataSize % scanlineSize;
-    upperBound  = imgDataSize - scanlineSize;
+    leftBound   = currByte % scanlineSize;
+    upperBound  = currByte - scanlineSize;
 
     if (i % (scanlineSize + 1) == 0) {
       filterValue = rgbData[i];
@@ -182,12 +182,12 @@ void Png::rgbBitDepth8(std::vector<uint8_t> rgbData) {
           filterPix.Alpha  = 0;
           break;
         case SUB:
-          filterPix.Red   = (leftBound != 0) ? imgData[imgDataSize - rgbSize] : 0;
-          filterPix.Green = (leftBound != 0) ? imgData[imgDataSize - (rgbSize - 1)] : 0;
-          filterPix.Blue  = (leftBound != 0) ? imgData[imgDataSize - (rgbSize - 2)] : 0;
+          filterPix.Red   = (leftBound != 0) ? imgData[currByte - rgbSize] : 0;
+          filterPix.Green = (leftBound != 0) ? imgData[currByte - (rgbSize - 1)] : 0;
+          filterPix.Blue  = (leftBound != 0) ? imgData[currByte - (rgbSize - 2)] : 0;
 
           if (ihdr.colorType == RGBTRIPA)
-            filterPix.Alpha = (leftBound != 0) ? imgData[imgDataSize - (rgbSize - 3)] : 0;
+            filterPix.Alpha = (leftBound != 0) ? imgData[currByte - (rgbSize - 3)] : 0;
           break;
         case UP:
           filterPix.Red   = (upperBound >= 0) ? imgData[upperBound] : 0;
@@ -206,25 +206,24 @@ void Png::rgbBitDepth8(std::vector<uint8_t> rgbData) {
             filterPix.Alpha = (uint32_t) floor((((upperBound >= 0) ? imgData[upperBound + 3] : 0) + ((leftBound != 0) ? imgData[leftBound - (rgbSize - 3)] : 0)) / 2) % mod;
           break;
         case PAETH:
-            filterPix = paethRGBBitDepth8(scanlineSize, rgbSize);
+            filterPix = paethRGBBitDepth8(scanlineSize, rgbSize, currByte);
           break;
         default:
           break;
       }
 
-      imgData.push_back((rgbData[i] + filterPix.Red) % mod);
-      imgData.push_back((rgbData[i + 1] + filterPix.Green) % mod);
-      imgData.push_back((rgbData[i + 2] + filterPix.Blue) % mod);
-      originalData << '(' << (int) rgbData[i] << ", " <<(int) rgbData[i + 1] << ", " <<(int) rgbData[i + 2] << ", " << (int)rgbData[i + 3] << ')' << std::endl;
+      imgData[currByte] = ((rgbData[i] + filterPix.Red) % mod);
+      imgData[currByte + 1] = ((rgbData[i + 1] + filterPix.Green) % mod);
+      imgData[currByte + 2] = ((rgbData[i + 2] + filterPix.Blue) % mod);
 
       if (ihdr.colorType == RGBTRIPA)
-        imgData.push_back(rgbData[i + 3] + filterPix.Alpha);
-      newData << '(' << (int)imgData[imgData.size() - 4] << ", " << (int)imgData[imgData.size() - 3] << ", " << (int)imgData[imgData.size() - 2] << ", " << (int)imgData[imgData.size() - 1] << ')' << std::endl;
+        imgData[currByte + 3] = (rgbData[i + 3] + filterPix.Alpha);
+ 
       i += rgbSize;
+      currByte += rgbSize;
     }
   }
 
-  std::cout << imgData.size() << std::endl;
   newData.close();
   originalData.close();
 }
@@ -408,7 +407,19 @@ void Png::readPng() {
 Png::Png(std::string pngPath) {
   pngFile.open(pngPath.c_str(), std::ios::binary);
   readPng();
-  std::cout << (int) ihdr.colorType << ' ' << (int) ihdr.bitDepth << std::endl;
+}
+
+/* Function:    compareSize
+   Description: Compares if png size matches given arguments
+   Parameters:  uint32_t - Width limit
+                uint32_t Height limit
+   Returns:     Status failure/success status of function
+ */
+Status Png::compareSize(uint32_t width, uint32_t height) {
+  if (ihdr.width != width || ihdr.height != height)
+    return FAIL;
+
+  return SUCCESS;
 }
 
 /* Function:    ~Png
