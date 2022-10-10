@@ -5,6 +5,7 @@
 #include "batchBuffer.h"
 #include "renderWindow.h"
 #include "mesh.h"
+#include "font.h"
 
 #define ONE_SEC 1
 
@@ -21,7 +22,9 @@ class Game {
     int endTime;
     static int fps;
     Mesh mesh;
+    Mesh mesh2;
     BatchBuffer testBB;
+    Font font;
 
     void initMainState();
     void gameEnd(); 

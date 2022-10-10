@@ -1,20 +1,21 @@
 #ifndef FONT_H
 #define FONT_H
 
-#define STB_TRUETYPE_IMPLEMENTATION
-#define STBTT_STATIC
-#include "glad/stb_truetype.h"
 #include "common.h"
-
-typedef stbtt_fontinfo lgFont;
+#include "Rectangle.h"
+#include "png.h"
 
 class Font {
   public:
-    Font();
+  Font() {}
+    Font(GLfloat wWidth, GLfloat wHeight, std::string pngFilePath);
     ~Font();
-    int loadFromFile(std::string ttf);
+    std::vector<RectVertexData> operator[](const char &rhs);
   private:
-    lgFont font;
+    void initCharVecSize();
+    void insertFontData( uint8_t pixelPos, uint8_t currLetter, std::vector<RectVertexData> &data);
+
+    std::map<char, std::vector<RectVertexData>> fontData;
 };
 
 #endif

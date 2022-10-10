@@ -18,7 +18,7 @@ struct RectVertexData {
 class Rect {
   public:
     Rect();
-    Rect(uint32_t left, uint32_t top, uint32_t width, uint32_t height);
+    Rect(uint32_t left, uint32_t top, uint32_t width=1, uint32_t height=1);
     ~Rect();
     void getDimensions(GLfloat *left, GLfloat *top, GLfloat *width, GLfloat *height);
     void setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha=255);

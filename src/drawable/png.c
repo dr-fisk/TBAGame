@@ -157,11 +157,7 @@ void Png::rgbBitDepth8(std::vector<uint8_t> rgbData) {
   uint32_t currByte = 0;
   uint32_t leftBound = 0;
   int32_t upperBound = 0;
-  std::ofstream originalData;
-  std::ofstream newData;
   imgData.resize(ihdr.width * ihdr.height * rgbSize);
-  originalData.open("original.txt");
-  newData.open("imgData.txt");
 
  for (int i = 0; i < (int) rgbData.size();) {
     leftBound   = currByte % scanlineSize;
@@ -170,7 +166,6 @@ void Png::rgbBitDepth8(std::vector<uint8_t> rgbData) {
     if (i % (scanlineSize + 1) == 0) {
       filterValue = rgbData[i];
       i ++;
-      originalData << "Filter: " << (int)filterValue << '(' << i / (scanlineSize+1) << ')' << std::endl;
     }
     else {
       switch(filterValue) {
@@ -223,9 +218,6 @@ void Png::rgbBitDepth8(std::vector<uint8_t> rgbData) {
       currByte += rgbSize;
     }
   }
-
-  newData.close();
-  originalData.close();
 }
 
 /* Function:    handlePngColorType

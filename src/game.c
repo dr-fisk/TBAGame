@@ -32,11 +32,15 @@ Game::Game() {
       std::cout << e.what();
     }  */
   std::vector<RectVertexData> vertexes;
-  std::vector<RectVertexData> vert;
+  //std::vector<RectVertexData> vert;
   this->gameRuntime = time(nullptr);
   this->startTime = time(nullptr);
-  mesh = Mesh(window->getWindowWidth(), window->getWindowHeight(), "../src/fonts/Font.png", 0, 0, 1);
-  vertexes = mesh.getMeshData();
+  // Make this mesh shit easier so that all you call is just batchbuffer constructor and give it some data
+  //mesh = Mesh(window->getWindowWidth(), window->getWindowHeight(), "../src/grp9WT.png", 0, 0, 3);
+  font = Font(window->getWindowWidth(), window->getWindowHeight(), "../src/fonts/Font.png");
+  vertexes = font['A'];
+  //vertexes = mesh.getMeshData();
+  //vertexes.insert(vertexes.end(), vert.begin(), vert.end());
   testBB = BatchBuffer(vertexes, RECTANGLE);
 }
 

@@ -23,13 +23,14 @@ Mesh::Mesh(GLfloat wWidth, GLfloat wHeight, std::string pngFile, uint8_t left, u
   Rect rect;
   uint32_t l = 0;
   uint32_t t = 0;
-  uint32_t currPixel = 0;
+  uint32_t currPixel  = 0;
   std::vector<uint8_t> imgData;
   struct Png::IHDR ihdr;
   Png png(pngFile);
   imgData = png.getImgData();
   ihdr = png.getIhdr();
 
+  mesh.resize(ihdr.width * ihdr.height);
   // If size = 0 then there will be rectangles with area 0 so skip
   for (int i = 0; i < ihdr.width * ihdr.height && size > 0; i ++) {
     t = ((i / ihdr.width) + top) * size;
@@ -40,9 +41,9 @@ Mesh::Mesh(GLfloat wWidth, GLfloat wHeight, std::string pngFile, uint8_t left, u
     if (ihdr.colorType == Png::ColorType::RGBTRIP)
       rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2]);
     else if(ihdr.colorType == Png::ColorType::RGBTRIPA)
-       rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2], imgData[currPixel + 3]);
+      rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2], imgData[currPixel + 3]);
 
-    mesh.push_back(rect.createRectVertexData(wWidth, wHeight));
+    mesh[i] = rect.createRectVertexData(wWidth, wHeight);
 
     if (ihdr.colorType == Png::ColorType::RGBTRIP)
       currPixel += RGBSIZE;

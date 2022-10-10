@@ -1,3 +1,6 @@
+#ifndef COMMON_H
+#define COMMON_H
+
 #ifdef __linux__
   #define LINUX
 #elif _WIN32
@@ -8,6 +11,7 @@
 #include <cmath>
 #include <stack>
 #include <queue>
+#include <map>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <ctime>
@@ -29,6 +33,11 @@
 #include "color.h"
 #include "exception.h"
 
+enum Status {
+    FAIL,
+    SUCCESS
+};
+
 #define ASSERT(x) if (!(x)) __debugbreak();
 #define GLCall(x) GLClearError();\
     x;\
@@ -37,3 +46,5 @@
 extern void GLClearError();
 
 extern bool GLLogCall(const char* function, const char *file, int line);
+
+#endif

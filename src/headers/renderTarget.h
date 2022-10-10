@@ -16,7 +16,10 @@
 #define SQUARE_INDICES 6
 #define SQUARE_BYTE_SIZE 32
 
-enum TARGETS{RECTANGLE, TRIANGLE};
+enum TARGETS{
+  RECTANGLE, 
+  TRIANGLE
+};
 
 class RenderTarget {
     public:
