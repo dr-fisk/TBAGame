@@ -4,7 +4,7 @@
    Description: Default Constructor
    Parameters:  None
    Returns:     None
- */
+*/
 Rect::Rect() {
   this->left   = 0;
   this->top    = 0;
@@ -20,7 +20,7 @@ Rect::Rect() {
                 uint32_t - height of rect
                 uint32_t - width of rect
    Returns:     None
- */
+*/
 Rect::Rect(uint32_t left, uint32_t top, uint32_t height, uint32_t width) {
   this->left   = left;
   this->top    = top;
@@ -34,7 +34,7 @@ Rect::Rect(uint32_t left, uint32_t top, uint32_t height, uint32_t width) {
                 uint8_t - Green color attribute
                 uint8_t - Blue color attribute
    Returns:     None
- */
+*/
 void Rect::setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {
   this->rgba = lg::Color(red, green, blue, alpha);
 }
@@ -43,7 +43,7 @@ void Rect::setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {
    Description: Sets the color for the rectangle
    Parameters:  Color - Pre-defined color attribute
    Returns:     None
- */
+*/
 void Rect::setColor(lg::Color color) {
   this->rgba = color;
 }
@@ -52,7 +52,7 @@ void Rect::setColor(lg::Color color) {
    Description: Returns the color attached to the rect shape
    Parameters:  None
    Returns:     Color - Color of rectangle
- */
+*/
 lg::Color Rect::getRGBA() {
   return rgba;
 }
@@ -62,7 +62,7 @@ lg::Color Rect::getRGBA() {
                 or pass by reference
    Parameters:  None
    Returns:     None
- */
+*/
 void Rect::getDimensions(GLfloat *left, GLfloat *top, GLfloat *height, GLfloat *width) {
   *left   = this->left;
   *top    = this->top;
@@ -75,7 +75,7 @@ void Rect::getDimensions(GLfloat *left, GLfloat *top, GLfloat *height, GLfloat *
                 to not have to worry about resolution
    Parameters:  Rect - Rectangle shape to extract coordinates
    Returns:     RenderData - Data that is renderable for batchbuffer;
- */
+*/
 RenderData Rect::createRenderData() {
   GLfloat wWidth = gWindowWidth / 2.0f;
   GLfloat wHeight = gWindowHeight / 2.0f;
@@ -89,15 +89,30 @@ RenderData Rect::createRenderData() {
            Vector2f(x2, y1), rgba, Vector2f(x1, y1), rgba};
 }
 
+/* Function:    setPos
+   Description: Updates position of Rectangle
+   Parameters:  uint32_t - left position of rectangle
+                uint32_t - top position of rectangle
+   Returns:     None
+*/
 void Rect::setPos(uint32_t left, uint32_t top) {
   this->left   = left;
   this->top    = top;
+}
+
+/* Function:    getRenderData
+   Description: Returns render data to be inserted into VBO
+   Parameters:  None
+   Returns:     RenderData - Data that is renderable for batchbuffer;
+*/
+std::vector<RenderData> Rect::getRenderData() {
+  return {Rect::createRenderData()};
 }
 
 /* Function:    ~Rect
    Description: Destructor
    Parameters:  None
    Returns:     None
- */
+*/
 Rect::~Rect() {
 }

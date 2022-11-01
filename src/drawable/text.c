@@ -15,7 +15,7 @@ Text::Text(std::string text, Font &font) {
 
     for (int j = 0; j < MESH16_SIZE; j ++) {
         updateTextPos(temp[j], j, i);
-        renderData[(MESH16_SIZE * i) + j] = temp[j].createRenderData();
+        renderData[(MESH16_SIZE * i) + j] = temp[j].getRenderData()[0];
     }
   }
 }
