@@ -101,8 +101,8 @@ std::shared_ptr<VertexArray> RenderWindow::getVao() {
    Returns:     None
  */
 void RenderWindow::draw(Rect shape) {
-  RectVertexData vc;
-  vc = createRectVertexDataBounded(shape); 
+  RenderData vc;
+  vc = createRenderDataBounded(shape); 
   vbo = std::make_shared<VertexBuffer>(&vc, sizeof(vc));
   VertexBufferLayout layout;
   layout.push(TWO_D_COORDS, GL_FLOAT);
@@ -159,13 +159,13 @@ bool RenderWindow::isOpen(){
     return !glfwWindowShouldClose(window);
 }
 
-/* Function:    createRectVertexData
+/* Function:    createRenderData
    Description: Normalizes Rect coords to be drawn on window this allows us
                 to not have to worry about resolution
    Parameters:  Rect - Rectangle shape to extract coordinates
-   Returns:     RectVertexData - Vertexes from shape;
+   Returns:     RenderData - Vertexes from shape;
  */
-RectVertexData RenderWindow::createRectVertexDataBounded(Rect shape) {
+RenderData RenderWindow::createRenderDataBounded(Rect shape) {
   GLfloat left, top, width, height;
   lg::Color rgba = shape.getRGBA();
   shape.getDimensions(&left, &top, &width, &height);

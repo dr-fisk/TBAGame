@@ -78,10 +78,10 @@ uint32_t RenderTarget::getWindowHeight() {
 std::shared_ptr<VertexArray> RenderTarget::getVao() {
 }
 
-/* Function:    createRectVertexData
+/* Function:    createRenderDataBounded
    Description: Virtual Function
    Parameters:  None
    Returns:     None
  */
-RectVertexData RenderTarget::createRectVertexDataBounded(Rect shape) {
+RenderData RenderTarget::createRenderDataBounded(Rect shape) {
 }

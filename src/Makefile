@@ -60,6 +60,7 @@ drawableFiles = indexBuffer.c \
                 vertexArray.c \
                 rectangle.c \
                 mesh.c \
+				text.c \
 				png.c
 
 objs := $(patsubst %.exe, %.o, $(programs))
@@ -90,6 +91,9 @@ ifneq ($(DEBUG), 1)
 endif
 
 deps := $(patsubst %.o, %.d, $(objs))
+deps += $(patsubst %.o, %.d, $(guiObjs))
+deps += $(patsubst %.o, %.d, $(rendererObjs))
+deps += $(patsubst %.o, %.d, $(rendererObjs))
 -include $(deps)
 
 export

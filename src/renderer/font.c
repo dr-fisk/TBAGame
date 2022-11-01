@@ -11,7 +11,12 @@ const std::vector<char> chars = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J
                                  'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
                                 };
 
-Font::Font(GLfloat wWidth, GLfloat wHeight, std::string pngFilePath) {
+/* Function:    Font
+   Description: Constructs font data from Png file
+   Parameters:  string - Path to font png file
+   Returns:     None
+*/
+Font::Font(std::string pngFilePath) {
   Rect rect;
   uint32_t currPixel = 0;
   uint8_t currLetter = 0;
@@ -19,7 +24,7 @@ Font::Font(GLfloat wWidth, GLfloat wHeight, std::string pngFilePath) {
   uint8_t currHeight = 0;
 
   std::vector<uint8_t> imgData;
-  std::vector<RectVertexData> vertexes(FONT_SIZE);
+  std::vector<Rect> vertexes(FONT_SIZE);
   struct Png::IHDR ihdr;
 
   Png png(pngFilePath);
@@ -36,8 +41,13 @@ Font::Font(GLfloat wWidth, GLfloat wHeight, std::string pngFilePath) {
   // If size = 0 then there will be rectangles with area 0 so skip
   for (int i = 0; i < ihdr.width * ihdr.height; i ++) {
     rect = Rect(i % FONT_SIZE, currHeight % FONT_SIZE);
-    rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2], imgData[currPixel + 3]);
-    vertexes[i % FONT_SIZE] = rect.createRectVertexData(wWidth, wHeight);
+    
+    if (ihdr.colorType == Png::ColorType::RGBTRIP)
+      rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2]);
+    else if(ihdr.colorType == Png::ColorType::RGBTRIPA)
+      rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2], imgData[currPixel + 3]);
+    
+    vertexes[i % FONT_SIZE] = rect;
 
     if ((i + 1) % FONT_SIZE == 0) {
       insertFontData(currHeight % FONT_SIZE, currLetter, vertexes);
@@ -53,15 +63,27 @@ Font::Font(GLfloat wWidth, GLfloat wHeight, std::string pngFilePath) {
       currHeight ++;
     }
 
-    currPixel += 4;
+    if (ihdr.colorType == Png::ColorType::RGBTRIP)
+      currPixel += RGBSIZE;
+    else if(ihdr.colorType == Png::ColorType::RGBTRIPA)
+      currPixel += RGBASIZE;
   }
 }
 
+/* Function:    ~Font
+   Description: Class destructor
+   Parameters:  None
+   Returns:     None
+*/
 Font::~Font() {
-
 }
 
-std::vector<RectVertexData> Font::operator[](const char &rhs) {
+/* Function:    operator[]
+   Description: Returns the Rect data for a given character in Font
+   Parameters:  char - Specific character to grab Rect data
+   Returns:     Vector - Rect data to create render data
+*/
+std::vector<Rect> Font::operator[](const char &rhs) {
   if (fontData.find(rhs) == fontData.end()) {
     std::cout << "Character not found in font" << std::endl;
     exit(0);
@@ -70,12 +92,24 @@ std::vector<RectVertexData> Font::operator[](const char &rhs) {
   return fontData[rhs];
 }
 
+/* Function:    initCharVecSize
+   Description: Initializes the vector container size for all characters
+   Parameters:  None
+   Returns:     None
+*/
 void Font::initCharVecSize() {
   for (size_t i = 0; i < chars.size(); i ++)
     fontData[chars[i]].resize(FONT_SIZE * FONT_SIZE);
 }
 
-void Font::insertFontData( uint8_t pixelPos, uint8_t currLetter, std::vector<RectVertexData> &data) {
+/* Function:    insertFontData
+   Description: Inserts Rect data into the Char map for a specific character
+   Parameters:  uint8_t - Position of current pixel
+                uint8_t - The current letter
+                Vector  - The Rect data that will be inserted
+   Returns:     None
+*/
+void Font::insertFontData( uint8_t pixelPos, uint8_t currLetter, std::vector<Rect> &data) {
   for (int i = pixelPos * FONT_SIZE; i < (pixelPos + 1) * FONT_SIZE; i ++)
     fontData[chars[currLetter]][i] = data[i % FONT_SIZE];
 }

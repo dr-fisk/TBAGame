@@ -8,14 +8,15 @@
 class Font {
   public:
   Font() {}
-    Font(GLfloat wWidth, GLfloat wHeight, std::string pngFilePath);
+    Font(std::string pngFilePath);
     ~Font();
-    std::vector<RectVertexData> operator[](const char &rhs);
+    std::vector<Rect> operator[](const char &rhs);
   private:
     void initCharVecSize();
-    void insertFontData( uint8_t pixelPos, uint8_t currLetter, std::vector<RectVertexData> &data);
+    void insertFontData( uint8_t pixelPos, uint8_t currLetter, std::vector<Rect> &data);
 
-    std::map<char, std::vector<RectVertexData>> fontData;
+// needs to be rects
+    std::map<char, std::vector<Rect>> fontData;
 };
 
 #endif

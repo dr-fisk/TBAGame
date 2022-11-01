@@ -33,7 +33,7 @@ class RenderTarget {
       virtual uint32_t getWindowHeight() = 0;
       virtual uint32_t getWindowWidth() = 0;
       virtual std::shared_ptr<VertexArray> getVao() = 0;
-      virtual RectVertexData createRectVertexDataBounded(Rect shape) = 0;
+      virtual RenderData createRenderDataBounded(Rect shape) = 0;
     private:
 };
 

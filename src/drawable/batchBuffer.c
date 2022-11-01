@@ -5,19 +5,21 @@ BatchBuffer::BatchBuffer() {
 
 /* Function:    BatchBuffer
    Description: Creates Batch Buffer object which easily handles batch rendering
-   Parameters:  Vector - Buffer data to pass to VBO
+   Parameters:  Vector - List of drawable items to insert into VBO
                 uint32_t  - Shape to draw
    Returns:     None
  */
 //TODO: change sizes depending on shape
-BatchBuffer::BatchBuffer(std::vector<RectVertexData> &bufferData, uint32_t shape) {
+BatchBuffer::BatchBuffer(std::vector<Drawable*> &bufferData, uint32_t shape) {
+  std::vector<RenderData> rendData;
+  concatRenderData(bufferData, rendData);
   vao = std::make_shared<VertexArray>(1);
-  vbo = std::make_shared<VertexBuffer>(bufferData.data(), bufferData.size() * sizeof(RectVertexData));
+  vbo = std::make_shared<VertexBuffer>(rendData.data(), rendData.size() * sizeof(RenderData));
   layout.push(TWO_D_COORDS, GL_FLOAT);
   layout.push(RGBA, GL_FLOAT);
 
-  std::vector<uint32_t> indices = shape == RECTANGLE? createRectIndices(bufferData.size()) : 
-                                                      createTriIndices(bufferData.size());
+  std::vector<uint32_t> indices = shape == RECTANGLE? createRectIndices(rendData.size()) : 
+                                                      createTriIndices(rendData.size());
 
   ibo = std::make_shared<IndexBuffer>(indices.data(), indices.size());
 }
@@ -71,6 +73,31 @@ std::vector<uint32_t> BatchBuffer::createTriIndices(uint32_t vboSize) {
   return indices;
 }
 
+/* Function:    render
+   Description: Renders the vertex buffer object
+   Parameters:  RenderTarget - The target to render the VBO to
+   Returns:     None
+ */
 void BatchBuffer::render(const std::shared_ptr<RenderTarget> &target) {
   target->draw(vbo, vao, ibo, layout);
+}
+
+/* Function:    concatRenderData
+   Description: Concatenates render data for each drawable item into one vector
+   Parameters:  Vector - List of drawable items
+                Vector - Container for all render data
+   Returns:     None
+ */
+void BatchBuffer::concatRenderData(std::vector<Drawable*> &bufferData, std::vector<RenderData> &data) {
+  std::vector<RenderData> temp;
+
+  for (size_t i = 0; i < bufferData.size(); i ++) {
+    if (i == 0)
+      data = bufferData[i]->getRenderData();
+    else {
+      temp = bufferData[i]->getRenderData();
+      data.insert(data.end(), temp.begin(), temp.end());
+      temp.clear();
+    }
+  }
 }

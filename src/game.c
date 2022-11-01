@@ -2,6 +2,9 @@
 
 int Game::fps = 0;
 
+GLfloat gWindowWidth = 0;
+GLfloat gWindowHeight = 0;
+
 /* Function:    initMainState
    Description: Helper function which starts our stack of states
                 Always start on main menu state
@@ -19,6 +22,10 @@ void Game::initMainState() {
  */
 Game::Game() {
   window = std::make_shared<RenderWindow>(800, 800, "Lest Window");
+
+  //temp
+  gWindowWidth = 800;
+  gWindowHeight = 800;
   initMainState();
   /* vbo holds vertex data (cooridnates and RGB color)
      You can combine both in one vbo or separate vbo, if
@@ -31,16 +38,19 @@ Game::Game() {
     } catch(Exception &e) {
       std::cout << e.what();
     }  */
-  std::vector<RectVertexData> vertexes;
-  //std::vector<RectVertexData> vert;
+  std::vector<Drawable*> vertexes;
+ // std::vector<Drawable *> vert;
   this->gameRuntime = time(nullptr);
   this->startTime = time(nullptr);
   // Make this mesh shit easier so that all you call is just batchbuffer constructor and give it some data
-  //mesh = Mesh(window->getWindowWidth(), window->getWindowHeight(), "../src/grp9WT.png", 0, 0, 3);
-  font = Font(window->getWindowWidth(), window->getWindowHeight(), "../src/fonts/Font.png");
-  vertexes = font['A'];
-  //vertexes = mesh.getMeshData();
-  //vertexes.insert(vertexes.end(), vert.begin(), vert.end());
+  //mesh = Mesh("../src/heart.png", 0, 0, 1);
+  //mesh2 = Mesh("../src/heart.png", 16,0,1);
+  font = Font("../src/fonts/Font.png");
+  text = Text("TEST", font);
+  vertexes.push_back(&text);
+  //vertexes.push_back(&mesh);
+  //vertexes.push_back(&mesh2);
+ // vertexes.insert(vertexes.end(), vert.begin(), vert.end());
   testBB = BatchBuffer(vertexes, RECTANGLE);
 }
 

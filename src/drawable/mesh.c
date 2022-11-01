@@ -6,20 +6,18 @@
    Parameters:  None
    Returns:     None
  */
-Mesh::Mesh() {
+Mesh::Mesh() : Drawable() {
 }
 
 /* Function:    Mesh
    Description: Initializes mesh texture
-   Parameters:  GLfloat - Window width
-                GLfloat - Window height
-                std::string - Path to PNG file
+   Parameters:  std::string - Path to PNG file
                 uint8_t - Left coordinate for Rect
                 uint8_t - Top coordinate for Rect
                 uint8_t - Multiplier for size of pixel
    Returns:     None
  */
-Mesh::Mesh(GLfloat wWidth, GLfloat wHeight, std::string pngFile, uint8_t left, uint8_t top, uint8_t size) {
+Mesh::Mesh(std::string pngFile, uint8_t left, uint8_t top, uint8_t size) {
   Rect rect;
   uint32_t l = 0;
   uint32_t t = 0;
@@ -43,7 +41,7 @@ Mesh::Mesh(GLfloat wWidth, GLfloat wHeight, std::string pngFile, uint8_t left, u
     else if(ihdr.colorType == Png::ColorType::RGBTRIPA)
       rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2], imgData[currPixel + 3]);
 
-    mesh[i] = rect.createRectVertexData(wWidth, wHeight);
+    mesh[i] = rect.createRenderData();
 
     if (ihdr.colorType == Png::ColorType::RGBTRIP)
       currPixel += RGBSIZE;
@@ -54,12 +52,12 @@ Mesh::Mesh(GLfloat wWidth, GLfloat wHeight, std::string pngFile, uint8_t left, u
   imgData.clear();
 }
 
-/* Function:    getMeshData
-   Description: Getter for mesh data
+/* Function:    getRenderData
+   Description: Getter for render data coressponding to mesh object
    Parameters:  None
-   Returns:     std::vector<RectVetexData> Mesh data
+   Returns:     std::vector<RenderData> Mesh data
  */
-std::vector<RectVertexData>& Mesh::getMeshData() {
+std::vector<RenderData> Mesh::getRenderData() {
   return mesh;
 }
 

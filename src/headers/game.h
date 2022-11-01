@@ -6,6 +6,7 @@
 #include "renderWindow.h"
 #include "mesh.h"
 #include "font.h"
+#include "text.h"
 
 #define ONE_SEC 1
 
@@ -25,6 +26,7 @@ class Game {
     Mesh mesh2;
     BatchBuffer testBB;
     Font font;
+    Text text;
 
     void initMainState();
     void gameEnd(); 

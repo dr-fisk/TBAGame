@@ -70,15 +70,15 @@ void Rect::getDimensions(GLfloat *left, GLfloat *top, GLfloat *height, GLfloat *
   *width  = this->width;
 }
 
-/* Function:    createRectVertexData
+/* Function:    createRenderData
    Description: Normalizes Rect coords to be drawn on window this allows us
                 to not have to worry about resolution
    Parameters:  Rect - Rectangle shape to extract coordinates
-   Returns:     RectVertexData - Vertexes from shape;
+   Returns:     RenderData - Data that is renderable for batchbuffer;
  */
-RectVertexData Rect::createRectVertexData(GLfloat windWidth, GLfloat windHeight) {
-  GLfloat wWidth = windWidth / 2.0f;
-  GLfloat wHeight = windHeight / 2.0f;
+RenderData Rect::createRenderData() {
+  GLfloat wWidth = gWindowWidth / 2.0f;
+  GLfloat wHeight = gWindowHeight / 2.0f;
 
   GLfloat x1 = ((GLfloat) left / wWidth) - 1.0f;
   GLfloat x2 = (((GLfloat) left + (GLfloat) width)/ wWidth) - 1.0f;
@@ -87,6 +87,11 @@ RectVertexData Rect::createRectVertexData(GLfloat windWidth, GLfloat windHeight)
 
   return { Vector2f(x1, y2), rgba, Vector2f(x2, y2), rgba,
            Vector2f(x2, y1), rgba, Vector2f(x1, y1), rgba};
+}
+
+void Rect::setPos(uint32_t left, uint32_t top) {
+  this->left   = left;
+  this->top    = top;
 }
 
 /* Function:    ~Rect
