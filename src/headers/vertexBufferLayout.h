@@ -11,7 +11,7 @@ struct VertexBufferElement {
 
 class VertexBufferLayout {
   public:
-    VertexBufferLayout() : stride(0) {}
+    VertexBufferLayout() : mStride(0) {}
     ~VertexBufferLayout() {}
 
     /* Function:    push
@@ -19,15 +19,15 @@ class VertexBufferLayout {
        Parameters:  uint32_t - Number of elements describing VBO for VAO to understand
        Returns:     None 
     */
-    void push(uint32_t count, uint16_t type) {
-        elements.push_back({type, count, true});
+    void push(const uint32_t cCount, const uint16_t cType) {
+        mElements.push_back({cType, cCount, true});
 
-        switch(type) {
+        switch(cType) {
            case GL_FLOAT:
-             stride += sizeof(GLfloat) * count;
+             mStride += sizeof(GLfloat) * cCount;
              break;
            case GL_UNSIGNED_BYTE:
-             stride += sizeof(GLuint) * count;
+             mStride += sizeof(GLuint) * cCount;
              break;
         }
         
@@ -38,17 +38,17 @@ class VertexBufferLayout {
        Parameters:  None
        Returns:     vector - List of element data describing VBO
     */
-    inline const std::vector<VertexBufferElement> getElements() const {return elements;}
+    inline const std::vector<VertexBufferElement> getElements() const {return mElements;}
 
     /* Function:    getStride
        Description: Returns the stride of VBO
        Parameters:  None
        Returns:     uint32_t - Stride of VBO 
     */
-    inline uint32_t getStride() const {return stride;}
+    inline uint32_t getStride() const {return mStride;}
   private:
-    std::vector<VertexBufferElement> elements; 
-    uint32_t stride;
+    std::vector<VertexBufferElement> mElements; 
+    uint32_t mStride;
 };
 
 #endif

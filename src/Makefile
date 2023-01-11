@@ -45,7 +45,8 @@ linkFiles  = common.c \
              game.c \
              state.c
 
-stateFiles = mainMenuState.c
+stateFiles = mainMenuState.c \
+             exceptionState.c
 
 guiFiles   = gui.c
 

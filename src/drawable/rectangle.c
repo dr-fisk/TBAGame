@@ -6,11 +6,11 @@
    Returns:     None
 */
 Rect::Rect() {
-  this->left   = 0;
-  this->top    = 0;
-  this->width  = 0;
-  this->height = 0;
-  this->rgba = lg::Color(0, 0, 0);
+  mLeft   = 0;
+  mTop    = 0;
+  mWidth  = 0;
+  mHeight = 0;
+  mRgba = lg::Color(0, 0, 0);
 }
 
 /* Function:    Rect
@@ -21,11 +21,11 @@ Rect::Rect() {
                 uint32_t - width of rect
    Returns:     None
 */
-Rect::Rect(uint32_t left, uint32_t top, uint32_t height, uint32_t width) {
-  this->left   = left;
-  this->top    = top;
-  this->width  = width;
-  this->height = height;
+Rect::Rect(const uint32_t cLeft, const uint32_t cTop, const uint32_t cHeight, const uint32_t cWidth) {
+  mLeft   = cLeft;
+  mTop    = cTop;
+  mWidth  = cWidth;
+  mHeight = cHeight;
 }
 
 /* Function:    setColor
@@ -35,8 +35,8 @@ Rect::Rect(uint32_t left, uint32_t top, uint32_t height, uint32_t width) {
                 uint8_t - Blue color attribute
    Returns:     None
 */
-void Rect::setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {
-  this->rgba = lg::Color(red, green, blue, alpha);
+void Rect::setColor(const uint8_t cRed, const uint8_t cGreen, const uint8_t cBlue, const uint8_t cAlpha) {
+  mRgba = lg::Color(cRed, cGreen, cBlue, cAlpha);
 }
 
 /* Function:    setColor
@@ -44,8 +44,8 @@ void Rect::setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {
    Parameters:  Color - Pre-defined color attribute
    Returns:     None
 */
-void Rect::setColor(lg::Color color) {
-  this->rgba = color;
+void Rect::setColor(const lg::Color cColor) {
+  mRgba = cColor;
 }
 
 /* Function:    getRBGA
@@ -54,7 +54,7 @@ void Rect::setColor(lg::Color color) {
    Returns:     Color - Color of rectangle
 */
 lg::Color Rect::getRGBA() {
-  return rgba;
+  return mRgba;
 }
 
 /* Function:    getDimensions
@@ -63,11 +63,11 @@ lg::Color Rect::getRGBA() {
    Parameters:  None
    Returns:     None
 */
-void Rect::getDimensions(GLfloat *left, GLfloat *top, GLfloat *height, GLfloat *width) {
-  *left   = this->left;
-  *top    = this->top;
-  *height = this->height;
-  *width  = this->width;
+void Rect::getDimensions(GLfloat *pLeft, GLfloat *pTop, GLfloat *pHeight, GLfloat *pWidth) {
+  *pLeft   = mLeft;
+  *pTop    = mTop;
+  *pHeight = mHeight;
+  *pWidth  = mWidth;
 }
 
 /* Function:    createRenderData
@@ -80,13 +80,13 @@ RenderData Rect::createRenderData() {
   GLfloat wWidth = gWindowWidth / 2.0f;
   GLfloat wHeight = gWindowHeight / 2.0f;
 
-  GLfloat x1 = ((GLfloat) left / wWidth) - 1.0f;
-  GLfloat x2 = (((GLfloat) left + (GLfloat) width)/ wWidth) - 1.0f;
-  GLfloat y1 = -1 * (((GLfloat) top / wHeight) - 1.0f);
-  GLfloat y2 = -1 * ((((GLfloat) top + (GLfloat) height) / wHeight) - 1.0f);
+  GLfloat x1 = ((GLfloat) mLeft / wWidth) - 1.0f;
+  GLfloat x2 = (((GLfloat) mLeft + (GLfloat) mWidth)/ wWidth) - 1.0f;
+  GLfloat y1 = -1 * (((GLfloat) mTop / wHeight) - 1.0f);
+  GLfloat y2 = -1 * ((((GLfloat) mTop + (GLfloat) mHeight) / wHeight) - 1.0f);
 
-  return { Vector2f(x1, y2), rgba, Vector2f(x2, y2), rgba,
-           Vector2f(x2, y1), rgba, Vector2f(x1, y1), rgba};
+  return { Vector2f(x1, y2), mRgba, Vector2f(x2, y2), mRgba,
+           Vector2f(x2, y1), mRgba, Vector2f(x1, y1), mRgba};
 }
 
 /* Function:    setPos
@@ -95,9 +95,9 @@ RenderData Rect::createRenderData() {
                 uint32_t - top position of rectangle
    Returns:     None
 */
-void Rect::setPos(uint32_t left, uint32_t top) {
-  this->left   = left;
-  this->top    = top;
+void Rect::setPos(const uint32_t cLeft, const uint32_t cTop) {
+  mLeft   = cLeft;
+  mTop    = cTop;
 }
 
 /* Function:    getRenderData

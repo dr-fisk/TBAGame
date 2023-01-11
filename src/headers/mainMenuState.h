@@ -5,8 +5,18 @@
 
 class MainMenu : public State {
   public:
-    MainMenu(std::shared_ptr<RenderWindow> wind, std::stack<std::shared_ptr<State>> s);
+    MainMenu(const std::stack<std::shared_ptr<State>> &crStates);
     ~MainMenu();
+    void render(const std::shared_ptr<RenderTarget> &crpTarget);
+    void update();
+    bool shouldStateExit();
+
+  private:
+    Mesh mMesh;
+    Mesh mMesh2;
+    BatchBuffer mTestBB;
+    Font mFont;
+    Text mText;
 };
 
 #endif

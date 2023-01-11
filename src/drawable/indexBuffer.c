@@ -6,10 +6,10 @@
                 uint32_t  - Size of array
    Returns:     None
  */
-IndexBuffer::IndexBuffer(const uint32_t *data, uint32_t count) : count(count) {
-  GLCall(glGenBuffers(1, &indexID));
-  GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexID));
-  GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), data, GL_STATIC_DRAW));
+IndexBuffer::IndexBuffer(const uint32_t *cpData, const uint32_t cCount) : mCount(cCount) {
+  GLCall(glGenBuffers(1, &mIndexID));
+  GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexID));
+  GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, cCount * sizeof(uint32_t), cpData, GL_STATIC_DRAW));
 }
 
 /* Function:    ~IndexBuffer
@@ -18,7 +18,7 @@ IndexBuffer::IndexBuffer(const uint32_t *data, uint32_t count) : count(count) {
    Returns:     None
  */
 IndexBuffer::~IndexBuffer() {
-  GLCall(glDeleteBuffers(1, &indexID));
+  GLCall(glDeleteBuffers(1, &mIndexID));
 }
 
 /* Function:    bind
@@ -28,7 +28,7 @@ IndexBuffer::~IndexBuffer() {
    Returns:     None
  */
 void IndexBuffer::bind() const {
-  GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexID));
+  GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexID));
 }
 
 /* Function:    unbind

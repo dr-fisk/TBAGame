@@ -6,29 +6,30 @@
 
 class RenderWindow : public RenderTarget {
     public:
-      RenderWindow(uint32_t wWidth, uint32_t wHeight, const char *title);
+      RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHeight, const char *cpTitle, GLFWwindow *window=NULL);
       ~RenderWindow();
       bool isOpen();
       virtual uint32_t getWindowWidth();
       virtual uint32_t getWindowHeight();
       virtual void clear();
       virtual void display();
-      virtual void draw(Rect shape);
-      virtual void draw(const std::shared_ptr<VertexBuffer> &VBO, const std::shared_ptr<VertexArray> &VAO,
-                        const std::shared_ptr<IndexBuffer> &IBO, const VertexBufferLayout &layout);
-      virtual std::shared_ptr<VertexArray> getVao();
-      virtual RenderData createRenderDataBounded(Rect shape);
-      void pollEvent();
+      virtual void draw(Rect &rShape);
+      virtual void draw(BatchBuffer &rBuffer);
+      virtual void draw(const std::shared_ptr<VertexBuffer> &crpVbo, const std::shared_ptr<VertexArray> &crpVao,
+                        const std::shared_ptr<IndexBuffer> &crpIbo, const VertexBufferLayout &rLayout);
+      virtual RenderData createRenderDataBounded(Rect &rShape);
+      void setActive();
+      void initWindow();
+      void destroyWindow();
+      GLFWwindow *getGlWindow();
+      void setShader(const std::shared_ptr<Shader> &crShader);
     private:
-      uint32_t wHeight;
-      uint32_t wWidth;
-      std::shared_ptr<VertexArray> vao;
-      std::shared_ptr<VertexBuffer> vbo;
-      std::shared_ptr<IndexBuffer> ib;
-      std::shared_ptr<Shader> shader;
-      std::string title;
-      GLFWwindow *window;
-      void boundCoords(GLfloat *left, GLfloat *width, GLfloat *top, GLfloat *height);
+      uint32_t mWdwHeight;
+      uint32_t mWdwWidth;
+      std::shared_ptr<Shader> mpShader;
+      std::string mTitle;
+      GLFWwindow *mpWindow;
+      void boundCoords(GLfloat *pLeft, GLfloat *pWidth, GLfloat *pTop, GLfloat *pHeight);
 };
 
 #endif

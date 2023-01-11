@@ -2,24 +2,42 @@
 #define BATCHEDBUFFER_H
 
 #include "common.h"
-#include "renderTarget.h"
-#include "Drawable.h"
+#include "drawable.h"
+#include "vertexArray.h"
+#include "vertexBuffer.h"
+#include "indexBuffer.h"
+#include "vertexBufferLayout.h"
+
+#define TWO_D_COORDS 2
+#define TRIANGLE_VERTICES2D 3
+#define SQUARE_VERTICES2D 4
+#define RGBA 4
+#define SQUARE_INDICES 6
+#define SQUARE_BYTE_SIZE 32
+
+enum TARGETS{
+  RECTANGLE, 
+  TRIANGLE
+};
 
 class BatchBuffer {
   public:
     BatchBuffer();
-    BatchBuffer(std::vector<Drawable*> &bufferData, uint32_t shape);
+    BatchBuffer(const std::vector<Drawable*> &crBufferData, const uint32_t cShape);
+    std::shared_ptr<VertexBuffer> getVbo();
+    std::shared_ptr<VertexArray> getVao();
+    std::shared_ptr<IndexBuffer> getIbo();
+    VertexBufferLayout getLayout();
     ~BatchBuffer();
-    void render(const std::shared_ptr<RenderTarget> &target);
   private:
-    std::shared_ptr<VertexBuffer> vbo;
-    std::shared_ptr<VertexArray> vao;
-    std::shared_ptr<IndexBuffer> ibo;
-    VertexBufferLayout layout;
+    std::shared_ptr<VertexBuffer> mpVbo;
+    std::shared_ptr<VertexArray> mpVao;
+    std::shared_ptr<IndexBuffer> mpIbo;
+    VertexBufferLayout mLayout;
 
-    std::vector<uint32_t> createRectIndices(uint32_t vboSize);
-    std::vector<uint32_t> createTriIndices(uint32_t vboSize);
-    void concatRenderData(std::vector<Drawable*> &bufferData, std::vector<RenderData> &data);
+    std::vector<uint32_t> createRectIndices(const uint32_t cVboSize);
+    std::vector<uint32_t> createTriIndices(const uint32_t cVboSize);
+    void concatRenderData(const std::vector<Drawable*> &crBufferData, std::vector<RenderData> &rData);
 };
 
 #endif

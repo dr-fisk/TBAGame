@@ -6,12 +6,12 @@
 class VertexBuffer {
   public:
     VertexBuffer() {}
-    VertexBuffer(const void *data, uint32_t size);
+    VertexBuffer(const void *cpData, const uint32_t cSize);
     ~VertexBuffer();
     void bind() const;
     void unbind() const;
   private:
-    uint32_t bufID;
+    uint32_t mBuffID;
 };
 
 #endif

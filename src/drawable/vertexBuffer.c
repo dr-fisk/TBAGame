@@ -6,10 +6,10 @@
                 size  - The size of data array
    Returns:     None
  */
-VertexBuffer::VertexBuffer(const void *data, uint32_t size) {
-  GLCall(glGenBuffers(1, &bufID));
-  GLCall(glBindBuffer(GL_ARRAY_BUFFER, bufID));
-  GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
+VertexBuffer::VertexBuffer(const void *cpData, const uint32_t cSize) {
+  GLCall(glGenBuffers(1, &mBuffID));
+  GLCall(glBindBuffer(GL_ARRAY_BUFFER, mBuffID));
+  GLCall(glBufferData(GL_ARRAY_BUFFER, cSize, cpData, GL_STATIC_DRAW));
 }
 
 /* Function:    ~VertexBuffer
@@ -18,7 +18,7 @@ VertexBuffer::VertexBuffer(const void *data, uint32_t size) {
    Returns:     None
  */
 VertexBuffer::~VertexBuffer() {
-  GLCall(glDeleteBuffers(1, &bufID));
+  GLCall(glDeleteBuffers(1, &mBuffID));
 }
 
 /* Function:    bind
@@ -29,7 +29,7 @@ VertexBuffer::~VertexBuffer() {
    Returns:     None
  */
 void VertexBuffer::bind() const {
-  GLCall(glBindBuffer(GL_ARRAY_BUFFER, bufID));
+  GLCall(glBindBuffer(GL_ARRAY_BUFFER, mBuffID));
 }
 
 /* Function:    unbind

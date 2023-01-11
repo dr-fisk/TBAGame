@@ -6,45 +6,20 @@
    Parameters:  uint32_t - Window width
                 uint32_t - Window height
                 char*    - Window title
+                GLFWwindow * - (OPTIONAL) Allows sharing of resources for when needing multiple windows, is NULL otherwise
    Returns:     None
  */
-RenderWindow::RenderWindow(uint32_t wWidth, uint32_t wHeight, const char *title) {
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHeight, const char *cpTitle, GLFWwindow *window) {
+  mWdwWidth = cWindowWidth;
+  mWdwHeight = cWindowHeight;
+  mTitle = cpTitle;
+  mpWindow = glfwCreateWindow(mWdwWidth, mWdwHeight, cpTitle, NULL, window);
 
-  if(!glfwInit()) {
-    std::cout << "Failed to open window" << std::endl;
-    exit(0);
-  }
-
-  this->wWidth = wWidth;
-  this->wHeight = wHeight;
-  this->title = title;
-  this->window = glfwCreateWindow(wWidth, wHeight, title, NULL, NULL);
-  glfwMakeContextCurrent(window);
-
-  //Vsync off later make it toggable (limits fps)
-  glfwSwapInterval(0);
-  glewExperimental = GL_TRUE;
-  glewInit();
-
-  if (!window) {
+  if (!mpWindow) {
     std::cout << "Error opening window" << std::endl;
     glfwTerminate();
     exit(0);
   }
-
-  /* inits the shaders */
-  shader = std::make_shared<Shader>("./shaders/shader1.txt");
-
-  /* init vao and vbo must be after glewInit*/
-  uint32_t indeces [] = {0,1,2,2,3,0};
-  vao = std::make_shared<VertexArray>(1);
-  ib  = std::make_shared<IndexBuffer>(indeces, 6);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glClearColor(0.3, 0.0, 0.0, 1.0);
 }
 
 /* Function:    ~RenderWindow
@@ -53,15 +28,7 @@ RenderWindow::RenderWindow(uint32_t wWidth, uint32_t wHeight, const char *title)
    Parameters:  None
    Returns:     None
  */
-RenderWindow::~RenderWindow(){
-  /* Due to shader, IB, VAO, and VBO being smart pointers,
-     reset needs to be called to delete opengl data before
-     terminating window */
-  shader.reset();
-  ib.reset();
-  vao.reset();
-  glfwDestroyWindow(window);
-  glfwTerminate();
+RenderWindow::~RenderWindow() {
 }
 
 /* Function:    clear
@@ -79,18 +46,9 @@ void RenderWindow::clear() {
    Returns:     None
  */
 void RenderWindow::display() {
-  GLCall(glfwSwapBuffers(window));
+  GLCall(glfwSwapBuffers(mpWindow));
   GLCall(glfwPollEvents());
   GLCall(glFlush());
-}
-
-/* Function:    getVao
-   Description: Returns the VAO associated to window
-   Parameters:  None
-   Returns:     shared_ptr<VertexArray> - Window VAO
- */
-std::shared_ptr<VertexArray> RenderWindow::getVao() {
-  return vao;
 }
 
 //TODO: add different shapes?
@@ -100,21 +58,35 @@ std::shared_ptr<VertexArray> RenderWindow::getVao() {
    Parameters:  Rect - Rectangle to draw
    Returns:     None
  */
-void RenderWindow::draw(Rect shape) {
+void RenderWindow::draw(Rect &rShape) {
+  clear();
   RenderData vc;
-  vc = createRenderDataBounded(shape); 
-  vbo = std::make_shared<VertexBuffer>(&vc, sizeof(vc));
+  uint32_t indeces [] = {0,1,2,2,3,0};
+  vc = createRenderDataBounded(rShape); 
+  std::shared_ptr<VertexBuffer> vbo = std::make_shared<VertexBuffer>(&vc, sizeof(vc));
   VertexBufferLayout layout;
+  std::shared_ptr<VertexArray> vao = std::make_shared<VertexArray>(1);
+  std::shared_ptr<IndexBuffer> ibo  = std::make_shared<IndexBuffer>(indeces, 6);
   layout.push(TWO_D_COORDS, GL_FLOAT);
   layout.push(RGBA, GL_FLOAT);
   vao->addBuffer(vbo, layout);
-  shader->bind();
-  ib->bind();
-  GLCall(glDrawElements(GL_TRIANGLES, ib->getCount(), GL_UNSIGNED_INT, nullptr));
-  vbo.reset();
+  mpShader->bind();
+  ibo->bind();
+  GLCall(glDrawElements(GL_TRIANGLES, ibo->getCount(), GL_UNSIGNED_INT, nullptr));
+  display();
 }
 
-//TODO: Allow different shaders to be used
+void RenderWindow::draw(BatchBuffer &rBuffer) {
+  std::shared_ptr<VertexBuffer> vbo = rBuffer.getVbo();
+  std::shared_ptr<VertexArray> vao = rBuffer.getVao();
+  std::shared_ptr<IndexBuffer> ibo = rBuffer.getIbo();
+  VertexBufferLayout layout = rBuffer.getLayout();
+
+  clear();
+  draw(vbo, vao, ibo, layout);
+  display();
+}
+
 /* Function:    draw
    Description: Handles batched rendering
    Parameters:  VertexBuffer - Vertex Buffer to draw
@@ -123,13 +95,12 @@ void RenderWindow::draw(Rect shape) {
                 VertexBufferLayout - Layout of VertexBuffer for VAO
    Returns:     None
  */
-void RenderWindow::draw(const std::shared_ptr<VertexBuffer> &VBO, const std::shared_ptr<VertexArray> &VAO, 
-                        const std::shared_ptr<IndexBuffer> &IBO, const VertexBufferLayout &layout) {
-  VAO->addBuffer(VBO, layout);
-  /*Soon add own shader*/
-  shader->bind();
-  IBO->bind();
-  GLCall(glDrawElements(GL_TRIANGLES, IBO->getCount(), GL_UNSIGNED_INT, nullptr));
+void RenderWindow::draw(const std::shared_ptr<VertexBuffer> &crpVbo, const std::shared_ptr<VertexArray> &crpVao, 
+                        const std::shared_ptr<IndexBuffer> &crpIbo, const VertexBufferLayout &crLayout) {
+  crpVao->addBuffer(crpVbo, crLayout);
+  mpShader->bind();
+  crpIbo->bind();
+  GLCall(glDrawElements(GL_TRIANGLES, crpIbo->getCount(), GL_UNSIGNED_INT, nullptr));
 }
 
 /* Function:    getWindowWidth
@@ -138,7 +109,7 @@ void RenderWindow::draw(const std::shared_ptr<VertexBuffer> &VBO, const std::sha
    Returns:     uint32_t - Window width
  */
 uint32_t RenderWindow::getWindowWidth() {
-    return wWidth;
+    return mWdwWidth;
 }
 
 /* Function:    getWindowHeight
@@ -147,7 +118,7 @@ uint32_t RenderWindow::getWindowWidth() {
    Returns:     uint32_t - Window height
  */
 uint32_t RenderWindow::getWindowHeight() {
-    return wHeight;
+    return mWdwHeight;
 }
 
 /* Function:    getWindowWidth
@@ -156,7 +127,7 @@ uint32_t RenderWindow::getWindowHeight() {
    Returns:     bool - Window open
  */
 bool RenderWindow::isOpen(){
-    return !glfwWindowShouldClose(window);
+    return !glfwWindowShouldClose(mpWindow);
 }
 
 /* Function:    createRenderData
@@ -165,10 +136,10 @@ bool RenderWindow::isOpen(){
    Parameters:  Rect - Rectangle shape to extract coordinates
    Returns:     RenderData - Vertexes from shape;
  */
-RenderData RenderWindow::createRenderDataBounded(Rect shape) {
+RenderData RenderWindow::createRenderDataBounded(Rect &rShape) {
   GLfloat left, top, width, height;
-  lg::Color rgba = shape.getRGBA();
-  shape.getDimensions(&left, &top, &width, &height);
+  lg::Color rgba = rShape.getRGBA();
+  rShape.getDimensions(&left, &top, &width, &height);
   GLfloat wWidth = (GLfloat) getWindowWidth() / 2.0f;
   GLfloat wHeight = (GLfloat) getWindowHeight() / 2.0f;
 
@@ -188,36 +159,89 @@ RenderData RenderWindow::createRenderDataBounded(Rect shape) {
    Parameters:  None
    Returns:     None
  */
-void RenderWindow::boundCoords(GLfloat *left, GLfloat *width, GLfloat *top, GLfloat *height) {
+void RenderWindow::boundCoords(GLfloat *pLeft, GLfloat *pWidth, GLfloat *pTop, GLfloat *pHeight) {
   uint32_t wWidth = getWindowWidth();
   uint32_t wHeight = getWindowHeight();
 
-  if (*width > wWidth)
-    *width = wWidth;
+  if (*pWidth > wWidth)
+    *pWidth = wWidth;
 
-  if (*height > wHeight)
-    *height = wHeight;
+  if (*pHeight > wHeight)
+    *pHeight = wHeight;
 
-  if (*left > wWidth)
-    *left = wWidth;
+  if (*pLeft > wWidth)
+    *pLeft = wWidth;
   
-  if (*height > wHeight)
-    *height = wHeight;
+  if (*pHeight > wHeight)
+    *pHeight = wHeight;
 
-  if ((*left + *width) > wWidth) {
-    *left -= *width;
+  if ((*pLeft + *pWidth) > wWidth) {
+    *pLeft -= *pWidth;
 
-    if (*left < 0.0f)
-      *left = 0.0f;
+    if (*pLeft < 0.0f)
+      *pLeft = 0.0f;
   }
 
-  if ((*top + *height) > wHeight) {
-    *top -= *height;
+  if ((*pTop + *pHeight) > wHeight) {
+    *pTop -= *pHeight;
 
-    if (*top < 0.0f)
-      *top = 0.0f;
+    if (*pTop < 0.0f)
+      *pTop = 0.0f;
   }
 }
 
-void RenderWindow::pollEvent() {
+/* Function:    setActive
+   Description: Sets the current window to be the Current OpenGL context useful for working with multiple windows must be called before any GL Funciton Call
+   Parameters:  None
+   Returns:     None
+ */
+void RenderWindow::setActive() {
+  glfwMakeContextCurrent(mpWindow);
+
+  //Vsync off later make it toggable (limits fps)
+  glfwSwapInterval(0);
+  glewExperimental = GL_TRUE;
+  glewInit();
+}
+
+/* Function:    destroyWindow
+   Description: Cleans up the render window, must be called as this allows for multiple windows to be used
+   Parameters:  None
+   Returns:     None
+ */
+void RenderWindow::destroyWindow() {
+  /* Due to shader, IB, VAO, and VBO being smart pointers,
+     reset needs to be called to delete opengl data before
+     terminating window */
+  mpShader.reset();
+  glfwDestroyWindow(mpWindow);
+}
+
+/* Function:    getGlWindow
+   Description: Getter function for getting a reference to the currnet Gl Window
+   Parameters:  None
+   Returns:     GLFWwindow* - A refernce to the GL Window
+ */
+GLFWwindow* RenderWindow::getGlWindow() {
+  return mpWindow;
+}
+
+/* Function:    setShader
+   Description: Sets the shader to be used for rendering, can actively change shaders
+   Parameters:  None
+   Returns:     None
+ */
+void RenderWindow::setShader(const std::shared_ptr<Shader> &crShader) {
+  mpShader = crShader;
+}
+
+/* Function:    initWindow
+   Description: Inits GL Attributes and must be called after setActive
+   Parameters:  None
+   Returns:     None
+ */
+void RenderWindow::initWindow() {
+  GLCall(glEnable(GL_BLEND));
+  GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+  GLCall(glClearColor(0.3, 0.0, 0.0, 1.0));
 }

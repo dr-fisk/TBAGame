@@ -3,14 +3,20 @@
 
 #include "common.h"
 #include "renderWindow.h"
+#include "mesh.h"
+#include "font.h"
+#include "text.h"
+#include "batchBuffer.h"
 
 class State {
   public:
-    State(std::shared_ptr<RenderWindow> wind, std::stack<std::shared_ptr<State>> s);
+    State(const std::stack<std::shared_ptr<State>> &crStates);
     ~State();
+    virtual void render(const std::shared_ptr<RenderTarget> &) = 0;
+    virtual void update() = 0;
+    virtual bool shouldStateExit() = 0;
   private:
-    std::shared_ptr<RenderWindow> window;
-    std::stack<std::shared_ptr<State>> states;
+    std::stack<std::shared_ptr<State>> mStates;
 };
 
 #endif

@@ -16,18 +16,20 @@ const std::vector<char> chars = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J
    Parameters:  string - Path to font png file
    Returns:     None
 */
-Font::Font(std::string pngFilePath) {
+Font::Font(const std::string &crPngFilePath) {
   Rect rect;
   uint32_t currPixel = 0;
   uint8_t currLetter = 0;
   uint8_t currLetterHeight = 0;
   uint8_t currHeight = 0;
+  uint8_t modCol = 0;
+  uint8_t modHeight = 0;
 
   std::vector<uint8_t> imgData;
   std::vector<Rect> vertexes(FONT_SIZE);
   struct Png::IHDR ihdr;
 
-  Png png(pngFilePath);
+  Png png(crPngFilePath);
   imgData = png.getImgData();
   ihdr = png.getIhdr();
   uint32_t squarePerWidth = ihdr.width / FONT_SIZE;
@@ -40,6 +42,11 @@ Font::Font(std::string pngFilePath) {
 
   // If size = 0 then there will be rectangles with area 0 so skip
   for (int i = 0; i < ihdr.width * ihdr.height; i ++) {
+
+    if (currLetter >= chars.size()) {
+       std::cout << "Error: Png Font image contains more characters than supported";
+    }
+
     rect = Rect(i % FONT_SIZE, currHeight % FONT_SIZE);
     
     if (ihdr.colorType == Png::ColorType::RGBTRIP)
@@ -47,17 +54,25 @@ Font::Font(std::string pngFilePath) {
     else if(ihdr.colorType == Png::ColorType::RGBTRIPA)
       rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2], imgData[currPixel + 3]);
     
+    modCol = (i + 1) % FONT_SIZE;
+    modHeight = currHeight % FONT_SIZE;
+
     vertexes[i % FONT_SIZE] = rect;
 
-    if ((i + 1) % FONT_SIZE == 0) {
-      insertFontData(currHeight % FONT_SIZE, currLetter, vertexes);
+    // The following if statements keep track of what 16x16 pixel character we are on
+    
+    // The following keeps track of which Character we are, after 16 columns we are on a new character
+    if (modCol == 0) {
+      insertFontData(modHeight, currLetter, vertexes);
       currLetter ++;
     }
 
+    // This keeps track on which character row we are on, every 16 rows is a new line of characters
     if (((i + 1) % (ihdr.width * FONT_SIZE)) == 0) {
       currLetterHeight ++;
     }
 
+    // This keeps track on the row we are on for the image
     if ((i + 1) % ihdr.width == 0) {
       currLetter = (squarePerWidth * currLetterHeight);
       currHeight ++;
@@ -83,13 +98,13 @@ Font::~Font() {
    Parameters:  char - Specific character to grab Rect data
    Returns:     Vector - Rect data to create render data
 */
-std::vector<Rect> Font::operator[](const char &rhs) {
-  if (fontData.find(rhs) == fontData.end()) {
+std::vector<Rect> Font::operator[](const char &crRhs) {
+  if (mFontData.find(crRhs) == mFontData.end()) {
     std::cout << "Character not found in font" << std::endl;
     exit(0);
   }
 
-  return fontData[rhs];
+  return mFontData[crRhs];
 }
 
 /* Function:    initCharVecSize
@@ -98,8 +113,12 @@ std::vector<Rect> Font::operator[](const char &rhs) {
    Returns:     None
 */
 void Font::initCharVecSize() {
-  for (size_t i = 0; i < chars.size(); i ++)
-    fontData[chars[i]].resize(FONT_SIZE * FONT_SIZE);
+  //FontAttrib temp;
+  //memset(&temp, -1, sizeof(FontAttrib));
+  for (size_t i = 0; i < chars.size(); i ++) {
+    mFontData[chars[i]].resize(FONT_SIZE * FONT_SIZE);
+    //mFontAttribute[chars[i]] = temp;
+  }
 }
 
 /* Function:    insertFontData
@@ -109,7 +128,7 @@ void Font::initCharVecSize() {
                 Vector  - The Rect data that will be inserted
    Returns:     None
 */
-void Font::insertFontData( uint8_t pixelPos, uint8_t currLetter, std::vector<Rect> &data) {
-  for (int i = pixelPos * FONT_SIZE; i < (pixelPos + 1) * FONT_SIZE; i ++)
-    fontData[chars[currLetter]][i] = data[i % FONT_SIZE];
+void Font::insertFontData(const uint8_t cPixelPos, const uint8_t cCurrLetter, const std::vector<Rect> &crData) {
+  for (int i = cPixelPos * FONT_SIZE; i < (cPixelPos + 1) * FONT_SIZE; i ++)
+    mFontData[chars[cCurrLetter]][i] = crData[i % FONT_SIZE];
 }

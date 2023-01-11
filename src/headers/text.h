@@ -7,13 +7,13 @@
 class Text : public Drawable {
   public:
     Text(){}
-    Text(std::string text, Font &font);
+    Text(const std::string &crText, Font &rFont);
     virtual ~Text();
     virtual std::vector<RenderData> getRenderData();
   private:
-    std::vector<RenderData> renderData;
+    std::vector<RenderData> mRenderData;
 
-    void updateTextPos(Rect &currLetter, uint32_t meshIndex, uint32_t totalIndex);
+    void updateTextPos(Rect &rCurrLetter, const uint32_t cMeshIndex, const uint32_t cTotalIndex);
 };
 
 #endif

@@ -5,30 +5,32 @@
 
 class Vector2f {
   public:
-    Vector2f(GLfloat xPos, GLfloat yPos) {x = xPos; y = yPos;}
+    Vector2f(const GLfloat cXPos, const GLfloat cYPos) {mX = cXPos; mY = cYPos;}
+    Vector2f(const Vector2f &crRhs){*this = crRhs;}
     Vector2f(){}
     ~Vector2f(){}
-    GLfloat getXPos(){return x;}
-    GLfloat getYPos(){return y;}
-    Vector2f& operator=(const Vector2f &rhs){x = rhs.x; y = rhs.y; return *this;}
-    bool operator==(const Vector2f &rhs){return (x == rhs.x) && (y == rhs.y);}
+    GLfloat getXPos(){return mX;}
+    GLfloat getYPos(){return mY;}
+    Vector2f& operator=(const Vector2f &crRhs){mX = crRhs.mX; mY = crRhs.mY; return *this;}
+    bool operator==(const Vector2f &crRhs){return (mX == crRhs.mX) && (mY == crRhs.mY);}
   private:
-    GLfloat x;
-    GLfloat y;
+    GLfloat mX;
+    GLfloat mY;
 };
 
 class Vector2i {
   public:
-    Vector2i(uint32_t xPos, uint32_t yPos) {x = xPos; y = yPos;}
+    Vector2i(const uint32_t cXPos, const uint32_t cYPos) {mX = cXPos; mY = cYPos;}
+    Vector2i(const Vector2i &crRhs){*this = crRhs;}
     Vector2i(){}
     ~Vector2i(){}
-    uint32_t getXPos(){return x;}
-    uint32_t getYPos(){return y;}
-    Vector2i& operator=(const Vector2i &rhs){x = rhs.x; y = rhs.y; return *this;}
-    bool operator==(const Vector2i &rhs){return (x == rhs.x) && (y == rhs.y);}
+    uint32_t getXPos(){return mX;}
+    uint32_t getYPos(){return mY;}
+    Vector2i& operator=(const Vector2i &crRhs){mX = crRhs.mX; mY = crRhs.mY; return *this;}
+    bool operator==(const Vector2i &crRhs){return (mX == crRhs.mX) && (mY == crRhs.mY);}
   private:
-    uint32_t x;
-    uint32_t y;
+    uint32_t mX;
+    uint32_t mY;
 };
 
 #endif

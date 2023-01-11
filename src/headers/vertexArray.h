@@ -8,13 +8,13 @@
 class VertexArray {
   public:
     VertexArray(){}
-    VertexArray(uint32_t num);
+    VertexArray(const uint32_t cNum);
     ~VertexArray();
-    void addBuffer(const std::shared_ptr<VertexBuffer> vb, const VertexBufferLayout &layout);
+    void addBuffer(const std::shared_ptr<VertexBuffer> &crpVbo, const VertexBufferLayout &crLayout);
     void bind() const;
     void unbind() const;
   private:
-    uint32_t vaID;
+    uint32_t mVaID;
 };
 
 #endif

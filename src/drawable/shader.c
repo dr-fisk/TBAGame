@@ -5,9 +5,9 @@
    Parameters:  string - File path location of shader code
    Returns:     None
  */
-Shader::Shader(const std::string &filePath) {
-  ShaderProgSource shaderProg = parseShader(filePath);
-  shaderID = createShader(shaderProg.vertexShader, shaderProg.fragmentShader);
+Shader::Shader(const std::string &crFilePath) {
+  ShaderProgSource shaderProg = parseShader(crFilePath);
+  mShaderID = createShader(shaderProg.vertexShader, shaderProg.fragmentShader);
 }
 
 /* Function:    ~Shader
@@ -16,7 +16,7 @@ Shader::Shader(const std::string &filePath) {
    Returns:     None
  */
 Shader::~Shader() {
-  GLCall(glDeleteProgram(shaderID));
+  GLCall(glDeleteProgram(mShaderID));
 }
 
 /* Function:    bind
@@ -26,7 +26,7 @@ Shader::~Shader() {
    Returns:     None
  */
 void Shader::bind() const {
-  GLCall(glUseProgram(shaderID));
+  GLCall(glUseProgram(mShaderID));
 }
 
 /* Function:    unbind
@@ -43,8 +43,8 @@ void Shader::unbind() const {
    Parameters:  string - File location for shader code
    Returns:     ShaderProgSource - Separate strings for shader components
  */
-ShaderProgSource Shader::parseShader(const std::string &filePath) {
-  std::ifstream fp(filePath);
+ShaderProgSource Shader::parseShader(const std::string &crFilePath) {
+  std::ifstream fp(crFilePath);
 
   enum class ShaderType {
       NONE = -1, VERTEX = 0, FRAGMENT = 1
@@ -76,9 +76,9 @@ ShaderProgSource Shader::parseShader(const std::string &filePath) {
                 string - Fragment Shader code
    Returns:     uint32_t - Shader ID
  */
-uint32_t Shader::createShader(const std::string& vertexShader, const std::string& fragmentShader) {
-  uint32_t vs = compileShader(GL_VERTEX_SHADER, vertexShader);
-  uint32_t fs = compileShader(GL_FRAGMENT_SHADER, fragmentShader);
+uint32_t Shader::createShader(const std::string &crVertexShader, const std::string &crFragmentShader) {
+  uint32_t vs = compileShader(GL_VERTEX_SHADER, crVertexShader);
+  uint32_t fs = compileShader(GL_FRAGMENT_SHADER, crFragmentShader);
   uint32_t ID = glCreateProgram();
   glAttachShader(ID, vs);
   glAttachShader(ID, fs);
@@ -97,10 +97,19 @@ uint32_t Shader::createShader(const std::string& vertexShader, const std::string
                 string   - Shader component code
    Returns:     uint32_t - Shader component ID
  */
-uint32_t Shader::compileShader(uint32_t type, const std::string &source) {
-  uint32_t ID = glCreateShader(type);
-  const char* src = source.c_str();
+uint32_t Shader::compileShader(const uint32_t cType, const std::string &crSource) {
+  uint32_t ID = glCreateShader(cType);
+  const char* src = crSource.c_str();
   glShaderSource(ID, 1, &src, nullptr);
   glCompileShader(ID);
   return ID;
+}
+
+/* Function:    getShaderId
+   Description: Getter function for member Id variable
+   Parameters:  None
+   Returns:     uint32_t - ID associated with the shader
+ */
+uint32_t Shader::getShaderId() {
+  return mShaderID;
 }

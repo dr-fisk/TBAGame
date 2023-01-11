@@ -2,26 +2,28 @@
 #define COLOR_H
 
 #include "common.h"
+
 namespace lg {
 class Color {
   public:
-    Color(GLfloat r, GLfloat g, GLfloat b, GLfloat a=255.0f) {
-      red = r / 255.0f;
-      green = g / 255.0f;
-      blue = b / 255.0f;
-      alpha = a / 255.0f;
+    Color(const GLfloat cRed, const GLfloat cGreen, GLfloat cBlue, const GLfloat cAlpha=255.0f) {
+      mRed = cRed / 255.0f;
+      mGreen = cGreen / 255.0f;
+      mBlue = cBlue / 255.0f;
+      mAlpha = cAlpha / 255.0f;
     }
+    Color(const Color &crRhs){*this = crRhs;}
     Color(){}
     ~Color(){}
-    GLfloat getRed(){return red;}
-    GLfloat getGreen(){return green;}
-    GLfloat getBlue(){return blue;}
-    GLfloat getalpha(){return alpha;}
-    Color& operator=(const Color &rhs) {
-      this->red = rhs.red;
-      this->green = rhs.green;
-      this->blue = rhs.blue;
-      this->alpha = rhs.alpha;
+    GLfloat getRed(){return mRed;}
+    GLfloat getGreen(){return mGreen;}
+    GLfloat getBlue(){return mBlue;}
+    GLfloat getalpha(){return mAlpha;}
+    Color& operator=(const Color &crRhs) {
+      mRed = crRhs.mRed;
+      mGreen = crRhs.mGreen;
+      mBlue = crRhs.mBlue;
+      mAlpha = crRhs.mAlpha;
       return *this;
     }
 
@@ -36,10 +38,10 @@ class Color {
     static const Color Pink;
     static const Color Grey;
   private:
-    GLfloat red;
-    GLfloat green;
-    GLfloat blue;
-    GLfloat alpha;
+    GLfloat mRed;
+    GLfloat mGreen;
+    GLfloat mBlue;
+    GLfloat mAlpha;
 };
   const Color Red = Color(255.0f, 0.0f, 0.0f);
   const Color Black = Color(0.0f, 0.0f, 0.0f);

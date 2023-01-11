@@ -1,6 +1,8 @@
 #include "game.h"
 
-int Game::fps = 0;
+const std::string MAIN_SHADER = "./shaders/shader1.txt";
+
+int Game::mFps = 0;
 
 GLfloat gWindowWidth = 0;
 GLfloat gWindowHeight = 0;
@@ -12,7 +14,19 @@ GLfloat gWindowHeight = 0;
    Returns:     None
  */
 void Game::initMainState() {
-  states.push(std::make_shared<MainMenu>(window, states));
+  //mStates.push(std::make_shared<ExceptionState>(mStates, "TESTING"));
+  mStates.push(std::make_shared<MainMenu>(mStates));
+}
+
+/* Function:    initShaders
+   Description: Helper function which initializes and caches shaders
+                CALL AFTER SETTING GL WINDOW CONTEXT AND BEFORE SETTING WINDOW SHADER
+   Parameters:  None
+   Returns:     None
+ */
+void Game::initShaders() {
+  //TODO: Add more shaders if necessary
+  mShaders[MAIN_SHADER] = std::make_shared<Shader>(MAIN_SHADER);
 }
 
 /* Function:    Game
@@ -21,7 +35,29 @@ void Game::initMainState() {
    Returns:     None
  */
 Game::Game() {
-  window = std::make_shared<RenderWindow>(800, 800, "Lest Window");
+  if(!glfwInit()) {
+    std::cout << "Failed to open window" << std::endl;
+    exit(0);
+  }
+
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+  mpWindow = std::make_shared<RenderWindow>(800, 800, "Lest Window");
+  //mpWindow->initWindow();
+
+  /* NOTE: BEFORE ANY GL CALL, THAT IS NOT GLFW but GL, SET ACTIVE MUST BE CALLED OR ELSE OPENGL FAILS */
+  mpWindow->setActive();
+
+  /* initShaders comes after set Active as it contains GL calls*/
+  initShaders();
+
+  // Set the shader to be attached to the window
+  mpWindow->setShader(mShaders[MAIN_SHADER]);
+
+  //init GL attributes for window
+  mpWindow->initWindow();
 
   //temp
   gWindowWidth = 800;
@@ -38,20 +74,9 @@ Game::Game() {
     } catch(Exception &e) {
       std::cout << e.what();
     }  */
-  std::vector<Drawable*> vertexes;
- // std::vector<Drawable *> vert;
-  this->gameRuntime = time(nullptr);
-  this->startTime = time(nullptr);
-  // Make this mesh shit easier so that all you call is just batchbuffer constructor and give it some data
-  //mesh = Mesh("../src/heart.png", 0, 0, 1);
-  //mesh2 = Mesh("../src/heart.png", 16,0,1);
-  font = Font("../src/fonts/Font.png");
-  text = Text("TEST", font);
-  vertexes.push_back(&text);
-  //vertexes.push_back(&mesh);
-  //vertexes.push_back(&mesh2);
- // vertexes.insert(vertexes.end(), vert.begin(), vert.end());
-  testBB = BatchBuffer(vertexes, RECTANGLE);
+  mGameRuntime = time(nullptr);
+  mStartTime = time(nullptr);
+
 }
 
 /* Function:    ~Game
@@ -60,45 +85,25 @@ Game::Game() {
    Returns:     None
  */
 Game::~Game() {
-  while(!states.empty()) {
-    states.pop();
+  while(!mStates.empty()) {
+    mStates.pop();
+    std::cout << "What\n";
   }
+
+  deleteShaders();
+  mpWindow->destroyWindow();
+  glfwTerminate();
 }
 
-/* TODO: Remove temp parameters for development */
-/* TODO: Remove rects, this is development testing at the moment */
-/* Function:    render
-   Description: Renders window
+/* Function:    deleteShaders
+   Description: Helper function which deletes the cached shaders
    Parameters:  None
    Returns:     None
  */
-void Game::render(const std::shared_ptr<RenderTarget> &target) {
-  /*Rect test;
-  test = Rect(0, 0, 100, 100);
-  test.setColor(lg::Blue);
-  Rect test2(800, 800, 100, 100);
-  test2.setColor(lg::Pink);
-  Rect test3(800, 0, 100, 100);
-  test3.setColor(lg::Purple);
-  Rect test4(0, 800, 100, 100);
-  test4.setColor(lg::Yellow);
-  Rect test5(100, 100, 10, 10);
-  test5.setColor(lg::Green);
-  Rect test6(100, 200, 10, 10);
-  test6.setColor(lg::White);
-  Rect test7(400, 300, 5, 5);
-  test7.setColor(lg::Orange);
-  vertexes.push_back(target->createRectVertexDataBounded(test));
-  vertexes.push_back(target->createRectVertexDataBounded(test2));
-  vertexes.push_back(target->createRectVertexDataBounded(test3));
-  vertexes.push_back(target->createRectVertexDataBounded(test4));
-  vertexes.push_back(target->createRectVertexDataBounded(test5));
-  vertexes.push_back(target->createRectVertexDataBounded(test6));
-  vertexes.push_back(target->createRectVertexDataBounded(test7)); */
-  target->clear();
-  testBB.render(target);
-  //target->draw(test);
-  target->display();
+void Game::deleteShaders() {
+  for(std::map<std::string, std::shared_ptr<Shader>>::iterator it = mShaders.begin(); it != mShaders.end(); it++) {
+    it->second.reset();
+  }
 }
 
 /* Function:    gameLoop
@@ -107,19 +112,19 @@ void Game::render(const std::shared_ptr<RenderTarget> &target) {
    Returns:     None
  */
 void Game::gameLoop() {
-  while(window->isOpen()) {
-    if (states.empty())
-      break;
-
-    render(window);
-    //update data
-    //render
-    Game::fps ++;
-    endTime = time(nullptr);
-    if ((endTime - startTime) > 0) {
-      std::cout << "FPS: " << Game::fps / (endTime - startTime) << std::endl;
-      fps = 0;
-      startTime = endTime;
+  while(!mStates.empty() && mpWindow->isOpen()) {
+    if (mStates.top()->shouldStateExit()) {
+      mStates.pop();
+    }
+    
+    mStates.top()->update();
+    mStates.top()->render(mpWindow);
+    Game::mFps ++;
+    mEndTime = time(nullptr);
+    if ((mEndTime - mStartTime) > 0) {
+      std::cout << "FPS: " << Game::mFps / (mEndTime - mStartTime) << std::endl;
+      mFps = 0;
+      mStartTime = mEndTime;
     }
   }
 

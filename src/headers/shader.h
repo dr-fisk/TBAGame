@@ -11,15 +11,16 @@ struct ShaderProgSource {
 class Shader {
   public:
     Shader(){}
-    Shader(const std::string &filePath);
+    Shader(const std::string &crFilePath);
     ~Shader();
     void bind() const;
     void unbind() const;
+    uint32_t getShaderId();
   private:
-    uint32_t shaderID;
-    ShaderProgSource parseShader(const std::string &filePath);
-    uint32_t createShader(const std::string& vertexShader, const std::string& fragmentShader);
-    uint32_t compileShader(uint32_t type, const std::string &source);
+    uint32_t mShaderID;
+    ShaderProgSource parseShader(const std::string &crFilePath);
+    uint32_t createShader(const std::string &crVertexShader, const std::string &crFragmentShader);
+    uint32_t compileShader(const uint32_t cType, const std::string &crSource);
 };
 
 #endif

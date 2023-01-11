@@ -10,18 +10,18 @@ BatchBuffer::BatchBuffer() {
    Returns:     None
  */
 //TODO: change sizes depending on shape
-BatchBuffer::BatchBuffer(std::vector<Drawable*> &bufferData, uint32_t shape) {
+BatchBuffer::BatchBuffer(const std::vector<Drawable*> &crBufferData, const uint32_t cShape) {
   std::vector<RenderData> rendData;
-  concatRenderData(bufferData, rendData);
-  vao = std::make_shared<VertexArray>(1);
-  vbo = std::make_shared<VertexBuffer>(rendData.data(), rendData.size() * sizeof(RenderData));
-  layout.push(TWO_D_COORDS, GL_FLOAT);
-  layout.push(RGBA, GL_FLOAT);
+  concatRenderData(crBufferData, rendData);
+  mpVao = std::make_shared<VertexArray>(1);
+  mpVbo = std::make_shared<VertexBuffer>(rendData.data(), rendData.size() * sizeof(RenderData));
+  mLayout.push(TWO_D_COORDS, GL_FLOAT);
+  mLayout.push(RGBA, GL_FLOAT);
 
-  std::vector<uint32_t> indices = shape == RECTANGLE? createRectIndices(rendData.size()) : 
+  std::vector<uint32_t> indices = cShape == RECTANGLE ? createRectIndices(rendData.size()) : 
                                                       createTriIndices(rendData.size());
 
-  ibo = std::make_shared<IndexBuffer>(indices.data(), indices.size());
+  mpIbo = std::make_shared<IndexBuffer>(indices.data(), indices.size());
 }
 
 /* Function:    ~BatchBuffer
@@ -37,12 +37,12 @@ BatchBuffer::~BatchBuffer() {
    Parameters:  uint32_t - Size of VBO
    Returns:     Vector   - Indeces to construct Rect IBO
  */
-std::vector<uint32_t> BatchBuffer::createRectIndices(uint32_t vboSize) {
+std::vector<uint32_t> BatchBuffer::createRectIndices(const uint32_t cVboSize) {
   std::vector<uint32_t> indices = {0, 1, 2, 2, 3, 0};
   uint32_t offset = SQUARE_VERTICES2D;
 
   /* Squares contain 6 Vertices indexed from 0-5*/
-  for (uint32_t i = 1; i < vboSize; i++) {
+  for (uint32_t i = 1; i < cVboSize; i++) {
     indices.push_back(indices[0] + (offset * i)); 
     indices.push_back(indices[1] + (offset * i));
     indices.push_back(indices[2] + (offset * i));
@@ -59,12 +59,12 @@ std::vector<uint32_t> BatchBuffer::createRectIndices(uint32_t vboSize) {
    Parameters:  uint32_t - Size of VBO
    Returns:     Vector   - Indeces to construct Triangle IBO
  */
-std::vector<uint32_t> BatchBuffer::createTriIndices(uint32_t vboSize) {
+std::vector<uint32_t> BatchBuffer::createTriIndices(const uint32_t cVboSize) {
   std::vector<uint32_t> indices = {0, 1, 2};
   uint32_t offset = TRIANGLE_VERTICES2D;
 
   /* Triangles contain 3 vertices indexed 0-2 */
-  for (int i = 1; i < vboSize; i++) {
+  for (int i = 1; i < cVboSize; i++) {
     indices.push_back(indices[0] + (offset * i)); 
     indices.push_back(indices[1] + (offset * i));
     indices.push_back(indices[2] + (offset * i));
@@ -73,13 +73,40 @@ std::vector<uint32_t> BatchBuffer::createTriIndices(uint32_t vboSize) {
   return indices;
 }
 
-/* Function:    render
-   Description: Renders the vertex buffer object
-   Parameters:  RenderTarget - The target to render the VBO to
-   Returns:     None
+/* Function:    getVbo
+   Description: Getter function for member variable mpVbo
+   Parameters:  None
+   Returns:     std::shared_ptr - Pointer to Vertex Buffer Object
  */
-void BatchBuffer::render(const std::shared_ptr<RenderTarget> &target) {
-  target->draw(vbo, vao, ibo, layout);
+std::shared_ptr<VertexBuffer> BatchBuffer::getVbo() {
+  return mpVbo;
+}
+
+/* Function:    getVao
+   Description: Getter function for member variable mpVao
+   Parameters:  None
+   Returns:     std::shared_ptr - Pointer to Vertex Attribute Object
+ */
+std::shared_ptr<VertexArray> BatchBuffer::getVao() {
+  return mpVao;
+}
+
+/* Function:    getIbo
+   Description: Getter function for member variable mpIbo
+   Parameters:  None
+   Returns:     std::shared_ptr - Pointer to Index Buffer Object
+ */
+std::shared_ptr<IndexBuffer> BatchBuffer::getIbo() {
+  return mpIbo;
+}
+
+/* Function:    getLayout
+   Description: Getter function for member variable mLayout
+   Parameters:  None
+   Returns:     VertexBufferLayout - Reference to Vertex Buffer Layout Object
+ */
+VertexBufferLayout BatchBuffer::getLayout() {
+  return mLayout;
 }
 
 /* Function:    concatRenderData
@@ -88,15 +115,15 @@ void BatchBuffer::render(const std::shared_ptr<RenderTarget> &target) {
                 Vector - Container for all render data
    Returns:     None
  */
-void BatchBuffer::concatRenderData(std::vector<Drawable*> &bufferData, std::vector<RenderData> &data) {
+void BatchBuffer::concatRenderData(const std::vector<Drawable*> &crBufferData, std::vector<RenderData> &rData) {
   std::vector<RenderData> temp;
 
-  for (size_t i = 0; i < bufferData.size(); i ++) {
+  for (size_t i = 0; i < crBufferData.size(); i ++) {
     if (i == 0)
-      data = bufferData[i]->getRenderData();
+      rData = crBufferData[i]->getRenderData();
     else {
-      temp = bufferData[i]->getRenderData();
-      data.insert(data.end(), temp.begin(), temp.end());
+      temp = crBufferData[i]->getRenderData();
+      rData.insert(rData.end(), temp.begin(), temp.end());
       temp.clear();
     }
   }

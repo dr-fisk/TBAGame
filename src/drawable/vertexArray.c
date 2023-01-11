@@ -6,8 +6,8 @@
    Parameters:  uint32_t - The number of Vertex Arrays to generate
    Returns:     None
  */
-VertexArray::VertexArray(uint32_t num) {
-  GLCall(glGenVertexArrays(num, &vaID));
+VertexArray::VertexArray(const uint32_t cNum) {
+  GLCall(glGenVertexArrays(cNum, &mVaID));
 }
 
 /* Function:    ~VertexArray
@@ -16,7 +16,7 @@ VertexArray::VertexArray(uint32_t num) {
    Returns:     None
  */
 VertexArray::~VertexArray() {
-  glDeleteVertexArrays(1, &vaID);
+  glDeleteVertexArrays(1, &mVaID);
 }
 
 /* Function:    addBuffer
@@ -29,10 +29,10 @@ VertexArray::~VertexArray() {
  */
 
 //TODO: make switch a function
-void VertexArray::addBuffer(const std::shared_ptr<VertexBuffer> vb, const VertexBufferLayout &layout) {
+void VertexArray::addBuffer(const std::shared_ptr<VertexBuffer> &crpVbo, const VertexBufferLayout &crLayout) {
   this->bind();
-  vb->bind();
-  const auto& elements = layout.getElements();
+  crpVbo->bind();
+  const auto& elements = crLayout.getElements();
   uintptr_t offset = 0;
 
   for (uint32_t i = 0; i < elements.size(); i ++) {
@@ -42,11 +42,11 @@ void VertexArray::addBuffer(const std::shared_ptr<VertexBuffer> vb, const Vertex
       switch (element.type) {
         case GL_FLOAT:
           GLCall(glVertexAttribPointer(i, element.count, element.type, element.normalized, 
-                 layout.getStride(), (const void *) offset));
+                 crLayout.getStride(), (const void *) offset));
           break;
         case GL_UNSIGNED_BYTE:
           GLCall(glVertexAttribIPointer(i, element.count, element.type,
-                 layout.getStride(), (const void *) offset));
+                 crLayout.getStride(), (const void *) offset));
           break;
       }
       
@@ -62,7 +62,7 @@ void VertexArray::addBuffer(const std::shared_ptr<VertexBuffer> vb, const Vertex
    Returns:     None
  */
 void VertexArray::bind() const {
-  GLCall(glBindVertexArray(vaID));
+  GLCall(glBindVertexArray(mVaID));
 }
 
 /* Function:    unbind

@@ -48,27 +48,27 @@ enum FilterMethods {
   PAETH
 };
 
-Png(std::string pngFile);
+Png(const std::string &crPngFile);
 ~Png();
 std::vector<uint8_t> getImgData();
 struct IHDR getIhdr();
-Status compareSize(uint32_t width, uint32_t height);
+Status compareSize(const uint32_t cWidth, const uint32_t cHeight);
 
 private:
   void readPng();
-  void parseIHDR(uint32_t chunkLength);
-  struct RGB subPixelRGB(struct RGB pixel1, struct RGB pixel2);
-  struct RGB addPixelRGB(struct RGB pixel1, struct RGB pixel2);
-  struct RGB paethRGBBitDepth8(uint32_t scanlineSize, uint8_t rgbSize, uint32_t currByte);
-  uint8_t calcPaethByte(uint8_t a, uint8_t b, uint8_t c);
-  void rgbBitDepth8(std::vector<uint8_t> rgbData);
-  void handlePngColorType(std::vector<uint8_t> rgbData);
-  void uncompressIDAT(std::vector<uint8_t> buffer, std::vector<uint8_t> &decompressedData);
-  void parseICCP(uint32_t chunkLength);
+  void parseIHDR(const uint32_t cChunkLength);
+  struct RGB subPixelRGB(const struct RGB cPixel1, const struct RGB cPixel2);
+  struct RGB addPixelRGB(const struct RGB cPixel1, const struct RGB cPixel2);
+  struct RGB paethRGBBitDepth8(const uint32_t cScanlineSize, const uint8_t cRgbSize, const uint32_t cCurrByte);
+  uint8_t calcPaethByte(const uint8_t cA, const uint8_t cB, const uint8_t cC);
+  void rgbBitDepth8(const std::vector<uint8_t> &crRgbData);
+  void handlePngColorType(const std::vector<uint8_t> &crRgbData);
+  void uncompressIDAT(const std::vector<uint8_t> &crBuffer, std::vector<uint8_t> &rDecompressedData);
+  void parseICCP(const uint32_t cChunkLength);
   
-  struct IHDR ihdr;
-  std::vector<uint8_t> imgData;
-  std::ifstream pngFile;
+  struct IHDR mIhdr;
+  std::vector<uint8_t> mImgData;
+  std::ifstream mPngFile;
 };
 
 #endif

@@ -9,21 +9,21 @@
 class Rect : public Drawable {
   public:
     Rect();
-    Rect(uint32_t left, uint32_t top, uint32_t width=1, uint32_t height=1);
+    Rect(const uint32_t cLeft, const uint32_t cTop, const uint32_t cWidth=1, const uint32_t cHeight=1);
     virtual ~Rect();
-    void getDimensions(GLfloat *left, GLfloat *top, GLfloat *width, GLfloat *height);
-    void setColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha=255);
-    void setColor(lg::Color color);
-    void setPos(uint32_t left, uint32_t top);
+    void getDimensions(GLfloat *pLeft, GLfloat *pTop, GLfloat *pWidth, GLfloat *pHeight);
+    void setColor(const uint8_t cRed, const uint8_t cGreen, const uint8_t cBlue, const uint8_t cAlpha=255);
+    void setColor(const lg::Color cColor);
+    void setPos(const uint32_t cLeft, const uint32_t cTop);
     lg::Color getRGBA();
     RenderData createRenderData();
     virtual std::vector<RenderData> getRenderData();
   private:
-    uint32_t left;
-    uint32_t top;
-    uint32_t height;
-    uint32_t width;
-    lg::Color rgba;
+    uint32_t mLeft;
+    uint32_t mTop;
+    uint32_t mHeight;
+    uint32_t mWidth;
+    lg::Color mRgba;
 };
 
 #endif

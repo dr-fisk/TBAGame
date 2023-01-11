@@ -17,31 +17,31 @@ Mesh::Mesh() : Drawable() {
                 uint8_t - Multiplier for size of pixel
    Returns:     None
  */
-Mesh::Mesh(std::string pngFile, uint8_t left, uint8_t top, uint8_t size) {
+Mesh::Mesh(const std::string &crPngFile, const uint8_t cLeft, const uint8_t cTop, const uint8_t cSize) {
   Rect rect;
   uint32_t l = 0;
   uint32_t t = 0;
   uint32_t currPixel  = 0;
   std::vector<uint8_t> imgData;
   struct Png::IHDR ihdr;
-  Png png(pngFile);
+  Png png(crPngFile);
   imgData = png.getImgData();
   ihdr = png.getIhdr();
 
-  mesh.resize(ihdr.width * ihdr.height);
+  mMesh.resize(ihdr.width * ihdr.height);
   // If size = 0 then there will be rectangles with area 0 so skip
-  for (int i = 0; i < ihdr.width * ihdr.height && size > 0; i ++) {
-    t = ((i / ihdr.width) + top) * size;
-    l = ((i % ihdr.width) + left) * size;
+  for (int i = 0; i < ihdr.width * ihdr.height && cSize > 0; i ++) {
+    t = ((i / ihdr.width) + cTop) * cSize;
+    l = ((i % ihdr.width) + cLeft) * cSize;
 
-    rect = Rect(l, t, size, size);
+    rect = Rect(l, t, cSize, cSize);
     // handle diff colortypes still
     if (ihdr.colorType == Png::ColorType::RGBTRIP)
       rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2]);
     else if(ihdr.colorType == Png::ColorType::RGBTRIPA)
       rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2], imgData[currPixel + 3]);
 
-    mesh[i] = rect.createRenderData();
+    mMesh[i] = rect.createRenderData();
 
     if (ihdr.colorType == Png::ColorType::RGBTRIP)
       currPixel += RGBSIZE;
@@ -58,7 +58,7 @@ Mesh::Mesh(std::string pngFile, uint8_t left, uint8_t top, uint8_t size) {
    Returns:     std::vector<RenderData> Mesh data
  */
 std::vector<RenderData> Mesh::getRenderData() {
-  return mesh;
+  return mMesh;
 }
 
 /* Function:   ~Mesh

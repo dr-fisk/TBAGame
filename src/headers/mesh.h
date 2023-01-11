@@ -7,11 +7,11 @@
 class Mesh : public Drawable {
   public:
     Mesh();
-    Mesh(std::string pngFile, uint8_t left = 0, uint8_t top = 0, uint8_t size = 1);
+    Mesh(const std::string &crPngFile, const uint8_t cLeft = 0, uint8_t cTop = 0, uint8_t cSize = 1);
     virtual ~Mesh();
     virtual std::vector<RenderData> getRenderData();
   private:
-    std::vector<RenderData> mesh;
+    std::vector<RenderData> mMesh;
 };
 
 #endif
