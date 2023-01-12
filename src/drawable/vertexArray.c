@@ -7,7 +7,8 @@
    Returns:     None
  */
 VertexArray::VertexArray(const uint32_t cNum) {
-  GLCall(glGenVertexArrays(cNum, &mVaID));
+  mVertexArrays.resize(cNum);
+  GLCall(glGenVertexArrays(cNum, mVertexArrays.data()));
 }
 
 /* Function:    ~VertexArray
@@ -16,7 +17,7 @@ VertexArray::VertexArray(const uint32_t cNum) {
    Returns:     None
  */
 VertexArray::~VertexArray() {
-  glDeleteVertexArrays(1, &mVaID);
+  glDeleteVertexArrays(mVertexArrays.size(), mVertexArrays.data());
 }
 
 /* Function:    addBuffer
@@ -29,9 +30,7 @@ VertexArray::~VertexArray() {
  */
 
 //TODO: make switch a function
-void VertexArray::addBuffer(const std::shared_ptr<VertexBuffer> &crpVbo, const VertexBufferLayout &crLayout) {
-  this->bind();
-  crpVbo->bind();
+void VertexArray::addBuffer(const VertexBufferLayout &crLayout) {
   const auto& elements = crLayout.getElements();
   uintptr_t offset = 0;
 
@@ -39,17 +38,9 @@ void VertexArray::addBuffer(const std::shared_ptr<VertexBuffer> &crpVbo, const V
       const auto& element = elements[i];
       GLCall(glEnableVertexAttribArray(i));
 
-      switch (element.type) {
-        case GL_FLOAT:
-          GLCall(glVertexAttribPointer(i, element.count, element.type, element.normalized, 
-                 crLayout.getStride(), (const void *) offset));
-          break;
-        case GL_UNSIGNED_BYTE:
-          GLCall(glVertexAttribIPointer(i, element.count, element.type,
-                 crLayout.getStride(), (const void *) offset));
-          break;
-      }
-      
+      //std::cout << i << " " << element.count << " " << element.type << " " << crLayout.getStride() << '\n';
+      GLCall(glVertexAttribPointer(i, element.count, element.type, element.normalized, 
+                                   crLayout.getStride(), (const void *) offset));
 
       offset += element.count * sizeof(GLfloat);
   }
@@ -58,11 +49,11 @@ void VertexArray::addBuffer(const std::shared_ptr<VertexBuffer> &crpVbo, const V
 /* Function:    bind
    Description: Attaches VAO so that it is the element that will be drawn
                 Call bind before Drawing each time
-   Parameters:  None
+   Parameters:  uint32_t - The Vertex Attribute Object to bind to
    Returns:     None
  */
-void VertexArray::bind() const {
-  GLCall(glBindVertexArray(mVaID));
+void VertexArray::bind(const uint32_t cId) const {
+  GLCall(glBindVertexArray(mVertexArrays[cId]));
 }
 
 /* Function:    unbind
@@ -73,4 +64,13 @@ void VertexArray::bind() const {
  */
 void VertexArray::unbind() const {
   GLCall(glBindVertexArray(0));
+}
+
+/* Function:    getNumVao
+   Description: Returns the amount of Vertex Attribute Objects generated
+   Parameters:  None
+   Returns:     uint32_t - Number of Vertex Attribute Objects
+ */
+uint32_t VertexArray::getNumVao() {
+  return mVertexArrays.size();
 }

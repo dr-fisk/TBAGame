@@ -6,12 +6,14 @@
 class VertexBuffer {
   public:
     VertexBuffer() {}
-    VertexBuffer(const void *cpData, const uint32_t cSize);
+    VertexBuffer(const uint32_t cNumVbo);
     ~VertexBuffer();
-    void bind() const;
+    void bind(const uint32_t cId) const;
     void unbind() const;
+    void updateBoundedBufferData(const void *cpData, const uint32_t cSize);
   private:
-    uint32_t mBuffID;
+    std::vector<uint32_t> mBuffers;
+    uint64_t mLastDataSize;
 };
 
 #endif

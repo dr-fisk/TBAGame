@@ -19,6 +19,7 @@ class RenderTarget {
       virtual uint32_t getWindowHeight() = 0;
       virtual uint32_t getWindowWidth() = 0;
       virtual RenderData createRenderDataBounded(Rect &rShape) = 0;
+      virtual void setActive() = 0;
     private:
 };
 

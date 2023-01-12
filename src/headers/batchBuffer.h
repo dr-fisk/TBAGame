@@ -23,12 +23,17 @@ enum TARGETS{
 class BatchBuffer {
   public:
     BatchBuffer();
-    BatchBuffer(const std::vector<Drawable*> &crBufferData, const uint32_t cShape);
+    BatchBuffer(const std::vector<RenderData> &crRendData, const uint32_t cShape, const uint32_t cNumVao, const uint32_t cNumVbo, const uint32_t cNumIbo);
     std::shared_ptr<VertexBuffer> getVbo();
     std::shared_ptr<VertexArray> getVao();
     std::shared_ptr<IndexBuffer> getIbo();
     VertexBufferLayout getLayout();
     ~BatchBuffer();
+    int8_t initBatchBuffer(const uint32_t cNumVao, const uint32_t cNumVbo, const uint32_t cNumIbo, const std::vector<RenderData> &crRendData);
+    int8_t initVao(const uint32_t cNumVao);
+    int8_t initVbo(const uint32_t cNumVbo, const std::vector<RenderData> &crRendData);
+    int8_t initIbo(const uint32_t cNumVbo, const std::vector<std::vector<RenderData>> &crRendData, const uint32_t cShape);
+    static void concatRenderData(const std::vector<Drawable*> &crBufferData, std::vector<RenderData> &rData);
   private:
     std::shared_ptr<VertexBuffer> mpVbo;
     std::shared_ptr<VertexArray> mpVao;
@@ -37,7 +42,6 @@ class BatchBuffer {
 
     std::vector<uint32_t> createRectIndices(const uint32_t cVboSize);
     std::vector<uint32_t> createTriIndices(const uint32_t cVboSize);
-    void concatRenderData(const std::vector<Drawable*> &crBufferData, std::vector<RenderData> &rData);
 };
 
 #endif

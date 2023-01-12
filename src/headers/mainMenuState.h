@@ -5,7 +5,7 @@
 
 class MainMenu : public State {
   public:
-    MainMenu(const std::stack<std::shared_ptr<State>> &crStates);
+    MainMenu(const std::stack<std::shared_ptr<State>> &crStates, const std::shared_ptr<BatchBuffer> &crpBatchBuffer);
     ~MainMenu();
     void render(const std::shared_ptr<RenderTarget> &crpTarget);
     void update();
@@ -14,7 +14,6 @@ class MainMenu : public State {
   private:
     Mesh mMesh;
     Mesh mMesh2;
-    BatchBuffer mTestBB;
     Font mFont;
     Text mText;
 };

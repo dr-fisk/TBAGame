@@ -5,8 +5,9 @@
    Parameters:  None
    Returns:     None
  */
-State::State(const std::stack<std::shared_ptr<State>> &crStates) {
+State::State(const std::stack<std::shared_ptr<State>> &crStates, const std::shared_ptr<BatchBuffer> &crpBatchBuffer) {
   mStates = crStates;
+  mpBatchBuffer = crpBatchBuffer;
 }
 
 /* Function:    ~State

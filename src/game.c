@@ -14,8 +14,8 @@ GLfloat gWindowHeight = 0;
    Returns:     None
  */
 void Game::initMainState() {
-  //mStates.push(std::make_shared<ExceptionState>(mStates, "TESTING"));
-  mStates.push(std::make_shared<MainMenu>(mStates));
+  //mStates.push(std::make_shared<ExceptionState>(mStates, "TESTING", mShaders[MAIN_SHADER], mpWindow->getGlWindow(), mpVao));
+  mStates.push(std::make_shared<MainMenu>(mStates, mpBatchBuffer));
 }
 
 /* Function:    initShaders
@@ -45,8 +45,7 @@ Game::Game() {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   mpWindow = std::make_shared<RenderWindow>(800, 800, "Lest Window");
-  //mpWindow->initWindow();
-
+  
   /* NOTE: BEFORE ANY GL CALL, THAT IS NOT GLFW but GL, SET ACTIVE MUST BE CALLED OR ELSE OPENGL FAILS */
   mpWindow->setActive();
 
@@ -55,6 +54,9 @@ Game::Game() {
 
   // Set the shader to be attached to the window
   mpWindow->setShader(mShaders[MAIN_SHADER]);
+
+  //TODO: update to be more dynamic
+ // mpWindow->setVao(mpVao);
 
   //init GL attributes for window
   mpWindow->initWindow();
@@ -87,7 +89,6 @@ Game::Game() {
 Game::~Game() {
   while(!mStates.empty()) {
     mStates.pop();
-    std::cout << "What\n";
   }
 
   deleteShaders();
@@ -115,8 +116,10 @@ void Game::gameLoop() {
   while(!mStates.empty() && mpWindow->isOpen()) {
     if (mStates.top()->shouldStateExit()) {
       mStates.pop();
+      std::cout << "What\n";
     }
     
+    GLCall(glfwPollEvents());
     mStates.top()->update();
     mStates.top()->render(mpWindow);
     Game::mFps ++;

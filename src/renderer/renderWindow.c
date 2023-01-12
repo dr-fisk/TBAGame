@@ -9,11 +9,11 @@
                 GLFWwindow * - (OPTIONAL) Allows sharing of resources for when needing multiple windows, is NULL otherwise
    Returns:     None
  */
-RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHeight, const char *cpTitle, GLFWwindow *window) {
+RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHeight, const char *cpTitle, GLFWwindow *pWindow) {
   mWdwWidth = cWindowWidth;
   mWdwHeight = cWindowHeight;
   mTitle = cpTitle;
-  mpWindow = glfwCreateWindow(mWdwWidth, mWdwHeight, cpTitle, NULL, window);
+  mpWindow = glfwCreateWindow(mWdwWidth, mWdwHeight, cpTitle, NULL, pWindow);
 
   if (!mpWindow) {
     std::cout << "Error opening window" << std::endl;
@@ -47,7 +47,6 @@ void RenderWindow::clear() {
  */
 void RenderWindow::display() {
   GLCall(glfwSwapBuffers(mpWindow));
-  GLCall(glfwPollEvents());
   GLCall(glFlush());
 }
 
@@ -59,7 +58,7 @@ void RenderWindow::display() {
    Returns:     None
  */
 void RenderWindow::draw(Rect &rShape) {
-  clear();
+/*  clear();
   RenderData vc;
   uint32_t indeces [] = {0,1,2,2,3,0};
   vc = createRenderDataBounded(rShape); 
@@ -73,7 +72,7 @@ void RenderWindow::draw(Rect &rShape) {
   mpShader->bind();
   ibo->bind();
   GLCall(glDrawElements(GL_TRIANGLES, ibo->getCount(), GL_UNSIGNED_INT, nullptr));
-  display();
+  display();*/
 }
 
 void RenderWindow::draw(BatchBuffer &rBuffer) {
@@ -97,7 +96,10 @@ void RenderWindow::draw(BatchBuffer &rBuffer) {
  */
 void RenderWindow::draw(const std::shared_ptr<VertexBuffer> &crpVbo, const std::shared_ptr<VertexArray> &crpVao, 
                         const std::shared_ptr<IndexBuffer> &crpIbo, const VertexBufferLayout &crLayout) {
-  crpVao->addBuffer(crpVbo, crLayout);
+  //Maybe I'm supposed to do this once per vao
+  crpVao->bind(0);
+  crpVbo->bind(0);
+  crpVao->addBuffer(crLayout);
   mpShader->bind();
   crpIbo->bind();
   GLCall(glDrawElements(GL_TRIANGLES, crpIbo->getCount(), GL_UNSIGNED_INT, nullptr));
@@ -231,8 +233,17 @@ GLFWwindow* RenderWindow::getGlWindow() {
    Parameters:  None
    Returns:     None
  */
-void RenderWindow::setShader(const std::shared_ptr<Shader> &crShader) {
-  mpShader = crShader;
+void RenderWindow::setShader(const std::shared_ptr<Shader> &crpShader) {
+  mpShader = crpShader;
+}
+
+/* Function:    setVao
+   Description: Sets the Vertex Attribute Object to be used for rendering, can actively change Vertex Attribute Objects
+   Parameters:  None
+   Returns:     None
+ */
+void RenderWindow::setVao(const std::shared_ptr<VertexArray> &crpVao) {
+  mpVao = crpVao;
 }
 
 /* Function:    initWindow

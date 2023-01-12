@@ -10,18 +10,52 @@ BatchBuffer::BatchBuffer() {
    Returns:     None
  */
 //TODO: change sizes depending on shape
-BatchBuffer::BatchBuffer(const std::vector<Drawable*> &crBufferData, const uint32_t cShape) {
-  std::vector<RenderData> rendData;
-  concatRenderData(crBufferData, rendData);
-  mpVao = std::make_shared<VertexArray>(1);
-  mpVbo = std::make_shared<VertexBuffer>(rendData.data(), rendData.size() * sizeof(RenderData));
+BatchBuffer::BatchBuffer(const std::vector<RenderData> &crRendData, const uint32_t cShape, const uint32_t cNumVao, const uint32_t cNumVbo, const uint32_t cNumIbo) {
+  initBatchBuffer(cNumVao, cNumVbo, cNumIbo, crRendData);
+  
   mLayout.push(TWO_D_COORDS, GL_FLOAT);
   mLayout.push(RGBA, GL_FLOAT);
 
-  std::vector<uint32_t> indices = cShape == RECTANGLE ? createRectIndices(rendData.size()) : 
-                                                      createTriIndices(rendData.size());
+  std::vector<uint32_t> indices = cShape == RECTANGLE ? createRectIndices(crRendData.size()) : 
+                                                      createTriIndices(crRendData.size());
 
   mpIbo = std::make_shared<IndexBuffer>(indices.data(), indices.size());
+}
+
+int8_t BatchBuffer::initBatchBuffer(const uint32_t cNumVao, const uint32_t cNumVbo, const uint32_t cNumIbo, const std::vector<RenderData> &crRendData) { 
+  initVao(cNumVao);
+  initVbo(cNumVbo, crRendData);
+  return 1;
+}
+
+int8_t BatchBuffer::initVao(const uint32_t cNumVao) {
+  if (cNumVao < 1)
+    return -1;
+
+  mpVao = std::make_shared<VertexArray>(cNumVao);
+  return 1;
+}
+
+int8_t BatchBuffer::initVbo(const uint32_t cNumVbo, const std::vector<RenderData> &crRendData) {
+  mpVbo = std::make_shared<VertexBuffer>(cNumVbo);
+  //Will always bind to 0 by default
+  mpVbo->bind(0);
+  mpVbo->updateBoundedBufferData(crRendData.data(), crRendData.size() * sizeof(RenderData));
+  return 1;
+}
+
+int8_t BatchBuffer::initIbo(const uint32_t cNumIbo, const std::vector<std::vector<RenderData>> &crRendData, const uint32_t cShape) {
+ /* if (cNumIbo < 1)
+    return -1;
+
+  std::vector<std::vector<uint32_t>> indices(cNumIbo);
+
+  for (uint32_t i = 0; i < cNumVbo; i ++) {
+    indeces[i] = cShape == RECTANGLE ? createRectIndices(crRendData[i].size()) : createTriIndices(crRendData[i].size());
+  }
+
+  mpIbo = std::make_shared<IndexBuffer>(indeces);*/
+  return 1;
 }
 
 /* Function:    ~BatchBuffer
@@ -82,11 +116,6 @@ std::shared_ptr<VertexBuffer> BatchBuffer::getVbo() {
   return mpVbo;
 }
 
-/* Function:    getVao
-   Description: Getter function for member variable mpVao
-   Parameters:  None
-   Returns:     std::shared_ptr - Pointer to Vertex Attribute Object
- */
 std::shared_ptr<VertexArray> BatchBuffer::getVao() {
   return mpVao;
 }

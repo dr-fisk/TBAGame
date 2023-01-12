@@ -1,18 +1,18 @@
 #include "mainMenuState.h"
 
-MainMenu::MainMenu(const std::stack<std::shared_ptr<State>> &crStates) : State(crStates) {
+MainMenu::MainMenu(const std::stack<std::shared_ptr<State>> &crStates, const std::shared_ptr<BatchBuffer> &crpBatchBuffer) : State(crStates, crpBatchBuffer) {
   std::vector<Drawable*> vertexes;
-  // Make this mesh shit easier so that all you call is just batchbuffer constructor and give it some data
-  //mesh = Mesh("../src/fonts/Font.png", 0, 0, 1);
-  //mesh2 = Mesh("../src/heart.png", 16,0,1);
+  std::vector<RenderData> rendData;
+  std::cout << "SETTINGMAIN\n";
   mFont = Font("../src/fonts/Font.png");
   mText = Text("TEST", mFont);
   vertexes.push_back(&mText);
-  mTestBB = BatchBuffer(vertexes, RECTANGLE);
+  BatchBuffer::concatRenderData(vertexes, rendData);
+  mpBatchBuffer = std::make_shared<BatchBuffer>( rendData, RECTANGLE, 1, 1, 1);
 }
 
 void MainMenu::render(const std::shared_ptr<RenderTarget> &crpTarget) {
-  crpTarget->draw(mTestBB);
+  crpTarget->draw(*mpBatchBuffer);
 }
 
 void MainMenu::update() {

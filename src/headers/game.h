@@ -16,6 +16,7 @@ class Game {
   private:
     std::stack<std::shared_ptr<State>> mStates;
     std::shared_ptr<RenderWindow> mpWindow;
+    std::shared_ptr<BatchBuffer> mpBatchBuffer;
     std::map<std::string, std::shared_ptr<Shader>> mShaders;
     int mGameRuntime;
     int mStartTime;

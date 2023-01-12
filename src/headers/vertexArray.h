@@ -10,11 +10,12 @@ class VertexArray {
     VertexArray(){}
     VertexArray(const uint32_t cNum);
     ~VertexArray();
-    void addBuffer(const std::shared_ptr<VertexBuffer> &crpVbo, const VertexBufferLayout &crLayout);
-    void bind() const;
+    void addBuffer(const VertexBufferLayout &crLayout);
+    void bind(const uint32_t cId) const;
     void unbind() const;
+    uint32_t getNumVao();
   private:
-    uint32_t mVaID;
+    std::vector<uint32_t> mVertexArrays;
 };
 
 #endif

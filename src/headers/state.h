@@ -10,13 +10,14 @@
 
 class State {
   public:
-    State(const std::stack<std::shared_ptr<State>> &crStates);
+    State(const std::stack<std::shared_ptr<State>> &crStates, const std::shared_ptr<BatchBuffer> &crpBatchBuffer);
     ~State();
     virtual void render(const std::shared_ptr<RenderTarget> &) = 0;
     virtual void update() = 0;
     virtual bool shouldStateExit() = 0;
-  private:
+  protected:
     std::stack<std::shared_ptr<State>> mStates;
+    std::shared_ptr<BatchBuffer> mpBatchBuffer;
 };
 
 #endif

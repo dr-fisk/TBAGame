@@ -6,7 +6,7 @@
 
 class RenderWindow : public RenderTarget {
     public:
-      RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHeight, const char *cpTitle, GLFWwindow *window=NULL);
+      RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHeight, const char *cpTitle, GLFWwindow *pWindow=NULL);
       ~RenderWindow();
       bool isOpen();
       virtual uint32_t getWindowWidth();
@@ -22,11 +22,13 @@ class RenderWindow : public RenderTarget {
       void initWindow();
       void destroyWindow();
       GLFWwindow *getGlWindow();
-      void setShader(const std::shared_ptr<Shader> &crShader);
+      void setShader(const std::shared_ptr<Shader> &crpShader);
+      void setVao(const std::shared_ptr<VertexArray> &crpVao);
     private:
       uint32_t mWdwHeight;
       uint32_t mWdwWidth;
       std::shared_ptr<Shader> mpShader;
+      std::shared_ptr<VertexArray> mpVao;
       std::string mTitle;
       GLFWwindow *mpWindow;
       void boundCoords(GLfloat *pLeft, GLfloat *pWidth, GLfloat *pTop, GLfloat *pHeight);
