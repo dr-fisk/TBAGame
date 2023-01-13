@@ -15,6 +15,7 @@ class VertexArray {
     void unbind() const;
     uint32_t getNumVao();
   private:
+    static uint8_t smNumVao;
     std::vector<uint32_t> mVertexArrays;
 };
 

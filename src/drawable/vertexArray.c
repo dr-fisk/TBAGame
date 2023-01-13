@@ -1,5 +1,7 @@
 #include "vertexArray.h"
 
+uint8_t VertexArray::smNumVao = 0;
+
 /* Function:    VertexArray
    Description: Creates a VertexArray, if not on the main stack allocate
                 memory otherwise your VAO will delete
@@ -7,8 +9,14 @@
    Returns:     None
  */
 VertexArray::VertexArray(const uint32_t cNum) {
-  mVertexArrays.resize(cNum);
-  GLCall(glGenVertexArrays(cNum, mVertexArrays.data()));
+  if ((cNum + smNumVao) <= 16) {
+    mVertexArrays.resize(cNum);
+    GLCall(glGenVertexArrays(cNum, mVertexArrays.data()));
+    smNumVao += cNum;
+  } else {
+    std::cout << "Max number of VAOs reached, VAOs not generated. Delete VAOs to gen more." << std::endl;
+  }
+  
 }
 
 /* Function:    ~VertexArray
@@ -17,15 +25,13 @@ VertexArray::VertexArray(const uint32_t cNum) {
    Returns:     None
  */
 VertexArray::~VertexArray() {
+  smNumVao -= mVertexArrays.size();
   glDeleteVertexArrays(mVertexArrays.size(), mVertexArrays.data());
 }
 
 /* Function:    addBuffer
    Description: Prepares the VAO for rendering by mapping attributes
-   Parameters:  VertexBuffer - The object buffer containing all vertexes
-                and attributes
-                VertexBufferLayout - The format of the VBO so that the VAO can
-                interpret and render data accordingly
+   Parameters:  VertexBufferLayout - The format of the VBO so that the VAO can interpret and render data accordingly
    Returns:     None
  */
 
@@ -38,7 +44,6 @@ void VertexArray::addBuffer(const VertexBufferLayout &crLayout) {
       const auto& element = elements[i];
       GLCall(glEnableVertexAttribArray(i));
 
-      //std::cout << i << " " << element.count << " " << element.type << " " << crLayout.getStride() << '\n';
       GLCall(glVertexAttribPointer(i, element.count, element.type, element.normalized, 
                                    crLayout.getStride(), (const void *) offset));
 
@@ -47,8 +52,7 @@ void VertexArray::addBuffer(const VertexBufferLayout &crLayout) {
 }
 
 /* Function:    bind
-   Description: Attaches VAO so that it is the element that will be drawn
-                Call bind before Drawing each time
+   Description: Attaches VAO so that it is the element that will be drawn Call bind before Drawing each time
    Parameters:  uint32_t - The Vertex Attribute Object to bind to
    Returns:     None
  */
@@ -64,13 +68,4 @@ void VertexArray::bind(const uint32_t cId) const {
  */
 void VertexArray::unbind() const {
   GLCall(glBindVertexArray(0));
-}
-
-/* Function:    getNumVao
-   Description: Returns the amount of Vertex Attribute Objects generated
-   Parameters:  None
-   Returns:     uint32_t - Number of Vertex Attribute Objects
- */
-uint32_t VertexArray::getNumVao() {
-  return mVertexArrays.size();
 }

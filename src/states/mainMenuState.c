@@ -8,7 +8,7 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>> &crStates, const std
   mText = Text("TEST", mFont);
   vertexes.push_back(&mText);
   BatchBuffer::concatRenderData(vertexes, rendData);
-  mpBatchBuffer = std::make_shared<BatchBuffer>( rendData, RECTANGLE, 1, 1, 1);
+  mpBatchBuffer->updateBoundedBufferData(rendData, GL_STREAM_DRAW);
 }
 
 void MainMenu::render(const std::shared_ptr<RenderTarget> &crpTarget) {

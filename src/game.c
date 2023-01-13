@@ -61,6 +61,8 @@ Game::Game() {
   //init GL attributes for window
   mpWindow->initWindow();
 
+  mpBatchBuffer = std::make_shared<BatchBuffer>( std::vector<RenderData>(), RECTANGLE, 1, 1, 1, GL_STREAM_DRAW);
+
   //temp
   gWindowWidth = 800;
   gWindowHeight = 800;
@@ -92,6 +94,7 @@ Game::~Game() {
   }
 
   deleteShaders();
+  mpBatchBuffer.reset();
   mpWindow->destroyWindow();
   glfwTerminate();
 }
@@ -116,7 +119,6 @@ void Game::gameLoop() {
   while(!mStates.empty() && mpWindow->isOpen()) {
     if (mStates.top()->shouldStateExit()) {
       mStates.pop();
-      std::cout << "What\n";
     }
     
     GLCall(glfwPollEvents());

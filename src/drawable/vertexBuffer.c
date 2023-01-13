@@ -25,17 +25,28 @@ VertexBuffer::~VertexBuffer() {
    Description: Attaches VBO so that it is the element that will be drawn
                 Use addBuffer in VAO to bind VBO do not call on it's own
                 unless not using VAO
-   Parameters:  None
+   Parameters:  uint32_t - The specific Vertex Buffer Object to bind
    Returns:     None
  */
 void VertexBuffer::bind(const uint32_t cId) const {
   GLCall(glBindBuffer(GL_ARRAY_BUFFER, mBuffers[cId]));
 }
 
-void VertexBuffer::updateBoundedBufferData(const void *cpData, const uint32_t cSize) {
+/* Function:    updateBoundedBufferData
+   Description: Sets GL_ARRAY_BUFFER to use the provided buffer data
+   Parameters:  void * - Buffer data to be rendered
+                uint32_t - Size of the buffer data
+                GLenum   - The Draw Type OpenGL should use below are the type and explanation
+                GL_STATIC_DRAW: Use this when your Vertex Buffer Object will not be modified, usually should be set during initialization only
+                GL_DYNAMIC_DRAW: Use this for when your Vertex Buffer Object will be changing buffers
+                GL_STREAM_DRWA: Use this for when Vertex Buffer Object will be changing consistently frame by frame
+   Returns:     None
+ */
+void VertexBuffer::updateBoundedBufferData(const void *cpData, const uint32_t cSize, const GLenum cDrawType) {
   //TODO: add ability to change draw type
   if (cSize > mLastDataSize) {
-    GLCall(glBufferData(GL_ARRAY_BUFFER, cSize, cpData, GL_STATIC_DRAW));
+    GLCall(glBufferData(GL_ARRAY_BUFFER, cSize, cpData, cDrawType));
+    mLastDataSize = cSize;
   }
   else {
     GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, cSize, cpData));

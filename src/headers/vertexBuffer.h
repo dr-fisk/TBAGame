@@ -10,7 +10,7 @@ class VertexBuffer {
     ~VertexBuffer();
     void bind(const uint32_t cId) const;
     void unbind() const;
-    void updateBoundedBufferData(const void *cpData, const uint32_t cSize);
+    void updateBoundedBufferData(const void *cpData, const uint32_t cSize, const GLenum cDrawType);
   private:
     std::vector<uint32_t> mBuffers;
     uint64_t mLastDataSize;

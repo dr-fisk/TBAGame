@@ -101,7 +101,7 @@ void RenderWindow::draw(const std::shared_ptr<VertexBuffer> &crpVbo, const std::
   crpVbo->bind(0);
   crpVao->addBuffer(crLayout);
   mpShader->bind();
-  crpIbo->bind();
+  crpIbo->bind(0);
   GLCall(glDrawElements(GL_TRIANGLES, crpIbo->getCount(), GL_UNSIGNED_INT, nullptr));
 }
 
