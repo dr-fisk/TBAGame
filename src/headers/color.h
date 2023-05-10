@@ -2,6 +2,7 @@
 #define COLOR_H
 
 #include "common.h"
+#include "glcommon.h"
 
 namespace lg {
 class Color {

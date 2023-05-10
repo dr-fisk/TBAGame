@@ -2,6 +2,7 @@
 #define BATCHEDBUFFER_H
 
 #include "common.h"
+#include "glcommon.h"
 #include "drawable.h"
 #include "vertexArray.h"
 #include "vertexBuffer.h"

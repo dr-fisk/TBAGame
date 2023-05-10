@@ -2,6 +2,7 @@
 #define DRAWABLE_H
 
 #include "common.h"
+#include "glcommon.h"
 
 // Drawable allows drawable items to be held in one container for easy access of render data
 class Drawable {

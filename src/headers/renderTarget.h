@@ -2,6 +2,7 @@
 #define RENDERTARGET_H
 
 #include "common.h"
+#include "glcommon.h"
 #include "batchBuffer.h"
 #include "shader.h"
 #include "rectangle.h"

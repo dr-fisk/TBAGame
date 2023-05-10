@@ -1,7 +1,6 @@
 #ifndef PNG_H
 #define PNG_H
 
-#include <string.h>
 #include "common.h"
 
 #define IHDR_MASK  0x01

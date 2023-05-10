@@ -2,6 +2,7 @@
 #define INDEXBUFFER_H
 
 #include "common.h"
+#include "glcommon.h"
 
 class IndexBuffer {
   public:

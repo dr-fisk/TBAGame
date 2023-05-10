@@ -2,6 +2,7 @@
 #define VERTEXBUFFER_H
 
 #include "common.h"
+#include "glcommon.h"
 
 class VertexBuffer {
   public:

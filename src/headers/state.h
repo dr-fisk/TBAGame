@@ -2,6 +2,7 @@
 #define STATE_H
 
 #include "common.h"
+#include "glcommon.h"
 #include "renderWindow.h"
 #include "mesh.h"
 #include "font.h"

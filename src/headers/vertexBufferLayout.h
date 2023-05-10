@@ -2,6 +2,7 @@
 #define VERTEXBUFFERLAYOUT_H
 
 #include "common.h"
+#include "glcommon.h"
 
 struct VertexBufferElement {
     uint32_t type;

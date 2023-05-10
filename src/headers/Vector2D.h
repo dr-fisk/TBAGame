@@ -2,6 +2,7 @@
 #define VECTOR2F_H
 
 #include "common.h"
+#include "glcommon.h"
 
 class Vector2f {
   public:

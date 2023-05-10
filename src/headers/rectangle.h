@@ -2,6 +2,7 @@
 #define RECTANGLE_H
 
 #include "common.h"
+#include "glcommon.h"
 #include "Drawable.h"
 
 #define PIXEL_SIZE 1

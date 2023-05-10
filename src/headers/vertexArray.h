@@ -2,6 +2,7 @@
 #define VERTEXARRAY_H
 
 #include "common.h"
+#include "glcommon.h"
 #include "vertexBuffer.h"
 #include "vertexBufferLayout.h"
 

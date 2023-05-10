@@ -36,7 +36,6 @@ BatchBuffer::BatchBuffer(const std::vector<RenderData> &crRendData, const uint32
   mpIbo->updateBoundedBufferData(indices.data(), indices.size(), cDrawType);
 }
 
-
 /* Function:    initBatchBuffer
    Description: Calls functions to initialize Batch Buffer
    Parameters:  Vector - List of drawable items to insert into VBO
@@ -201,14 +200,12 @@ void BatchBuffer::concatRenderData(const std::vector<Drawable*> &crBufferData, s
   }
 }
 
-
 /* Function:    updateBoundedBufferData
    Description: Updates the Buffer Data for the Vertex Buffer Object
    Parameters:  Vector - Render data to bound to Vertex Buffer Object
                 GLenum - Draw type for OpenGL to use
    Returns:     None
  */
-
  //TODO: Create new function so that VBO and IBO are handled separately, point is if IBO's remain unchanged due to VBO's having same indeces
  // Then we shouldn't always update IBO, give the user the responsibility to do so
  // Also TODO, create static function for createRectIndices, have user be responsible for supplying current IBO's

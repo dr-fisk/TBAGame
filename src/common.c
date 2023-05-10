@@ -1,4 +1,5 @@
 #include "common.h"
+#include "glcommon.h"
 
 /* Function:    GLClearError
    Description: Clears current opengl error

@@ -2,6 +2,7 @@
 #define SHADER_H
 
 #include "common.h"
+#include "glcommon.h"
 
 struct ShaderProgSource {
   std::string vertexShader;
