@@ -24,18 +24,19 @@ SRC = ./src
 SHADERSPATH = ./shaders
 FONTSPATH = ./fonts
 DYNLIBSPATH = ./libs
+LESTTTFPATH = ../lestttf
 
 SHADER = $(SHADERSPATH)/shader1.txt
 
-CFLAGS  = -g -std=c++17 -Wall -Wextra -MMD -static-libgcc -static-libstdc++ -I$(INCLPATH) -I$(HEADERS)
+CFLAGS  = -g -std=c++17 -Wall -Wextra -MMD -static-libgcc -static-libstdc++ -I$(INCLPATH) -I$(HEADERS) -I$(LESTTTFPATH)
 
-LDFLAGS = -L$(DYNLIBSPATH) -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -static-libgcc -static-libstdc++ -llestpng
+LDFLAGS = -L$(DYNLIBSPATH) -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -static-libgcc -static-libstdc++ -llestpng -llestttf
 SOLDFLAGS = -L$(LIBPATH) -lzlib1 -lws2_32 -shared -static-libgcc -static-libstdc++
 
 ifeq (lin64, $(TARGET))
   LDFLAGS = -L$(LIBPATH) -lglfw3dll -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lz
 else ifeq (win64, $(TARGET))
-  LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -L$(DYNLIBSPATH) -llestpng -static-libgcc -static-libstdc++
+  LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -L$(DYNLIBSPATH) -llestpng -static-libgcc -static-libstdc++ -llestttf
 endif
 
 
@@ -153,6 +154,7 @@ font:
 		cp $(LIBPATH)/zlib1.dll $(PATHTOEXEC); \
 		echo "Adding custom dll"; \
 		cp $(DYNLIBSPATH)/lestpng.dll $(PATHTOEXEC); \
+		cp $(LIBPATH)/lestttf.dll $(PATHTOEXEC); \
 		cp -r $(SHADERSPATH) $(PATHTOEXEC); \
 		cp -r $(FONTSPATH) $(PATHTOEXEC); \
 	fi
