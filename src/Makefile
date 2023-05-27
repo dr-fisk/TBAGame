@@ -25,6 +25,7 @@ SHADERSPATH = ./shaders
 FONTSPATH = ./fonts
 DYNLIBSPATH = ./libs
 LESTTTFPATH = ../lestttf
+FONTPATH = ../TtfFont
 
 SHADER = $(SHADERSPATH)/shader1.txt
 
@@ -155,6 +156,7 @@ font:
 		echo "Adding custom dll"; \
 		cp $(DYNLIBSPATH)/lestpng.dll $(PATHTOEXEC); \
 		cp $(LIBPATH)/lestttf.dll $(PATHTOEXEC); \
+		cp $(FONTPATH)/Envy\ Code\ R.ttf $(PATHTOEXEC); \
 		cp -r $(SHADERSPATH) $(PATHTOEXEC); \
 		cp -r $(FONTSPATH) $(PATHTOEXEC); \
 	fi

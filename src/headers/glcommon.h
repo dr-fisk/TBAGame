@@ -15,13 +15,13 @@
     ASSERT(GLLogCall(#x, __FILE__, __LINE__))
 
 struct RenderData {
-  Vector2f bottomLeft;
+  Vector2<GLfloat> bottomLeft;
   lg::Color rgba1;
-  Vector2f bottomRight;
+  Vector2<GLfloat> bottomRight;
   lg::Color rgba2;
-  Vector2f topRight;
+  Vector2<GLfloat> topRight;
   lg::Color rgba3;
-  Vector2f topLeft;
+  Vector2<GLfloat> topLeft;
   lg::Color rgba4;
 };
 

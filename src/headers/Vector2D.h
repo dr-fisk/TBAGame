@@ -4,34 +4,432 @@
 #include "common.h"
 #include "glcommon.h"
 
-class Vector2f {
+#include <ostream>
+
+template <typename T> 
+class Vector2;
+
+template <typename T>
+std::ostream& operator<<(std::ostream& rOs, const Vector2<T>& crVector);
+
+template <typename T> class Vector2
+{
   public:
-    Vector2f(const GLfloat cXPos, const GLfloat cYPos) {mX = cXPos; mY = cYPos;}
-    Vector2f(const Vector2f &crRhs){*this = crRhs;}
-    Vector2f(){}
-    ~Vector2f(){}
-    GLfloat getXPos(){return mX;}
-    GLfloat getYPos(){return mY;}
-    Vector2f& operator=(const Vector2f &crRhs){mX = crRhs.mX; mY = crRhs.mY; return *this;}
-    bool operator==(const Vector2f &crRhs){return (mX == crRhs.mX) && (mY == crRhs.mY);}
-  private:
-    GLfloat mX;
-    GLfloat mY;
+    Vector2(const T cXPos, const T cYPos);
+    Vector2(const Vector2 &crRhs);
+    Vector2();
+    ~Vector2();
+    Vector2& operator=(const Vector2 &crRhs);
+    Vector2& operator+=(const Vector2 &crRhs);
+    Vector2 operator+(const Vector2 &crRhs);
+    Vector2& operator-=(const Vector2 &crRhs);
+    Vector2 operator-(const Vector2 &crRhs);
+    bool operator==(const Vector2 &crRhs);
+    Vector2& operator*=(const int8_t &crRhs);
+    Vector2& operator*=(const int16_t &crRhs);
+    Vector2& operator*=(const int32_t &crRhs);
+    Vector2& operator*=(const int64_t &crRhs);
+    Vector2& operator*=(const uint8_t &crRhs);
+    Vector2& operator*=(const uint16_t &crRhs);
+    Vector2& operator*=(const uint32_t &crRhs);
+    Vector2& operator*=(const uint64_t &crRhs);
+    Vector2& operator*=(const GLfloat &crRhs);
+    Vector2& operator*=(const GLdouble &crRhs);
+    Vector2 operator*(const int8_t &crRhs);
+    Vector2 operator*(const int16_t &crRhs);
+    Vector2 operator*(const int32_t &crRhs);
+    Vector2 operator*(const int64_t &crRhs);
+    Vector2 operator*(const uint8_t &crRhs);
+    Vector2 operator*(const uint16_t &crRhs);
+    Vector2 operator*(const uint32_t &crRhs);
+    Vector2 operator*(const uint64_t &crRhs);
+    Vector2 operator*(const GLfloat &crRhs);
+    Vector2 operator*(const GLdouble &crRhs);
+    Vector2& operator/=(const int8_t &crRhs);
+    Vector2& operator/=(const int16_t &crRhs);
+    Vector2& operator/=(const int32_t &crRhs);
+    Vector2& operator/=(const int64_t &crRhs);
+    Vector2& operator/=(const uint8_t &crRhs);
+    Vector2& operator/=(const uint16_t &crRhs);
+    Vector2& operator/=(const uint32_t &crRhs);
+    Vector2& operator/=(const uint64_t &crRhs);
+    Vector2& operator/=(const GLfloat &crRhs);
+    Vector2& operator/=(const GLdouble &crRhs);
+    Vector2 operator/(const int8_t &crRhs);
+    Vector2 operator/(const int16_t &crRhs);
+    Vector2 operator/(const int32_t &crRhs);
+    Vector2 operator/(const int64_t &crRhs);
+    Vector2 operator/(const uint8_t &crRhs);
+    Vector2 operator/(const uint16_t &crRhs);
+    Vector2 operator/(const uint32_t &crRhs);
+    Vector2 operator/(const uint64_t &crRhs);
+    Vector2 operator/(const GLfloat &crRhs);
+    Vector2 operator/(const GLdouble &crRhs);
+    T operator*(const Vector2<T>& crVector);
+    // Vector2& operator/=(const T &crRhs);
+    friend std::ostream& operator<< <>(std::ostream& rOs, const Vector2<T>& crVector);
+
+    T mX;
+    T mY;
 };
 
-class Vector2i {
-  public:
-    Vector2i(const uint32_t cXPos, const uint32_t cYPos) {mX = cXPos; mY = cYPos;}
-    Vector2i(const Vector2i &crRhs){*this = crRhs;}
-    Vector2i(){}
-    ~Vector2i(){}
-    uint32_t getXPos(){return mX;}
-    uint32_t getYPos(){return mY;}
-    Vector2i& operator=(const Vector2i &crRhs){mX = crRhs.mX; mY = crRhs.mY; return *this;}
-    bool operator==(const Vector2i &crRhs){return (mX == crRhs.mX) && (mY == crRhs.mY);}
-  private:
-    uint32_t mX;
-    uint32_t mY;
-};
+template <typename T>
+Vector2<T>::Vector2(const T cXPos, const T cYPos) : mX(cXPos), mY(cYPos)
+{
+}
+
+template <typename T>
+Vector2<T>::Vector2(const Vector2<T> &crRhs)
+{
+  *this = crRhs;
+}
+
+template <typename T>
+Vector2<T>::Vector2()
+{
+
+}
+
+template <typename T>
+Vector2<T>::~Vector2()
+{
+
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator=(const Vector2<T> &crRhs)
+{
+  mX = crRhs.mX;
+  mY = crRhs.mY;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator+=(const Vector2 &crRhs)
+{
+  mX += crRhs.mX;
+  mY += crRhs.mY;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator-=(const Vector2 &crRhs)
+{
+  mX -= crRhs.mX;
+  mY -= crRhs.mY;
+  return *this;
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator+(const Vector2 &crRhs)
+{
+  return Vector2<T>(mX + crRhs.mX, mY + crRhs.mY);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator-(const Vector2 &crRhs)
+{
+  return Vector2<T>(mX - crRhs.mX, mY - crRhs.mY);
+}
+
+template <typename T>
+bool Vector2<T>::operator==(const Vector2<T> &crRhs)
+{
+  return (mX == crRhs.mX) && (mY == crRhs.mY);
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator*=(const int8_t &crRhs)
+{
+  mX *= crRhs;
+  mY *= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator*=(const int16_t &crRhs)
+{
+  mX *= crRhs;
+  mY *= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator*=(const int32_t &crRhs)
+{
+  mX *= crRhs;
+  mY *= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator*=(const int64_t &crRhs)
+{
+  mX *= crRhs;
+  mY *= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator*=(const uint8_t &crRhs)
+{
+  mX *= crRhs;
+  mY *= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator*=(const uint16_t &crRhs)
+{
+  mX *= crRhs;
+  mY *= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator*=(const uint32_t &crRhs)
+{
+  mX *= crRhs;
+  mY *= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator*=(const uint64_t &crRhs)
+{
+  mX *= crRhs;
+  mY *= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator*=(const GLfloat &crRhs)
+{
+  mX *= crRhs;
+  mY *= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator*=(const GLdouble &crRhs)
+{
+  mX *= crRhs;
+  mY *= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator*(const int8_t &crRhs)
+{
+  return Vector2<T>(mX * crRhs, mY * crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator*(const int16_t &crRhs)
+{
+  return Vector2<T>(mX * crRhs, mY * crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator*(const int32_t &crRhs)
+{
+  return Vector2<T>(mX * crRhs, mY * crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator*(const int64_t &crRhs)
+{
+  return Vector2<T>(mX * crRhs, mY * crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator*(const uint8_t &crRhs)
+{
+  return Vector2<T>(mX * crRhs, mY * crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator*(const uint16_t &crRhs)
+{
+  return Vector2<T>(mX * crRhs, mY * crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator*(const uint32_t &crRhs)
+{
+  return Vector2<T>(mX * crRhs, mY * crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator*(const uint64_t &crRhs)
+{
+  return Vector2<T>(mX * crRhs, mY * crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator*(const GLfloat &crRhs)
+{
+  return Vector2<T>(mX * crRhs, mY * crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator*(const GLdouble &crRhs)
+{
+  return Vector2<T>(mX * crRhs, mY * crRhs);
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator/=(const int8_t &crRhs)
+{
+  mX /= crRhs;
+  mY /= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator/=(const int16_t &crRhs)
+{
+  mX /= crRhs;
+  mY /= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator/=(const int32_t &crRhs)
+{
+  mX /= crRhs;
+  mY /= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator/=(const int64_t &crRhs)
+{
+  mX /= crRhs;
+  mY /= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator/=(const uint8_t &crRhs)
+{
+  mX /= crRhs;
+  mY /= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator/=(const uint16_t &crRhs)
+{
+  mX /= crRhs;
+  mY /= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator/=(const uint32_t &crRhs)
+{
+  mX /= crRhs;
+  mY /= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator/=(const uint64_t &crRhs)
+{
+  mX /= crRhs;
+  mY /= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator/=(const GLfloat &crRhs)
+{
+  mX /= crRhs;
+  mY /= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T>& Vector2<T>::operator/=(const GLdouble &crRhs)
+{
+  mX /= crRhs;
+  mY /= crRhs;
+  return *this;
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator/(const int8_t &crRhs)
+{
+  return Vector2<T>(mX / crRhs, mY / crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator/(const int16_t &crRhs)
+{
+  return Vector2<T>(mX / crRhs, mY / crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator/(const int32_t &crRhs)
+{
+  return Vector2<T>(mX / crRhs, mY / crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator/(const int64_t &crRhs)
+{
+  return Vector2<T>(mX / crRhs, mY / crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator/(const uint8_t &crRhs)
+{
+  return Vector2<T>(mX / crRhs, mY / crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator/(const uint16_t &crRhs)
+{
+  return Vector2<T>(mX / crRhs, mY / crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator/(const uint32_t &crRhs)
+{
+  return Vector2<T>(mX / crRhs, mY / crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator/(const uint64_t &crRhs)
+{
+  return Vector2<T>(mX / crRhs, mY / crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator/(const GLfloat &crRhs)
+{
+  return Vector2<T>(mX / crRhs, mY / crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator/(const GLdouble &crRhs)
+{
+  return Vector2<T>(mX / crRhs, mY / crRhs);
+}
+
+template <typename T>
+T Vector2<T>::operator*(const Vector2<T>& crVector)
+{
+  return mX * crVector.mX + mY * crVector.mY;
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& rOs, const Vector2<T>& crVector)
+{
+  rOs << "(" << crVector.mX << ", " << crVector.mY << ")" << std::endl;
+
+  return rOs;
+}
 
 #endif

@@ -1,31 +1,36 @@
 #include "rectangle.h"
+#include <cmath>
 
 /* Function:    Rect
    Description: Default Constructor
    Parameters:  None
    Returns:     None
 */
-Rect::Rect() {
-  mLeft   = 0;
-  mTop    = 0;
-  mWidth  = 0;
-  mHeight = 0;
+Rect::Rect()
+{
+  mPos  = Vector2<int32_t>(0, 0);
+  mSize = Vector2<int32_t>(0, 0);
   mRgba = lg::Color(0, 0, 0);
 }
 
 /* Function:    Rect
    Description: Creates rectangle shape
-   Parameters:  uint32_t - leftmost coordinate
-                uint32_t - topmost coordinate
-                uint32_t - height of rect
-                uint32_t - width of rect
+   Parameters:  int32_t - leftmost coordinate
+                int32_t - topmost coordinate
+                int32_t - height of rect
+                int32_t - width of rect
    Returns:     None
 */
-Rect::Rect(const uint32_t cLeft, const uint32_t cTop, const uint32_t cHeight, const uint32_t cWidth) {
-  mLeft   = cLeft;
-  mTop    = cTop;
-  mWidth  = cWidth;
-  mHeight = cHeight;
+Rect::Rect(const int32_t cLeft, const int32_t cTop, const int32_t cHeight, const int32_t cWidth)
+{
+  mPos  = Vector2<int32_t>(cLeft, cTop);
+  mSize = Vector2<int32_t>(cWidth, cHeight);
+}
+
+Rect::Rect(const Vector2<int32_t>& cPos, const int32_t cHeight, const int32_t cWidth)
+{
+  mPos = cPos;
+  mSize = Vector2<int32_t>(cWidth, cHeight);
 }
 
 /* Function:    setColor
@@ -35,7 +40,8 @@ Rect::Rect(const uint32_t cLeft, const uint32_t cTop, const uint32_t cHeight, co
                 uint8_t - Blue color attribute
    Returns:     None
 */
-void Rect::setColor(const uint8_t cRed, const uint8_t cGreen, const uint8_t cBlue, const uint8_t cAlpha) {
+void Rect::setColor(const uint8_t cRed, const uint8_t cGreen, const uint8_t cBlue, const uint8_t cAlpha)
+{
   mRgba = lg::Color(cRed, cGreen, cBlue, cAlpha);
 }
 
@@ -44,7 +50,8 @@ void Rect::setColor(const uint8_t cRed, const uint8_t cGreen, const uint8_t cBlu
    Parameters:  Color - Pre-defined color attribute
    Returns:     None
 */
-void Rect::setColor(const lg::Color cColor) {
+void Rect::setColor(const lg::Color cColor)
+{
   mRgba = cColor;
 }
 
@@ -53,7 +60,8 @@ void Rect::setColor(const lg::Color cColor) {
    Parameters:  None
    Returns:     Color - Color of rectangle
 */
-lg::Color Rect::getRGBA() {
+lg::Color Rect::getRGBA()
+{
   return mRgba;
 }
 
@@ -63,11 +71,12 @@ lg::Color Rect::getRGBA() {
    Parameters:  None
    Returns:     None
 */
-void Rect::getDimensions(GLfloat *pLeft, GLfloat *pTop, GLfloat *pHeight, GLfloat *pWidth) {
-  *pLeft   = mLeft;
-  *pTop    = mTop;
-  *pHeight = mHeight;
-  *pWidth  = mWidth;
+void Rect::getDimensions(GLfloat *pLeft, GLfloat *pTop, GLfloat *pHeight, GLfloat *pWidth)
+{
+  *pLeft   = mPos.mX;
+  *pTop    = mPos.mY;
+  *pHeight = mSize.mY;
+  *pWidth  = mSize.mX;
 }
 
 /* Function:    createRenderData
@@ -76,28 +85,103 @@ void Rect::getDimensions(GLfloat *pLeft, GLfloat *pTop, GLfloat *pHeight, GLfloa
    Parameters:  Rect - Rectangle shape to extract coordinates
    Returns:     RenderData - Data that is renderable for batchbuffer;
 */
-RenderData Rect::createRenderData() {
+RenderData Rect::createRenderData()
+{
   GLfloat wWidth = gWindowWidth / 2.0f;
   GLfloat wHeight = gWindowHeight / 2.0f;
 
-  GLfloat x1 = ((GLfloat) mLeft / wWidth) - 1.0f;
-  GLfloat x2 = (((GLfloat) mLeft + (GLfloat) mWidth)/ wWidth) - 1.0f;
-  GLfloat y1 = -1 * (((GLfloat) mTop / wHeight) - 1.0f);
-  GLfloat y2 = -1 * ((((GLfloat) mTop + (GLfloat) mHeight) / wHeight) - 1.0f);
+  GLfloat x1 = ((GLfloat) mPos.mX / wWidth) - 1.0f;
+  GLfloat x2 = (((GLfloat) mPos.mX + (GLfloat) mSize.mX)/ wWidth) - 1.0f;
+  GLfloat y1 = -1 * (((GLfloat) mPos.mY / wHeight) - 1.0f);
+  GLfloat y2 = -1 * ((((GLfloat) mPos.mY + (GLfloat) mSize.mY) / wHeight) - 1.0f);
 
-  return { Vector2f(x1, y2), mRgba, Vector2f(x2, y2), mRgba,
-           Vector2f(x2, y1), mRgba, Vector2f(x1, y1), mRgba};
+  return { Vector2<GLfloat>(x1, y2), mRgba, Vector2<GLfloat>(x2, y2), mRgba,
+           Vector2<GLfloat>(x2, y1), mRgba, Vector2<GLfloat>(x1, y1), mRgba};
+}
+
+Vector2<GLfloat> Rect::getTranslate()
+{
+   GLfloat wWidth = gWindowWidth / 2.0f;
+   GLfloat wHeight = gWindowHeight / 2.0f;
+   return Vector2<GLfloat>(((GLfloat) mPos.mX / wWidth) - 1.0f, -1 * (((GLfloat) mPos.mY / wHeight) - 1.0f));
+}
+
+void Rect::translate(Vector2<GLfloat>& rTranslate)
+{
+   GLfloat wWidth = gWindowWidth / 2.0f;
+   GLfloat wHeight = gWindowHeight / 2.0f;
+   mPos.mX = (rTranslate.mX * wWidth) + wWidth;
+   mPos.mY = -1 * ((rTranslate.mY * wHeight) + wHeight);
+}
+
+// TODO: Add default params to be centered around bottom left of screen
+void Rect::rotate(GLfloat theta)
+{
+   GLfloat wWidth = gWindowWidth / 2.0f;
+   GLfloat wHeight = gWindowHeight / 2.0f;
+   GLfloat x1 = ((GLfloat) mPos.mX / wWidth) - 1.0f;
+   GLfloat y1 = -1 * (((GLfloat) mPos.mY / wHeight) - 1.0f);
+
+
+   x1 = (x1 + 1.0f)*std::cos(theta) - (y1 + 1.0f)*std::sin(theta);
+   y1 = (x1 + 1.0f)*std::sin(theta) + (y1 + 1.0f)*std::cos(theta);
+
+   mPos.mX = x1 * wWidth + wWidth;
+   mPos.mY = -y1 * wHeight - wHeight;
+   // mPos.mY = -y1 * wHeight - wHeight / 2;
 }
 
 /* Function:    setPos
    Description: Updates position of Rectangle
-   Parameters:  uint32_t - left position of rectangle
-                uint32_t - top position of rectangle
+   Parameters:  int32_t - left position of rectangle
+                int32_t - top position of rectangle
    Returns:     None
 */
-void Rect::setPos(const uint32_t cLeft, const uint32_t cTop) {
-  mLeft   = cLeft;
-  mTop    = cTop;
+void Rect::setPos(const int32_t cLeft, const int32_t cTop)
+{
+  mPos.mX   = cLeft;
+  mPos.mY    = cTop;
+}
+
+void Rect::setPos(const Vector2<int32_t>& crPos)
+{
+   mPos = crPos;
+}
+
+void Rect::setSize(const Vector2<int32_t>& crSize)
+{
+   mSize = crSize;
+}
+
+void Rect::movePos(const int32_t cLeft, const int32_t cTop)
+{
+  mPos.mX   += cLeft;
+  mPos.mY    += cTop;
+}
+
+int32_t Rect::getLeft() const
+{
+   return mPos.mX;
+}
+
+int32_t Rect::getTop() const
+{
+   return mPos.mY;
+}
+
+Vector2<int32_t> Rect::getPos() const
+{
+   return mPos;
+}
+
+bool Rect::sortByXIntersection(const Rect& crP1, const Rect& crP2)
+{
+   if (crP1.getTop() == crP2.getTop())
+   {
+      return crP1.getLeft() < crP2.getLeft();
+   }
+
+   return crP1.getTop() < crP2.getTop();
 }
 
 /* Function:    getRenderData
@@ -105,7 +189,8 @@ void Rect::setPos(const uint32_t cLeft, const uint32_t cTop) {
    Parameters:  None
    Returns:     RenderData - Data that is renderable for batchbuffer;
 */
-std::vector<RenderData> Rect::getRenderData() {
+std::vector<RenderData> Rect::getRenderData()
+{
   return {Rect::createRenderData()};
 }
 
@@ -114,5 +199,6 @@ std::vector<RenderData> Rect::getRenderData() {
    Parameters:  None
    Returns:     None
 */
-Rect::~Rect() {
+Rect::~Rect()
+{
 }

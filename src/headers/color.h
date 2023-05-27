@@ -16,9 +16,9 @@ class Color {
     Color(const Color &crRhs){*this = crRhs;}
     Color(){}
     ~Color(){}
-    GLfloat getRed(){return mRed;}
-    GLfloat getGreen(){return mGreen;}
-    GLfloat getBlue(){return mBlue;}
+    GLfloat getRed() const {return mRed;}
+    GLfloat getGreen() const {return mGreen;}
+    GLfloat getBlue() const {return mBlue;}
     GLfloat getalpha(){return mAlpha;}
     Color& operator=(const Color &crRhs) {
       mRed = crRhs.mRed;
@@ -26,6 +26,11 @@ class Color {
       mBlue = crRhs.mBlue;
       mAlpha = crRhs.mAlpha;
       return *this;
+    }
+
+    bool operator==(const Color &crRhs)
+    {
+      return (mRed == crRhs.getRed()) && (mBlue == crRhs.getBlue()) && (mGreen == crRhs.getGreen());
     }
 
     static const Color Red;

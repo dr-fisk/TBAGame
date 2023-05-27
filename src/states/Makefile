@@ -3,8 +3,9 @@ all : $(states)
 LIBPATH = ../../lib
 INCLPATH = ../../include
 HEADERS= ../headers
+LESTTTFPATH = ../../lestttf
 
-CFLAGS = -g -std=c++17 -MMD -I$(INCLPATH) -I$(LIBPATH) -I$(HEADERS)
+CFLAGS = -g -std=c++17 -MMD -I$(INCLPATH) -I$(LIBPATH) -I$(HEADERS) -I$(LESTTTFPATH)
 StateDeps := $(patsubst %.o, %.d, $(stateObjs))
 -include $(StateDeps)
 

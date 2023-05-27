@@ -45,7 +45,7 @@ Game::Game() {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   mpWindow = std::make_shared<RenderWindow>(800, 800, "Lest Window");
-  
+   
   /* NOTE: BEFORE ANY GL CALL, THAT IS NOT GLFW but GL, SET ACTIVE MUST BE CALLED OR ELSE OPENGL FAILS */
   mpWindow->setActive();
 
@@ -60,6 +60,10 @@ Game::Game() {
 
   //init GL attributes for window
   mpWindow->initWindow();
+
+    int32_t view[4] = {};
+  glGetIntegerv(GL_VIEWPORT, view);
+  std::cout << view[0] << " " << view[1] << " " << view[2] << " " << view[3] << std::endl;
 
   mpBatchBuffer = std::make_shared<BatchBuffer>( std::vector<RenderData>(), RECTANGLE, 1, 1, 1, GL_STREAM_DRAW);
 

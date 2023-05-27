@@ -4,7 +4,7 @@
 #include "mainMenuState.h"
 #include "exceptionState.h"
 #include "renderWindow.h"
-
+#include "lestTtf.h"
 
 #define ONE_SEC 1
 
@@ -18,6 +18,7 @@ class Game {
     std::shared_ptr<RenderWindow> mpWindow;
     std::shared_ptr<BatchBuffer> mpBatchBuffer;
     std::map<std::string, std::shared_ptr<Shader>> mShaders;
+    LestTrueType ttf;
     int mGameRuntime;
     int mStartTime;
     int mEndTime;

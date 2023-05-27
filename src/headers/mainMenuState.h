@@ -2,6 +2,7 @@
 #define MAINMENU_STATE_H
 
 #include "state.h"
+#include "lestTtf.h"
 
 class MainMenu : public State {
   public:
@@ -16,6 +17,9 @@ class MainMenu : public State {
     Mesh mMesh2;
     Font mFont;
     Text mText;
+    LestTrueType ttf;
+    std::vector<Rect> temprect;
+    std::vector<Rect> final;
 };
 
 #endif

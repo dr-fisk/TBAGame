@@ -152,8 +152,8 @@ RenderData RenderWindow::createRenderDataBounded(Rect &rShape) {
   GLfloat y1 = -1 * ((top / wHeight) - 1.0f);
   GLfloat y2 = -1 * (((top + height) / wHeight) - 1.0f);
 
-  return { Vector2f(x1, y2), rgba, Vector2f(x2, y2), rgba,
-           Vector2f(x2, y1), rgba, Vector2f(x1, y1), rgba};
+  return { Vector2<GLfloat>(x1, y2), rgba, Vector2<GLfloat>(x2, y2), rgba,
+           Vector2<GLfloat>(x2, y1), rgba, Vector2<GLfloat>(x1, y1), rgba};
 }
 
 /* Function:    boundCoords
