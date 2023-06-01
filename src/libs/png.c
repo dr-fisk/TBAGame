@@ -13,13 +13,15 @@ const std::vector<uint8_t> pngSignature = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0
                 struct IHDR - IHDR struct to store values from parsed IHDR
    Returns:     None
  */
-void Png::parseIHDR(const uint32_t cChunkLength) {
+void Png::parseIHDR(const uint32_t cChunkLength)
+{
   mPngFile.read((char *) &mIhdr, cChunkLength);
   /* There is no endian issues for 1 byte values which is why only width and height needs to be rearranged */
   mIhdr.width = htonl(mIhdr.width);
   mIhdr.height = htonl(mIhdr.height);
 
-  if ((mIhdr.width == 0) || (mIhdr.height == 0)) {
+  if ((mIhdr.width == 0) || (mIhdr.height == 0))
+  {
     std::cout << "Error! Invalid image dimensions." << std::endl;
     exit(0);
   }
@@ -31,7 +33,8 @@ void Png::parseIHDR(const uint32_t cChunkLength) {
                 struct RGB - Pixel 2 RGB values
    Returns:     struct RGB - New pixel RGB values
  */
-struct Png::RGB Png::subPixelRGB(const struct RGB cPixel1, const struct RGB cPixel2) {
+struct Png::RGB Png::subPixelRGB(const struct RGB cPixel1, const struct RGB cPixel2)
+{
   return {(uint8_t)((cPixel1.Red - cPixel2.Red)), (uint8_t)((cPixel1.Green - cPixel2.Green)),
           (uint8_t)((cPixel1.Blue - cPixel2.Blue))};
 }
@@ -42,7 +45,8 @@ struct Png::RGB Png::subPixelRGB(const struct RGB cPixel1, const struct RGB cPix
                 struct RGB - Pixel 2 RGB values
    Returns:     struct RGB - New pixel RGB values
  */
-struct Png::RGB Png::addPixelRGB(const struct RGB cPixel1, const struct RGB cPixel2) {
+struct Png::RGB Png::addPixelRGB(const struct RGB cPixel1, const struct RGB cPixel2)
+{
   return {(uint8_t)((cPixel1.Red + cPixel2.Red)), (uint8_t)((cPixel1.Green + cPixel2.Green)),
           (uint8_t)((cPixel1.Blue + cPixel2.Blue))};
 }
@@ -54,7 +58,8 @@ struct Png::RGB Png::addPixelRGB(const struct RGB cPixel1, const struct RGB cPix
                 uint8_t - C pixel RGB byte
    Returns:     uint8_t - Correct predictor pixel
  */
-uint8_t Png::calcPaethByte(const uint8_t cA, const uint8_t cB, const uint8_t cC) {
+uint8_t Png::calcPaethByte(const uint8_t cA, const uint8_t cB, const uint8_t cC)
+{
   int32_t p, pa, pb, pc;
   // int32_t type cast needed because values can be negative
   p = (int32_t)cA + (int32_t)cB - (int32_t)cC;
@@ -62,13 +67,16 @@ uint8_t Png::calcPaethByte(const uint8_t cA, const uint8_t cB, const uint8_t cC)
   pb = abs(p - (int32_t)cB);
   pc = abs(p - (int32_t)cC); 
 
-  if ((pa <= pb) && (pa <= pc)) {
+  if ((pa <= pb) && (pa <= pc))
+  {
     return cA;
   }
-  else if (pb <= pc) {
+  else if (pb <= pc)
+  {
     return cB;
   }
-  else {
+  else
+  {
     return cC;
   }
 }
@@ -81,7 +89,8 @@ uint8_t Png::calcPaethByte(const uint8_t cA, const uint8_t cB, const uint8_t cC)
                 uint32_t - Current index in mI vector
    Returns:     struct RGB - Unfiltered Pixel Color
  */
-struct Png::RGB Png::paethRGBBitDepth8(const uint32_t cScanlineSize, const uint8_t cRgbSize, const uint32_t cCurrByte) {
+struct Png::RGB Png::paethRGBBitDepth8(const uint32_t cScanlineSize, const uint8_t cRgbSize, const uint32_t cCurrByte)
+{
   /*
   Calculates the PAETH algorithm.
   The PAETH algorithm works on bytes, which means that one byte values will not work.
@@ -136,7 +145,8 @@ struct Png::RGB Png::paethRGBBitDepth8(const uint32_t cScanlineSize, const uint8
    Parameters:  std::vector<uint8_t> - Concatenated decompressed IDAT data
    Returns:     None
  */
-void Png::rgbBitDepth8(const std::vector<uint8_t> &crRgbData) {
+void Png::rgbBitDepth8(const std::vector<uint8_t> &crRgbData)
+{
   /*
     index i will always be either the filter method or a pixel starting on the Red color value_comp
     index i will never be Blue nor Green, to extract the blue and green for the current pixel do i + 1 for Green and i + 2 for red
@@ -161,16 +171,20 @@ void Png::rgbBitDepth8(const std::vector<uint8_t> &crRgbData) {
   int32_t upperBound = 0;
   mImgData.resize(mIhdr.width * mIhdr.height * rgbSize);
 
- for (int i = 0; i < (int) crRgbData.size();) {
+ for (int i = 0; i < (int) crRgbData.size();)
+ {
     leftBound   = currByte % scanlineSize;
     upperBound  = currByte - scanlineSize;
 
-    if (i % (scanlineSize + 1) == 0) {
+    if (i % (scanlineSize + 1) == 0)
+    {
       filterValue = crRgbData[i];
       i ++;
     }
-    else {
-      switch(filterValue) {
+    else
+    {
+      switch(filterValue)
+      {
         case NONE:
           // No filter do nothing but set filter pixels as to avoid any junk memory
           filterPix.Red   = 0;
@@ -227,14 +241,17 @@ void Png::rgbBitDepth8(const std::vector<uint8_t> &crRgbData) {
    Parameters:  std::vector<uint8_t> - Concatenated decompressed IDAT data
    Returns:     None
  */
-void Png::handlePngColorType(const std::vector<uint8_t> &crRgbData) {
-  switch (mIhdr.colorType) {
+void Png::handlePngColorType(const std::vector<uint8_t> &crRgbData)
+{
+  switch (mIhdr.colorType)
+  {
     case 2:
     case 6:
     // fall through due to rgbBitDepth8 function being generic enough to capture
       if (mIhdr.bitDepth == 8)
         rgbBitDepth8(crRgbData);
-      else {
+      else
+      {
           std::cout << "BitDepth not implemented" << std::endl;
           exit(0);
       }
@@ -251,7 +268,8 @@ void Png::handlePngColorType(const std::vector<uint8_t> &crRgbData) {
                 std::vector<uint8_t> - Concatenated decompressed IDAT data
    Returns:     None
  */
-void Png::uncompressIDAT(const std::vector<uint8_t> &crBuffer, std::vector<uint8_t> &rDecompressedData) {
+void Png::uncompressIDAT(const std::vector<uint8_t> &crBuffer, std::vector<uint8_t> &rDecompressedData)
+{
   // Decompression works, note that if png size IDAT chunk has more than 16384 bytes uncompressed, then while loop will keep running til empty
   // as well as subsequent IDAT chunks can occur, these two things are still not handled properly
   // When multiple IDAT chunks, you need to concatenate data all together then inflate
@@ -273,12 +291,15 @@ void Png::uncompressIDAT(const std::vector<uint8_t> &crBuffer, std::vector<uint8
   */ 
   inflateInit2(&infstream, WINDOW_BITS);
 
-  do {
+  do
+  {
     infstream.avail_out = (uInt)decompressedChunk.size(); // size of output
     infstream.next_out = (Bytef *)decompressedChunk.data(); // output char array
     error = inflate(&infstream, Z_NO_FLUSH);
 
-    if ( error == Z_DATA_ERROR || error == Z_MEM_ERROR) {
+    if(error == Z_DATA_ERROR || error == Z_MEM_ERROR)
+    {
+      std::cout << "ZLIB decompression returned error: " << error << std::endl;
       exit(0);
     }
 
@@ -296,7 +317,8 @@ void Png::uncompressIDAT(const std::vector<uint8_t> &crBuffer, std::vector<uint8
    Parameters:  uint32_t - Amount of bytes to read
    Returns:     None
  */
-void Png::parseICCP(const uint32_t cChunkLength) {
+void Png::parseICCP(const uint32_t cChunkLength)
+{
   std::vector<uint8_t> buffer(cChunkLength);
 
   mPngFile.read((char *) buffer.data(), cChunkLength);
@@ -316,7 +338,10 @@ void Png::readPng() {
   std::vector<uint8_t> signature(9);
   std::vector<uint8_t> idatBuffer;
 
-  if (!mPngFile) {
+// TODO: Move check
+  if(!mPngFile)
+  {
+    std::cout << "Png file descriptor is not good." << std::endl;
     exit(0);
   }
 
@@ -324,12 +349,14 @@ void Png::readPng() {
   mPngFile.read((char *) signature.data(), sizeof(uint64_t));
   signature[8] = '\0';
 
-  if (strcmp((char *)signature.data(), (char *)pngSignature.data()) != 0) {
+  if(strcmp((char *)signature.data(), (char *)pngSignature.data()) != 0)
+  {
     std::cout << "Not a PNG format" << std::endl;
     exit(0);
   }
 
-  while (strcmp((char *)chunkType.data(), "IEND\0") != 0 && mPngFile.good()) {
+  while (strcmp((char *)chunkType.data(), "IEND\0") != 0 && mPngFile.good())
+  {
     // Format for data is 4 bytes to give length of chunk buffer
     // 4 bytes for chunk type
     // X bytes of chunk data
@@ -341,7 +368,8 @@ void Png::readPng() {
     chunkType[4] = '\0';
 
     // IDAT chain is broken so now uncompress all data collected
-    if ((((validPngMask & IDAT_CHAIN) >> 3) == 1) && (strcmp((char *) chunkType.data(), "IDAT\0") != 0)) {
+    if((((validPngMask & IDAT_CHAIN) >> 3) == 1) && (strcmp((char *) chunkType.data(), "IDAT\0") != 0))
+    {
       validPngMask &= 0xF7;
       //temp
       uncompressIDAT(idatBuffer, decompressedData);
@@ -350,36 +378,45 @@ void Png::readPng() {
       decompressedData.clear();
     }
 
-    if ((validPngMask & IHDR_MASK) == 0 && strcmp((char *) chunkType.data(), "IHDR\0") != 0) {
+    if((validPngMask & IHDR_MASK) == 0 && strcmp((char *) chunkType.data(), "IHDR\0") != 0)
+    {
       std::cout << "Error! Invalid PNG file, IHDR chunk did not follow PNG signature." << std::endl;
       exit(0);
     } 
-    else if ((validPngMask & IHDR_MASK) == 0 && strcmp((char *) chunkType.data(), "IHDR\0") == 0) {
+    else if ((validPngMask & IHDR_MASK) == 0 && strcmp((char *) chunkType.data(), "IHDR\0") == 0)
+    {
       validPngMask |= IHDR_MASK;
       parseIHDR(chunkLength);
     }
-    else if (strcmp((char *) chunkType.data(), "IDAT\0") == 0) {
+    else if (strcmp((char *) chunkType.data(), "IDAT\0") == 0)
+    {
       std::vector<uint8_t> tempBuffer(chunkLength);
       mPngFile.read((char *) tempBuffer.data(), chunkLength);
       idatBuffer.insert(idatBuffer.end(), tempBuffer.begin(), tempBuffer.end());
 
-      if ((validPngMask & IDAT_MASK) == 0) {
+      if ((validPngMask & IDAT_MASK) == 0)
+      {
         validPngMask |= IDAT_MASK;
       }
 
       // Start of the IDAT chain, start appending all data to buffer
-      if ((validPngMask & IDAT_CHAIN) == 0) {
+      if ((validPngMask & IDAT_CHAIN) == 0)
+      {
         validPngMask |= IDAT_CHAIN;
       }
     }
-    else if (strcmp((char *) chunkType.data(), "iCCP\0") == 0) {
-      if ((validPngMask & IDAT_MASK) != 0) {
+    else if (strcmp((char *) chunkType.data(), "iCCP\0") == 0)
+    {
+      if ((validPngMask & IDAT_MASK) != 0)
+      {
         std::cout << "Error! iCCP chunk must appear before first IDAT chunk" << std::endl;
         exit(0);
       }
        //Temp
        parseICCP(chunkLength);
-    } else {
+    }
+    else 
+    {
       //Temp
       parseICCP(chunkLength);
     }
@@ -387,7 +424,8 @@ void Png::readPng() {
     mPngFile.read((char *) &crc, sizeof(uint32_t));
   }
 
-  if (strcmp((char *) chunkType.data(), "IEND\0") == 0) {
+  if (strcmp((char *) chunkType.data(), "IEND\0") == 0)
+  {
     validPngMask |= IEND_MASK;
   }
 
@@ -398,7 +436,8 @@ void Png::readPng() {
    Parameters:  std::string - Filepath for png file to read from
    Returns:     None
  */
-Png::Png(const std::string &crPngPath) {
+Png::Png(const std::string &crPngPath)
+{
   mPngFile.open(crPngPath.c_str(), std::ios::binary);
   readPng();
 }
@@ -409,8 +448,9 @@ Png::Png(const std::string &crPngPath) {
                 uint32_t Height limit
    Returns:     Status failure/success status of function
  */
-Status Png::compareSize(const uint32_t cWidth, const uint32_t cHeight) {
-  if (mIhdr.width != cWidth || mIhdr.height != cHeight)
+Status Png::compareSize(const uint32_t cWidth, const uint32_t cHeight)
+{
+  if(mIhdr.width != cWidth || mIhdr.height != cHeight)
     return FAIL;
 
   return SUCCESS;
@@ -421,7 +461,8 @@ Status Png::compareSize(const uint32_t cWidth, const uint32_t cHeight) {
    Parameters:  None
    Returns:     None
  */
-Png::~Png() {
+Png::~Png()
+{
   mImgData.clear();
   mPngFile.close();
 }
@@ -431,7 +472,8 @@ Png::~Png() {
    Parameters:  None
    Returns:     std::vector<uint8_t> - Unfiltered image data
  */
-std::vector<uint8_t> Png::getImgData() {
+std::vector<uint8_t> Png::getImgData()
+{
   return mImgData;
 }
 
@@ -440,6 +482,7 @@ std::vector<uint8_t> Png::getImgData() {
    Parameters:  None
    Returns:     struct RGB - Metadata for png file that was read
  */
-struct Png::IHDR Png::getIhdr() {
+struct Png::IHDR Png::getIhdr()
+{
   return mIhdr;
 }

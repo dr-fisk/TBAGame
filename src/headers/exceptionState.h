@@ -18,7 +18,7 @@ class ExceptionState : public State {
     Mesh mMesh2;
     BatchBuffer mTestBB;
     BatchBuffer mErrorBatch;
-    Font mFont;
+    PngFont mFont;
 };
 
 #endif

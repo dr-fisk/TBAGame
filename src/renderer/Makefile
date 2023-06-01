@@ -3,9 +3,9 @@ all : $(renderers)
 LIBPATH = ../../lib
 INCLPATH = ../../include
 HEADERS= ../headers
+LESTTTFPATH = ../../lestttf
 
-CFLAGS = -g -std=c++17 -MMD -I$(INCLPATH) -I$(LIBPATH) -I$(HEADERS)
-
+CFLAGS = -g -std=c++17 -MMD -I$(INCLPATH) -I$(LIBPATH) -I$(HEADERS) -I$(LESTTTFPATH)
 RendererDeps := $(patsubst %.o, %.d, $(rendererObjs))
 -include $(RendererDeps)
 

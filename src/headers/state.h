@@ -5,7 +5,7 @@
 #include "glcommon.h"
 #include "renderWindow.h"
 #include "mesh.h"
-#include "font.h"
+#include "pngFont.h"
 #include "text.h"
 #include "batchBuffer.h"
 

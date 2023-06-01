@@ -8,12 +8,16 @@ uint8_t VertexArray::smNumVao = 0;
    Parameters:  uint32_t - The number of Vertex Arrays to generate
    Returns:     None
  */
-VertexArray::VertexArray(const uint32_t cNum) {
-  if ((cNum + smNumVao) <= 16) {
+VertexArray::VertexArray(const uint32_t cNum)
+{
+  if ((cNum + smNumVao) <= 16)
+  {
     mVertexArrays.resize(cNum);
     GLCall(glGenVertexArrays(cNum, mVertexArrays.data()));
     smNumVao += cNum;
-  } else {
+  }
+  else
+  {
     std::cout << "Max number of VAOs reached, VAOs not generated. Delete VAOs to gen more." << std::endl;
   }
   
@@ -24,7 +28,8 @@ VertexArray::VertexArray(const uint32_t cNum) {
    Parameters:  None
    Returns:     None
  */
-VertexArray::~VertexArray() {
+VertexArray::~VertexArray()
+{
   smNumVao -= mVertexArrays.size();
   glDeleteVertexArrays(mVertexArrays.size(), mVertexArrays.data());
 }
@@ -36,11 +41,13 @@ VertexArray::~VertexArray() {
  */
 
 //TODO: make switch a function
-void VertexArray::addBuffer(const VertexBufferLayout &crLayout) {
+void VertexArray::addBuffer(const VertexBufferLayout &crLayout)
+{
   const auto& elements = crLayout.getElements();
   uintptr_t offset = 0;
 
-  for (uint32_t i = 0; i < elements.size(); i ++) {
+  for(uint32_t i = 0; i < elements.size(); i ++)
+  {
       const auto& element = elements[i];
       GLCall(glEnableVertexAttribArray(i));
 
@@ -56,7 +63,8 @@ void VertexArray::addBuffer(const VertexBufferLayout &crLayout) {
    Parameters:  uint32_t - The Vertex Attribute Object to bind to
    Returns:     None
  */
-void VertexArray::bind(const uint32_t cId) const {
+void VertexArray::bind(const uint32_t cId) const
+{
   GLCall(glBindVertexArray(mVertexArrays[cId]));
 }
 
@@ -66,6 +74,7 @@ void VertexArray::bind(const uint32_t cId) const {
    Parameters:  None
    Returns:     None
  */
-void VertexArray::unbind() const {
+void VertexArray::unbind() const
+{
   GLCall(glBindVertexArray(0));
 }

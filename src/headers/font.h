@@ -2,28 +2,34 @@
 #define FONT_H
 
 #include "common.h"
-#include "Rectangle.h"
-#include "png.h"
+#include "lestTtf.h"
+#include "rectangle.h"
+#include "bitmap.h"
 
-struct FontAttrib {
-  int8_t glyphLeft;
-  int8_t glyphTop;
-  int8_t glyphRight;
-  int8_t glyphBottom;
-};
-
-class Font {
+class Font
+{
   public:
-  Font() {}
-    Font(const std::string &crPngFilePath);
+    Font();
+    Font(std::string ttfPath, const uint32_t cNumSubDivs=1, const lg::Color cColor=lg::White, const uint32_t cPixelDim=8);
     ~Font();
-    std::vector<Rect> operator[](const char &crRhs);
+    std::vector<std::shared_ptr<Rect>> operator[](const char cLetter);
   private:
-    void initCharVecSize();
-    void insertFontData(const uint8_t cPixelPos, const uint8_t cCurrLetter, const std::vector<Rect> &crData);
+    struct FontMetaData
+    {
+      Bitmap FontBitmap;
+      GlyfHeader FontHeader;
+      Vector2<int32_t> MaxCoords;
+    };
 
-    std::map<char, std::vector<Rect>> mFontData;
-    std::map<char, FontAttrib> mFontAttribute;
+    void updateNumberOfContours(const char cLetter, std::vector<uint16_t> &rContours);
+    void generateGlyphPoints(const char cLetter, std::vector<Vector2<int32_t>>& rPoints);
+    void connectEdges(std::vector<Vector2<int32_t>>& rPoints, const std::vector<uint16_t>& crContourEnds);
+    int32_t getStartingPoint(const char cLetter, const std::vector<Vector2<int32_t>>& crPoints);
+
+    std::map<char, FontMetaData> mFont;
+    uint32_t mNumSubDiv;
+    lg::Color mFontColor;
+    GLfloat mPixelDimensions;
 };
 
 #endif

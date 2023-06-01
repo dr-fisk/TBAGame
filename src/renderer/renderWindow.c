@@ -95,7 +95,8 @@ void RenderWindow::draw(BatchBuffer &rBuffer) {
    Returns:     None
  */
 void RenderWindow::draw(const std::shared_ptr<VertexBuffer> &crpVbo, const std::shared_ptr<VertexArray> &crpVao, 
-                        const std::shared_ptr<IndexBuffer> &crpIbo, const VertexBufferLayout &crLayout) {
+                        const std::shared_ptr<IndexBuffer> &crpIbo, const VertexBufferLayout &crLayout)
+{
   //Maybe I'm supposed to do this once per vao
   crpVao->bind(0);
   crpVbo->bind(0);
@@ -110,7 +111,8 @@ void RenderWindow::draw(const std::shared_ptr<VertexBuffer> &crpVbo, const std::
    Parameters:  None
    Returns:     uint32_t - Window width
  */
-uint32_t RenderWindow::getWindowWidth() {
+uint32_t RenderWindow::getWindowWidth()
+{
     return mWdwWidth;
 }
 
@@ -119,7 +121,8 @@ uint32_t RenderWindow::getWindowWidth() {
    Parameters:  None
    Returns:     uint32_t - Window height
  */
-uint32_t RenderWindow::getWindowHeight() {
+uint32_t RenderWindow::getWindowHeight()
+{
     return mWdwHeight;
 }
 
@@ -128,7 +131,8 @@ uint32_t RenderWindow::getWindowHeight() {
    Parameters:  None
    Returns:     bool - Window open
  */
-bool RenderWindow::isOpen(){
+bool RenderWindow::isOpen()
+{
     return !glfwWindowShouldClose(mpWindow);
 }
 
@@ -138,7 +142,8 @@ bool RenderWindow::isOpen(){
    Parameters:  Rect - Rectangle shape to extract coordinates
    Returns:     RenderData - Vertexes from shape;
  */
-RenderData RenderWindow::createRenderDataBounded(Rect &rShape) {
+RenderData RenderWindow::createRenderDataBounded(Rect &rShape)
+{
   GLfloat left, top, width, height;
   lg::Color rgba = rShape.getRGBA();
   rShape.getDimensions(&left, &top, &width, &height);
@@ -161,7 +166,8 @@ RenderData RenderWindow::createRenderDataBounded(Rect &rShape) {
    Parameters:  None
    Returns:     None
  */
-void RenderWindow::boundCoords(GLfloat *pLeft, GLfloat *pWidth, GLfloat *pTop, GLfloat *pHeight) {
+void RenderWindow::boundCoords(GLfloat *pLeft, GLfloat *pWidth, GLfloat *pTop, GLfloat *pHeight)
+{
   uint32_t wWidth = getWindowWidth();
   uint32_t wHeight = getWindowHeight();
 
@@ -197,7 +203,8 @@ void RenderWindow::boundCoords(GLfloat *pLeft, GLfloat *pWidth, GLfloat *pTop, G
    Parameters:  None
    Returns:     None
  */
-void RenderWindow::setActive() {
+void RenderWindow::setActive()
+{
   glfwMakeContextCurrent(mpWindow);
 
   //Vsync off later make it toggable (limits fps)
@@ -211,7 +218,8 @@ void RenderWindow::setActive() {
    Parameters:  None
    Returns:     None
  */
-void RenderWindow::destroyWindow() {
+void RenderWindow::destroyWindow()
+{
   /* Due to shader, IB, VAO, and VBO being smart pointers,
      reset needs to be called to delete opengl data before
      terminating window */
@@ -224,7 +232,8 @@ void RenderWindow::destroyWindow() {
    Parameters:  None
    Returns:     GLFWwindow* - A refernce to the GL Window
  */
-GLFWwindow* RenderWindow::getGlWindow() {
+GLFWwindow* RenderWindow::getGlWindow()
+{
   return mpWindow;
 }
 
@@ -233,7 +242,8 @@ GLFWwindow* RenderWindow::getGlWindow() {
    Parameters:  None
    Returns:     None
  */
-void RenderWindow::setShader(const std::shared_ptr<Shader> &crpShader) {
+void RenderWindow::setShader(const std::shared_ptr<Shader> &crpShader)
+{
   mpShader = crpShader;
 }
 
@@ -242,7 +252,8 @@ void RenderWindow::setShader(const std::shared_ptr<Shader> &crpShader) {
    Parameters:  None
    Returns:     None
  */
-void RenderWindow::setVao(const std::shared_ptr<VertexArray> &crpVao) {
+void RenderWindow::setVao(const std::shared_ptr<VertexArray> &crpVao)
+{
   mpVao = crpVao;
 }
 
@@ -251,7 +262,8 @@ void RenderWindow::setVao(const std::shared_ptr<VertexArray> &crpVao) {
    Parameters:  None
    Returns:     None
  */
-void RenderWindow::initWindow() {
+void RenderWindow::initWindow()
+{
   GLCall(glEnable(GL_BLEND));
   GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
   GLCall(glClearColor(0.3, 0.0, 0.0, 1.0));

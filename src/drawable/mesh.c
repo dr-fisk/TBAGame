@@ -17,7 +17,8 @@ Mesh::Mesh() : Drawable() {
                 uint8_t - Multiplier for size of pixel
    Returns:     None
  */
-Mesh::Mesh(const std::string &crPngFile, const uint8_t cLeft, const uint8_t cTop, const uint8_t cSize) {
+Mesh::Mesh(const std::string &crPngFile, const uint8_t cLeft, const uint8_t cTop, const uint8_t cSize)
+{
   Rect rect;
   uint32_t l = 0;
   uint32_t t = 0;
@@ -57,7 +58,8 @@ Mesh::Mesh(const std::string &crPngFile, const uint8_t cLeft, const uint8_t cTop
    Parameters:  None
    Returns:     std::vector<RenderData> Mesh data
  */
-std::vector<RenderData> Mesh::getRenderData() {
+std::vector<RenderData> Mesh::getRenderData()
+{
   return mMesh;
 }
 
@@ -66,6 +68,7 @@ std::vector<RenderData> Mesh::getRenderData() {
    Parameters:  None
    Returns:     None
  */
-Mesh::~Mesh() {
+Mesh::~Mesh()
+{
 
 }

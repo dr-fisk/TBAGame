@@ -3,10 +3,10 @@
 /* Function:    Text
    Description: Constructs the render data for a string
    Parameters:  string - String to be rendered to window
-                Font   - Font tyoe to render text
+                PngFont   - Font tyoe to render text
    Returns:     None
 */
-Text::Text(const std::string &crText, Font &rFont) {
+Text::Text(const std::string &crText, PngFont &rFont) {
   mRenderData.resize(MESH16_SIZE * crText.size());
   std::vector<Rect> temp(MESH16_SIZE);
 

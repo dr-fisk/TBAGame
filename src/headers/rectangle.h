@@ -10,7 +10,7 @@
 class Rect : public Drawable {
   public:
     Rect();
-    Rect(const int32_t cLeft, const int32_t cTop, const int32_t cWidth=1, const int32_t cHeight=1);
+    Rect(const int32_t cLeft, const int32_t cTop, const int32_t cWidth=1, const int32_t cHeight=1, const lg::Color& crColor=lg::Black);
     Rect(const Vector2<int32_t>& cPos, const int32_t cHeight=1, const int32_t cWidth=1);
     virtual ~Rect();
     void getDimensions(GLfloat *pLeft, GLfloat *pTop, GLfloat *pWidth, GLfloat *pHeight);

@@ -2,12 +2,12 @@
 #define TEXT_H
 
 #include "Drawable.h"
-#include "font.h"
+#include "pngFont.h"
 
 class Text : public Drawable {
   public:
     Text(){}
-    Text(const std::string &crText, Font &rFont);
+    Text(const std::string &crText, PngFont &rFont);
     virtual ~Text();
     virtual std::vector<RenderData> getRenderData();
   private:

@@ -28,7 +28,8 @@ VertexBuffer::~VertexBuffer() {
    Parameters:  uint32_t - The specific Vertex Buffer Object to bind
    Returns:     None
  */
-void VertexBuffer::bind(const uint32_t cId) const {
+void VertexBuffer::bind(const uint32_t cId) const
+{
   GLCall(glBindBuffer(GL_ARRAY_BUFFER, mBuffers[cId]));
 }
 
@@ -42,13 +43,16 @@ void VertexBuffer::bind(const uint32_t cId) const {
                 GL_STREAM_DRWA: Use this for when Vertex Buffer Object will be changing consistently frame by frame
    Returns:     None
  */
-void VertexBuffer::updateBoundedBufferData(const void *cpData, const uint32_t cSize, const GLenum cDrawType) {
+void VertexBuffer::updateBoundedBufferData(const void *cpData, const uint32_t cSize, const GLenum cDrawType)
+{
   //TODO: add ability to change draw type
-  if (cSize > mLastDataSize) {
+  if (cSize > mLastDataSize)
+  {
     GLCall(glBufferData(GL_ARRAY_BUFFER, cSize, cpData, cDrawType));
     mLastDataSize = cSize;
   }
-  else {
+  else
+  {
     GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, cSize, cpData));
   }
 }
@@ -59,6 +63,7 @@ void VertexBuffer::updateBoundedBufferData(const void *cpData, const uint32_t cS
    Parameters:  None
    Returns:     None
  */
-void VertexBuffer::unbind() const {
+void VertexBuffer::unbind() const
+{
   GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }

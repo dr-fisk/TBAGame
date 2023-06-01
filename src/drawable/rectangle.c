@@ -21,10 +21,11 @@ Rect::Rect()
                 int32_t - width of rect
    Returns:     None
 */
-Rect::Rect(const int32_t cLeft, const int32_t cTop, const int32_t cHeight, const int32_t cWidth)
+Rect::Rect(const int32_t cLeft, const int32_t cTop, const int32_t cHeight, const int32_t cWidth, const lg::Color& crColor)
 {
   mPos  = Vector2<int32_t>(cLeft, cTop);
   mSize = Vector2<int32_t>(cWidth, cHeight);
+  mRgba = crColor;
 }
 
 Rect::Rect(const Vector2<int32_t>& cPos, const int32_t cHeight, const int32_t cWidth)

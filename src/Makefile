@@ -29,7 +29,7 @@ FONTPATH = ../TtfFont
 
 SHADER = $(SHADERSPATH)/shader1.txt
 
-CFLAGS  = -g -std=c++17 -Wall -Wextra -MMD -static-libgcc -static-libstdc++ -I$(INCLPATH) -I$(HEADERS) -I$(LESTTTFPATH)
+CFLAGS  = -g -std=c++17 -Wall -Wextra -MMD -O2 -static-libgcc -static-libstdc++ -I$(INCLPATH) -I$(HEADERS) -I$(LESTTTFPATH)
 
 LDFLAGS = -L$(DYNLIBSPATH) -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -static-libgcc -static-libstdc++ -llestpng -llestttf
 SOLDFLAGS = -L$(LIBPATH) -lzlib1 -lws2_32 -shared -static-libgcc -static-libstdc++
@@ -56,7 +56,10 @@ guiFiles   = gui.c
 
 rendererFiles =  renderWindow.c \
                  renderTarget.c \
-                 font.c
+                 pngFont.c \
+								 bitmap.c \
+								 font.c
+
 
 drawableFiles = indexBuffer.c \
                 shader.c \
@@ -65,7 +68,7 @@ drawableFiles = indexBuffer.c \
                 vertexArray.c \
                 rectangle.c \
                 mesh.c \
-				text.c
+								text.c
 
 dynLibFiles = png.c
 
@@ -118,7 +121,7 @@ $(DYNLIBSPATH):
 	@echo "MAKE	Dynamic Libraries"
 	$(Q)$(MAKE)  V=$(V) D=$(D) -C $(DYNLIBSPATH)
 
-$(STATEPATH):
+$(STATEPATH): $(RENDERERSPATH)
 	@echo "MAKE	States"
 	$(Q)$(MAKE)  V=$(V) D=$(D) -C $(STATEPATH)
 
@@ -189,59 +192,84 @@ main.o: main.cxx
 	@echo "MAKE $<"
 	$(Q)$(CC) $(CFLAGS) $< $(LDFLAGS) -c 
 
-clean:
+clean_state:
+	@echo "Clean States"
+	@for item in ${stateObjs}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done
+
+clean_gui:
+	@echo "Clean GUI"
+	@for item in ${guiObjs}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done
+
+clean_render:
+	@echo "Clean Renderer"
+	@for item in ${rendererObjs}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done
+
+clean_drawable:
+	@echo "Clean Drawable"
+	@for item in ${drawableObjs}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done
+
+clean_lib:
+	@echo "Clean Libraries"
+	@for item in ${dynamicLibDLLObjs}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done
+
+clean_main:
+	@echo "Clean Main Files"
+	@for item in ${objs}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done
+
+clean_dep:
+	@echo "Clean Dependencies"
+	@for item in ${deps}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done
+
+clean_exe:
+	@echo "Clean Executable"
+	@if [ -f $(programs) ]; then \
+		echo "Rm $(programs)"; \
+		rm $(programs); \
+	fi
+
+clean: clean_state clean_gui clean_render clean_drawable clean_lib clean_main clean_dep clean_exe
 	@echo "Checking win DIR"
 	$(Q)if [ -d $(PATHTOEXEC) ]; then \
 		echo "RM Win DIR"; \
 		rm -rf $(PATHTOEXEC); \
 	fi
 	@echo "CLEAN ALL"
-	@for item in ${stateObjs}; do \
-		if [ -f $${item} ]; then \
-		echo "Rm $${item}"; \
-		rm $${item}; \
-		fi \
-	done
-	@for item in ${guiObjs}; do \
-		if [ -f $${item} ]; then \
-		echo "Rm $${item}"; \
-		rm $${item}; \
-		fi \
-	done
-	@for item in ${rendererObjs}; do \
-		if [ -f $${item} ]; then \
-		echo "Rm $${item}"; \
-		rm $${item}; \
-		fi \
-	done
-	@for item in ${drawableObjs}; do \
-		if [ -f $${item} ]; then \
-		echo "Rm $${item}"; \
-		rm $${item}; \
-		fi \
-	done
-	@for item in ${dynamicLibDLLObjs}; do \
-		if [ -f $${item} ]; then \
-		echo "Rm $${item}"; \
-		rm $${item}; \
-		fi \
-	done
-	@for item in ${objs}; do \
-		if [ -f $${item} ]; then \
-		echo "Rm $${item}"; \
-		rm $${item}; \
-		fi \
-	done
-	@for item in ${deps}; do \
-		if [ -f $${item} ]; then \
-		echo "Rm $${item}"; \
-		rm $${item}; \
-		fi \
-	done
-	@if [ -f $(programs) ]; then \
-		echo "Rm $(programs)"; \
-		rm $(programs); \
-	fi
+
 help:
 	@echo "Make commands"
 	@echo "make TARGET=[lin64, win64]"

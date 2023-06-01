@@ -13,7 +13,8 @@ GLfloat gWindowHeight = 0;
    Parameters:  None
    Returns:     None
  */
-void Game::initMainState() {
+void Game::initMainState()
+{
   //mStates.push(std::make_shared<ExceptionState>(mStates, "TESTING", mShaders[MAIN_SHADER], mpWindow->getGlWindow(), mpVao));
   mStates.push(std::make_shared<MainMenu>(mStates, mpBatchBuffer));
 }
@@ -24,7 +25,8 @@ void Game::initMainState() {
    Parameters:  None
    Returns:     None
  */
-void Game::initShaders() {
+void Game::initShaders()
+{
   //TODO: Add more shaders if necessary
   mShaders[MAIN_SHADER] = std::make_shared<Shader>(MAIN_SHADER);
 }
@@ -34,7 +36,8 @@ void Game::initShaders() {
    Parameters:  None
    Returns:     None
  */
-Game::Game() {
+Game::Game()
+{
   if(!glfwInit()) {
     std::cout << "Failed to open window" << std::endl;
     exit(0);
@@ -92,7 +95,8 @@ Game::Game() {
    Parameters:  None
    Returns:     None
  */
-Game::~Game() {
+Game::~Game()
+{
   while(!mStates.empty()) {
     mStates.pop();
   }
@@ -108,7 +112,8 @@ Game::~Game() {
    Parameters:  None
    Returns:     None
  */
-void Game::deleteShaders() {
+void Game::deleteShaders()
+{
   for(std::map<std::string, std::shared_ptr<Shader>>::iterator it = mShaders.begin(); it != mShaders.end(); it++) {
     it->second.reset();
   }
@@ -145,5 +150,6 @@ void Game::gameLoop() {
    Parameters:  None
    Returns:     None
  */
-void Game::gameEnd() {
+void Game::gameEnd()
+{
 }

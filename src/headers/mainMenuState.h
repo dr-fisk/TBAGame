@@ -3,6 +3,7 @@
 
 #include "state.h"
 #include "lestTtf.h"
+#include "font.h"
 
 class MainMenu : public State {
   public:
@@ -15,11 +16,12 @@ class MainMenu : public State {
   private:
     Mesh mMesh;
     Mesh mMesh2;
-    Font mFont;
+    PngFont mFont;
     Text mText;
     LestTrueType ttf;
     std::vector<Rect> temprect;
-    std::vector<Rect> final;
+    std::vector<std::shared_ptr<Rect>> final;
+    Font mNewFont;
 };
 
 #endif

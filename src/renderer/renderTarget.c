@@ -6,7 +6,8 @@
    Parameters:  None
    Returns:     None
  */
-RenderTarget::RenderTarget() {
+RenderTarget::RenderTarget()
+{
 }
 
 /* Function:    ~RenderTarget
@@ -14,5 +15,6 @@ RenderTarget::RenderTarget() {
    Parameters:  None
    Returns:     None
  */
-RenderTarget::~RenderTarget() {
+RenderTarget::~RenderTarget()
+{
 }

@@ -6,7 +6,8 @@
    Parameters:  None
    Returns:     None 
  */
-void GLClearError() {
+void GLClearError()
+{
   while(glGetError() != GL_NO_ERROR);
 }
 
@@ -20,10 +21,12 @@ void GLClearError() {
                 int   - Line number where error occurred
    Returns:     bool  - Error detected
  */
-bool GLLogCall(const char* function, const char *file, int line) {
+bool GLLogCall(const char* function, const char *file, int line)
+{
   std::ofstream fp("errorLog.txt");
   
-  if (GLenum error = glGetError()) {
+  if(GLenum error = glGetError())
+  {
     fp << "[OpenGL Error] (" << error << ") In " << function << " located in " << file << " on line number " << line << std::endl;
     fp.close();
     return 0;
