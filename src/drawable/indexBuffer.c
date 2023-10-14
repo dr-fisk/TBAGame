@@ -1,4 +1,7 @@
-#include "indexBuffer.h"
+#include "drawable/indexBuffer.h"
+
+
+const uint8_t SQUARE_VERTICES2D = 4;
 
 /* Function:    IndexBuffer
    Description: Creates IndexBuffer as an Element Array Buffer
@@ -7,11 +10,16 @@
                 uint32_t  - Size of array
    Returns:     None
  */
-IndexBuffer::IndexBuffer(const uint32_t cNumIbo, const uint32_t *cpData, const uint32_t cCount) : mCount(cCount)
+void IndexBuffer::genIboBuffer(const uint32_t cSizeInBytes, const GLenum cDrawType)
 {
-  mIndexBuffers.resize(cNumIbo);
-  GLCall(glGenBuffers(cNumIbo, mIndexBuffers.data()));
-  mLastDataSize = 0;
+  mBuffer.clear();
+  mBuffer.resize(cSizeInBytes / sizeof(uint32_t));
+  GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, mBuffer.size() * sizeof(uint32_t), mBuffer.data(), cDrawType));
+}
+
+void IndexBuffer::genIbo()
+{
+  GLCall(glGenBuffers(1, &mIboId));
 }
 
 /* Function:    ~IndexBuffer
@@ -21,7 +29,7 @@ IndexBuffer::IndexBuffer(const uint32_t cNumIbo, const uint32_t *cpData, const u
  */
 IndexBuffer::~IndexBuffer()
 {
-  GLCall(glDeleteBuffers(mIndexBuffers.size(), mIndexBuffers.data()));
+  GLCall(glDeleteBuffers(1, &mIboId));
 }
 
 /* Function:    bind
@@ -30,9 +38,9 @@ IndexBuffer::~IndexBuffer()
    Parameters:  uint32_t - Specific Index Buffer Object to be bounded
    Returns:     None
  */
-void IndexBuffer::bind(const uint32_t cId) const
+void IndexBuffer::bind() const
 {
-  GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffers[cId]));
+  GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIboId));
 }
 
 /* Function:    unbind
@@ -45,28 +53,39 @@ void IndexBuffer::unbind() const
   GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }
 
-/* Function:    updateBoundedBufferData
-   Description: Sets GL_ARRAY_BUFFER to use the provided buffer data
-   Parameters:  void * - Index Buffer Data for bounded Vertex Buffer Object
-                uint32_t - Number of Indexes
-                GLenum   - The Draw Type OpenGL should use below are the type and explanation
-                GL_STATIC_DRAW: Use this when your Index Buffer Object will not be modified, usually should be set during initialization only
-                GL_DYNAMIC_DRAW: Use this for when your Index Buffer Object will be changing buffers
-                GL_STREAM_DRWA: Use this for when Index Buffer Object will be changing consistently frame by frame
-   Returns:     None
- */
-void IndexBuffer::updateBoundedBufferData(const void *cpData, const uint32_t cCount, const GLenum cDrawType)
+
+void IndexBuffer::updateIboSubBuffer(const uint32_t cIndex, const uint32_t cBuffSize, void *pBuffer)
 {
-  const uint32_t cSize = cCount * sizeof(uint32_t);
-  //TODO: add ability to change draw type
-  mCount = cCount;
-  if (cSize > mLastDataSize)
+  //TODO: Fix
+  mCount = cBuffSize;
+  GLCall(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, cIndex, cBuffSize, pBuffer));
+}
+
+void IndexBuffer::updateIndexBuffer(const uint64_t cNumVertexes)
+{
+  mBuffer[0] = 0;
+  mBuffer[1] = 1;
+  mBuffer[2] = 2;
+  mBuffer[3] = 2;
+  mBuffer[4] = 3;
+  mBuffer[5] = 0;
+  uint32_t offset = SQUARE_VERTICES2D;
+  uint64_t curr_idx = 0;
+  uint64_t curr_offset = 0;
+
+  /* Squares contain 6 Vertices indexed from 0-5*/
+  mCount = (cNumVertexes + 1) * 6;
+  for(uint32_t i = 1; i < cNumVertexes; i++)
   {
-    GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, cSize, cpData, cDrawType));
-    mLastDataSize = cSize;
+    curr_idx = i * 6;
+    curr_offset = offset * i;
+    mBuffer[curr_idx] = (mBuffer[0] + curr_offset); 
+    mBuffer[curr_idx + 1] = (mBuffer[1] + curr_offset);
+    mBuffer[curr_idx + 2] = (mBuffer[2] + curr_offset);
+    mBuffer[curr_idx + 3] = (mBuffer[3] + curr_offset);
+    mBuffer[curr_idx + 4] = (mBuffer[4] + curr_offset);
+    mBuffer[curr_idx + 5] = (mBuffer[5] + curr_offset);
   }
-  else
-  {
-    GLCall(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, cSize, cpData));
-  }
+
+  updateIboSubBuffer(0, mCount * sizeof(uint32_t), mBuffer.data());
 }

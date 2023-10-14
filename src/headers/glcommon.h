@@ -17,12 +17,21 @@
 struct RenderData {
   Vector2<GLfloat> bottomLeft;
   lg::Color rgba1;
+  Vector2<GLfloat> textCoord1;
+  GLfloat textureIndex1;
   Vector2<GLfloat> bottomRight;
   lg::Color rgba2;
+  Vector2<GLfloat> textCoord2;
+  GLfloat textureIndex2;
   Vector2<GLfloat> topRight;
   lg::Color rgba3;
+  Vector2<GLfloat> textCoord3;
+  GLfloat textureIndex3;
   Vector2<GLfloat> topLeft;
   lg::Color rgba4;
+  Vector2<GLfloat> textCoord4;
+  GLfloat textureIndex4;
+  //update for texture coords and texture index 3 floats
 };
 
 extern void GLClearError();

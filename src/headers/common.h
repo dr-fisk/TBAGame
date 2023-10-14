@@ -33,6 +33,6 @@ enum Status {
     SUCCESS
 };
 
-#define MESH16_SIZE 256
+const uint16_t MESH16_SIZE = 256;
 
 #endif

@@ -3,7 +3,7 @@
 
 #include "common.h"
 #include "lestTtf.h"
-#include "rectangle.h"
+#include "drawable/rectangle.h"
 #include "bitmap.h"
 
 class Font
@@ -12,13 +12,15 @@ class Font
     Font();
     Font(std::string ttfPath, const uint32_t cNumSubDivs=1, const lg::Color cColor=lg::White, const uint32_t cPixelDim=8);
     ~Font();
-    std::vector<std::shared_ptr<Rect>> operator[](const char cLetter);
+    std::vector<Vector2<int32_t>> operator[](const char cLetter);
+    Vector2<int32_t> getCharacterMaxCoords(const char cLetter);
   private:
     struct FontMetaData
     {
-      Bitmap FontBitmap;
+      std::vector<Vector2<int32_t>> GeneratedPoints;
       GlyfHeader FontHeader;
       Vector2<int32_t> MaxCoords;
+      int32_t StartingPoint;
     };
 
     void updateNumberOfContours(const char cLetter, std::vector<uint16_t> &rContours);

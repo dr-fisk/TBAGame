@@ -1,6 +1,4 @@
-#include "vertexArray.h"
-
-uint8_t VertexArray::smNumVao = 0;
+#include "drawable/vertexArray.h"
 
 /* Function:    VertexArray
    Description: Creates a VertexArray, if not on the main stack allocate
@@ -8,19 +6,9 @@ uint8_t VertexArray::smNumVao = 0;
    Parameters:  uint32_t - The number of Vertex Arrays to generate
    Returns:     None
  */
-VertexArray::VertexArray(const uint32_t cNum)
+void VertexArray::genVao()
 {
-  if ((cNum + smNumVao) <= 16)
-  {
-    mVertexArrays.resize(cNum);
-    GLCall(glGenVertexArrays(cNum, mVertexArrays.data()));
-    smNumVao += cNum;
-  }
-  else
-  {
-    std::cout << "Max number of VAOs reached, VAOs not generated. Delete VAOs to gen more." << std::endl;
-  }
-  
+  GLCall(glGenVertexArrays(1, &mVaoId));
 }
 
 /* Function:    ~VertexArray
@@ -30,18 +18,17 @@ VertexArray::VertexArray(const uint32_t cNum)
  */
 VertexArray::~VertexArray()
 {
-  smNumVao -= mVertexArrays.size();
-  glDeleteVertexArrays(mVertexArrays.size(), mVertexArrays.data());
+  glDeleteVertexArrays(1, &mVaoId);
 }
 
-/* Function:    addBuffer
+/* Function:    setVaoAttributes
    Description: Prepares the VAO for rendering by mapping attributes
    Parameters:  VertexBufferLayout - The format of the VBO so that the VAO can interpret and render data accordingly
    Returns:     None
  */
 
 //TODO: make switch a function
-void VertexArray::addBuffer(const VertexBufferLayout &crLayout)
+void VertexArray::setVaoAttributes(const VertexBufferLayout &crLayout)
 {
   const auto& elements = crLayout.getElements();
   uintptr_t offset = 0;
@@ -54,7 +41,7 @@ void VertexArray::addBuffer(const VertexBufferLayout &crLayout)
       GLCall(glVertexAttribPointer(i, element.count, element.type, element.normalized, 
                                    crLayout.getStride(), (const void *) offset));
 
-      offset += element.count * sizeof(GLfloat);
+      offset += element.count * VertexBufferLayout::getElementSize(element.type);
   }
 }
 
@@ -63,9 +50,9 @@ void VertexArray::addBuffer(const VertexBufferLayout &crLayout)
    Parameters:  uint32_t - The Vertex Attribute Object to bind to
    Returns:     None
  */
-void VertexArray::bind(const uint32_t cId) const
+void VertexArray::bind() const
 {
-  GLCall(glBindVertexArray(mVertexArrays[cId]));
+  GLCall(glBindVertexArray(mVaoId));
 }
 
 /* Function:    unbind

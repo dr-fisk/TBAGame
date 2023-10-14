@@ -1,8 +1,8 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include "Drawable.h"
-#include "rectangle.h"
+#include "drawable/drawable.h"
+#include "drawable/rectangle.h"
 
 class Mesh : public Drawable {
   public:

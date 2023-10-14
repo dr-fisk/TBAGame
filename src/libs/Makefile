@@ -3,11 +3,10 @@ all : $(dynamicLibsDLL)
 LIBPATH = ../../lib
 INCLPATH = ../../include
 HEADERS= ../headers
+EXEC= ../../objs-wind64
 
 CFLAGS = -g -std=c++17 -MMD -I$(INCLPATH) -I$(LIBPATH) -I$(HEADERS)
-DynamicLibDeps := $(patsubst %.dll, %.d, $(dynamicLibDLLObjs))
--include $(DynamicLibDeps)
-
+-include $(dynLibFiles:.c=.d)
 
 %.o : %.c
 	@echo "MAKE $<"
@@ -20,3 +19,6 @@ DynamicLibDeps := $(patsubst %.dll, %.d, $(dynamicLibDLLObjs))
 %.dll: $(dynamicLibObjs)
 	@echo "MAKE $@"
 	$(Q)$(CC) $(CFLAGS) $< $(SOLDFLAGS) -o $@
+	$(Q)if [ -d $(EXEC) ]; then \
+		cp $@ $(EXEC); \
+	fi

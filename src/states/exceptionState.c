@@ -7,8 +7,8 @@ ExceptionState::ExceptionState(const std::stack<std::shared_ptr<State>> &crState
   mpWindow = std::make_shared<RenderWindow>(800, 800, "Exception Encountered");
   std::vector<Drawable*> vertexes;
   mFont = PngFont("../src/fonts/Font.png");
-  Text text1 = Text("TEST", mFont);
-  Text text2 = Text(crError, mFont);
+  PngText text1 = PngText("TEST", mFont);
+  PngText text2 = PngText(crError, mFont);
   vertexes.push_back(&text1);
   //mTestBB = mpBatchBuffer;
   vertexes.clear();
@@ -18,12 +18,12 @@ ExceptionState::ExceptionState(const std::stack<std::shared_ptr<State>> &crState
 
 void ExceptionState::render(const std::shared_ptr<RenderTarget> &crpTarget)
 {
-  crpTarget->setActive();
-  crpTarget->draw(mTestBB);
-  mpWindow->setActive();
-  std::cout << "After second active\n";
-  mpWindow->draw(mTestBB);
-  std::cout << "Draw error\n";
+  // crpTarget->setActive();
+  // crpTarget->draw(mTestBB);
+  // mpWindow->setActive();
+  // std::cout << "After second active\n";
+  // mpWindow->draw(mTestBB);
+  // std::cout << "Draw error\n";
 }
 
 bool ExceptionState::shouldStateExit()

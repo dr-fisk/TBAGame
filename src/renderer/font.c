@@ -25,7 +25,7 @@ Font::Font(std::string ttfPath, const uint32_t cNumOfSubDivs, const lg::Color cC
   if (-1 == ttf.read(ttfPath))
   {
     std::cout << "Ttf failed to read." << std::endl;
-    exit(0);
+    exit(-1);
   }
 
   std::vector<uint16_t> newContourEnds;
@@ -57,16 +57,18 @@ Font::Font(std::string ttfPath, const uint32_t cNumOfSubDivs, const lg::Color cC
 
         mFont[character].MaxCoords = Vector2<int32_t>((mFont[character].FontHeader.xMax - mFont[character].FontHeader.xMin) / mPixelDimensions,
                                                       (mFont[character].FontHeader.yMax - mFont[character].FontHeader.yMin)/ mPixelDimensions);
+
+        mFont[character].GeneratedPoints = generatedPoints;
         
-        // Grab the last point to know the Num Rows and Num Cols to create a bitmap this doesn't grab the max fix
-        mFont[character].FontBitmap = Bitmap(mFont[character].MaxCoords.mY + 1,
-                                             mFont[character].MaxCoords.mX + 1);
+        // // Grab the last point to know the Num Rows and Num Cols to create a bitmap this doesn't grab the max fix
+        // mFont[character].FontBitmap = Bitmap(mFont[character].MaxCoords.mY + 1,
+        //                                      mFont[character].MaxCoords.mX + 1);
 
-        startingPoint = getStartingPoint(character, generatedPoints);
+        mFont[character].StartingPoint = getStartingPoint(character, generatedPoints);
 
-        // TODO: Change color to be dynamic
-        mFont[character].FontBitmap.constructBitmap(generatedPoints, lg::White);
-        mFont[character].FontBitmap.fillColor(startingPoint, lg::White);
+        // // TODO: Change color to be dynamic
+        // mFont[character].FontBitmap.constructBitmap(generatedPoints, lg::White);
+        // mFont[character].FontBitmap.fillColor(startingPoint, lg::White);
 
         generatedPoints.clear();
         newContourEnds.clear();
@@ -220,13 +222,18 @@ int32_t Font::getStartingPoint(const char cLetter, const std::vector<Vector2<int
   return startingPoint;
 }
 
-std::vector<std::shared_ptr<Rect>> Font::operator[](const char cLetter)
+std::vector<Vector2<int32_t>> Font::operator[](const char cLetter)
 {
   if(mFont.find(cLetter) != mFont.end())
   {
-    return mFont[cLetter].FontBitmap.getBitmap();
+    return mFont[cLetter].GeneratedPoints;
   }
 
   std::cout << "Invalid letter provied." << std::endl;
-  return std::vector<std::shared_ptr<Rect>>();
+  return std::vector<Vector2<int32_t>>();
+}
+
+Vector2<int32_t> Font::getCharacterMaxCoords(const char cLetter)
+{
+  return mFont.at(cLetter).MaxCoords;
 }

@@ -17,6 +17,7 @@ class Shader {
     void bind() const;
     void unbind() const;
     uint32_t getShaderId();
+    int32_t shaderGetUniform(const std::string &crVar);
   private:
     uint32_t mShaderID;
     ShaderProgSource parseShader(const std::string &crFilePath);

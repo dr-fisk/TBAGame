@@ -4,10 +4,10 @@
 #include "common.h"
 #include "glcommon.h"
 #include "renderWindow.h"
-#include "mesh.h"
+#include "drawable/mesh.h"
 #include "pngFont.h"
-#include "text.h"
-#include "batchBuffer.h"
+#include "drawable/pngText.h"
+#include "drawable/batchBuffer.h"
 
 class State {
   public:

@@ -1,4 +1,4 @@
-#include "vertexBuffer.h"
+#include "drawable/vertexBuffer.h"
 
 /* Function:     VertexBuffer
    Description: Generates a VBO and binds the buffer for the VAO
@@ -6,10 +6,20 @@
                 size  - The size of data array
    Returns:     None
  */
-VertexBuffer::VertexBuffer(const uint32_t cNumVbo) {
-  mBuffers.resize(cNumVbo);
-  GLCall(glGenBuffers(cNumVbo, mBuffers.data()));
-  mLastDataSize = 0;
+void VertexBuffer::genVboBuffer(const uint32_t cNumBuffSize, const GLenum cDrawType) {
+  mBuffer.clear();
+  mBuffer.resize(cNumBuffSize);
+  GLCall(glBufferData(GL_ARRAY_BUFFER, cNumBuffSize, mBuffer.data(), cDrawType));
+}
+
+void VertexBuffer::updateVboSubBuffer(const uint32_t cIndex, const uint32_t cBuffSize, void *pBuffer)
+{
+  GLCall(glBufferSubData(GL_ARRAY_BUFFER, cIndex, cBuffSize, pBuffer));
+}
+
+void VertexBuffer::genVbo()
+{
+  GLCall(glGenBuffers(1, &mVboId));
 }
 
 /* Function:    ~VertexBuffer
@@ -18,7 +28,7 @@ VertexBuffer::VertexBuffer(const uint32_t cNumVbo) {
    Returns:     None
  */
 VertexBuffer::~VertexBuffer() {
-  GLCall(glDeleteBuffers(mBuffers.size(), mBuffers.data()));
+  GLCall(glDeleteBuffers(1, &mVboId));
 }
 
 /* Function:    bind
@@ -28,33 +38,9 @@ VertexBuffer::~VertexBuffer() {
    Parameters:  uint32_t - The specific Vertex Buffer Object to bind
    Returns:     None
  */
-void VertexBuffer::bind(const uint32_t cId) const
+void VertexBuffer::bind() const
 {
-  GLCall(glBindBuffer(GL_ARRAY_BUFFER, mBuffers[cId]));
-}
-
-/* Function:    updateBoundedBufferData
-   Description: Sets GL_ARRAY_BUFFER to use the provided buffer data
-   Parameters:  void * - Buffer data to be rendered
-                uint32_t - Size of the buffer data
-                GLenum   - The Draw Type OpenGL should use below are the type and explanation
-                GL_STATIC_DRAW: Use this when your Vertex Buffer Object will not be modified, usually should be set during initialization only
-                GL_DYNAMIC_DRAW: Use this for when your Vertex Buffer Object will be changing buffers
-                GL_STREAM_DRWA: Use this for when Vertex Buffer Object will be changing consistently frame by frame
-   Returns:     None
- */
-void VertexBuffer::updateBoundedBufferData(const void *cpData, const uint32_t cSize, const GLenum cDrawType)
-{
-  //TODO: add ability to change draw type
-  if (cSize > mLastDataSize)
-  {
-    GLCall(glBufferData(GL_ARRAY_BUFFER, cSize, cpData, cDrawType));
-    mLastDataSize = cSize;
-  }
-  else
-  {
-    GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, cSize, cpData));
-  }
+  GLCall(glBindBuffer(GL_ARRAY_BUFFER, mVboId));
 }
 
 /* Function:    unbind

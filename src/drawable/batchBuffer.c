@@ -1,122 +1,37 @@
-#include "batchBuffer.h"
+#include "drawable/batchBuffer.h"
 
-//TODO: Rename class, this is more of an API for handling VAO, VBO, and IBO creation in the correct order
-/* Function:    BatchBuffer
-   Description: Default Constructor
-   Parameters:  None
-   Returns:     None
- */
-BatchBuffer::BatchBuffer() {
-}
+const std::string MAIN_SHADER = "./shaders/shader1.txt";
 
-/* Function:    BatchBuffer
-   Description: Creates Batch Buffer object which easily handles batch rendering
-   Parameters:  Vector - List of drawable items to insert into VBO
-                uint32_t - Shape to draw
-                uint32_t - Number of Vertex Attribute Objects to generate
-                uint32_t - Number of Vertex Buffer Objects to generate
-                uint32_t - Number of Index Buffer Objects to generate
-                GLenum   - Draw type for opengl to use
-   Returns:     None
- */
-//TODO: change sizes depending on shape
-BatchBuffer::BatchBuffer(const std::vector<RenderData> &crRendData, const uint32_t cShape, const uint32_t cNumVao, const uint32_t cNumVbo, const uint32_t cNumIbo, 
-                         const GLenum cDrawType)
+BatchBuffer::BatchBuffer(const uint32_t cNumVao, const uint32_t cNumVbo, const uint32_t cNumIbo,
+                         const uint32_t cNumShaders)
 {
-  initBatchBuffer(cNumVao, cNumVbo, cNumIbo, crRendData, cDrawType);
-  
-  mLayout.push(TWO_D_COORDS, GL_FLOAT);
-  mLayout.push(RGBA, GL_FLOAT);
+    // initBatchBuffer(cNumVao, cNumVbo, cNumIbo, crRendData, cDrawType);
+    // mPrimitiveType = cShape;
+    mShaders.resize(cNumShaders);
+    mVbo.resize(cNumVbo);
+    mVao.resize(cNumVao);
+    mIbo.resize(cNumIbo);
 
-  std::vector<uint32_t> indices = cShape == RECTANGLE ? createRectIndices(crRendData.size()) : 
-                                                      createTriIndices(crRendData.size());
+    initBuffers();
 
-  //TODO make IBO more dynamic and update
-  mpIbo = std::make_shared<IndexBuffer>(1, indices.data(), indices.size());
-  mpIbo->bind(0);
-  mpIbo->updateBoundedBufferData(indices.data(), indices.size(), cDrawType);
-}
-
-/* Function:    initBatchBuffer
-   Description: Calls functions to initialize Batch Buffer
-   Parameters:  Vector - List of drawable items to insert into VBO
-                uint32_t - Number of Vertex Attribute Objects to generate
-                uint32_t - Number of Vertex Buffer Objects to generate
-                uint32_t - Number of Index Buffer Objects to generate
-                GLenum   - Draw type for opengl to use
-   Returns:     None
- */
-//TODO: Updates for initIBO
-int8_t BatchBuffer::initBatchBuffer(const uint32_t cNumVao, const uint32_t cNumVbo, const uint32_t cNumIbo, const std::vector<RenderData> &crRendData, const GLenum cDrawType)
-{ 
-  initVao(cNumVao);
-  initVbo(cNumVbo, crRendData, cDrawType);
-  return 1;
-}
-
-/* Function:    initVao
-   Description: initializes Vertex Attribute Object
-   Parameters:  uint32_t - Number of Vertex Attribute Objects to generate
-   Returns:     uint8_t - Success or Failure of Vertex Attribute Object Generation
- */
-int8_t BatchBuffer::initVao(const uint32_t cNumVao)
-{
-  if (cNumVao < 1)
-    return -1;
-
-  mpVao = std::make_shared<VertexArray>(cNumVao);
-  return 1;
-}
-
-/* Function:    initVbo
-   Description: initializes Vertex Buffer Object
-   Parameters:  uint32_t - Number of Vertex Buffer Objects to generate
-   Returns:     uint8_t - Success or Failure of Vertex Buffer Object Generation
- */
-int8_t BatchBuffer::initVbo(const uint32_t cNumVbo, const std::vector<RenderData> &crRendData, const GLenum cDrawType)
-{
-  mpVbo = std::make_shared<VertexBuffer>(cNumVbo);
-  //Will always bind to 0 by default
-  mpVbo->bind(0);
-
-  mpVbo->updateBoundedBufferData(crRendData.data(), crRendData.size() * sizeof(RenderData), cDrawType);
-
-  return 1;
-}
-
-//TODO Update commment and add functionality
-int8_t BatchBuffer::initIbo(const uint32_t cNumIbo, const std::vector<std::vector<RenderData>> &crRendData,
-                            const uint32_t cShape)
-{
- /* if (cNumIbo < 1)
-    return -1;
-
-  std::vector<std::vector<uint32_t>> indices(cNumIbo);
-
-  for (uint32_t i = 0; i < cNumVbo; i ++) {
-    indeces[i] = cShape == RECTANGLE ? createRectIndices(crRendData[i].size()) : createTriIndices(crRendData[i].size());
-  }
-
-  mpIbo = std::make_shared<IndexBuffer>(indeces);*/
-  return 1;
-}
-
-/* Function:    ~BatchBuffer
-   Description: Destroys batch buffer
-   Parameters:  None
-   Returns:     None
- */
-BatchBuffer::~BatchBuffer()
-{
+    // initVao(cNumVao);
+    // mBuffer.resize(cVboBuffSizeBytes);
+    // mNextAvailableAddress = 0;
+    // mNumVertices = 0;
+    // mpIbo = std::make_shared<IndexBuffer>(1, cVboBuffSizeBytes / sizeof(RenderData) * 6, GL_DYNAMIC_DRAW);
+    // mpIbo->bind(0);
+    // mpVbo = std::make_shared<VertexBuffer>(cNumVbo);
+    // mpVbo->bind(0);
 }
 
 /* Function:    createRectIndices
    Description: Creates Rect IBO data to associate with VBO
    Parameters:  uint32_t - Size of VBO
-   Returns:     Vector   - Indeces to construct Rect IBO
+   Returns:     Vector   - Indices to construct Rect IBO
  */
 std::vector<uint32_t> BatchBuffer::createRectIndices(const uint32_t cVboSize)
 {
+  // Probably should allocate before hand later
   std::vector<uint32_t> indices((cVboSize + 1) * 6);
   indices[0] = 0;
   indices[1] = 1;
@@ -125,16 +40,20 @@ std::vector<uint32_t> BatchBuffer::createRectIndices(const uint32_t cVboSize)
   indices[4] = 3;
   indices[5] = 0;
   uint32_t offset = SQUARE_VERTICES2D;
+  uint64_t curr_idx = 0;
+  uint64_t curr_offset = 0;
 
   /* Squares contain 6 Vertices indexed from 0-5*/
   for(uint32_t i = 1; i < cVboSize; i++)
   {
-    indices[i * 6] = (indices[0] + (offset * i)); 
-    indices[i * 6 + 1] = (indices[1] + (offset * i));
-    indices[i * 6 + 2] = (indices[2] + (offset * i));
-    indices[i * 6 + 3] = (indices[3] + (offset * i));
-    indices[i * 6 + 4] = (indices[4] + (offset * i));
-    indices[i * 6 + 5] = (indices[5] + (offset * i));
+    curr_idx = i * 6;
+    curr_offset = offset * i;
+    indices[curr_idx] = (indices[0] + curr_offset); 
+    indices[curr_idx + 1] = (indices[1] + curr_offset);
+    indices[curr_idx + 2] = (indices[2] + curr_offset);
+    indices[curr_idx + 3] = (indices[3] + curr_offset);
+    indices[curr_idx + 4] = (indices[4] + curr_offset);
+    indices[curr_idx + 5] = (indices[5] + curr_offset);
   }
 
   return indices;
@@ -153,52 +72,13 @@ std::vector<uint32_t> BatchBuffer::createTriIndices(const uint32_t cVboSize)
   /* Triangles contain 3 vertices indexed 0-2 */
   for (int i = 1; i < cVboSize; i++)
   {
+    // cache offset * i later
     indices.push_back(indices[0] + (offset * i)); 
     indices.push_back(indices[1] + (offset * i));
     indices.push_back(indices[2] + (offset * i));
   }
 
   return indices;
-}
-
-/* Function:    getVbo
-   Description: Getter function for member variable mpVbo
-   Parameters:  None
-   Returns:     std::shared_ptr - Pointer to Vertex Buffer Object
- */
-std::shared_ptr<VertexBuffer> BatchBuffer::getVbo()
-{
-  return mpVbo;
-}
-
-/* Function:    getVao
-   Description: Getter function for member variable mpVao
-   Parameters:  None
-   Returns:     std::shared_ptr - Pointer to Vertex Attribute Object
- */
-std::shared_ptr<VertexArray> BatchBuffer::getVao()
-{
-  return mpVao;
-}
-
-/* Function:    getIbo
-   Description: Getter function for member variable mpIbo
-   Parameters:  None
-   Returns:     std::shared_ptr - Pointer to Index Buffer Object
- */
-std::shared_ptr<IndexBuffer> BatchBuffer::getIbo()
-{
-  return mpIbo;
-}
-
-/* Function:    getLayout
-   Description: Getter function for member variable mLayout
-   Parameters:  None
-   Returns:     VertexBufferLayout - Reference to Vertex Buffer Layout Object
- */
-VertexBufferLayout BatchBuffer::getLayout()
-{
-  return mLayout;
 }
 
 /* Function:    concatRenderData
@@ -224,22 +104,106 @@ void BatchBuffer::concatRenderData(const std::vector<Drawable*> &crBufferData, s
   }
 }
 
-/* Function:    updateBoundedBufferData
-   Description: Updates the Buffer Data for the Vertex Buffer Object
-   Parameters:  Vector - Render data to bound to Vertex Buffer Object
-                GLenum - Draw type for OpenGL to use
+/* Function:    registerDrawable
+   Description: Concatenates render data for each drawable item into one vector
+   Parameters:  Vector - List of drawable items
+                Vector - Container for all render data
    Returns:     None
  */
- //TODO: Create new function so that VBO and IBO are handled separately, point is if IBO's remain unchanged due to VBO's having same indeces
- // Then we shouldn't always update IBO, give the user the responsibility to do so
- // Also TODO, create static function for createRectIndices, have user be responsible for supplying current IBO's
-void BatchBuffer::updateBoundedBufferData(const std::vector<RenderData> &crRendData, const GLenum cDrawType)
+// TODO Update implementation this is in no way the final function
+void BatchBuffer::registerDrawable(const uint32_t cVboId, const uint32_t cIboId, Drawable* pBufferData)
 {
-  mpVbo->updateBoundedBufferData(crRendData.data(), crRendData.size() * sizeof(RenderData), cDrawType);
+  std::vector<RenderData> temp = pBufferData->getRenderData();
+  // int32_t NumVertices = temp.size();
+  // // std::cout << "Num verts: " << mNumVertices << std::endl;
+  // // std::cout << "Size of render data: " << sizeof(RenderData) << std::endl;
+  // // std::cout << "data size: " << mNumVertices * sizeof(RenderData) << std::endl;
+  // // std::cout << "Size vec float: " << sizeof(Vector2<GLfloat>()) << std::endl;
+  // memcpy(mBuffer.data() + mNextAvailableAddress, temp.data(), 
+  //        temp.size() * sizeof(RenderData));
+  // mNextAvailableAddress += temp.size() * sizeof(RenderData);
+  // std::cout << sizeof(RenderData) << std::endl;
+  mVbo.at(cVboId)->updateVboSubBuffer(0, temp.size() * sizeof(RenderData), temp.data());
+  std::vector<uint32_t> indeces = createRectIndices(temp.size());
+  mIbo.at(cIboId)->updateIboSubBuffer(0, indeces.size() * sizeof(uint32_t), indeces.data());
+  //   std::cout << "register done" << std::endl;
+}
 
-  //TODO: Temporary, make it so this has to be supplied as well
-  std::vector<uint32_t> indices = createRectIndices(crRendData.size());
+void BatchBuffer::initBuffers()
+{
+  for(auto &ibo : mIbo)
+  {
+    ibo = std::make_shared<IndexBuffer>();
+    ibo->genIbo();
+  }
 
-  mpIbo->updateBoundedBufferData(indices.data(), indices.size(), cDrawType);
-  
+  for(auto &vbo : mVbo)
+  {
+    vbo = std::make_shared<VertexBuffer>();
+    vbo->genVbo();
+  }
+
+  for(auto &vao : mVao)
+  {
+    vao = std::make_shared<VertexArray>();
+    vao->genVao();
+  }
+}
+
+void BatchBuffer::genIboBuffer(const uint32_t cId, const uint32_t cSizeInBytes, const GLenum cDrawType)
+{
+  mIbo.at(cId)->genIboBuffer(cSizeInBytes, cDrawType);
+}
+
+void BatchBuffer::genVboBuffer(const uint32_t cId, const uint32_t cSizeInBytes, const GLenum cDrawType)
+{
+  mVbo.at(cId)->genVboBuffer(cSizeInBytes, cDrawType);
+}
+
+void BatchBuffer::updateIboSubBuffer(const uint32_t cId, const uint32_t cIndex, const uint32_t cBuffSize,
+                                     void *pBuffer)
+{
+  mIbo.at(cId)->updateIboSubBuffer(cIndex, cBuffSize, pBuffer);
+}
+
+void BatchBuffer::updateVboSubBuffer(const uint32_t cId, const uint32_t cIndex, const uint32_t cBuffSize,
+                                     void *pBuffer)
+{
+  mVbo.at(cId)->updateVboSubBuffer(cIndex, cBuffSize, pBuffer);
+}
+
+void BatchBuffer::initShader(const uint32_t cId, const std::string &crPath)
+{
+    mShaders.at(cId) = std::make_shared<Shader>(MAIN_SHADER);
+}
+
+void BatchBuffer::bindShader(const uint32_t cId)
+{
+    mShaders.at(cId)->bind();
+}
+
+void BatchBuffer::bindVbo(const uint32_t cId)
+{
+    mVbo.at(cId)->bind();
+
+}
+
+void BatchBuffer::bindIbo(const uint32_t cId)
+{
+    mIbo.at(cId)->bind();
+}
+
+void BatchBuffer::bindVao(const uint32_t cId)
+{
+    mVao.at(cId)->bind();
+}
+
+void BatchBuffer::setVaoAttributes(const uint32_t cId, const VertexBufferLayout &crLayout)
+{
+  mVao.at(cId)->setVaoAttributes(crLayout);
+}
+
+uint32_t BatchBuffer::getIndicesCount(const uint32_t cId)
+{
+  return mIbo.at(cId)->getCount();
 }

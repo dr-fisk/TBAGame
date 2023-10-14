@@ -1,4 +1,4 @@
-#include "rectangle.h"
+#include "drawable/rectangle.h"
 #include <cmath>
 
 /* Function:    Rect
@@ -11,6 +11,7 @@ Rect::Rect()
   mPos  = Vector2<int32_t>(0, 0);
   mSize = Vector2<int32_t>(0, 0);
   mRgba = lg::Color(0, 0, 0);
+  mPrimitiveType = PrimitiveType::RECTANGLE;
 }
 
 /* Function:    Rect
@@ -26,12 +27,14 @@ Rect::Rect(const int32_t cLeft, const int32_t cTop, const int32_t cHeight, const
   mPos  = Vector2<int32_t>(cLeft, cTop);
   mSize = Vector2<int32_t>(cWidth, cHeight);
   mRgba = crColor;
+  mPrimitiveType = PrimitiveType::RECTANGLE;
 }
 
 Rect::Rect(const Vector2<int32_t>& cPos, const int32_t cHeight, const int32_t cWidth)
 {
   mPos = cPos;
   mSize = Vector2<int32_t>(cWidth, cHeight);
+  mPrimitiveType = PrimitiveType::RECTANGLE;
 }
 
 /* Function:    setColor
@@ -96,8 +99,13 @@ RenderData Rect::createRenderData()
   GLfloat y1 = -1 * (((GLfloat) mPos.mY / wHeight) - 1.0f);
   GLfloat y2 = -1 * ((((GLfloat) mPos.mY + (GLfloat) mSize.mY) / wHeight) - 1.0f);
 
-  return { Vector2<GLfloat>(x1, y2), mRgba, Vector2<GLfloat>(x2, y2), mRgba,
-           Vector2<GLfloat>(x2, y1), mRgba, Vector2<GLfloat>(x1, y1), mRgba};
+  const Vector2<GLfloat> textCoord1(0.0f, 0.0f);
+  const Vector2<GLfloat> textCoord2(1.0f, 0.0f);
+  const Vector2<GLfloat> textCoord3(1.0f, 1.0f);
+  const Vector2<GLfloat> textCoord4(0.0f, 1.0f);
+
+  return { Vector2<GLfloat>(x1, y2), mRgba, textCoord1, -1.0f, Vector2<GLfloat>(x2, y2), mRgba, textCoord2, -1.0f,
+           Vector2<GLfloat>(x2, y1), mRgba, textCoord3, -1.0f, Vector2<GLfloat>(x1, y1), mRgba, textCoord4, -1.0f };
 }
 
 Vector2<GLfloat> Rect::getTranslate()

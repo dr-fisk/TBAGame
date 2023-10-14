@@ -20,19 +20,40 @@ class VertexBufferLayout {
        Parameters:  uint32_t - Number of elements describing VBO for VAO to understand
        Returns:     None 
     */
-    void push(const uint32_t cCount, const uint16_t cType) {
-        mElements.push_back({cType, cCount, true});
+    void push(const uint32_t cCount, const uint16_t cType, const bool cNormalized) {
+        mElements.push_back({cType, cCount, cNormalized});
 
         switch(cType) {
            case GL_FLOAT:
-             mStride += sizeof(GLfloat) * cCount;
-             break;
-           case GL_UNSIGNED_BYTE:
+           case GL_INT:
+           case GL_UNSIGNED_INT:
              mStride += sizeof(GLuint) * cCount;
              break;
+           case GL_UNSIGNED_BYTE:
+             mStride += sizeof(GLubyte) * cCount;
+             break;
+           default:
+             std::cout << "Unsupported type in buffer layout." << std::endl;
+             exit(-1);
         }
         
     }
+
+    static int32_t getElementSize(const uint16_t cType) {
+        switch(cType) {
+           case GL_FLOAT:
+           case GL_INT:
+           case GL_UNSIGNED_INT:
+             return sizeof(GLuint);
+           case GL_UNSIGNED_BYTE:
+             return sizeof(GLubyte);
+           default:
+             std::cout << "Unsupported type in buffer layout." << std::endl;
+             exit(-1);
+        }
+        
+    }
+
 
     /* Function:    getElements
        Description: Returns list of elements for VAO

@@ -3,9 +3,9 @@
 
 #include "common.h"
 #include "glcommon.h"
-#include "Drawable.h"
+#include "drawable/drawable.h"
 
-#define PIXEL_SIZE 1
+const uint8_t PIXEL_SIZE = 1;
 
 class Rect : public Drawable {
   public:
@@ -34,6 +34,7 @@ class Rect : public Drawable {
     Vector2<int32_t> mPos;
     Vector2<int32_t> mSize;
     lg::Color mRgba;
+    PrimitiveType mPrimitiveType;
 };
 
 #endif

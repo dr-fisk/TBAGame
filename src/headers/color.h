@@ -7,30 +7,28 @@
 namespace lg {
 class Color {
   public:
-    Color(const GLfloat cRed, const GLfloat cGreen, GLfloat cBlue, const GLfloat cAlpha=255.0f) {
-      mRed = cRed / 255.0f;
-      mGreen = cGreen / 255.0f;
-      mBlue = cBlue / 255.0f;
-      mAlpha = cAlpha / 255.0f;
+    Color(const uint8_t cRed, const uint8_t cGreen, uint8_t cBlue, const uint8_t cAlpha=255) {
+      mRGBA = cAlpha;
+      mRGBA <<= 24;
+      mRGBA |= (0x000000ff & cBlue) << 16;
+      mRGBA |= (0x000000ff & cGreen) << 8;
+      mRGBA |= (0x000000ff & cRed);
     }
     Color(const Color &crRhs){*this = crRhs;}
     Color(){}
     ~Color(){}
-    GLfloat getRed() const {return mRed;}
-    GLfloat getGreen() const {return mGreen;}
-    GLfloat getBlue() const {return mBlue;}
-    GLfloat getalpha(){return mAlpha;}
+    uint8_t getAlpha() const {return (mRGBA & 0xff000000) >> 24;}
+    uint8_t getBlue() const {return (mRGBA & 0x00ff0000) >> 16;}
+    uint8_t getGreen() const {return (mRGBA & 0x0000ff00) >> 8;}
+    uint8_t getRed(){return (mRGBA & 0x000000ff);}
     Color& operator=(const Color &crRhs) {
-      mRed = crRhs.mRed;
-      mGreen = crRhs.mGreen;
-      mBlue = crRhs.mBlue;
-      mAlpha = crRhs.mAlpha;
+      mRGBA = crRhs.mRGBA;
       return *this;
     }
 
     bool operator==(const Color &crRhs)
     {
-      return (mRed == crRhs.getRed()) && (mBlue == crRhs.getBlue()) && (mGreen == crRhs.getGreen());
+      return crRhs.mRGBA == mRGBA; 
     }
 
     static const Color Red;
@@ -43,11 +41,9 @@ class Color {
     static const Color Purple;
     static const Color Pink;
     static const Color Grey;
+    static const Color Transparent;
   private:
-    GLfloat mRed;
-    GLfloat mGreen;
-    GLfloat mBlue;
-    GLfloat mAlpha;
+    GLuint mRGBA;
 };
   const Color Red = Color(255.0f, 0.0f, 0.0f);
   const Color Black = Color(0.0f, 0.0f, 0.0f);
@@ -59,6 +55,7 @@ class Color {
   const Color Purple = Color(204.0f, 0.0f, 204.0f);
   const Color Pink = Color(255.0f, 153.0f, 204.0f);
   const Color Grey = Color(128.0f, 128.0f, 128.0f);
+  const Color Transparent = Color(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 

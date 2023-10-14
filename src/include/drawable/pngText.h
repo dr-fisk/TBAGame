@@ -1,14 +1,14 @@
-#ifndef TEXT_H
-#define TEXT_H
+#ifndef PNGTEXT_H
+#define PNGTEXT_H
 
-#include "Drawable.h"
+#include "drawable/drawable.h"
 #include "pngFont.h"
 
-class Text : public Drawable {
+class PngText : public Drawable {
   public:
-    Text(){}
-    Text(const std::string &crText, PngFont &rFont);
-    virtual ~Text();
+    PngText(){}
+    PngText(const std::string &crText, PngFont &rFont);
+    virtual ~PngText();
     virtual std::vector<RenderData> getRenderData();
   private:
     std::vector<RenderData> mRenderData;

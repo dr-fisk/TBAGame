@@ -1,4 +1,4 @@
-#include "mesh.h"
+#include "drawable/mesh.h"
 #include "png.h"
 
 /* Function:    Mesh

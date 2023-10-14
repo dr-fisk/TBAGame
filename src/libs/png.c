@@ -23,7 +23,7 @@ void Png::parseIHDR(const uint32_t cChunkLength)
   if ((mIhdr.width == 0) || (mIhdr.height == 0))
   {
     std::cout << "Error! Invalid image dimensions." << std::endl;
-    exit(0);
+    exit(-1);
   }
 }
 
@@ -106,8 +106,8 @@ struct Png::RGB Png::paethRGBBitDepth8(const uint32_t cScanlineSize, const uint8
   const uint32_t leftBound = cCurrByte % cScanlineSize;
   const int32_t upperBound = cCurrByte - cScanlineSize;
 
-  /* The below blocks gathers the pixel RGB to the left of the current index, the Pixel RGB to the upper left of the current index,
-     and the Pixel RGB above the current index
+  /* The below blocks gathers the pixel RGB to the left of the current index, the Pixel RGB to the upper left
+     of the current index, and the Pixel RGB above the current index
   */
   a.Red   = (leftBound != 0) ? mImgData[cCurrByte - cRgbSize] : 0;
   a.Green = (leftBound != 0) ? mImgData[cCurrByte - (cRgbSize - 1)] : 0;
@@ -149,12 +149,14 @@ void Png::rgbBitDepth8(const std::vector<uint8_t> &crRgbData)
 {
   /*
     index i will always be either the filter method or a pixel starting on the Red color value_comp
-    index i will never be Blue nor Green, to extract the blue and green for the current pixel do i + 1 for Green and i + 2 for red
+    index i will never be Blue nor Green, to extract the blue and green for the current pixel do i + 1 for Green and
+    i + 2 for red
   
     Here is an example below:
-    We have a uint8_t array with 1 byte values represented as F (filter method), R (Red color value), G (Green Color Value), B (Blue Color Value)
-    If our index i lands on F, we will add 1 to our index and that will put our index on R. Each time our index i is on R we will add 3 to our index i.
-    We add 3 because each pixel contains an RGB value, so adding 3 to our index i essentially puts us on the next pixel
+    We have a uint8_t array with 1 byte values represented as F (filter method), R (Red color value), G
+    (Green Color Value), B (Blue Color Value) If our index i lands on F, we will add 1 to our index and that will put
+    our index on R. Each time our index i is on R we will add 3 to our index i. We add 3 because each pixel contains an
+    RGB value, so adding 3 to our index i essentially puts us on the next pixel
   
     F RGB RGB RGB RGB
     F RGB RGB RGB RGB
@@ -209,12 +211,16 @@ void Png::rgbBitDepth8(const std::vector<uint8_t> &crRgbData)
             filterPix.Alpha = (upperBound >= 0) ? mImgData[upperBound + 3] : 0;
           break;
         case AVERAGE:
-          filterPix.Red   = (uint32_t) floor((((upperBound >= 0) ? mImgData[upperBound] : 0)     + ((leftBound != 0) ? mImgData[leftBound - rgbSize] : 0)) / 2) % mod;
-          filterPix.Green = (uint32_t) floor((((upperBound >= 0) ? mImgData[upperBound + 1] : 0) + ((leftBound != 0) ? mImgData[leftBound - (rgbSize - 1)] : 0)) / 2) % mod;
-          filterPix.Blue  = (uint32_t) floor((((upperBound >= 0) ? mImgData[upperBound + 2] : 0) + ((leftBound != 0) ? mImgData[leftBound - (rgbSize - 2)] : 0)) / 2) % mod;
+          filterPix.Red   = (uint32_t) floor((((upperBound >= 0) ? mImgData[upperBound] : 0)     + ((leftBound != 0) ?
+                            mImgData[currByte - rgbSize] : 0)) / 2) % mod;
+          filterPix.Green = (uint32_t) floor((((upperBound >= 0) ? mImgData[upperBound + 1] : 0) + ((leftBound != 0) ?
+                            mImgData[currByte - (rgbSize - 1)] : 0)) / 2) % mod;
+          filterPix.Blue  = (uint32_t) floor((((upperBound >= 0) ? mImgData[upperBound + 2] : 0) + ((leftBound != 0) ?
+                            mImgData[currByte - (rgbSize - 2)] : 0)) / 2) % mod;
 
           if (mIhdr.colorType == RGBTRIPA)
-            filterPix.Alpha = (uint32_t) floor((((upperBound >= 0) ? mImgData[upperBound + 3] : 0) + ((leftBound != 0) ? mImgData[leftBound - (rgbSize - 3)] : 0)) / 2) % mod;
+            filterPix.Alpha = (uint32_t) floor((((upperBound >= 0) ? mImgData[upperBound + 3] : 0) + ((leftBound != 0) ?
+                              mImgData[currByte - (rgbSize - 3)] : 0)) / 2) % mod;
           break;
         case PAETH:
             filterPix = paethRGBBitDepth8(scanlineSize, rgbSize, currByte);
@@ -253,12 +259,12 @@ void Png::handlePngColorType(const std::vector<uint8_t> &crRgbData)
       else
       {
           std::cout << "BitDepth not implemented" << std::endl;
-          exit(0);
+          exit(-1);
       }
       break;
     default:
       std::cout << "ColorType not implemented" << std::endl;
-      exit(0);
+      exit(-1);
   }
 }
 
@@ -300,7 +306,7 @@ void Png::uncompressIDAT(const std::vector<uint8_t> &crBuffer, std::vector<uint8
     if(error == Z_DATA_ERROR || error == Z_MEM_ERROR)
     {
       std::cout << "ZLIB decompression returned error: " << error << std::endl;
-      exit(0);
+      exit(-1);
     }
 
     // We only sub from decompressedChunk.end() when an inflate does not use up all 16384 bytes. Otherwise our decompressedData size will be wrong
@@ -342,7 +348,7 @@ void Png::readPng() {
   if(!mPngFile)
   {
     std::cout << "Png file descriptor is not good." << std::endl;
-    exit(0);
+    exit(-1);
   }
 
   // Header is 8 bytes long, every png has this, use to confirm file format is png
@@ -352,7 +358,7 @@ void Png::readPng() {
   if(strcmp((char *)signature.data(), (char *)pngSignature.data()) != 0)
   {
     std::cout << "Not a PNG format" << std::endl;
-    exit(0);
+    exit(-1);
   }
 
   while (strcmp((char *)chunkType.data(), "IEND\0") != 0 && mPngFile.good())
@@ -381,7 +387,7 @@ void Png::readPng() {
     if((validPngMask & IHDR_MASK) == 0 && strcmp((char *) chunkType.data(), "IHDR\0") != 0)
     {
       std::cout << "Error! Invalid PNG file, IHDR chunk did not follow PNG signature." << std::endl;
-      exit(0);
+      exit(-1);
     } 
     else if ((validPngMask & IHDR_MASK) == 0 && strcmp((char *) chunkType.data(), "IHDR\0") == 0)
     {
@@ -410,7 +416,7 @@ void Png::readPng() {
       if ((validPngMask & IDAT_MASK) != 0)
       {
         std::cout << "Error! iCCP chunk must appear before first IDAT chunk" << std::endl;
-        exit(0);
+        exit(-1);
       }
        //Temp
        parseICCP(chunkLength);

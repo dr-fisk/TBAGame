@@ -2,12 +2,18 @@
 #version 330 core
 layout (location = 0) in vec4 aPos;
 layout (location = 1) in vec4 aCol;
+layout (location = 2) in vec2 aTextCoords;
+layout (location = 3) in float aTextIndex;
 
 out vec4 v_Col;
+out vec2 v_TextCoords;
+out float v_TextIndex;
 
 void main()
 {
    v_Col = aCol;
+   v_TextCoords = aTextCoords;
+   v_TextIndex = aTextIndex;
    gl_Position = aPos;
 };
 
@@ -16,8 +22,20 @@ void main()
 out vec4 FragColor;
 
 in vec4 v_Col;
+in vec2 v_TextCoords;
+in float v_TextIndex;
+uniform sampler2D u_Textures[32];
 
 void main()
 {
-   FragColor = v_Col;
+   int index = int(v_TextIndex);
+
+   if (index < 0)
+   {
+      FragColor = v_Col;
+   }
+   else
+   {
+      FragColor = texture(u_Textures[index], v_TextCoords);
+   }
 };

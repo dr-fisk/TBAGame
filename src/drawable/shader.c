@@ -1,4 +1,4 @@
-#include "shader.h"
+#include "drawable/shader.h"
 
 /* Function:    Shader
    Description: Constructs a shader program
@@ -38,6 +38,12 @@ void Shader::unbind() const {
   GLCall(glUseProgram(0));
 }
 
+int32_t Shader::shaderGetUniform(const std::string &crVar)
+{
+  GLCall(int32_t location = glGetUniformLocation(mShaderID, crVar.c_str()));
+  return location;
+}
+
 /* Function:    parseShader
    Description: Opens shader file and parses to construct strings
    Parameters:  string - File location for shader code
@@ -58,7 +64,8 @@ ShaderProgSource Shader::parseShader(const std::string &crFilePath) {
       if (line.find("#shader") != std::string::npos) {
         if (line.find("vertex") != std::string::npos) {
           type = ShaderType::VERTEX;
-        } else if (line.find("fragment") != std::string::npos) {
+        }
+        else if (line.find("fragment") != std::string::npos) {
           type = ShaderType::FRAGMENT;
         }
       } else {
@@ -69,7 +76,7 @@ ShaderProgSource Shader::parseShader(const std::string &crFilePath) {
   return {ss[0].str(), ss[1].str()};
 }
 
-/* Function:    draw
+/* Function:    createShader
    Description: Handles rendering all buffers to be displayed on window
                 Calls should look like clear()->render()->display() then loop
    Parameters:  string - Vertex Shader code
@@ -80,6 +87,7 @@ uint32_t Shader::createShader(const std::string &crVertexShader, const std::stri
   uint32_t vs = compileShader(GL_VERTEX_SHADER, crVertexShader);
   uint32_t fs = compileShader(GL_FRAGMENT_SHADER, crFragmentShader);
   uint32_t ID = glCreateProgram();
+
   glAttachShader(ID, vs);
   glAttachShader(ID, fs);
   glLinkProgram(ID);
@@ -91,7 +99,7 @@ uint32_t Shader::createShader(const std::string &crVertexShader, const std::stri
   return ID;
 }
 
-/* Function:    draw
+/* Function:    compileShader
    Description: Compiles and constructs shader components
    Parameters:  uint32_t - Shader component
                 string   - Shader component code
@@ -102,6 +110,20 @@ uint32_t Shader::compileShader(const uint32_t cType, const std::string &crSource
   const char* src = crSource.c_str();
   glShaderSource(ID, 1, &src, nullptr);
   glCompileShader(ID);
+
+  int32_t result = 0;
+  GLCall(glGetShaderiv(ID, GL_COMPILE_STATUS, &result));
+  
+  if (GL_FALSE == result)
+  {
+    int32_t length = 0;
+    std::string msg;
+    GLCall(glGetShaderiv(ID, GL_INFO_LOG_LENGTH, &length));
+    msg.reserve(length);
+    GLCall(glGetShaderInfoLog(ID, length, &length, &msg[0]));
+    std::cout << "Failed to compile " << (cType == GL_FRAGMENT_SHADER ? "fragment" : "vertex") << " shader" << std::endl;
+    std::cout << msg << std::endl;
+  }
   return ID;
 }
 

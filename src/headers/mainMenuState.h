@@ -4,6 +4,7 @@
 #include "state.h"
 #include "lestTtf.h"
 #include "font.h"
+#include "drawable/texture.h"
 
 class MainMenu : public State {
   public:
@@ -17,7 +18,8 @@ class MainMenu : public State {
     Mesh mMesh;
     Mesh mMesh2;
     PngFont mFont;
-    Text mText;
+    PngText mText;
+    Texture mTexture;
     LestTrueType ttf;
     std::vector<Rect> temprect;
     std::vector<std::shared_ptr<Rect>> final;

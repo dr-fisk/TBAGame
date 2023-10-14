@@ -18,17 +18,8 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
   if (!mpWindow) {
     std::cout << "Error opening window" << std::endl;
     glfwTerminate();
-    exit(0);
+    exit(-1);
   }
-}
-
-/* Function:    ~RenderWindow
-   Description: Cleans up Window memory and terminates opengl
-                Due to using smart pts, we need to explicitly destroy
-   Parameters:  None
-   Returns:     None
- */
-RenderWindow::~RenderWindow() {
 }
 
 /* Function:    clear
@@ -75,14 +66,20 @@ void RenderWindow::draw(Rect &rShape) {
   display();*/
 }
 
-void RenderWindow::draw(BatchBuffer &rBuffer) {
-  std::shared_ptr<VertexBuffer> vbo = rBuffer.getVbo();
-  std::shared_ptr<VertexArray> vao = rBuffer.getVao();
-  std::shared_ptr<IndexBuffer> ibo = rBuffer.getIbo();
-  VertexBufferLayout layout = rBuffer.getLayout();
+void RenderWindow::draw(const uint64_t cCount) {
+  // static bool first = true;
+  // if (first)
+  // {
+  // rBuffer.updateIbo();
+  // first = false;
+  // }
+  // std::shared_ptr<VertexBuffer> vbo = rBuffer.getVbo();
+  // std::shared_ptr<VertexArray> vao = rBuffer.getVao();
+  // std::shared_ptr<IndexBuffer> ibo = rBuffer.getIbo();
+  // VertexBufferLayout layout = rBuffer.getLayout();
 
   clear();
-  draw(vbo, vao, ibo, layout);
+  GLCall(glDrawElements(GL_TRIANGLES, cCount, GL_UNSIGNED_INT, nullptr));
   display();
 }
 
@@ -97,12 +94,9 @@ void RenderWindow::draw(BatchBuffer &rBuffer) {
 void RenderWindow::draw(const std::shared_ptr<VertexBuffer> &crpVbo, const std::shared_ptr<VertexArray> &crpVao, 
                         const std::shared_ptr<IndexBuffer> &crpIbo, const VertexBufferLayout &crLayout)
 {
-  //Maybe I'm supposed to do this once per vao
-  crpVao->bind(0);
-  crpVbo->bind(0);
-  crpVao->addBuffer(crLayout);
-  mpShader->bind();
-  crpIbo->bind(0);
+  //   auto loc = glGetUniformLocation(0, "u_Textures");
+  // int samplers[32] = {0,1};
+  // GLCall(glUniform1iv(loc, 32,samplers));
   GLCall(glDrawElements(GL_TRIANGLES, crpIbo->getCount(), GL_UNSIGNED_INT, nullptr));
 }
 
@@ -157,8 +151,13 @@ RenderData RenderWindow::createRenderDataBounded(Rect &rShape)
   GLfloat y1 = -1 * ((top / wHeight) - 1.0f);
   GLfloat y2 = -1 * (((top + height) / wHeight) - 1.0f);
 
-  return { Vector2<GLfloat>(x1, y2), rgba, Vector2<GLfloat>(x2, y2), rgba,
-           Vector2<GLfloat>(x2, y1), rgba, Vector2<GLfloat>(x1, y1), rgba};
+  const Vector2<GLfloat> textCoord1(0.0f, 0.0f);
+  const Vector2<GLfloat> textCoord2(1.0f, 0.0f);
+  const Vector2<GLfloat> textCoord3(1.0f, 1.0f);
+  const Vector2<GLfloat> textCoord4(0.0f, 1.0f);
+
+  return { Vector2<GLfloat>(x1, y2), rgba, textCoord1, -1.0f, Vector2<GLfloat>(x2, y2), rgba, textCoord2, -1.0f,
+           Vector2<GLfloat>(x2, y1), rgba, textCoord3, -1.0f, Vector2<GLfloat>(x1, y1), rgba, textCoord4, -1.0f };
 }
 
 /* Function:    boundCoords
@@ -223,7 +222,7 @@ void RenderWindow::destroyWindow()
   /* Due to shader, IB, VAO, and VBO being smart pointers,
      reset needs to be called to delete opengl data before
      terminating window */
-  mpShader.reset();
+  // mpShader.reset();
   glfwDestroyWindow(mpWindow);
 }
 
@@ -245,6 +244,7 @@ GLFWwindow* RenderWindow::getGlWindow()
 void RenderWindow::setShader(const std::shared_ptr<Shader> &crpShader)
 {
   mpShader = crpShader;
+  mpShader->bind();
 }
 
 /* Function:    setVao

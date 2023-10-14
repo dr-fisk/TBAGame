@@ -8,14 +8,14 @@
 class RenderWindow : public RenderTarget {
     public:
       RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHeight, const char *cpTitle, GLFWwindow *pWindow=NULL);
-      ~RenderWindow();
+      ~RenderWindow() = default;
       bool isOpen();
       virtual uint32_t getWindowWidth();
       virtual uint32_t getWindowHeight();
       virtual void clear();
       virtual void display();
       virtual void draw(Rect &rShape);
-      virtual void draw(BatchBuffer &rBuffer);
+      virtual void draw(const uint64_t cCount);
       virtual void draw(const std::shared_ptr<VertexBuffer> &crpVbo, const std::shared_ptr<VertexArray> &crpVao,
                         const std::shared_ptr<IndexBuffer> &crpIbo, const VertexBufferLayout &rLayout);
       virtual RenderData createRenderDataBounded(Rect &rShape);
