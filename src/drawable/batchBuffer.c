@@ -1,16 +1,19 @@
+#include <iostream>
+
 #include "drawable/batchBuffer.h"
 
 const std::string MAIN_SHADER = "./shaders/shader1.txt";
 
 BatchBuffer::BatchBuffer(const uint32_t cNumVao, const uint32_t cNumVbo, const uint32_t cNumIbo,
-                         const uint32_t cNumShaders)
+                         const uint32_t cNumShaders, const uint32_t cNumTextures)
 {
     // initBatchBuffer(cNumVao, cNumVbo, cNumIbo, crRendData, cDrawType);
     // mPrimitiveType = cShape;
-    mShaders.resize(cNumShaders);
+    mShader.resize(cNumShaders);
     mVbo.resize(cNumVbo);
     mVao.resize(cNumVao);
     mIbo.resize(cNumIbo);
+    mTexture.resize(cNumTextures);
 
     initBuffers();
 
@@ -150,14 +153,14 @@ void BatchBuffer::initBuffers()
   }
 }
 
-void BatchBuffer::genIboBuffer(const uint32_t cId, const uint32_t cSizeInBytes, const GLenum cDrawType)
+void BatchBuffer::genIboBuffer(const uint32_t cId, const uint32_t cNumVertexes, const GLenum cDrawType)
 {
-  mIbo.at(cId)->genIboBuffer(cSizeInBytes, cDrawType);
+  mIbo.at(cId)->genIboBuffer(cNumVertexes, cDrawType);
 }
 
-void BatchBuffer::genVboBuffer(const uint32_t cId, const uint32_t cSizeInBytes, const GLenum cDrawType)
+void BatchBuffer::genVboBuffer(const uint32_t cId, const uint32_t cNumVertexes, const GLenum cDrawType)
 {
-  mVbo.at(cId)->genVboBuffer(cSizeInBytes, cDrawType);
+  mVbo.at(cId)->genVboBuffer(cNumVertexes, cDrawType);
 }
 
 void BatchBuffer::updateIboSubBuffer(const uint32_t cId, const uint32_t cIndex, const uint32_t cBuffSize,
@@ -174,12 +177,22 @@ void BatchBuffer::updateVboSubBuffer(const uint32_t cId, const uint32_t cIndex, 
 
 void BatchBuffer::initShader(const uint32_t cId, const std::string &crPath)
 {
-    mShaders.at(cId) = std::make_shared<Shader>(MAIN_SHADER);
+    mShader.at(cId) = std::make_shared<Shader>(MAIN_SHADER);
+}
+
+void BatchBuffer::initTexture(const uint32_t cId, const std::string &crPath)
+{
+    mTexture.at(cId) = std::make_shared<Texture>(crPath);
 }
 
 void BatchBuffer::bindShader(const uint32_t cId)
 {
-    mShaders.at(cId)->bind();
+    mShader.at(cId)->bind();
+}
+
+void BatchBuffer::bindTexture(const uint32_t cId)
+{
+    mTexture.at(cId)->bind(cId);
 }
 
 void BatchBuffer::bindVbo(const uint32_t cId)
@@ -206,4 +219,9 @@ void BatchBuffer::setVaoAttributes(const uint32_t cId, const VertexBufferLayout 
 uint32_t BatchBuffer::getIndicesCount(const uint32_t cId)
 {
   return mIbo.at(cId)->getCount();
+}
+
+int32_t BatchBuffer::getUniform(const uint32_t cId, const std::string &crUniform)
+{
+  return mShader.at(cId)->getUniform(crUniform);
 }

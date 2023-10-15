@@ -1,9 +1,7 @@
 #ifndef VERTEXARRAY_H
 #define VERTEXARRAY_H
 
-#include "common.h"
-#include "glcommon.h"
-#include "drawable/vertexBuffer.h"
+#include "net_utility.h"
 #include "vertexBufferLayout.h"
 
 class VertexArray {

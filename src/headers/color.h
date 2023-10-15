@@ -1,8 +1,7 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include "common.h"
-#include "glcommon.h"
+#include <cstdint>
 
 namespace lg {
 class Color {
@@ -21,6 +20,7 @@ class Color {
     uint8_t getBlue() const {return (mRGBA & 0x00ff0000) >> 16;}
     uint8_t getGreen() const {return (mRGBA & 0x0000ff00) >> 8;}
     uint8_t getRed(){return (mRGBA & 0x000000ff);}
+    uint32_t getRgba(){return mRGBA;}
     Color& operator=(const Color &crRhs) {
       mRGBA = crRhs.mRGBA;
       return *this;
@@ -29,6 +29,11 @@ class Color {
     bool operator==(const Color &crRhs)
     {
       return crRhs.mRGBA == mRGBA; 
+    }
+
+    bool operator==(const uint32_t crRhs)
+    {
+      return crRhs == mRGBA; 
     }
 
     static const Color Red;
@@ -43,7 +48,7 @@ class Color {
     static const Color Grey;
     static const Color Transparent;
   private:
-    GLuint mRGBA;
+    uint32_t mRGBA;
 };
   const Color Red = Color(255.0f, 0.0f, 0.0f);
   const Color Black = Color(0.0f, 0.0f, 0.0f);

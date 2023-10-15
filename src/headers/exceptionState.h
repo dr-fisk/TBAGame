@@ -1,8 +1,14 @@
 #ifndef EXCEPTION_STATE_H
 #define EXCEPTION_STATE_H
 
+#include <memory>
+#include <string>
+#include <stack>
+
 #include "exception.h"
+#include "renderWindow.h"
 #include "state.h"
+#include "drawable/batchBuffer.h"
 
 class ExceptionState : public State {
   public:
@@ -14,11 +20,8 @@ class ExceptionState : public State {
   private:
     std::shared_ptr<RenderWindow> mpWindow;
     std::string mError;
-    Mesh mMesh;
-    Mesh mMesh2;
     BatchBuffer mTestBB;
     BatchBuffer mErrorBatch;
-    PngFont mFont;
 };
 
 #endif

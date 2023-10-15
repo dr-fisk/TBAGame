@@ -1,10 +1,14 @@
 #ifndef FONT_H
 #define FONT_H
 
-#include "common.h"
+#include <vector>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include "Vector2D.h"
+#include "color.h"
 #include "lestTtf.h"
-#include "drawable/rectangle.h"
-#include "bitmap.h"
+#include "net_utility.h"
 
 class Font
 {
@@ -14,10 +18,14 @@ class Font
     ~Font();
     std::vector<Vector2<int32_t>> operator[](const char cLetter);
     Vector2<int32_t> getCharacterMaxCoords(const char cLetter);
+    void writeCharDataToFile(const char cLetter);
+    void fillGeneratedPointColor(const char cCharacter);
+    void fillColor(const char cCharacter);
   private:
     struct FontMetaData
     {
       std::vector<Vector2<int32_t>> GeneratedPoints;
+      std::vector<uint32_t> ColorMap;
       GlyfHeader FontHeader;
       Vector2<int32_t> MaxCoords;
       int32_t StartingPoint;

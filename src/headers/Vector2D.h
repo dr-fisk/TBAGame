@@ -1,9 +1,14 @@
-#ifndef VECTOR2F_H
-#define VECTOR2F_H
+#ifndef VECTOR2D_H
+#define VECTOR2D_H
 
 #include <ostream>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include <vector>
+//Perhaps create a define here so that this can be used anywhere
+
+#ifdef GLEW_STATIC
+  #include <GL/glew.h>
+  #include <GLFW/glfw3.h>
+#endif
 
 template <typename T> 
 class Vector2;
@@ -33,8 +38,12 @@ template <typename T> class Vector2
     Vector2& operator*=(const uint16_t &crRhs);
     Vector2& operator*=(const uint32_t &crRhs);
     Vector2& operator*=(const uint64_t &crRhs);
-    Vector2& operator*=(const GLfloat &crRhs);
-    Vector2& operator*=(const GLdouble &crRhs);
+
+    #ifdef GLEW_STATIC
+      Vector2& operator*=(const GLfloat &crRhs);
+      Vector2& operator*=(const GLdouble &crRhs);
+    #endif
+
     Vector2 operator*(const int8_t &crRhs);
     Vector2 operator*(const int16_t &crRhs);
     Vector2 operator*(const int32_t &crRhs);
@@ -43,8 +52,12 @@ template <typename T> class Vector2
     Vector2 operator*(const uint16_t &crRhs);
     Vector2 operator*(const uint32_t &crRhs);
     Vector2 operator*(const uint64_t &crRhs);
-    Vector2 operator*(const GLfloat &crRhs);
-    Vector2 operator*(const GLdouble &crRhs);
+
+    #ifdef GLEW_STATIC
+      Vector2 operator*(const GLfloat &crRhs);
+      Vector2 operator*(const GLdouble &crRhs);
+    #endif
+
     Vector2& operator/=(const int8_t &crRhs);
     Vector2& operator/=(const int16_t &crRhs);
     Vector2& operator/=(const int32_t &crRhs);
@@ -53,8 +66,12 @@ template <typename T> class Vector2
     Vector2& operator/=(const uint16_t &crRhs);
     Vector2& operator/=(const uint32_t &crRhs);
     Vector2& operator/=(const uint64_t &crRhs);
-    Vector2& operator/=(const GLfloat &crRhs);
-    Vector2& operator/=(const GLdouble &crRhs);
+
+    #ifdef GLEW_STATIC
+      Vector2& operator/=(const GLfloat &crRhs);
+      Vector2& operator/=(const GLdouble &crRhs);
+    #endif
+
     Vector2 operator/(const int8_t &crRhs);
     Vector2 operator/(const int16_t &crRhs);
     Vector2 operator/(const int32_t &crRhs);
@@ -63,8 +80,12 @@ template <typename T> class Vector2
     Vector2 operator/(const uint16_t &crRhs);
     Vector2 operator/(const uint32_t &crRhs);
     Vector2 operator/(const uint64_t &crRhs);
-    Vector2 operator/(const GLfloat &crRhs);
-    Vector2 operator/(const GLdouble &crRhs);
+    
+    #ifdef GLEW_STATIC
+      Vector2 operator/(const GLfloat &crRhs);
+      Vector2 operator/(const GLdouble &crRhs);
+    #endif
+
     T operator*(const Vector2<T>& crVector);
     friend std::ostream& operator<< <>(std::ostream& rOs, const Vector2<T>& crVector);
     static uint32_t tessellateQuadBezier(std::vector<Vector2>& crPoints, const uint32_t cOffset,
@@ -217,6 +238,7 @@ Vector2<T>& Vector2<T>::operator*=(const uint64_t &crRhs)
   return *this;
 }
 
+#ifdef GLEW_STATIC
 template <typename T>
 Vector2<T>& Vector2<T>::operator*=(const GLfloat &crRhs)
 {
@@ -232,6 +254,7 @@ Vector2<T>& Vector2<T>::operator*=(const GLdouble &crRhs)
   mY *= crRhs;
   return *this;
 }
+#endif
 
 template <typename T>
 Vector2<T> Vector2<T>::operator*(const int8_t &crRhs)
@@ -281,6 +304,7 @@ Vector2<T> Vector2<T>::operator*(const uint64_t &crRhs)
   return Vector2<T>(mX * crRhs, mY * crRhs);
 }
 
+#ifdef GLEW_STATIC
 template <typename T>
 Vector2<T> Vector2<T>::operator*(const GLfloat &crRhs)
 {
@@ -292,6 +316,7 @@ Vector2<T> Vector2<T>::operator*(const GLdouble &crRhs)
 {
   return Vector2<T>(mX * crRhs, mY * crRhs);
 }
+#endif
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator/=(const int8_t &crRhs)
@@ -357,6 +382,7 @@ Vector2<T>& Vector2<T>::operator/=(const uint64_t &crRhs)
   return *this;
 }
 
+#ifdef GLEW_STATIC
 template <typename T>
 Vector2<T>& Vector2<T>::operator/=(const GLfloat &crRhs)
 {
@@ -372,6 +398,7 @@ Vector2<T>& Vector2<T>::operator/=(const GLdouble &crRhs)
   mY /= crRhs;
   return *this;
 }
+#endif
 
 template <typename T>
 Vector2<T> Vector2<T>::operator/(const int8_t &crRhs)
@@ -421,6 +448,7 @@ Vector2<T> Vector2<T>::operator/(const uint64_t &crRhs)
   return Vector2<T>(mX / crRhs, mY / crRhs);
 }
 
+#ifdef GLEW_STATIC
 template <typename T>
 Vector2<T> Vector2<T>::operator/(const GLfloat &crRhs)
 {
@@ -432,6 +460,7 @@ Vector2<T> Vector2<T>::operator/(const GLdouble &crRhs)
 {
   return Vector2<T>(mX / crRhs, mY / crRhs);
 }
+#endif
 
 template <typename T>
 T Vector2<T>::operator*(const Vector2<T>& crVector)
@@ -451,15 +480,26 @@ template <typename T>
 uint32_t Vector2<T>::tessellateQuadBezier(std::vector<Vector2<T>>& crPoints, const uint32_t cOffset,
                               uint32_t cSubDiv, Vector2<T>& rP0, Vector2<T>& rP1, Vector2<T>& rP2)
 {
-  GLfloat step = 1.0f / ((GLfloat)cSubDiv + 1);
-  GLfloat t = 0.0f;
-  GLfloat t1 = 0.0f;
-  GLfloat t2 = 0.0f;
+  #ifdef GLEW_STATIC
+    GLfloat step = 1.0f / ((GLfloat)cSubDiv + 1);
+    GLfloat t = 0.0f;
+    GLfloat t1 = 0.0f;
+    GLfloat t2 = 0.0f;
+  #else
+    float step = 1.0f / ((float)cSubDiv + 1);
+    float t = 0.0f;
+    float t1 = 0.0f;
+    float t2 = 0.0f;
+  #endif
   uint32_t itemsAdded = 0;
 
   for(int i = 1; i < cSubDiv + 1; i ++)
   {
+    #ifdef GLEW_STATIC
     t = (GLfloat) i * step;
+    #else
+    t = (float) i * step;
+    #endif
     t1 = (1.0f - t);
     t2 = t * t;
     crPoints[itemsAdded + cOffset] = Vector2<T>((t1 * t1 * rP0.mX + 2 * t1 * t * rP1.mX + t2 * rP2.mX),

@@ -1,8 +1,10 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "mainMenuState.h"
-#include "exceptionState.h"
+#include <memory>
+#include <stack>
+
+#include "state.h"
 #include "renderWindow.h"
 #include "lestTtf.h"
 
@@ -17,7 +19,6 @@ class Game {
     std::stack<std::shared_ptr<State>> mStates;
     std::shared_ptr<RenderWindow> mpWindow;
     std::shared_ptr<BatchBuffer> mpBatchBuffer;
-    std::map<std::string, std::shared_ptr<Shader>> mShaders;
     LestTrueType ttf;
     int mGameRuntime;
     int mStartTime;
@@ -25,8 +26,6 @@ class Game {
     static int mFps;
 
     void initMainState();
-    void initShaders();
-    void deleteShaders();
     void gameEnd();
 };
 

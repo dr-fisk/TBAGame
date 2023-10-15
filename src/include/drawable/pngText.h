@@ -1,7 +1,12 @@
 #ifndef PNGTEXT_H
 #define PNGTEXT_H
 
+#include <vector>
+#include <string>
+
+#include "glcommon.h"
 #include "drawable/drawable.h"
+#include "drawable/rectangle.h"
 #include "pngFont.h"
 
 class PngText : public Drawable {

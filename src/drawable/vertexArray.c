@@ -1,3 +1,4 @@
+#include "glcommon.h"
 #include "drawable/vertexArray.h"
 
 /* Function:    VertexArray

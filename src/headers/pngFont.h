@@ -1,9 +1,11 @@
 #ifndef PNG_FONT_H
 #define PNG_FONT_H
 
-#include "common.h"
+#include <map>
+#include <string>
+
 #include "drawable/rectangle.h"
-#include "png.h"
+#include "net_utility.h"
 
 struct FontAttrib {
   int8_t glyphLeft;

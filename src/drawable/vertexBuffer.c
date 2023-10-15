@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "drawable/vertexBuffer.h"
 
 /* Function:     VertexBuffer
@@ -6,10 +8,10 @@
                 size  - The size of data array
    Returns:     None
  */
-void VertexBuffer::genVboBuffer(const uint32_t cNumBuffSize, const GLenum cDrawType) {
+void VertexBuffer::genVboBuffer(const uint32_t cNumVertexes, const GLenum cDrawType) {
   mBuffer.clear();
-  mBuffer.resize(cNumBuffSize);
-  GLCall(glBufferData(GL_ARRAY_BUFFER, cNumBuffSize, mBuffer.data(), cDrawType));
+  mBuffer.resize(cNumVertexes * sizeof(RenderData));
+  GLCall(glBufferData(GL_ARRAY_BUFFER, mBuffer.size(), mBuffer.data(), cDrawType));
 }
 
 void VertexBuffer::updateVboSubBuffer(const uint32_t cIndex, const uint32_t cBuffSize, void *pBuffer)

@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "exceptionState.h"
 
 ExceptionState::ExceptionState(const std::stack<std::shared_ptr<State>> &crStates, const std::shared_ptr<BatchBuffer> &crpBatchBuffer, 
@@ -6,13 +8,10 @@ ExceptionState::ExceptionState(const std::stack<std::shared_ptr<State>> &crState
   mError = crError;
   mpWindow = std::make_shared<RenderWindow>(800, 800, "Exception Encountered");
   std::vector<Drawable*> vertexes;
-  mFont = PngFont("../src/fonts/Font.png");
-  PngText text1 = PngText("TEST", mFont);
-  PngText text2 = PngText(crError, mFont);
-  vertexes.push_back(&text1);
-  //mTestBB = mpBatchBuffer;
-  vertexes.clear();
-  vertexes.push_back(&text2);
+  // vertexes.push_back(&text1);
+  // //mTestBB = mpBatchBuffer;
+  // vertexes.clear();
+  // vertexes.push_back(&text2);
   //mErrorBatch = BatchBuffer(vertexes, RECTANGLE);
 }
 

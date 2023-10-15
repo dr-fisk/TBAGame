@@ -1,8 +1,11 @@
 #ifndef BITMAP_H
 #define BITMAP_H
 
-#include "common.h"
+#include <memory>
+
 #include "drawable/rectangle.h"
+#include "color.h"
+#include "Vector2D.h"
 
 class Bitmap
 {

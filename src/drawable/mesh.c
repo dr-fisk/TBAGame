@@ -1,5 +1,6 @@
 #include "drawable/mesh.h"
 #include "png.h"
+#include "drawable/rectangle.h"
 
 /* Function:    Mesh
    Description: Default constructor

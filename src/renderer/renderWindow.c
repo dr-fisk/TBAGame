@@ -1,4 +1,10 @@
+#include <iostream>
+#include <vector>
+
 #include "renderWindow.h"
+#include "glcommon.h"
+
+bool RenderWindow::msIsInitialized = false;
 
 /* Function:    RenderWindow
    Description: Initializes opengl window, shaders (until abstraction) and
@@ -10,6 +16,20 @@
    Returns:     None
  */
 RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHeight, const char *cpTitle, GLFWwindow *pWindow) {
+  if(!msIsInitialized)
+  {
+    if(!glfwInit())
+    {
+      std::cout << "Failed to open window" << std::endl;
+      exit(-1);
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    msIsInitialized = true;
+  }
+ 
   mWdwWidth = cWindowWidth;
   mWdwHeight = cWindowHeight;
   mTitle = cpTitle;
@@ -20,6 +40,17 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
     glfwTerminate();
     exit(-1);
   }
+}
+
+void RenderWindow::enableBlend()
+{
+  GLCall(glEnable(GL_BLEND));
+  GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+}
+
+void RenderWindow::disableBlend()
+{
+  GLCall(glDisable(GL_BLEND));
 }
 
 /* Function:    clear
@@ -67,37 +98,9 @@ void RenderWindow::draw(Rect &rShape) {
 }
 
 void RenderWindow::draw(const uint64_t cCount) {
-  // static bool first = true;
-  // if (first)
-  // {
-  // rBuffer.updateIbo();
-  // first = false;
-  // }
-  // std::shared_ptr<VertexBuffer> vbo = rBuffer.getVbo();
-  // std::shared_ptr<VertexArray> vao = rBuffer.getVao();
-  // std::shared_ptr<IndexBuffer> ibo = rBuffer.getIbo();
-  // VertexBufferLayout layout = rBuffer.getLayout();
-
   clear();
   GLCall(glDrawElements(GL_TRIANGLES, cCount, GL_UNSIGNED_INT, nullptr));
   display();
-}
-
-/* Function:    draw
-   Description: Handles batched rendering
-   Parameters:  VertexBuffer - Vertex Buffer to draw
-                VertexArray  - Vertex Array to draw
-                IndexBuffer  - Index Buffer to draw
-                VertexBufferLayout - Layout of VertexBuffer for VAO
-   Returns:     None
- */
-void RenderWindow::draw(const std::shared_ptr<VertexBuffer> &crpVbo, const std::shared_ptr<VertexArray> &crpVao, 
-                        const std::shared_ptr<IndexBuffer> &crpIbo, const VertexBufferLayout &crLayout)
-{
-  //   auto loc = glGetUniformLocation(0, "u_Textures");
-  // int samplers[32] = {0,1};
-  // GLCall(glUniform1iv(loc, 32,samplers));
-  GLCall(glDrawElements(GL_TRIANGLES, crpIbo->getCount(), GL_UNSIGNED_INT, nullptr));
 }
 
 /* Function:    getWindowWidth
@@ -236,27 +239,6 @@ GLFWwindow* RenderWindow::getGlWindow()
   return mpWindow;
 }
 
-/* Function:    setShader
-   Description: Sets the shader to be used for rendering, can actively change shaders
-   Parameters:  None
-   Returns:     None
- */
-void RenderWindow::setShader(const std::shared_ptr<Shader> &crpShader)
-{
-  mpShader = crpShader;
-  mpShader->bind();
-}
-
-/* Function:    setVao
-   Description: Sets the Vertex Attribute Object to be used for rendering, can actively change Vertex Attribute Objects
-   Parameters:  None
-   Returns:     None
- */
-void RenderWindow::setVao(const std::shared_ptr<VertexArray> &crpVao)
-{
-  mpVao = crpVao;
-}
-
 /* Function:    initWindow
    Description: Inits GL Attributes and must be called after setActive
    Parameters:  None
@@ -264,7 +246,5 @@ void RenderWindow::setVao(const std::shared_ptr<VertexArray> &crpVao)
  */
 void RenderWindow::initWindow()
 {
-  GLCall(glEnable(GL_BLEND));
-  GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
   GLCall(glClearColor(0.3, 0.0, 0.0, 1.0));
 }

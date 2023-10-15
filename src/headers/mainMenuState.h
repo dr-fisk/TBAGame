@@ -1,6 +1,10 @@
 #ifndef MAINMENU_STATE_H
 #define MAINMENU_STATE_H
 
+#include <memory>
+#include <vector>
+#include <stack>
+
 #include "state.h"
 #include "lestTtf.h"
 #include "font.h"
@@ -15,10 +19,6 @@ class MainMenu : public State {
     bool shouldStateExit();
 
   private:
-    Mesh mMesh;
-    Mesh mMesh2;
-    PngFont mFont;
-    PngText mText;
     Texture mTexture;
     LestTrueType ttf;
     std::vector<Rect> temprect;

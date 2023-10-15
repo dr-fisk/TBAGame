@@ -1,7 +1,9 @@
 #ifndef VERTEXBUFFER_H
 #define VERTEXBUFFER_H
 
-#include "common.h"
+#include <vector>
+
+#include "net_utility.h"
 #include "glcommon.h"
 
 class VertexBuffer {

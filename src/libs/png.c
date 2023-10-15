@@ -1,6 +1,8 @@
 #include "png.h"
 
 #include <cstring>
+#include <zlib.h>
+#include <cmath>
 
 #define WINDOW_BITS 47
 
@@ -491,4 +493,38 @@ std::vector<uint8_t> Png::getImgData()
 struct Png::IHDR Png::getIhdr()
 {
   return mIhdr;
+}
+
+// Only for 8 bit depth for now
+void Png::reverseImg()
+{
+  uint8_t rgbSize = (mIhdr.colorType == RGBTRIP) ? RGBSIZE : RGBASIZE;
+  uint32_t scanlineSize = (mIhdr.width * rgbSize);
+  uint8_t r = 0;
+  uint8_t g = 0;
+  uint8_t b = 0;
+  uint8_t a = 0;
+  uint32_t earlyIndex = 0;
+  uint32_t lateIndex = 0;
+  uint32_t midPoint = mIhdr.height / 2;
+  for (int i = mIhdr.height; i > midPoint ; i --)
+  {
+    for (int j = 0; j < scanlineSize; j+=4)
+    {
+      earlyIndex = scanlineSize * (mIhdr.height - i);
+      lateIndex = scanlineSize * (i - 1);
+      r = mImgData[earlyIndex + j];
+      g = mImgData[earlyIndex + j + 1];
+      b = mImgData[earlyIndex + j + 2];
+      a = mImgData[earlyIndex + j + 3];
+      mImgData[earlyIndex + j] = mImgData[lateIndex + j];
+      mImgData[earlyIndex + j + 1] = mImgData[lateIndex + j + 1];
+      mImgData[earlyIndex + j + 2] = mImgData[lateIndex + j + 2];
+      mImgData[earlyIndex + j + 3] = mImgData[lateIndex + j + 3];
+      mImgData[lateIndex + j] = r;
+      mImgData[lateIndex + j + 1] = g;
+      mImgData[lateIndex + j + 2] = b;
+      mImgData[lateIndex + j + 3] = a;
+    }
+  }
 }

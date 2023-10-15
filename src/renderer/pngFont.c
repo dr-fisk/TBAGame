@@ -1,5 +1,7 @@
+#include <iostream>
+
 #include "pngFont.h"
-#include "drawable/rectangle.h"
+#include "png.h"
 
 #define FONT_PNG_WIDTH 208
 #define FONT_PNG_HEIGHT 64

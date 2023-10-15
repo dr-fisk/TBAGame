@@ -99,10 +99,10 @@ RenderData Rect::createRenderData()
   GLfloat y1 = -1 * (((GLfloat) mPos.mY / wHeight) - 1.0f);
   GLfloat y2 = -1 * ((((GLfloat) mPos.mY + (GLfloat) mSize.mY) / wHeight) - 1.0f);
 
-  const Vector2<GLfloat> textCoord1(0.0f, 0.0f);
-  const Vector2<GLfloat> textCoord2(1.0f, 0.0f);
-  const Vector2<GLfloat> textCoord3(1.0f, 1.0f);
-  const Vector2<GLfloat> textCoord4(0.0f, 1.0f);
+  const Vector2<GLfloat> textCoord1(0.0f, 1.0f);
+  const Vector2<GLfloat> textCoord2(1.0f, 1.0f);
+  const Vector2<GLfloat> textCoord3(1.0f, 0.0f);
+  const Vector2<GLfloat> textCoord4(0.0f, 0.0f);
 
   return { Vector2<GLfloat>(x1, y2), mRgba, textCoord1, -1.0f, Vector2<GLfloat>(x2, y2), mRgba, textCoord2, -1.0f,
            Vector2<GLfloat>(x2, y1), mRgba, textCoord3, -1.0f, Vector2<GLfloat>(x1, y1), mRgba, textCoord4, -1.0f };
@@ -165,7 +165,7 @@ void Rect::setSize(const Vector2<int32_t>& crSize)
 void Rect::movePos(const int32_t cLeft, const int32_t cTop)
 {
   mPos.mX   += cLeft;
-  mPos.mY    += cTop;
+  mPos.mY   += cTop;
 }
 
 int32_t Rect::getLeft() const

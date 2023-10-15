@@ -1,8 +1,11 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#include "common.h"
+#include <string>
+
+#include "net_utility.h"
 #include "font.h"
+#include "bitmap.h"
 
 class Text
 {

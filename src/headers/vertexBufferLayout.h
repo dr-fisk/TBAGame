@@ -1,7 +1,9 @@
 #ifndef VERTEXBUFFERLAYOUT_H
 #define VERTEXBUFFERLAYOUT_H
 
-#include "common.h"
+#include <iostream>
+
+#include "net_utility.h"
 #include "glcommon.h"
 
 struct VertexBufferElement {

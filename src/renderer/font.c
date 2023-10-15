@@ -1,5 +1,7 @@
 #include <cmath>
 #include <algorithm>
+#include <fstream>
+#include <queue>
 
 #include "font.h"
 
@@ -69,10 +71,101 @@ Font::Font(std::string ttfPath, const uint32_t cNumOfSubDivs, const lg::Color cC
         // // TODO: Change color to be dynamic
         // mFont[character].FontBitmap.constructBitmap(generatedPoints, lg::White);
         // mFont[character].FontBitmap.fillColor(startingPoint, lg::White);
+        // Bitmap has the code to add color to Font, update it so instead of Rects it fills with color
+        mFont[character].ColorMap.resize((mFont[character].MaxCoords.mY + 1) * (mFont[character].MaxCoords.mX + 1), 0);
+        fillGeneratedPointColor(character);
+        // for(int i = 0; i < mFont[character].GeneratedPoints.size(); i++)
+        // {
+        //   mFontCharacter
+        // }
 
         generatedPoints.clear();
         newContourEnds.clear();
     }
+  }
+}
+
+void Font::fillColor(const char cCharacter)
+{
+  std::queue<int32_t> visited;
+  int32_t currPoint = -1;
+  int32_t startingPoint = mFont[cCharacter].StartingPoint; 
+  visited.push(startingPoint);
+  mFont[cCharacter].ColorMap[startingPoint] = mFontColor.getRgba();
+  uint32_t point_below = 0;
+  uint32_t point_above = 0;
+  uint32_t point_right = 0;
+  uint32_t point_left = 0;
+  uint32_t num_rows = mFont[cCharacter].MaxCoords.mY + 1;
+  uint32_t num_cols = mFont[cCharacter].MaxCoords.mX + 1;
+  const uint32_t color_map_size = mFont[cCharacter].ColorMap.size();
+  Vector2<int32_t> curr_point_coords;
+  Vector2<int32_t> point_above_coords;
+  Vector2<int32_t> point_below_coords;
+  Vector2<int32_t> point_right_coords;
+  Vector2<int32_t> point_left_coords;
+
+
+  while(!visited.empty())
+  {
+    currPoint = visited.front();
+    visited.pop();
+    point_below = currPoint + num_rows;
+    point_above = currPoint - num_rows;
+    point_right = currPoint + 1;
+    point_left = currPoint - 1;
+    curr_point_coords = Vector2<int32_t>(currPoint % num_cols, currPoint / num_rows);
+    point_above_coords = Vector2<int32_t>(point_above % num_cols, point_above / num_rows);
+    point_below_coords = Vector2<int32_t>(point_below % num_cols, point_below / num_rows);
+    point_right_coords = Vector2<int32_t>(point_right % num_cols, point_right / num_rows);
+    point_left_coords = Vector2<int32_t>(point_left % num_cols, point_left / num_rows);
+
+
+    if(point_below < color_map_size && 
+       !(mFontColor == mFont[cCharacter].ColorMap[point_below]))
+    {
+      if(Vector2<int32_t>::arePointsTouching(point_below_coords, curr_point_coords))
+      {
+        visited.push(point_below);
+        mFont[cCharacter].ColorMap[point_below] = mFontColor.getRgba();
+      }
+    }
+
+    if(point_above >= 0 && !(mFontColor == mFont[cCharacter].ColorMap[point_above]))
+    {
+      if(Vector2<int32_t>::arePointsTouching(point_above_coords, curr_point_coords))
+      {
+        visited.push(point_above);
+        mFont[cCharacter].ColorMap[point_above] = mFontColor.getRgba();
+      }
+    }
+
+    if(point_right < color_map_size && !(mFontColor == mFont[cCharacter].ColorMap[point_right]))
+    {
+      if (Vector2<int32_t>::arePointsTouching(point_right_coords, curr_point_coords))
+      {
+        visited.push(point_right);
+        mFont[cCharacter].ColorMap[point_right] = mFontColor.getRgba();
+      }
+    }
+
+    if(point_left >= 0 && !(mFontColor == mFont[cCharacter].ColorMap[point_left]))
+    {
+      if(Vector2<int32_t>::arePointsTouching(point_left_coords, curr_point_coords))
+      {
+        visited.push(point_left);
+        mFont[cCharacter].ColorMap[point_left] = mFontColor.getRgba();
+      }
+    }
+  }
+}
+
+void Font::fillGeneratedPointColor(const char cCharacter)
+{
+  const uint32_t num_rows = mFont[cCharacter].MaxCoords.mY + 1;
+  for(const auto &points : mFont[cCharacter].GeneratedPoints)
+  {
+    mFont[cCharacter].ColorMap[points.mX * num_rows + points.mY] = mFontColor.getRgba();
   }
 }
 
@@ -220,6 +313,16 @@ int32_t Font::getStartingPoint(const char cLetter, const std::vector<Vector2<int
   }
 
   return startingPoint;
+}
+
+void Font::writeCharDataToFile(const char cLetter)
+{
+  std::ofstream fd("chardata.txt");
+  
+  for (auto point : mFont[cLetter].GeneratedPoints)
+  {
+    fd << "(" << point.mX << "," << point.mY << ")" << std::endl;
+  }
 }
 
 std::vector<Vector2<int32_t>> Font::operator[](const char cLetter)

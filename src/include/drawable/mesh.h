@@ -1,8 +1,12 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include <string>
+#include <vector>
+
+#include "net_utility.h"
 #include "drawable/drawable.h"
-#include "drawable/rectangle.h"
+#include "glcommon.h"
 
 class Mesh : public Drawable {
   public:

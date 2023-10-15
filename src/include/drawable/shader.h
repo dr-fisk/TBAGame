@@ -1,8 +1,9 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include "common.h"
-#include "glcommon.h"
+#include <string>
+
+#include "net_utility.h"
 
 struct ShaderProgSource {
   std::string vertexShader;
@@ -17,7 +18,7 @@ class Shader {
     void bind() const;
     void unbind() const;
     uint32_t getShaderId();
-    int32_t shaderGetUniform(const std::string &crVar);
+    int32_t getUniform(const std::string &crVar);
   private:
     uint32_t mShaderID;
     ShaderProgSource parseShader(const std::string &crFilePath);

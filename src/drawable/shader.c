@@ -1,3 +1,8 @@
+#include <fstream>
+#include <iostream>
+#include <sstream>
+
+#include "glcommon.h"
 #include "drawable/shader.h"
 
 /* Function:    Shader
@@ -38,7 +43,7 @@ void Shader::unbind() const {
   GLCall(glUseProgram(0));
 }
 
-int32_t Shader::shaderGetUniform(const std::string &crVar)
+int32_t Shader::getUniform(const std::string &crVar)
 {
   GLCall(int32_t location = glGetUniformLocation(mShaderID, crVar.c_str()));
   return location;
@@ -119,7 +124,7 @@ uint32_t Shader::compileShader(const uint32_t cType, const std::string &crSource
     int32_t length = 0;
     std::string msg;
     GLCall(glGetShaderiv(ID, GL_INFO_LOG_LENGTH, &length));
-    msg.reserve(length);
+    msg.resize(length);
     GLCall(glGetShaderInfoLog(ID, length, &length, &msg[0]));
     std::cout << "Failed to compile " << (cType == GL_FRAGMENT_SHADER ? "fragment" : "vertex") << " shader" << std::endl;
     std::cout << msg << std::endl;

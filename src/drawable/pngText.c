@@ -1,4 +1,7 @@
 #include "drawable/pngText.h"
+
+const uint16_t MESH16_SIZE = 256;
+
 // Needs bounding later
 /* Function:    PngText
    Description: Constructs the render data for a string

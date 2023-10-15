@@ -1,6 +1,13 @@
 #ifndef PNG_H
 #define PNG_H
 
+#include <iostream>
+#include <cstdint>
+#include <vector>
+#include <string>
+#include <fstream>
+
+#include"net_utility.h"
 #include "common.h"
 
 #define IHDR_MASK  0x01
@@ -52,6 +59,7 @@ Png(const std::string &crPngFile);
 std::vector<uint8_t> getImgData();
 struct IHDR getIhdr();
 Status compareSize(const uint32_t cWidth, const uint32_t cHeight);
+void reverseImg();
 
 private:
   void readPng();
