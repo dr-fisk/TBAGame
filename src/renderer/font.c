@@ -57,27 +57,21 @@ Font::Font(std::string ttfPath, const uint32_t cNumOfSubDivs, const lg::Color cC
         // Sort points by X Intersection
         std::sort(generatedPoints.begin(), generatedPoints.end(), Vector2<int32_t>::sortByXIntersection);
 
-        mFont[character].MaxCoords = Vector2<int32_t>((mFont[character].FontHeader.xMax - mFont[character].FontHeader.xMin) / mPixelDimensions,
-                                                      (mFont[character].FontHeader.yMax - mFont[character].FontHeader.yMin)/ mPixelDimensions);
+        // Remember to add 1 later TODO:
+        mFont[character].Dimensions = Vector2<int32_t>
+        ((mFont[character].FontHeader.xMax - mFont[character].FontHeader.xMin) / mPixelDimensions,
+         (mFont[character].FontHeader.yMax - mFont[character].FontHeader.yMin)/ mPixelDimensions);
+        
+        // Correct the right dimensions
+        mFont[character].Dimensions.mX += 1;
+        mFont[character].Dimensions.mY += 1;
 
         mFont[character].GeneratedPoints = generatedPoints;
-        
-        // // Grab the last point to know the Num Rows and Num Cols to create a bitmap this doesn't grab the max fix
-        // mFont[character].FontBitmap = Bitmap(mFont[character].MaxCoords.mY + 1,
-        //                                      mFont[character].MaxCoords.mX + 1);
 
         mFont[character].StartingPoint = getStartingPoint(character, generatedPoints);
-
-        // // TODO: Change color to be dynamic
-        // mFont[character].FontBitmap.constructBitmap(generatedPoints, lg::White);
-        // mFont[character].FontBitmap.fillColor(startingPoint, lg::White);
-        // Bitmap has the code to add color to Font, update it so instead of Rects it fills with color
-        mFont[character].ColorMap.resize((mFont[character].MaxCoords.mY + 1) * (mFont[character].MaxCoords.mX + 1), 0);
+        mFont[character].ColorMap.resize((mFont[character].Dimensions.mY) * (mFont[character].Dimensions.mX), 0);
         fillGeneratedPointColor(character);
-        // for(int i = 0; i < mFont[character].GeneratedPoints.size(); i++)
-        // {
-        //   mFontCharacter
-        // }
+        fillColor(character);
 
         generatedPoints.clear();
         newContourEnds.clear();
@@ -92,12 +86,12 @@ void Font::fillColor(const char cCharacter)
   int32_t startingPoint = mFont[cCharacter].StartingPoint; 
   visited.push(startingPoint);
   mFont[cCharacter].ColorMap[startingPoint] = mFontColor.getRgba();
-  uint32_t point_below = 0;
-  uint32_t point_above = 0;
-  uint32_t point_right = 0;
-  uint32_t point_left = 0;
-  uint32_t num_rows = mFont[cCharacter].MaxCoords.mY + 1;
-  uint32_t num_cols = mFont[cCharacter].MaxCoords.mX + 1;
+  int32_t point_below = 0;
+  int32_t point_above = 0;
+  int32_t point_right = 0;
+  int32_t point_left = 0;
+  uint32_t num_rows = mFont[cCharacter].Dimensions.mY;
+  uint32_t num_cols = mFont[cCharacter].Dimensions.mX;
   const uint32_t color_map_size = mFont[cCharacter].ColorMap.size();
   Vector2<int32_t> curr_point_coords;
   Vector2<int32_t> point_above_coords;
@@ -105,20 +99,19 @@ void Font::fillColor(const char cCharacter)
   Vector2<int32_t> point_right_coords;
   Vector2<int32_t> point_left_coords;
 
-
   while(!visited.empty())
   {
     currPoint = visited.front();
     visited.pop();
-    point_below = currPoint + num_rows;
-    point_above = currPoint - num_rows;
+    point_below = currPoint + num_cols;
+    point_above = currPoint - num_cols;
     point_right = currPoint + 1;
     point_left = currPoint - 1;
-    curr_point_coords = Vector2<int32_t>(currPoint % num_cols, currPoint / num_rows);
-    point_above_coords = Vector2<int32_t>(point_above % num_cols, point_above / num_rows);
-    point_below_coords = Vector2<int32_t>(point_below % num_cols, point_below / num_rows);
-    point_right_coords = Vector2<int32_t>(point_right % num_cols, point_right / num_rows);
-    point_left_coords = Vector2<int32_t>(point_left % num_cols, point_left / num_rows);
+    curr_point_coords = Vector2<int32_t>(currPoint % num_cols, currPoint / num_cols);
+    point_above_coords = Vector2<int32_t>(point_above % num_cols, point_above / num_cols);
+    point_below_coords = Vector2<int32_t>(point_below % num_cols, point_below / num_cols);
+    point_right_coords = Vector2<int32_t>(point_right % num_cols, point_right / num_cols);
+    point_left_coords = Vector2<int32_t>(point_left % num_cols, point_left / num_cols);
 
 
     if(point_below < color_map_size && 
@@ -162,10 +155,11 @@ void Font::fillColor(const char cCharacter)
 
 void Font::fillGeneratedPointColor(const char cCharacter)
 {
-  const uint32_t num_rows = mFont[cCharacter].MaxCoords.mY + 1;
+  const uint32_t num_cols = mFont[cCharacter].Dimensions.mX;
+  
   for(const auto &points : mFont[cCharacter].GeneratedPoints)
   {
-    mFont[cCharacter].ColorMap[points.mX * num_rows + points.mY] = mFontColor.getRgba();
+    mFont[cCharacter].ColorMap[(points.mY * num_cols) + points.mX] = mFontColor.getRgba();
   }
 }
 
@@ -173,17 +167,17 @@ Font::~Font()
 {
 }
 
-void Font::updateNumberOfContours(const char cLetter, std::vector<uint16_t> &rContours)
+void Font::updateNumberOfContours(const char cCharacter, std::vector<uint16_t> &rContours)
 {
   int32_t j = 0;
   int32_t last_end_contour = 0;
   // Loop to see how much memory we will need to allocate
-  for(int32_t i = 0; i < mFont[cLetter].FontHeader.numberofContours; i++)
+  for(int32_t i = 0; i < mFont[cCharacter].FontHeader.numberofContours; i++)
   {
     rContours[i] += last_end_contour;
-    for(; j <= mFont[cLetter].FontHeader.endPtsOfContours[i]; j ++)
+    for(; j <= mFont[cCharacter].FontHeader.endPtsOfContours[i]; j ++)
     {
-      if(!(ON_CURVE_POINT & mFont[cLetter].FontHeader.flags[j]))
+      if(!(ON_CURVE_POINT & mFont[cCharacter].FontHeader.flags[j]))
       {
         rContours[i] += mNumSubDiv;
       }
@@ -198,7 +192,7 @@ void Font::updateNumberOfContours(const char cLetter, std::vector<uint16_t> &rCo
   }
 }
 
-void Font::generateGlyphPoints(const char cLetter, std::vector<Vector2<int32_t>>& rPoints)
+void Font::generateGlyphPoints(const char cCharacter, std::vector<Vector2<int32_t>>& rPoints)
 {
   Vector2<int32_t> p1;
   Vector2<int32_t> p2;
@@ -207,17 +201,17 @@ void Font::generateGlyphPoints(const char cLetter, std::vector<Vector2<int32_t>>
   uint32_t curr_index = 0;
   int32_t xPos = 0.0f;
   int32_t yPos = 0.0f;
-  Vector2<GLfloat> minCoord = Vector2<GLfloat>(mFont[cLetter].FontHeader.xMin / mPixelDimensions,
-                                               mFont[cLetter].FontHeader.yMin / mPixelDimensions);
+  Vector2<GLfloat> minCoord = Vector2<GLfloat>(mFont[cCharacter].FontHeader.xMin / mPixelDimensions,
+                                               mFont[cCharacter].FontHeader.yMin / mPixelDimensions);
 
-  for(int i = 0; i < mFont[cLetter].FontHeader.numberofContours; i++)
+  for(int i = 0; i < mFont[cCharacter].FontHeader.numberofContours; i++)
   {
-    for(; j < mFont[cLetter].FontHeader.endPtsOfContours[i]; j ++)
+    for(; j < mFont[cCharacter].FontHeader.endPtsOfContours[i]; j ++)
     {
-      xPos = mFont[cLetter].FontHeader.xCoordinates[j] / mPixelDimensions - minCoord.mX;
-      yPos = abs((mFont[cLetter].FontHeader.yCoordinates[j] - mFont[cLetter].FontHeader.yMax ) / (GLfloat) mPixelDimensions - minCoord.mY);
+      xPos = mFont[cCharacter].FontHeader.xCoordinates[j] / mPixelDimensions - minCoord.mX;
+      yPos = abs((mFont[cCharacter].FontHeader.yCoordinates[j] - mFont[cCharacter].FontHeader.yMax )/ (GLfloat) mPixelDimensions - minCoord.mY);
 
-      if(ON_CURVE_POINT & mFont[cLetter].FontHeader.flags[j])
+      if(ON_CURVE_POINT & mFont[cCharacter].FontHeader.flags[j])
       {
         rPoints[curr_index] = Vector2<int32_t>(xPos, yPos);
         curr_index++;
@@ -225,11 +219,11 @@ void Font::generateGlyphPoints(const char cLetter, std::vector<Vector2<int32_t>>
       else
       {
         p1 = Vector2<int32_t>(xPos, yPos);
-        p2 = Vector2<int32_t>(mFont[cLetter].FontHeader.xCoordinates[j + 1] / mPixelDimensions - minCoord.mX,
-                              abs((mFont[cLetter].FontHeader.yCoordinates[j + 1] - mFont[cLetter].FontHeader.yMax) / (GLfloat) mPixelDimensions -
+        p2 = Vector2<int32_t>(mFont[cCharacter].FontHeader.xCoordinates[j + 1] / mPixelDimensions - minCoord.mX,
+                              abs((mFont[cCharacter].FontHeader.yCoordinates[j + 1] - mFont[cCharacter].FontHeader.yMax) / (GLfloat) mPixelDimensions -
                               minCoord.mY)); 
 
-        if (!(ON_CURVE_POINT & mFont[cLetter].FontHeader.flags[j + 1]))
+        if (!(ON_CURVE_POINT & mFont[cCharacter].FontHeader.flags[j + 1]))
         {
           // Get midpoint between p1 and p2
           p2 = Vector2<int32_t>(p1.mX + ((p2.mX - p1.mX) / 2.0f),
@@ -241,17 +235,17 @@ void Font::generateGlyphPoints(const char cLetter, std::vector<Vector2<int32_t>>
     }
   }
 
-  xPos = mFont[cLetter].FontHeader.xCoordinates[j] / mPixelDimensions - minCoord.mX;
-  yPos = abs((mFont[cLetter].FontHeader.yCoordinates[j] - mFont[cLetter].FontHeader.yMax) / (GLfloat) mPixelDimensions - minCoord.mY);
+  xPos = mFont[cCharacter].FontHeader.xCoordinates[j] / mPixelDimensions - minCoord.mX;
+  yPos = abs((mFont[cCharacter].FontHeader.yCoordinates[j] - mFont[cCharacter].FontHeader.yMax) / (GLfloat) mPixelDimensions - minCoord.mY);
 
   // Process last contour point
-  if(ON_CURVE_POINT & mFont[cLetter].FontHeader.flags[j])
+  if(ON_CURVE_POINT & mFont[cCharacter].FontHeader.flags[j])
   {
     rPoints[curr_index] = Vector2<int32_t>(xPos, yPos);
     curr_index++;
   }
   //handle off curve
-  else if(ON_CURVE_POINT & mFont[cLetter].FontHeader.flags[0])
+  else if(ON_CURVE_POINT & mFont[cCharacter].FontHeader.flags[0])
   {
     p1 = Vector2<int32_t>(xPos, yPos);
     curr_index += Vector2<int32_t>::tessellateQuadBezier(rPoints, curr_index, 1, rPoints[curr_index - 1], p1, rPoints[0]);
@@ -300,14 +294,14 @@ void Font::connectEdges(std::vector<Vector2<int32_t>>& rPoints, const std::vecto
   rPoints = newPoints;
 }
 
-int32_t Font::getStartingPoint(const char cLetter, const std::vector<Vector2<int32_t>>& crPoints)
+int32_t Font::getStartingPoint(const char cCharacter, const std::vector<Vector2<int32_t>>& crPoints)
 {
   int32_t startingPoint = -1;
   for(int i = 0; i < crPoints.size(); i ++)
   {
       if(crPoints[i + 1].mX - crPoints[i].mX > 1 && (crPoints[i].mY == crPoints[i + 1].mY))
       {
-        startingPoint = (crPoints[i].mX + 1) * (mFont[cLetter].MaxCoords.mY + 1) + crPoints[i].mY;
+        startingPoint = (crPoints[i].mY) * (mFont[cCharacter].Dimensions.mX) + (crPoints[i].mX + 1);
         break;
       }
   }
@@ -315,28 +309,12 @@ int32_t Font::getStartingPoint(const char cLetter, const std::vector<Vector2<int
   return startingPoint;
 }
 
-void Font::writeCharDataToFile(const char cLetter)
+std::vector<uint32_t> Font::operator[](const char cCharacter)
 {
-  std::ofstream fd("chardata.txt");
-  
-  for (auto point : mFont[cLetter].GeneratedPoints)
-  {
-    fd << "(" << point.mX << "," << point.mY << ")" << std::endl;
-  }
+    return mFont.at(cCharacter).ColorMap;
 }
 
-std::vector<Vector2<int32_t>> Font::operator[](const char cLetter)
+Vector2<int32_t> Font::getCharacterDimensions(const char cCharacter)
 {
-  if(mFont.find(cLetter) != mFont.end())
-  {
-    return mFont[cLetter].GeneratedPoints;
-  }
-
-  std::cout << "Invalid letter provied." << std::endl;
-  return std::vector<Vector2<int32_t>>();
-}
-
-Vector2<int32_t> Font::getCharacterMaxCoords(const char cLetter)
-{
-  return mFont.at(cLetter).MaxCoords;
+  return mFont.at(cCharacter).Dimensions;
 }

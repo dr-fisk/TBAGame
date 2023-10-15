@@ -16,18 +16,13 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>> &crStates, const std
   // mMesh = Mesh("../src/art.png");
   // mTexture = Texture("../src/art.png");
   std::cout << "Mesh done\n";
-  mNewFont = Font(temp);
-  Rect temprect = Rect(100,100, 16, 16, lg::Black);
-  mNewFont.writeCharDataToFile('A');
-  // final = mNewFont['a'];
+  mNewFont = Font(temp, 1, lg::Black);
+  Vector2<int32_t> dim = mNewFont.getCharacterDimensions('A');
+  Rect temprect = Rect(100,100, dim.mY, dim.mX, lg::Black);
 
-  // vertexes.push_back(&temprect);
-  // vertexes.push_back(&mMesh);
-  // for(int i = 0; i < final.size(); i ++ )
-  // {
-  //   // vertexes.push_back(&(*final[i]));
-  // }
-  // BatchBuffer::concatRenderData(vertexes, rendData);
+  mpBatchBuffer->initTexture(0, mNewFont['A'].data(), dim.mY, dim.mX, 8);
+  mpBatchBuffer->bindTexture(0);
+
   std::cout << "Resgister Drawable" << std::endl;
   mpBatchBuffer->registerDrawable(0, 0, &temprect);
   std::cout << "Register done" << std::endl;

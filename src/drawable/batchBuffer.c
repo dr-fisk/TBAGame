@@ -16,15 +16,6 @@ BatchBuffer::BatchBuffer(const uint32_t cNumVao, const uint32_t cNumVbo, const u
     mTexture.resize(cNumTextures);
 
     initBuffers();
-
-    // initVao(cNumVao);
-    // mBuffer.resize(cVboBuffSizeBytes);
-    // mNextAvailableAddress = 0;
-    // mNumVertices = 0;
-    // mpIbo = std::make_shared<IndexBuffer>(1, cVboBuffSizeBytes / sizeof(RenderData) * 6, GL_DYNAMIC_DRAW);
-    // mpIbo->bind(0);
-    // mpVbo = std::make_shared<VertexBuffer>(cNumVbo);
-    // mpVbo->bind(0);
 }
 
 /* Function:    createRectIndices
@@ -183,6 +174,12 @@ void BatchBuffer::initShader(const uint32_t cId, const std::string &crPath)
 void BatchBuffer::initTexture(const uint32_t cId, const std::string &crPath)
 {
     mTexture.at(cId) = std::make_shared<Texture>(crPath);
+}
+
+void BatchBuffer::initTexture(const uint32_t cId, void *pBuff, const uint32_t cHeight, const uint32_t cWidth,
+                              const uint32_t cBpp)
+{
+    mTexture.at(cId) = std::make_shared<Texture>(pBuff, cHeight, cWidth, cBpp);
 }
 
 void BatchBuffer::bindShader(const uint32_t cId)

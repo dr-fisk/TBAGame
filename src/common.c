@@ -1,3 +1,5 @@
+#include <fstream>
+
 #include "common.h"
 #include "glcommon.h"
 

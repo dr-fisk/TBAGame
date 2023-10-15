@@ -57,8 +57,7 @@ Game::Game()
   mpBatchBuffer->initShader(0, "lol");
   mpBatchBuffer->bindShader(0);
   mpBatchBuffer->setVaoAttributes(0, temp);
-  mpBatchBuffer->initTexture(0, "../src/art.png");
-  mpBatchBuffer->bindTexture(0);
+  //init textures
 
 
   //temp

@@ -97,6 +97,7 @@ template <typename T> class Vector2
     static std::vector<Vector2> plotLineHigh(const Vector2 cP1, const Vector2 cP2);
     static std::vector<Vector2> plotLine(const Vector2 cP1, const Vector2 cP2);
     static bool sortByXIntersection(const Vector2& crP1, const Vector2& crP2);
+    static bool sortByYIntersection(const Vector2& crP1, const Vector2& crP2);
 
     T mX;
     T mY;
@@ -684,6 +685,17 @@ bool Vector2<T>::sortByXIntersection(const Vector2<T>& crP1, const Vector2<T>& c
    }
 
    return crP1.mY < crP2.mY;
+}
+
+template <typename T>
+bool Vector2<T>::sortByYIntersection(const Vector2<T>& crP1, const Vector2<T>& crP2)
+{
+   if (crP1.mX == crP2.mX)
+   {
+      return crP1.mY < crP2.mY;
+   }
+
+   return crP1.mX < crP2.mX;
 }
 
 #endif

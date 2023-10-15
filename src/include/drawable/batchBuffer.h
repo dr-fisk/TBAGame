@@ -36,6 +36,8 @@ class BatchBuffer {
     void registerDrawable(const uint32_t cVboId, const uint32_t cIboId, Drawable* pBufferData);
     void initShader(const uint32_t cId, const std::string &crPath);
     void initTexture(const uint32_t cId, const std::string &crPath);
+    void initTexture(const uint32_t cId, void *pBuff, const uint32_t cHeight, const uint32_t cWidth,
+                     const uint32_t cBpp);
     void bindShader(const uint32_t cId);
     void bindVbo(const uint32_t cId);
     void bindIbo(const uint32_t cId);

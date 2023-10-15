@@ -1,6 +1,8 @@
 #ifndef STATE_H
 #define STATE_H
 
+#include <stack>
+
 #include "common.h"
 #include "glcommon.h"
 #include "renderWindow.h"

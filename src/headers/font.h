@@ -16,9 +16,8 @@ class Font
     Font();
     Font(std::string ttfPath, const uint32_t cNumSubDivs=1, const lg::Color cColor=lg::White, const uint32_t cPixelDim=8);
     ~Font();
-    std::vector<Vector2<int32_t>> operator[](const char cLetter);
-    Vector2<int32_t> getCharacterMaxCoords(const char cLetter);
-    void writeCharDataToFile(const char cLetter);
+    std::vector<uint32_t> operator[](const char cCharacter);
+    Vector2<int32_t> getCharacterDimensions(const char cCharacter);
     void fillGeneratedPointColor(const char cCharacter);
     void fillColor(const char cCharacter);
   private:
@@ -27,14 +26,14 @@ class Font
       std::vector<Vector2<int32_t>> GeneratedPoints;
       std::vector<uint32_t> ColorMap;
       GlyfHeader FontHeader;
-      Vector2<int32_t> MaxCoords;
+      Vector2<int32_t> Dimensions;
       int32_t StartingPoint;
     };
 
-    void updateNumberOfContours(const char cLetter, std::vector<uint16_t> &rContours);
-    void generateGlyphPoints(const char cLetter, std::vector<Vector2<int32_t>>& rPoints);
+    void updateNumberOfContours(const char cCharacter, std::vector<uint16_t> &rContours);
+    void generateGlyphPoints(const char cCharacter, std::vector<Vector2<int32_t>>& rPoints);
     void connectEdges(std::vector<Vector2<int32_t>>& rPoints, const std::vector<uint16_t>& crContourEnds);
-    int32_t getStartingPoint(const char cLetter, const std::vector<Vector2<int32_t>>& crPoints);
+    int32_t getStartingPoint(const char cCharacter, const std::vector<Vector2<int32_t>>& crPoints);
 
     std::map<char, FontMetaData> mFont;
     uint32_t mNumSubDiv;
