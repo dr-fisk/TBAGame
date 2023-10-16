@@ -4,6 +4,7 @@
 #include <queue>
 
 #include "font.h"
+#include "plot_utility.h"
 
 static const std::vector<char> sCHARS = { {'A'}, {'B'}, {'C'}, {'D'}, {'E'}, {'F'}, {'G'}, {'H'}, {'I'}, {'J'},
                                           {'K'}, {'L'}, {'M'}, {'N'}, {'O'}, {'P'}, {'Q'}, {'R'}, {'S'}, {'T'},
@@ -48,14 +49,16 @@ Font::Font(std::string ttfPath, const uint32_t cNumOfSubDivs, const lg::Color cC
         updateNumberOfContours(character, newContourEnds);
 
         // Generate points from TTF file
+        // generatedPoints.resize(128);
         generatedPoints.resize(newContourEnds[newContourEnds.size() - 1] + 1);
+
         generateGlyphPoints(character, generatedPoints);
 
         // Connect edges together
         connectEdges(generatedPoints, newContourEnds);
 
         // Sort points by X Intersection
-        std::sort(generatedPoints.begin(), generatedPoints.end(), Vector2<int32_t>::sortByXIntersection);
+        std::sort(generatedPoints.begin(), generatedPoints.end(), PlotUtility<int32_t>::sortByXIntersection);
 
         // Remember to add 1 later TODO:
         mFont[character].Dimensions = Vector2<int32_t>
@@ -117,7 +120,7 @@ void Font::fillColor(const char cCharacter)
     if(point_below < color_map_size && 
        !(mFontColor == mFont[cCharacter].ColorMap[point_below]))
     {
-      if(Vector2<int32_t>::arePointsTouching(point_below_coords, curr_point_coords))
+      if(PlotUtility<int32_t>::arePointsTouching(point_below_coords, curr_point_coords))
       {
         visited.push(point_below);
         mFont[cCharacter].ColorMap[point_below] = mFontColor.getRgba();
@@ -126,7 +129,7 @@ void Font::fillColor(const char cCharacter)
 
     if(point_above >= 0 && !(mFontColor == mFont[cCharacter].ColorMap[point_above]))
     {
-      if(Vector2<int32_t>::arePointsTouching(point_above_coords, curr_point_coords))
+      if(PlotUtility<int32_t>::arePointsTouching(point_above_coords, curr_point_coords))
       {
         visited.push(point_above);
         mFont[cCharacter].ColorMap[point_above] = mFontColor.getRgba();
@@ -135,7 +138,7 @@ void Font::fillColor(const char cCharacter)
 
     if(point_right < color_map_size && !(mFontColor == mFont[cCharacter].ColorMap[point_right]))
     {
-      if (Vector2<int32_t>::arePointsTouching(point_right_coords, curr_point_coords))
+      if (PlotUtility<int32_t>::arePointsTouching(point_right_coords, curr_point_coords))
       {
         visited.push(point_right);
         mFont[cCharacter].ColorMap[point_right] = mFontColor.getRgba();
@@ -144,7 +147,7 @@ void Font::fillColor(const char cCharacter)
 
     if(point_left >= 0 && !(mFontColor == mFont[cCharacter].ColorMap[point_left]))
     {
-      if(Vector2<int32_t>::arePointsTouching(point_left_coords, curr_point_coords))
+      if(PlotUtility<int32_t>::arePointsTouching(point_left_coords, curr_point_coords))
       {
         visited.push(point_left);
         mFont[cCharacter].ColorMap[point_left] = mFontColor.getRgba();
@@ -209,7 +212,8 @@ void Font::generateGlyphPoints(const char cCharacter, std::vector<Vector2<int32_
     for(; j < mFont[cCharacter].FontHeader.endPtsOfContours[i]; j ++)
     {
       xPos = mFont[cCharacter].FontHeader.xCoordinates[j] / mPixelDimensions - minCoord.mX;
-      yPos = abs((mFont[cCharacter].FontHeader.yCoordinates[j] - mFont[cCharacter].FontHeader.yMax )/ (GLfloat) mPixelDimensions - minCoord.mY);
+      yPos = abs((mFont[cCharacter].FontHeader.yCoordinates[j] - mFont[cCharacter].FontHeader.yMax ) / 
+                 static_cast<GLfloat>(mPixelDimensions) - minCoord.mY);
 
       if(ON_CURVE_POINT & mFont[cCharacter].FontHeader.flags[j])
       {
@@ -220,8 +224,8 @@ void Font::generateGlyphPoints(const char cCharacter, std::vector<Vector2<int32_
       {
         p1 = Vector2<int32_t>(xPos, yPos);
         p2 = Vector2<int32_t>(mFont[cCharacter].FontHeader.xCoordinates[j + 1] / mPixelDimensions - minCoord.mX,
-                              abs((mFont[cCharacter].FontHeader.yCoordinates[j + 1] - mFont[cCharacter].FontHeader.yMax) / (GLfloat) mPixelDimensions -
-                              minCoord.mY)); 
+                              abs((mFont[cCharacter].FontHeader.yCoordinates[j + 1] - mFont[cCharacter].FontHeader.yMax)
+                              / static_cast<GLfloat>(mPixelDimensions) - minCoord.mY)); 
 
         if (!(ON_CURVE_POINT & mFont[cCharacter].FontHeader.flags[j + 1]))
         {
@@ -229,14 +233,16 @@ void Font::generateGlyphPoints(const char cCharacter, std::vector<Vector2<int32_
           p2 = Vector2<int32_t>(p1.mX + ((p2.mX - p1.mX) / 2.0f),
                     p1.mY + ((p2.mY - p1.mY) / 2.0f));
         }
-
-        curr_index += Vector2<int32_t>::tessellateQuadBezier(rPoints, curr_index, 1, rPoints[curr_index - 1], p1, p2);
+        
+        curr_index += PlotUtility<int32_t>::tessellateQuadBezier(rPoints, curr_index, mNumSubDiv,
+                      rPoints[curr_index - 1], p1, p2);
       }
     }
   }
 
   xPos = mFont[cCharacter].FontHeader.xCoordinates[j] / mPixelDimensions - minCoord.mX;
-  yPos = abs((mFont[cCharacter].FontHeader.yCoordinates[j] - mFont[cCharacter].FontHeader.yMax) / (GLfloat) mPixelDimensions - minCoord.mY);
+  yPos = abs((mFont[cCharacter].FontHeader.yCoordinates[j] - mFont[cCharacter].FontHeader.yMax) /
+              static_cast<GLfloat>(mPixelDimensions) - minCoord.mY);
 
   // Process last contour point
   if(ON_CURVE_POINT & mFont[cCharacter].FontHeader.flags[j])
@@ -248,7 +254,7 @@ void Font::generateGlyphPoints(const char cCharacter, std::vector<Vector2<int32_
   else if(ON_CURVE_POINT & mFont[cCharacter].FontHeader.flags[0])
   {
     p1 = Vector2<int32_t>(xPos, yPos);
-    curr_index += Vector2<int32_t>::tessellateQuadBezier(rPoints, curr_index, 1, rPoints[curr_index - 1], p1, rPoints[0]);
+    curr_index += PlotUtility<int32_t>::tessellateQuadBezier(rPoints, curr_index, mNumSubDiv, rPoints[curr_index - 1], p1, rPoints[0]);
   }
 
 }
@@ -276,11 +282,11 @@ void Font::connectEdges(std::vector<Vector2<int32_t>>& rPoints, const std::vecto
       {
         if(((rPoints[j].mX == rPoints[comp].mX || rPoints[j].mY == rPoints[comp].mY)))
         {
-            pts = Vector2<int32_t>::drawStraightLineToPoint(rPoints[j], rPoints[comp]);
+            pts = PlotUtility<int32_t>::drawStraightLineToPoint(rPoints[j], rPoints[comp]);
         }
         else
         {
-            pts = Vector2<int32_t>::plotLine(rPoints[j], rPoints[comp]);
+            pts = PlotUtility<int32_t>::plotLine(rPoints[j], rPoints[comp]);
         }
 
         newPoints.insert(newPoints.begin() + j + 1, pts.begin(), pts.end());

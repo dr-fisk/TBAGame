@@ -30,7 +30,13 @@ FONTPATH = ../TtfFont
 
 SHADER = $(SHADERSPATH)/shader1.txt
 
-CFLAGS  = -g -std=c++17 -Wall -Wextra -MMD -MD -O2 -static-libgcc -static-libstdc++ -I$(INCLPATH) -I$(SRCINCLPATH) -I$(HEADERS) -I$(LESTTTFPATH)
+ifeq (debug, $(BUILD))
+CFLAGS = -g
+else
+CFLAGS = -O2
+endif
+
+CFLAGS  += -std=c++17 -Wall -Wextra -MMD -MD -static-libgcc -static-libstdc++ -I$(INCLPATH) -I$(SRCINCLPATH) -I$(HEADERS) -I$(LESTTTFPATH)
 
 LDFLAGS = -L$(DYNLIBSPATH) -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -static-libgcc -static-libstdc++ -llestpng -llestttf
 SOLDFLAGS = -L$(LIBPATH) -lzlib1 -lws2_32 -shared -static-libgcc -static-libstdc++

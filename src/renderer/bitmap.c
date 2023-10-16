@@ -1,6 +1,7 @@
 #include <queue>
 
 #include "bitmap.h"
+#include "plot_utility.h"
 
 Bitmap::Bitmap(const int32_t cNumRows, const int32_t cNumCols, const lg::Color& crDefaultColor)
 {
@@ -40,7 +41,7 @@ void Bitmap::fillColor(const int32_t cStartingPoint, const lg::Color& crColor)
 
     if(currPoint + mNumRows < mBitmap.size() && !(mBitmap[currPoint + mNumRows]->getRGBA() == crColor))
     {
-      if(Vector2<int32_t>::arePointsTouching(mBitmap[currPoint + mNumRows]->getPos(), mBitmap[currPoint]->getPos()))
+      if(PlotUtility<int32_t>::arePointsTouching(mBitmap[currPoint + mNumRows]->getPos(), mBitmap[currPoint]->getPos()))
       {
         visited.push(currPoint + mNumRows);
         mBitmap[currPoint + mNumRows]->setColor(crColor);
@@ -49,7 +50,7 @@ void Bitmap::fillColor(const int32_t cStartingPoint, const lg::Color& crColor)
 
     if(currPoint - mNumRows >= 0 && !(mBitmap[currPoint - mNumRows]->getRGBA() == crColor))
     {
-      if(Vector2<int32_t>::arePointsTouching(mBitmap[currPoint - mNumRows]->getPos(), mBitmap[currPoint]->getPos()))
+      if(PlotUtility<int32_t>::arePointsTouching(mBitmap[currPoint - mNumRows]->getPos(), mBitmap[currPoint]->getPos()))
       {
         visited.push(currPoint - mNumRows);
         mBitmap[currPoint - mNumRows]->setColor(crColor);
@@ -58,7 +59,7 @@ void Bitmap::fillColor(const int32_t cStartingPoint, const lg::Color& crColor)
 
     if(currPoint + 1 < mBitmap.size() && !(mBitmap[currPoint + 1]->getRGBA() == crColor))
     {
-      if (Vector2<int32_t>::arePointsTouching(mBitmap[currPoint + 1]->getPos(), mBitmap[currPoint]->getPos()))
+      if (PlotUtility<int32_t>::arePointsTouching(mBitmap[currPoint + 1]->getPos(), mBitmap[currPoint]->getPos()))
       {
 
         visited.push(currPoint + 1);
@@ -68,7 +69,7 @@ void Bitmap::fillColor(const int32_t cStartingPoint, const lg::Color& crColor)
 
     if(currPoint - 1 >= 0 && !(mBitmap[currPoint - 1]->getRGBA() == crColor))
     {
-      if(Vector2<int32_t>::arePointsTouching(mBitmap[currPoint - 1]->getPos(), mBitmap[currPoint]->getPos()))
+      if(PlotUtility<int32_t>::arePointsTouching(mBitmap[currPoint - 1]->getPos(), mBitmap[currPoint]->getPos()))
       {
         visited.push(currPoint - 1);
         mBitmap[currPoint - 1]->setColor(crColor);

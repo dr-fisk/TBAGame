@@ -16,11 +16,12 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>> &crStates, const std
   // mMesh = Mesh("../src/art.png");
   // mTexture = Texture("../src/art.png");
   std::cout << "Mesh done\n";
-  mNewFont = Font(temp, 1, lg::Black);
-  Vector2<int32_t> dim = mNewFont.getCharacterDimensions('A');
+  mNewFont = Font(temp, 5, lg::Black);
+  Vector2<int32_t> dim = mNewFont.getCharacterDimensions('S');
   Rect temprect = Rect(100,100, dim.mY, dim.mX, lg::Black);
 
-  mpBatchBuffer->initTexture(0, mNewFont['A'].data(), dim.mY, dim.mX, 8);
+  mpBatchBuffer->initTexture(0, mNewFont['S'].data(), dim.mY, dim.mX, 8);
+    // mpBatchBuffer->initTexture(0, "../src/art.png");
   mpBatchBuffer->bindTexture(0);
 
   std::cout << "Resgister Drawable" << std::endl;

@@ -64,10 +64,10 @@ uint8_t Png::calcPaethByte(const uint8_t cA, const uint8_t cB, const uint8_t cC)
 {
   int32_t p, pa, pb, pc;
   // int32_t type cast needed because values can be negative
-  p = (int32_t)cA + (int32_t)cB - (int32_t)cC;
-  pa = abs(p - (int32_t)cA);
-  pb = abs(p - (int32_t)cB);
-  pc = abs(p - (int32_t)cC); 
+  p = static_cast<int32_t>(cA) + static_cast<int32_t>(cB) - static_cast<int32_t>(cC);
+  pa = abs(p - static_cast<int32_t>(cA));
+  pb = abs(p - static_cast<int32_t>(cB));
+  pc = abs(p - static_cast<int32_t>(cC)); 
 
   if ((pa <= pb) && (pa <= pc))
   {

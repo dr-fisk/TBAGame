@@ -144,8 +144,8 @@ RenderData RenderWindow::createRenderDataBounded(Rect &rShape)
   GLfloat left, top, width, height;
   lg::Color rgba = rShape.getRGBA();
   rShape.getDimensions(&left, &top, &width, &height);
-  GLfloat wWidth = (GLfloat) getWindowWidth() / 2.0f;
-  GLfloat wHeight = (GLfloat) getWindowHeight() / 2.0f;
+  GLfloat wWidth = static_cast<GLfloat>(getWindowWidth()) / 2.0f;
+  GLfloat wHeight = static_cast<GLfloat>(getWindowHeight()) / 2.0f;
 
   boundCoords(&left, &width, &top, &height);
 

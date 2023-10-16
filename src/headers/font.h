@@ -28,6 +28,7 @@ class Font
       GlyfHeader FontHeader;
       Vector2<int32_t> Dimensions;
       int32_t StartingPoint;
+      int32_t NumGenPoints;
     };
 
     void updateNumberOfContours(const char cCharacter, std::vector<uint16_t> &rContours);

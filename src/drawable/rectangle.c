@@ -94,10 +94,10 @@ RenderData Rect::createRenderData()
   GLfloat wWidth = gWindowWidth / 2.0f;
   GLfloat wHeight = gWindowHeight / 2.0f;
 
-  GLfloat x1 = ((GLfloat) mPos.mX / wWidth) - 1.0f;
-  GLfloat x2 = (((GLfloat) mPos.mX + (GLfloat) mSize.mX)/ wWidth) - 1.0f;
-  GLfloat y1 = -1 * (((GLfloat) mPos.mY / wHeight) - 1.0f);
-  GLfloat y2 = -1 * ((((GLfloat) mPos.mY + (GLfloat) mSize.mY) / wHeight) - 1.0f);
+  GLfloat x1 = (static_cast<GLfloat>(mPos.mX) / wWidth) - 1.0f;
+  GLfloat x2 = ((static_cast<GLfloat>(mPos.mX) + static_cast<GLfloat>(mSize.mX)) / wWidth) - 1.0f;
+  GLfloat y1 = -1 * ((static_cast<GLfloat>(mPos.mY) / wHeight) - 1.0f);
+  GLfloat y2 = -1 * (((static_cast<GLfloat>(mPos.mY) + static_cast<GLfloat>(mSize.mY)) / wHeight) - 1.0f);
 
   const Vector2<GLfloat> textCoord1(0.0f, 1.0f);
   const Vector2<GLfloat> textCoord2(1.0f, 1.0f);
@@ -112,7 +112,8 @@ Vector2<GLfloat> Rect::getTranslate()
 {
    GLfloat wWidth = gWindowWidth / 2.0f;
    GLfloat wHeight = gWindowHeight / 2.0f;
-   return Vector2<GLfloat>(((GLfloat) mPos.mX / wWidth) - 1.0f, -1 * (((GLfloat) mPos.mY / wHeight) - 1.0f));
+   return Vector2<GLfloat>((static_cast<GLfloat>(mPos.mX) / wWidth) - 1.0f,
+                           -1 * ((static_cast<GLfloat>(mPos.mY) / wHeight) - 1.0f));
 }
 
 void Rect::translate(Vector2<GLfloat>& rTranslate)
@@ -128,8 +129,8 @@ void Rect::rotate(GLfloat theta)
 {
    GLfloat wWidth = gWindowWidth / 2.0f;
    GLfloat wHeight = gWindowHeight / 2.0f;
-   GLfloat x1 = ((GLfloat) mPos.mX / wWidth) - 1.0f;
-   GLfloat y1 = -1 * (((GLfloat) mPos.mY / wHeight) - 1.0f);
+   GLfloat x1 = (static_cast<GLfloat>(mPos.mX) / wWidth) - 1.0f;
+   GLfloat y1 = -1 * ((static_cast<GLfloat>(mPos.mY) / wHeight) - 1.0f);
 
 
    x1 = (x1 + 1.0f)*std::cos(theta) - (y1 + 1.0f)*std::sin(theta);
