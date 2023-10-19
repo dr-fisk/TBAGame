@@ -19,19 +19,19 @@ class Color {
     uint8_t getAlpha() const {return (mRGBA & 0xff000000) >> 24;}
     uint8_t getBlue() const {return (mRGBA & 0x00ff0000) >> 16;}
     uint8_t getGreen() const {return (mRGBA & 0x0000ff00) >> 8;}
-    uint8_t getRed(){return (mRGBA & 0x000000ff);}
-    uint32_t getRgba(){return mRGBA;}
+    uint8_t getRed() const {return (mRGBA & 0x000000ff);}
+    uint32_t getRgba() const {return mRGBA;}
     Color& operator=(const Color &crRhs) {
       mRGBA = crRhs.mRGBA;
       return *this;
     }
 
-    bool operator==(const Color &crRhs)
+    bool operator==(const Color &crRhs) const
     {
       return crRhs.mRGBA == mRGBA; 
     }
 
-    bool operator==(const uint32_t crRhs)
+    bool operator==(const uint32_t crRhs) const
     {
       return crRhs == mRGBA; 
     }

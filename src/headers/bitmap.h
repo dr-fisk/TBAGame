@@ -5,7 +5,7 @@
 
 #include "drawable/rectangle.h"
 #include "color.h"
-#include "Vector2D.h"
+#include "Vector.h"
 
 class Bitmap
 {

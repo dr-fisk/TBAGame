@@ -5,7 +5,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "Vector2D.h"
+#include "Vector.h"
 #include "color.h"
 #include "exception.h"
 
