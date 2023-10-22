@@ -4,6 +4,7 @@
 #include <queue>
 
 #include "font.h"
+#include "edgeTable.h"
 
 static const std::vector<char> sCHARS = { {'A'}, {'B'}, {'C'}, {'D'}, {'E'}, {'F'}, {'G'}, {'H'}, {'I'}, {'J'},
                                           {'K'}, {'L'}, {'M'}, {'N'}, {'O'}, {'P'}, {'Q'}, {'R'}, {'S'}, {'T'},
@@ -32,12 +33,13 @@ Font::Font(std::string ttfPath, const uint32_t cNumOfSubDivs, const lg::Color cC
   }
 
   std::vector<uint16_t> newContourEnds;
-  int32_t startingPoint = 0;
   GlyfHeader temp;
 
   for(auto& character : sCHARS)
   {
+    // std::cout << character << std::endl;
     ttf.getSpecifcCharacterOutline(character, temp);
+    // std::cout << "Glyf extracted." << std::endl;
     mFont[character].FontHeader = temp;
 
     if(mFont[character].FontHeader.numberofContours > 0)
@@ -49,16 +51,12 @@ Font::Font(std::string ttfPath, const uint32_t cNumOfSubDivs, const lg::Color cC
 
         // Generate points from TTF file
         mFont[character].GeneratedPoints.resize(mFont[character].ContourEnds[mFont[character].ContourEnds.size() - 1]);
-        mFont[character].GenPtsEdges.resize(mFont[character].ContourEnds[mFont[character].ContourEnds.size() - 1] - 1);
-        mFont[character].NumGenPoints = generateGlyphPoints(character);
+        // If we get a crash with different fonts this can be why
+        mFont[character].GenPtsEdges.resize((mFont[character].ContourEnds[mFont[character].ContourEnds.size() - 1] - 1) - (mFont[character].ContourEnds.size() - 1));
+        generateGlyphPoints(character);
 
         // Connect edges together
         generateEdges(character);
-
-        // Sort points by X Intersection
-        // std::sort(mFont[character].GeneratedPoints.begin(), mFont[character].GeneratedPoints.end(),
-        //           PlotUtility<int32_t>::sortByXIntersection);
-
         mFont[character].Dimensions = Vector2<int32_t>
         ((mFont[character].FontHeader.xMax - mFont[character].FontHeader.xMin) / mPixelDimensions,
          (mFont[character].FontHeader.yMax - mFont[character].FontHeader.yMin) / mPixelDimensions);
@@ -66,40 +64,33 @@ Font::Font(std::string ttfPath, const uint32_t cNumOfSubDivs, const lg::Color cC
         // Correct the right dimensions
         mFont[character].Dimensions.mX += 1;
         mFont[character].Dimensions.mY += 1;
-        mFont[character].StartingPoint = getStartingPoint(character, mFont[character].GeneratedPoints);
-        mFont[character].ColorMap.resize((mFont[character].Dimensions.mY) * (mFont[character].Dimensions.mX), 0);
-        fillGeneratedPointColor(character);
-        // fillColor(character);
+        mFont[character].Bitmap.resize((mFont[character].Dimensions.mY) * (mFont[character].Dimensions.mX), 0);
+        // fillGeneratedPointColor(character);
+        scanLineFill(character);
+        // std::cout << "ScanLine done." << std::endl;
     }
   }
 }
 
 void Font::scanLineFill(const char cChar)
 {
-  //We have an inverted grid, where y = 0 is yMax and Dimensions.mY is yMin
-  for(int32_t i = 0; i < mFont[cChar].GeneratedPoints.size() - 1; i ++)
-  {
-    if(PlotUtility<int32_t>::doPointsShareAxis(mFont[cChar].GeneratedPoints[i], mFont[cChar].GeneratedPoints[i + 1])
-      && !PlotUtility<int32_t>::arePointsTouching(mFont[cChar].GeneratedPoints[i], mFont[cChar].GeneratedPoints[i + 1]))
-    {
-    }
-  }
+  EdgeTable::scanLineFill(mFont[cChar].GenPtsEdges, mFont[cChar].Dimensions, mFont[cChar].Bitmap, mFontColor, 0);
 }
 
 void Font::fillColor(const char cChar)
 {
   std::queue<int32_t> visited;
   int32_t currPoint = -1;
-  int32_t startingPoint = mFont[cChar].StartingPoint; 
+  int32_t startingPoint = 0; 
   visited.push(startingPoint);
-  mFont[cChar].ColorMap[startingPoint] = mFontColor.getRgba();
+  mFont[cChar].Bitmap[startingPoint] = mFontColor.getRgba();
   int32_t point_below = 0;
   int32_t point_above = 0;
   int32_t point_right = 0;
   int32_t point_left = 0;
   uint32_t num_rows = mFont[cChar].Dimensions.mY;
   uint32_t num_cols = mFont[cChar].Dimensions.mX;
-  const uint32_t color_map_size = mFont[cChar].ColorMap.size();
+  const uint32_t color_map_size = mFont[cChar].Bitmap.size();
   Vector2<int32_t> curr_point_coords;
   Vector2<int32_t> point_above_coords;
   Vector2<int32_t> point_below_coords;
@@ -122,39 +113,39 @@ void Font::fillColor(const char cChar)
 
 
     if(point_below < color_map_size && 
-       !(mFontColor == mFont[cChar].ColorMap[point_below]))
+       !(mFontColor == mFont[cChar].Bitmap[point_below]))
     {
       if(PlotUtility<int32_t>::arePointsTouching(point_below_coords, curr_point_coords))
       {
         visited.push(point_below);
-        mFont[cChar].ColorMap[point_below] = mFontColor.getRgba();
+        mFont[cChar].Bitmap[point_below] = mFontColor.getRgba();
       }
     }
 
-    if(point_above >= 0 && !(mFontColor == mFont[cChar].ColorMap[point_above]))
+    if(point_above >= 0 && !(mFontColor == mFont[cChar].Bitmap[point_above]))
     {
       if(PlotUtility<int32_t>::arePointsTouching(point_above_coords, curr_point_coords))
       {
         visited.push(point_above);
-        mFont[cChar].ColorMap[point_above] = mFontColor.getRgba();
+        mFont[cChar].Bitmap[point_above] = mFontColor.getRgba();
       }
     }
 
-    if(point_right < color_map_size && !(mFontColor == mFont[cChar].ColorMap[point_right]))
+    if(point_right < color_map_size && !(mFontColor == mFont[cChar].Bitmap[point_right]))
     {
       if (PlotUtility<int32_t>::arePointsTouching(point_right_coords, curr_point_coords))
       {
         visited.push(point_right);
-        mFont[cChar].ColorMap[point_right] = mFontColor.getRgba();
+        mFont[cChar].Bitmap[point_right] = mFontColor.getRgba();
       }
     }
 
-    if(point_left >= 0 && !(mFontColor == mFont[cChar].ColorMap[point_left]))
+    if(point_left >= 0 && !(mFontColor == mFont[cChar].Bitmap[point_left]))
     {
       if(PlotUtility<int32_t>::arePointsTouching(point_left_coords, curr_point_coords))
       {
         visited.push(point_left);
-        mFont[cChar].ColorMap[point_left] = mFontColor.getRgba();
+        mFont[cChar].Bitmap[point_left] = mFontColor.getRgba();
       }
     }
   }
@@ -163,10 +154,17 @@ void Font::fillColor(const char cChar)
 void Font::fillGeneratedPointColor(const char cChar)
 {
   const uint32_t num_cols = mFont[cChar].Dimensions.mX;
+  int i = 0;
+  Vector2<int32_t> p1 = {0, 0};
+  Vector2<int32_t> p2 = {0, 0};
   
   for (const auto &edge : mFont[cChar].GenPtsEdges)
   {
-    PlotUtility<int32_t>::plotLine(edge.p1, edge.p2, mFont[cChar].ColorMap, num_cols, mFontColor);        
+    p1.mX = edge.p1.mX;
+    p1.mY = edge.p1.mY;
+    p2.mX = edge.p2.mX;
+    p2.mY = edge.p2.mY;
+    PlotUtility<int32_t>::plotLine(p1, p2, mFont[cChar].Bitmap, num_cols, mFontColor);
   }
 }
 
@@ -243,14 +241,14 @@ void Font::updateNumberOfContours(const char cChar)
 
 int32_t Font::generateGlyphPoints(const char cChar)
 {
-  Vector2<int32_t> p0;
-  Vector2<int32_t> p1;
-  Vector2<int32_t> p2;
+  Vector2<float> p0 = {0.0, 0.0};
+  Vector2<float> p1 = {0.0, 0.0};
+  Vector2<float> p2 = {0.0, 0.0};
 
   int32_t j = 0;
   uint32_t currIdx = 0;
-  int32_t xPos = 0.0f;
-  int32_t yPos = 0.0f;
+  float xPos = 0.0f;
+  float yPos = 0.0f;
   int32_t contourStartIdx = 0;
   int32_t genPtsStartIdx = 0;
   int8_t contourStartedOff = 0;
@@ -278,7 +276,7 @@ int32_t Font::generateGlyphPoints(const char cChar)
 
       if(ON_CURVE_POINT & mFont[cChar].FontHeader.flags[j])
       {
-        mFont[cChar].GeneratedPoints[currIdx] = Vector2<int32_t>(xPos, yPos);
+        mFont[cChar].GeneratedPoints[currIdx] = Vector2<float>(xPos, yPos);
         currIdx++;
       }
       else
@@ -289,7 +287,7 @@ int32_t Font::generateGlyphPoints(const char cChar)
           contourStartedOff = 1;
           if (ON_CURVE_POINT & mFont[cChar].FontHeader.flags[nextIdx])
           {
-            mFont[cChar].GeneratedPoints[currIdx] = Vector2<int32_t>(
+            mFont[cChar].GeneratedPoints[currIdx] = Vector2<float>(
               (mFont[cChar].FontHeader.xCoordinates[nextIdx] / mPixelDimensions) - minCoord.mX,
               abs((mFont[cChar].FontHeader.yCoordinates[nextIdx] / mPixelDimensions) + yShift));
             currIdx++;
@@ -309,14 +307,14 @@ int32_t Font::generateGlyphPoints(const char cChar)
         }
 
         p0 = mFont[cChar].GeneratedPoints[currIdx - 1];
-        p1 = Vector2<int32_t>(xPos, yPos);
-        p2 = Vector2<int32_t>((mFont[cChar].FontHeader.xCoordinates[nextIdx] / mPixelDimensions) - minCoord.mX,
+        p1 = Vector2<float>(xPos, yPos);
+        p2 = Vector2<float>((mFont[cChar].FontHeader.xCoordinates[nextIdx] / mPixelDimensions) - minCoord.mX,
                               abs((mFont[cChar].FontHeader.yCoordinates[nextIdx] / mPixelDimensions) + yShift)); 
 
         if (!(ON_CURVE_POINT & mFont[cChar].FontHeader.flags[nextIdx]))
         {
           // Get midpoint between p1 and p2
-          p2 = Vector2<int32_t>(p1.mX + ((p2.mX - p1.mX) / 2.0f),
+          p2 = Vector2<float>(p1.mX + ((p2.mX - p1.mX) / 2.0f),
                                 p1.mY + ((p2.mY - p1.mY) / 2.0f));
         }
         else
@@ -324,7 +322,7 @@ int32_t Font::generateGlyphPoints(const char cChar)
           j++;
         }
         
-        currIdx += PlotUtility<int32_t>::tessellateQuadBezier(mFont[cChar].GeneratedPoints,
+        currIdx += PlotUtility<float>::tessellateQuadBezier(mFont[cChar].GeneratedPoints,
                                                               currIdx, mNumSubDiv, p0, p1, p2);
       }
 
@@ -345,7 +343,7 @@ int32_t Font::generateGlyphPoints(const char cChar)
       p1.mX = (mFont[cChar].FontHeader.xCoordinates[contourStartIdx] / mPixelDimensions) - minCoord.mX;
       p1.mY = abs((mFont[cChar].FontHeader.yCoordinates[contourStartIdx] / mPixelDimensions) + yShift);
       p2 = mFont[cChar].GeneratedPoints[genPtsStartIdx];
-      currIdx += PlotUtility<int32_t>::tessellateQuadBezier(mFont[cChar].GeneratedPoints,
+      currIdx += PlotUtility<float>::tessellateQuadBezier(mFont[cChar].GeneratedPoints,
                                                             currIdx, mNumSubDiv, p0, p1, p2);
     }
   }
@@ -373,24 +371,9 @@ void Font::generateEdges(const char cChar)
   }
 }
 
-int32_t Font::getStartingPoint(const char cChar, const std::vector<Vector2<int32_t>>& crPoints)
-{
-  int32_t startingPoint = -1;
-  for(int i = 0; i < crPoints.size(); i ++)
-  {
-      if(crPoints[i + 1].mX - crPoints[i].mX > 1 && (crPoints[i].mY == crPoints[i + 1].mY))
-      {
-        startingPoint = (crPoints[i].mY) * (mFont[cChar].Dimensions.mX) + (crPoints[i].mX + 1);
-        break;
-      }
-  }
-
-  return startingPoint;
-}
-
 std::vector<uint32_t> Font::operator[](const char cChar)
 {
-    return mFont.at(cChar).ColorMap;
+    return mFont.at(cChar).Bitmap;
 }
 
 Vector2<int32_t> Font::getCharacterDimensions(const char cChar)
@@ -405,7 +388,7 @@ void Font::writeGenPoints(const char cChar)
   fd << "-----------------------------------------------------" << std::endl;
   fd << "Points for letter: " << cChar << std::endl;
   fd << "Dimensions: " << mFont[cChar].Dimensions;
-  fd << mFont[cChar].NumGenPoints << std::endl;
+  fd << mFont[cChar].GeneratedPoints.size() << std::endl;
   int i = 0;
   for(const auto& pts : mFont[cChar].GeneratedPoints)
   {

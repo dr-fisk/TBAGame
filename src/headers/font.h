@@ -25,20 +25,17 @@ class Font
   private:
     struct FontMetaData
     {
-      std::vector<Vector2<int32_t>> GeneratedPoints;
-      std::vector<uint32_t> ColorMap;
+      std::vector<Vector2<float>> GeneratedPoints;
+      std::vector<uint32_t> Bitmap;
       GlyfHeader FontHeader;
       Vector2<int32_t> Dimensions;
-      int32_t StartingPoint;
-      int32_t NumGenPoints;
-      std::vector<Edges<int32_t>> GenPtsEdges;
+      std::vector<Edges<float>> GenPtsEdges;
       std::vector<int32_t> ContourEnds;
     };
 
     void updateNumberOfContours(const char cChar);
     int32_t generateGlyphPoints(const char cChar);
     void generateEdges(const char cChar);
-    int32_t getStartingPoint(const char cChar, const std::vector<Vector2<int32_t>>& crPoints);
     void scanLineFill(const char cChar);
 
     std::map<char, FontMetaData> mFont;

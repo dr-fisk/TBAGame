@@ -6,6 +6,7 @@
 #include <cmath>
 
 #include "Vector.h"
+#include "color.h"
 
 template <typename T>
 struct Edges
@@ -45,7 +46,6 @@ template <typename T> class PlotUtility
     static float getDecimalFromFloat(float val);
 };
 
-
 template <typename T>
 bool PlotUtility<T>::doPointsShareAxis(const Vector2<T> &crP1, const Vector2<T> &crP2)
 {
@@ -70,7 +70,7 @@ bool PlotUtility<T>::arePointsTouching(const Vector2<T> &crP1, const Vector2<T> 
   point.mX = abs(point.mX);
   point.mY = abs(point.mY);
 
-  return ((1 == point.mY && 0 == point.mX) || (1 == point.mX && 0 == point.mY) || (crP1 == crP2));
+  return ((1 == point.mX || 0 == point.mX) && (1 == point.mY || 0 == point.mY));
 }
 
 template <typename T>

@@ -27,6 +27,7 @@ FONTSPATH = ./fonts
 DYNLIBSPATH = ./libs
 LESTTTFPATH = ../lestttf
 FONTPATH = ../TtfFont
+UTILITYPATH = ./utility
 
 SHADER = $(SHADERSPATH)/shader1.txt
 
@@ -81,6 +82,8 @@ drawableFiles = indexBuffer.c \
 
 dynLibFiles = png.c
 
+utilityFiles = edgeTable.c
+
 objs := $(patsubst %.exe, %.o, $(programs))
 
 ifeq (lin64, $(TARGET))
@@ -110,6 +113,10 @@ dynamicLibsDLL = $(addprefix $(dynLibPrefix), $(dynamicLibs))
 dynamicLibDLLObjs = $(addprefix $(DYNLIBSPATH)/, $(dynamicLibsDLL))
 dynamicLibObjs = $(patsubst %.c, %.o, $(dynLibFiles))
 dynamicLibObjsPath = $(addprefix $(DYNLIBSPATH)/, $(dynamicLibObjs))
+
+utilities = $(patsubst %.c, %.o, $(utilityFiles))
+utilitiesObjs = $(addprefix $(UTILITYPATH)/, $(utilities))
+
 deps := $(patsubst %.o, %.d, $(objs))
 deps += $(patsubst %.o, %.d, $(stateObjs))
 deps += $(patsubst %.o, %.d, $(guiObjs))
@@ -145,6 +152,10 @@ $(RENDERERSPATH):
 	@echo "MAKE	Renderers"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(RENDERERSPATH)
 
+$(UTILITYPATH):
+	@echo "MAKE	Utilities"
+	$(Q)$(MAKE) V=$(V) D=$(D) -C $(UTILITYPATH)
+
 shader:
 		@echo "Copying Shaders"
 		$(Q)cp -r $(SHADERSPATH) $(PATHTOEXEC)
@@ -153,9 +164,9 @@ font:
 		@echo "Copying Fonts"
 		$(Q)cp -r $(FONTSPATH) $(PATHTOEXEC)
 
-%.exe: $(objs) $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH)
+%.exe: $(objs) $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH) $(UTILITYPATH)
 	@echo "MAKE $@"
-	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(guiObjs) $(rendererObjs) $(drawableObjs) $(LDFLAGS)
+	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(guiObjs) $(rendererObjs) $(drawableObjs) $(utilitiesObjs) $(LDFLAGS)
 	@echo "Checking DIR"
 	$(Q)if [ ! -d $(PATHTOEXEC) ]; then \
 		echo "Creating Win DIR"; \
@@ -174,9 +185,9 @@ font:
 	@echo "Transferring .exe"
 	$(Q)cp $@ $(PATHTOEXEC)
 
-%.out: $(objs) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH)
+%.out: $(objs) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH) $(UTILITYPATH)
 	@echo "MAKE $@"
-	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(guiObjs) $(rendererObjs) $(drawableObjs) $(LDFLAGS)
+	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(guiObjs) $(rendererObjs) $(drawableObjs) $(utilitiesObjs) $(LDFLAGS)
 	@echo "Checking DIR"
 	$(Q)if [ ! -d $(PATHTOEXECLINUX) ]; then \
 		echo "Creating Lin DIR"; \
@@ -283,5 +294,5 @@ help:
 	@echo "make TARGET=[lin64, win64]"
 	@echo "Makefile will be expanded in the future"
 
-.PRECIOUS: %.o $(STATEPATH)/%.o $(GUIPATH)/%.o $(RENDERERSPATH)/%.o $(DRAWABLESPATH)/%.o $(DYNLIBSPATH)/%.so $(DYNLIBSPATH)/%.o $(DYNLIBSPATH)/%.dll
-.PHONY: $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH) 
+.PRECIOUS: %.o $(STATEPATH)/%.o $(GUIPATH)/%.o $(RENDERERSPATH)/%.o $(DRAWABLESPATH)/%.o $(DYNLIBSPATH)/%.so $(DYNLIBSPATH)/%.o $(DYNLIBSPATH)/%.dll $(UTILITYPATH)/%.o
+.PHONY: $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH) $(UTILITYPATH)
