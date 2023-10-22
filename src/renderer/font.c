@@ -6,14 +6,6 @@
 #include "font.h"
 #include "edgeTable.h"
 
-static const std::vector<char> sCHARS = { {'A'}, {'B'}, {'C'}, {'D'}, {'E'}, {'F'}, {'G'}, {'H'}, {'I'}, {'J'},
-                                          {'K'}, {'L'}, {'M'}, {'N'}, {'O'}, {'P'}, {'Q'}, {'R'}, {'S'}, {'T'},
-                                          {'U'}, {'V'}, {'W'}, {'X'}, {'Y'}, {'Z'}, {'a'}, {'b'}, {'c'}, {'d'},
-                                          {'e'}, {'f'}, {'g'}, {'h'}, {'i'}, {'j'}, {'k'}, {'m'}, {'n'}, {'n'},
-                                          {'o'}, {'p'}, {'q'}, {'r'}, {'s'}, {'t'}, {'u'}, {'v'}, {'w'}, {'x'},
-                                          {'y'}, {'z'}, {'0'}, {'1'}, {'2'}, {'3'}, {'4'}, {'5'}, {'6'}, {'7'},
-                                          {'8'}, {'9'} };
-
 Font::Font()
 {
 }
@@ -21,6 +13,8 @@ Font::Font()
 Font::Font(std::string ttfPath, const uint32_t cNumOfSubDivs, const lg::Color cColor, const uint32_t cPixelDim)
 {
   LestTrueType ttf;
+  const int32_t ASCII_CHAR_START = 33;
+  const int32_t ASCII_CHAR_END = 126;
 
   mNumSubDiv = cNumOfSubDivs;
   mFontColor = cColor;
@@ -32,42 +26,41 @@ Font::Font(std::string ttfPath, const uint32_t cNumOfSubDivs, const lg::Color cC
     exit(-1);
   }
 
-  std::vector<uint16_t> newContourEnds;
   GlyfHeader temp;
 
-  for(auto& character : sCHARS)
+  for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
   {
     // std::cout << character << std::endl;
-    ttf.getSpecifcCharacterOutline(character, temp);
+    ttf.getSpecifcCharacterOutline(static_cast<char>(i), temp);
     // std::cout << "Glyf extracted." << std::endl;
-    mFont[character].FontHeader = temp;
+    mFont[static_cast<char>(i)].FontHeader = temp;
 
-    if(mFont[character].FontHeader.numberofContours > 0)
+    if(mFont[static_cast<char>(i)].FontHeader.numberofContours > 0)
     {
-        mFont[character].ContourEnds.resize(mFont[character].FontHeader.numberofContours);
+        mFont[static_cast<char>(i)].ContourEnds.resize(mFont[static_cast<char>(i)].FontHeader.numberofContours);
     
-        // Update the number of contours for mFont[character] to properly allocate memory for generatedPoints
-        updateNumberOfContours(character);
+        // Update the number of contours for mFont[static_cast<char>(i)] to properly allocate memory for generatedPoints
+        updateNumberOfContours(static_cast<char>(i));
 
         // Generate points from TTF file
-        mFont[character].GeneratedPoints.resize(mFont[character].ContourEnds[mFont[character].ContourEnds.size() - 1]);
+        mFont[static_cast<char>(i)].GeneratedPoints.resize(mFont[static_cast<char>(i)].ContourEnds[mFont[static_cast<char>(i)].ContourEnds.size() - 1]);
         // If we get a crash with different fonts this can be why
-        mFont[character].GenPtsEdges.resize((mFont[character].ContourEnds[mFont[character].ContourEnds.size() - 1] - 1) - (mFont[character].ContourEnds.size() - 1));
-        generateGlyphPoints(character);
+        mFont[static_cast<char>(i)].GenPtsEdges.resize(
+        (mFont[static_cast<char>(i)].ContourEnds[mFont[static_cast<char>(i)].ContourEnds.size() - 1] - 1) - (mFont[static_cast<char>(i)].ContourEnds.size() - 1));
+        generateGlyphPoints(static_cast<char>(i));
 
         // Connect edges together
-        generateEdges(character);
-        mFont[character].Dimensions = Vector2<int32_t>
-        ((mFont[character].FontHeader.xMax - mFont[character].FontHeader.xMin) / mPixelDimensions,
-         (mFont[character].FontHeader.yMax - mFont[character].FontHeader.yMin) / mPixelDimensions);
+        generateEdges(static_cast<char>(i));
+        mFont[static_cast<char>(i)].Dimensions = Vector2<int32_t>
+        ((mFont[static_cast<char>(i)].FontHeader.xMax - mFont[static_cast<char>(i)].FontHeader.xMin) / mPixelDimensions,
+         (mFont[static_cast<char>(i)].FontHeader.yMax - mFont[static_cast<char>(i)].FontHeader.yMin) / mPixelDimensions);
         
         // Correct the right dimensions
-        mFont[character].Dimensions.mX += 1;
-        mFont[character].Dimensions.mY += 1;
-        mFont[character].Bitmap.resize((mFont[character].Dimensions.mY) * (mFont[character].Dimensions.mX), 0);
-        // fillGeneratedPointColor(character);
-        scanLineFill(character);
-        // std::cout << "ScanLine done." << std::endl;
+        mFont[static_cast<char>(i)].Dimensions.mX += 1;
+        mFont[static_cast<char>(i)].Dimensions.mY += 1;
+        mFont[static_cast<char>(i)].Bitmap.resize(
+          (mFont[static_cast<char>(i)].Dimensions.mY) * (mFont[static_cast<char>(i)].Dimensions.mX), 0);
+        scanLineFill(static_cast<char>(i));
     }
   }
 }
