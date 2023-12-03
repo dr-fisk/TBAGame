@@ -9,12 +9,12 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>> &crStates, const std
   std::string temp = "Envy Code R.ttf";
   // mMesh = Mesh("../src/art.png");
   // mTexture = Texture("../src/art.png");
-  mNewFont = Font(temp, 2, lg::Black);
-  // mNewFont.writeGenPoints('A');
-  Vector2<int32_t> dim = mNewFont.getCharacterDimensions('?');
+  mNewFont = Font(temp, 3, lg::Black);
+  mNewFont.writeGenPoints('0');
+  Vector2<int32_t> dim = mNewFont.getCharacterDimensions('0');
   Rect temprect = Rect(100,100, dim.mY, dim.mX, lg::Black);
 
-  mpBatchBuffer->initTexture(0, mNewFont['?'].data(), dim.mY, dim.mX, 8);
+  mpBatchBuffer->initTexture(0, mNewFont['0'].data(), dim.mY, dim.mX, 8);
     // mpBatchBuffer->initTexture(0, "../src/art.png");
   mpBatchBuffer->bindTexture(0);
 

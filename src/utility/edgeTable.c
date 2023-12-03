@@ -9,9 +9,9 @@ namespace EdgeTable
     return (crNode1.yLower < crNode2.yLower);
   }
 
-  float currentXVal(const EdgeTableNode &crNode)
+  float currentXVal(const EdgeTableNode &crNode, const float cDy)
   {
-    return crNode.xIntersect + crNode.dxPerScan;
+    return crNode.xIntersect + cDy * crNode.dxPerScan;
   }
 
   bool edgeTableXLessThan(const EdgeTableNode &crNode1, const EdgeTableNode &crNode2)
@@ -59,11 +59,11 @@ namespace EdgeTable
     std::sort(rActiveEdgeTable.begin(), rActiveEdgeTable.begin() + cActiveTableIdx, EdgeTable::edgeTableXLessThan);
   }
 
-  void updateActiveTableXVals(std::vector<EdgeTableNode> &rActiveEdgeTable, const size_t cActiveTableIdx)
+  void updateActiveTableXVals(std::vector<EdgeTableNode> &rActiveEdgeTable, const size_t cActiveTableIdx, const float cDy)
   {
     for(int i = 0; i < cActiveTableIdx; i ++)
     {
-      rActiveEdgeTable[i].xIntersect = currentXVal(rActiveEdgeTable[i]);
+      rActiveEdgeTable[i].xIntersect = currentXVal(rActiveEdgeTable[i], cDy);
     }
   }
 };

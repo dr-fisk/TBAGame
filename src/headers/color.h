@@ -4,9 +4,16 @@
 #include <cstdint>
 
 namespace lg {
-class Color {
+class Color
+{
   public:
-    Color(const uint8_t cRed, const uint8_t cGreen, uint8_t cBlue, const uint8_t cAlpha=255) {
+    Color(const uint32_t cColor)
+    {
+      mRGBA = cColor;
+    }
+
+    Color(const uint8_t cRed, const uint8_t cGreen, uint8_t cBlue, const uint8_t cAlpha=255)
+    {
       mRGBA = cAlpha;
       mRGBA <<= 24;
       mRGBA |= (0x000000ff & cBlue) << 16;
@@ -21,7 +28,17 @@ class Color {
     uint8_t getGreen() const {return (mRGBA & 0x0000ff00) >> 8;}
     uint8_t getRed() const {return (mRGBA & 0x000000ff);}
     uint32_t getRgba() const {return mRGBA;}
-    Color& operator=(const Color &crRhs) {
+
+    void addAlpha(const uint8_t cAlpha)
+    {
+      uint8_t tempAlpha = (0xff000000 & mRGBA) >> 24;
+      tempAlpha += cAlpha;
+      mRGBA &= (0x00ffffff);
+      mRGBA |= (0x000000ff & tempAlpha) << 24;
+    }
+
+    Color& operator=(const Color &crRhs)
+    {
       mRGBA = crRhs.mRGBA;
       return *this;
     }

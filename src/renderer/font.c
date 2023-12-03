@@ -18,7 +18,7 @@ Font::Font(std::string ttfPath, const uint32_t cNumOfSubDivs, const lg::Color cC
 
   mNumSubDiv = cNumOfSubDivs;
   mFontColor = cColor;
-  mPixelDimensions = cPixelDim;
+  mPixelDimensions = 1;//cPixelDim;
 
   if (-1 == ttf.read(ttfPath))
   {
@@ -30,7 +30,7 @@ Font::Font(std::string ttfPath, const uint32_t cNumOfSubDivs, const lg::Color cC
 
   for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
   {
-    // std::cout << character << std::endl;
+    std::cout << (char)i << std::endl;
     ttf.getSpecifcCharacterOutline(static_cast<char>(i), temp);
     // std::cout << "Glyf extracted." << std::endl;
     mFont[static_cast<char>(i)].FontHeader = temp;
@@ -51,23 +51,36 @@ Font::Font(std::string ttfPath, const uint32_t cNumOfSubDivs, const lg::Color cC
 
         // Connect edges together
         generateEdges(static_cast<char>(i));
+        // float scaleY = 64.0 / (mFont[static_cast<char>(i)].FontHeader.yMax - mFont[static_cast<char>(i)].FontHeader.yMin);
+        // float scaleX = 64.0 / (mFont[static_cast<char>(i)].FontHeader.xMax - mFont[static_cast<char>(i)].FontHeader.xMin);
+        // float scaleY = 1;
         mFont[static_cast<char>(i)].Dimensions = Vector2<int32_t>
-        ((mFont[static_cast<char>(i)].FontHeader.xMax - mFont[static_cast<char>(i)].FontHeader.xMin) / mPixelDimensions,
-         (mFont[static_cast<char>(i)].FontHeader.yMax - mFont[static_cast<char>(i)].FontHeader.yMin) / mPixelDimensions);
+        ((mFont[static_cast<char>(i)].FontHeader.xMax - mFont[static_cast<char>(i)].FontHeader.xMin) / 8.0,
+         (mFont[static_cast<char>(i)].FontHeader.yMax - mFont[static_cast<char>(i)].FontHeader.yMin) / 8.0);
         
+        for (auto &edges : mFont[static_cast<char>(i)].GenPtsEdges)
+        {
+          edges.p1.mX = edges.p1.mX / 8.0;
+          edges.p1.mY = edges.p1.mY / 8.0;
+          edges.p2.mX = edges.p2.mX / 8.0;
+          edges.p2.mY = edges.p2.mY / 8.0;
+        }
         // Correct the right dimensions
         mFont[static_cast<char>(i)].Dimensions.mX += 1;
         mFont[static_cast<char>(i)].Dimensions.mY += 1;
         mFont[static_cast<char>(i)].Bitmap.resize(
           (mFont[static_cast<char>(i)].Dimensions.mY) * (mFont[static_cast<char>(i)].Dimensions.mX), 0);
         scanLineFill(static_cast<char>(i));
+        // fillGeneratedPointColor((char) i);
     }
+    // if ((char)i == 'A')
+    // break;
   }
 }
 
 void Font::scanLineFill(const char cChar)
 {
-  EdgeTable::scanLineFill(mFont[cChar].GenPtsEdges, mFont[cChar].Dimensions, mFont[cChar].Bitmap, mFontColor, 0);
+  EdgeTable::scanLineFill(mFont[cChar].GenPtsEdges, mFont[cChar].Dimensions, mFont[cChar].Bitmap, mFontColor, 0, cChar);
 }
 
 void Font::fillColor(const char cChar)
@@ -347,7 +360,6 @@ int32_t Font::generateGlyphPoints(const char cChar)
 void Font::generateEdges(const char cChar)
 {
   int32_t j = 0;
-  int32_t start_of_contour = 0;
   int32_t edgeIdx = 0;
 
   for(int32_t i = 0; i < mFont[cChar].ContourEnds.size(); i ++)
@@ -357,10 +369,8 @@ void Font::generateEdges(const char cChar)
       mFont[cChar].GenPtsEdges[edgeIdx].p1 = mFont[cChar].GeneratedPoints[j];
       mFont[cChar].GenPtsEdges[edgeIdx].p2 = mFont[cChar].GeneratedPoints[j + 1];
       edgeIdx ++;
-    }
-    
+    }    
     j ++;
-    start_of_contour = j;
   }
 }
 
@@ -383,9 +393,9 @@ void Font::writeGenPoints(const char cChar)
   fd << "Dimensions: " << mFont[cChar].Dimensions;
   fd << mFont[cChar].GeneratedPoints.size() << std::endl;
   int i = 0;
-  for(const auto& pts : mFont[cChar].GeneratedPoints)
+  for(const auto& pts : mFont[cChar].GenPtsEdges)
   {
-    fd << i << ": " << pts;
+    fd << i << ": " << pts.p1 << pts.p2;
     i++;
   }
   fd << "-----------------------------------------------------" << std::endl;
