@@ -16,6 +16,8 @@ class RenderTarget {
       virtual uint32_t getWindowWidth() = 0;
       virtual RenderData createRenderDataBounded(Rect &rShape) = 0;
       virtual void setActive() = 0;
+      virtual void setKeyCallback() = 0;
+      virtual bool isKeyPressed(const int cKey) = 0;
     private:
 };
 

@@ -103,13 +103,13 @@ namespace EdgeTable
 
     std::ofstream fd;
     
-    if (cha == '0')
+    if (cha == ',')
      fd.open("AET.txt");
 
     for(int32_t y = cMinY; y < crDimensions.mY; y ++)
     {
         fillActiveEdgeTable(edgeTable, activeEdgeTable, edgeTableIdx, numEdges, activeEdgeTableIdx, y);
-      if (cha == '0')
+      if (cha == ',')
       {
         fd << y << std::endl;
         for(int i = 0; i < activeEdgeTableIdx; i ++)
@@ -133,12 +133,19 @@ namespace EdgeTable
 
           // if (startIndex < 0 || startIndex >= crDimensions.mX || endIndex < 0 || endIndex >= crDimensions.mX )
           // {
-          //   continue;
+          //   break;
           // }
-          if (cha == '0' && y == 157)
+
+          // We fill from left to right, if left X value (start Index) > right X value (end Index) then we are invalid
+          if (startIndex > endIndex)
           {
-            std::cout << "Start: " << startIndex << " End: " << endIndex << std::endl;
+            continue;
           }
+
+          // if (cha == ',' && y == 78)
+          // {
+          //   std::cout << "Start: " << startIndex << " End: " << endIndex << std::endl;
+          // }
 
           if(startIndex == endIndex)
           {
@@ -163,8 +170,6 @@ namespace EdgeTable
                                   alphaWeight * endCovered);
             tempColor.addAlpha(alpha);
             rBitmap[idx2] = tempColor.getRgba();
-            if (endIndex < startIndex && cha == '0')
-            std::cout << "Why less\n";
           }
 
           for (int32_t x = startIndex + 1; x < endIndex; x ++)
@@ -181,7 +186,7 @@ namespace EdgeTable
           break;
 
         updateActiveTableXVals(activeEdgeTable, activeEdgeTableIdx, stepPerScanline);
-        sortActiveEdgeTable(activeEdgeTable, activeEdgeTableIdx);
+        // sortActiveEdgeTable(activeEdgeTable, activeEdgeTableIdx);
       }
 
       // for(int i = 0; i < activeEdgeTableIdx; i ++)

@@ -15,7 +15,7 @@ class ExceptionState : public State {
       ExceptionState(const std::stack<std::shared_ptr<State>> &crStates, const std::shared_ptr<BatchBuffer> &crpBatchBuffer, const std::string &crError);
       ~ExceptionState();
       void render(const std::shared_ptr<RenderTarget> &crpTarget);
-      void update();
+      void update(const std::shared_ptr<RenderTarget> &crpTarget);
       bool shouldStateExit();
   private:
     std::shared_ptr<RenderWindow> mpWindow;

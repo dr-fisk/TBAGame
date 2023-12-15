@@ -5,6 +5,7 @@
 #include "glcommon.h"
 
 bool RenderWindow::msIsInitialized = false;
+int RenderWindow::mKeyPressed = GLFW_KEY_UNKNOWN;
 
 /* Function:    RenderWindow
    Description: Initializes opengl window, shaders (until abstraction) and
@@ -247,4 +248,25 @@ GLFWwindow* RenderWindow::getGlWindow()
 void RenderWindow::initWindow()
 {
   GLCall(glClearColor(0.3, 0.0, 0.0, 1.0));
+}
+
+void RenderWindow::setKeyCallback()
+{
+  glfwSetKeyCallback(mpWindow, RenderWindow::keyCallback);
+}
+
+int32_t RenderWindow::getKeyPress()
+{
+  return mKeyPressed;
+}
+
+void RenderWindow::keyCallback(GLFWwindow *pWindow, const int32_t cKey, const int32_t cScanCode, const int32_t cAction,
+                               const int32_t cMods)
+{
+  mKeyPressed = cKey;
+}
+
+bool RenderWindow::isKeyPressed(const int cKey)
+{
+  return glfwGetKey(mpWindow, cKey) == GLFW_PRESS;
 }

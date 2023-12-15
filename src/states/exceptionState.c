@@ -30,7 +30,7 @@ bool ExceptionState::shouldStateExit()
   return !mpWindow->isOpen();
 }
 
-void ExceptionState::update()
+void ExceptionState::update(const std::shared_ptr<RenderTarget> &crpTarget)
 {
 }
 

@@ -108,7 +108,7 @@ void Game::gameLoop() {
     }
     
     GLCall(glfwPollEvents());
-    mStates.top()->update();
+    mStates.top()->update(mpWindow);
     mStates.top()->render(mpWindow);
     Game::mFps ++;
     mEndTime = time(nullptr);
