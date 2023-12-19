@@ -8,14 +8,15 @@
 #include "drawable/drawable.h"
 #include "glcommon.h"
 
-class Mesh : public Drawable {
+class Mesh : public Drawable
+{
   public:
     Mesh();
     Mesh(const std::string &crPngFile, const uint8_t cLeft = 0, uint8_t cTop = 0, uint8_t cSize = 1);
     virtual ~Mesh();
-    virtual std::vector<RenderData> getRenderData();
+    virtual std::vector<Vertex> getVertex();
   private:
-    std::vector<RenderData> mMesh;
+    std::vector<Vertex> mMesh;
 };
 
 #endif

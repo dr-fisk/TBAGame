@@ -22,8 +22,8 @@ class MainMenu : public State {
   private:
     Texture mTexture;
     LestTrueType ttf;
-    std::vector<Rect> temprect;
     std::vector<std::shared_ptr<Rect>> final;
+    std::shared_ptr<Rect> temprect;
     Font mNewFont;
     std::chrono::time_point<std::chrono::system_clock> mStartTime;
 };

@@ -10,29 +10,38 @@ Font::Font()
 {
 }
 
+static const int32_t ASCII_CHAR_START = 33;
+static const int32_t ASCII_CHAR_END = 126;
+
 Font::Font(std::string ttfPath, const uint32_t cNumOfSubDivs, const lg::Color cColor, const uint32_t cPixelDim)
 {
   LestTrueType ttf;
-  const int32_t ASCII_CHAR_START = 33;
-  const int32_t ASCII_CHAR_END = 126;
+
 
   mNumSubDiv = cNumOfSubDivs;
   mFontColor = cColor;
   mPixelDimensions = 1;//cPixelDim;
 
-  if (-1 == ttf.read(ttfPath))
+  if (-1 == ttf.read(ttfPath) || !ttf.hasOS2Table())
   {
     std::cout << "Ttf failed to read." << std::endl;
     exit(-1);
   }
 
+
+  HeadHeader head = ttf.getHeadHeaderTable();
+  OS2Table os2 = ttf.getOS2Table();
+  float scaleY = 0;
+  float scaleX = 0;
+
   GlyfHeader temp;
 
+  std::cout << "Before loop\n";
   for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
   {
-    std::cout << (char)i << std::endl;
     ttf.getSpecifcCharacterOutline(static_cast<char>(i), temp);
-    // std::cout << "Glyf extracted." << std::endl;
+    std::cout << "After glyf\n";
+    std::cout << "after insert\n";
     mFont[static_cast<char>(i)].FontHeader = temp;
 
     if(mFont[static_cast<char>(i)].FontHeader.numberofContours > 0)
@@ -51,30 +60,82 @@ Font::Font(std::string ttfPath, const uint32_t cNumOfSubDivs, const lg::Color cC
 
         // Connect edges together
         generateEdges(static_cast<char>(i));
-        // float scaleY = 64.0 / (mFont[static_cast<char>(i)].FontHeader.yMax - mFont[static_cast<char>(i)].FontHeader.yMin);
-        // float scaleX = 64.0 / (mFont[static_cast<char>(i)].FontHeader.xMax - mFont[static_cast<char>(i)].FontHeader.xMin);
-        // float scaleY = 1;
-        mFont[static_cast<char>(i)].Dimensions = Vector2<int32_t>
-        ((mFont[static_cast<char>(i)].FontHeader.xMax - mFont[static_cast<char>(i)].FontHeader.xMin) / 8.0,
-         (mFont[static_cast<char>(i)].FontHeader.yMax - mFont[static_cast<char>(i)].FontHeader.yMin) / 8.0);
+        // scaleY = static_cast<float>(cPixelDim) /
+        //                (mFont[static_cast<char>(i)].FontHeader.yMax - mFont[static_cast<char>(i)].FontHeader.yMin);
+
+        if (mFont[static_cast<char>(i)].FontHeader.yMax - mFont[static_cast<char>(i)].FontHeader.yMin > os2.sCapHeight)
+        {
+          scaleY = 1.0f;
+        }
+        else
+        {
+          scaleY = (mFont[static_cast<char>(i)].FontHeader.yMax - mFont[static_cast<char>(i)].FontHeader.yMin) / (float)os2.sCapHeight;
+        }
+
+        // scaleY = static_cast<float>(cPixelDim) /
+        //                ((mFont[static_cast<char>(i)].FontHeader.yMax - mFont[static_cast<char>(i)].FontHeader.yMin) * scaleY);
+        // scaleX = static_cast<float>(cPixelDim) /
+        //                (mFont[static_cast<char>(i)].FontHeader.xMax - mFont[static_cast<char>(i)].FontHeader.xMin);
+        scaleX = ((float)mFont[static_cast<char>(i)].FontHeader.xMax - (float)mFont[static_cast<char>(i)].FontHeader.xMin) / ((float)mFont[static_cast<char>(i)].FontHeader.yMax - (float)mFont[static_cast<char>(i)].FontHeader.yMin);
         
+        if (scaleX > 1.0f)
+        {
+          scaleX = 1.0f;
+        }
+        // std::cout << "First scale: " << scaleX << std::endl;
+
+        // mFont[static_cast<char>(i)].Dimensions = Vector2<int32_t>((mFont[static_cast<char>(i)].FontHeader.xMax - mFont[static_cast<char>(i)].FontHeader.xMin) * scaleY,
+        // cPixelDim * scaleY);
+        mFont[static_cast<char>(i)].Dimensions = Vector2<int32_t>(cPixelDim * scaleX, cPixelDim * scaleY);
+      
         for (auto &edges : mFont[static_cast<char>(i)].GenPtsEdges)
         {
-          edges.p1.mX = edges.p1.mX / 8.0;
-          edges.p1.mY = edges.p1.mY / 8.0;
-          edges.p2.mX = edges.p2.mX / 8.0;
-          edges.p2.mY = edges.p2.mY / 8.0;
+          // scale is broken
+          scaleY = edges.p1.mY / ((float)os2.sCapHeight);
+          scaleX = edges.p1.mX / ((float)mFont[static_cast<char>(i)].FontHeader.yMax - (float)mFont[static_cast<char>(i)].FontHeader.yMin);
+          if (scaleX > 1.0f)
+          {
+            scaleX = 1.0f;
+          }
+          if (scaleY > 1.0f)
+          {
+            scaleY = 1.0f;
+          }
+
+          edges.p1.mX = (float)cPixelDim * scaleX;
+          edges.p1.mY = (float)cPixelDim * scaleY;
+          scaleY = edges.p2.mY / ((float)os2.sCapHeight);
+          scaleX = edges.p2.mX / ((float)mFont[static_cast<char>(i)].FontHeader.yMax - (float)mFont[static_cast<char>(i)].FontHeader.yMin);
+
+          if (scaleX > 1.0f)
+          {
+            scaleX = 1.0f;
+          }
+          if (scaleY > 1.0f)
+          {
+            scaleY = 1.0f;
+          }
+          edges.p2.mX = (float)cPixelDim * scaleX;
+          edges.p2.mY = (float)cPixelDim * scaleY;
+
+          if ('"' == static_cast<char>(i))
+          {
+          std::cout << edges.p1;
+          std::cout << edges.p2;
+          }
         }
+        
+        // std::cout << mFont[static_cast<char>(i)].Dimensions << std::endl;
+
         // Correct the right dimensions
         mFont[static_cast<char>(i)].Dimensions.mX += 1;
         mFont[static_cast<char>(i)].Dimensions.mY += 1;
         mFont[static_cast<char>(i)].Bitmap.resize(
           (mFont[static_cast<char>(i)].Dimensions.mY) * (mFont[static_cast<char>(i)].Dimensions.mX), 0);
         scanLineFill(static_cast<char>(i));
-        // fillGeneratedPointColor((char) i);
     }
-    // if ((char)i == 'A')
-    // break;
+
+    std::cout << "Done\n";
   }
 }
 
@@ -399,4 +460,29 @@ void Font::writeGenPoints(const char cChar)
     i++;
   }
   fd << "-----------------------------------------------------" << std::endl;
+}
+
+Font& Font::operator=(const Font &rhs)
+{
+    if (this == &rhs)
+    {
+      return *this;
+    }
+
+    for (const auto& glyf : rhs.mFont)
+    {
+      mFont[glyf.first].Ybearing = glyf.second.Ybearing;
+      mFont[glyf.first].FontHeader = glyf.second.FontHeader;
+      mFont[glyf.first].GeneratedPoints = glyf.second.GeneratedPoints;
+      mFont[glyf.first].Bitmap = glyf.second.Bitmap;
+      mFont[glyf.first].Dimensions = glyf.second.Dimensions;
+      mFont[glyf.first].GenPtsEdges = glyf.second.GenPtsEdges;
+      mFont[glyf.first].ContourEnds = glyf.second.ContourEnds;
+    }
+
+    mNumSubDiv = rhs.mNumSubDiv;
+    mFontColor = rhs.mFontColor;
+    mPixelDimensions = rhs.mPixelDimensions;
+
+    return *this;
 }

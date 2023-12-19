@@ -82,5 +82,5 @@ void IndexBuffer::updateIboSubBuffer(const uint32_t cIndex, const uint32_t cBuff
 {
   //TODO: Fix
   mCount = cBuffSize;
-  GLCall(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, cIndex, cBuffSize, pBuffer));
+  // GLCall(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, cIndex, cBuffSize, pBuffer));
 }

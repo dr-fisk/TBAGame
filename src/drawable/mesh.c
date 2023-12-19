@@ -43,7 +43,7 @@ Mesh::Mesh(const std::string &crPngFile, const uint8_t cLeft, const uint8_t cTop
     else if(ihdr.colorType == Png::ColorType::RGBTRIPA)
       rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2], imgData[currPixel + 3]);
 
-    mMesh[i] = rect.createRenderData();
+    mMesh[i] = rect.createVertex();
 
     if (ihdr.colorType == Png::ColorType::RGBTRIP)
       currPixel += RGBSIZE;
@@ -54,12 +54,12 @@ Mesh::Mesh(const std::string &crPngFile, const uint8_t cLeft, const uint8_t cTop
   imgData.clear();
 }
 
-/* Function:    getRenderData
+/* Function:    getVertex
    Description: Getter for render data coressponding to mesh object
    Parameters:  None
-   Returns:     std::vector<RenderData> Mesh data
+   Returns:     std::vector<Vertex> Mesh data
  */
-std::vector<RenderData> Mesh::getRenderData()
+std::vector<Vertex> Mesh::getVertex()
 {
   return mMesh;
 }

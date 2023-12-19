@@ -19,6 +19,7 @@ PATHTOEXEC = ../objs-wind64
 PATHTOEXECLINUX = ../objs-lin64
 STATEPATH = ./states
 RENDERERSPATH = ./renderer
+RESOURCEPATH = ./resource
 GUIPATH = ./gui
 DRAWABLESPATH = ./drawable
 SRC = ./src
@@ -68,6 +69,8 @@ rendererFiles =  renderWindow.c \
 								 bitmap.c \
 								 font.c
 
+resourceFiles = pngTexture.c \
+                fontTexture.c
 
 drawableFiles = indexBuffer.c \
                 shader.c \
@@ -82,7 +85,8 @@ drawableFiles = indexBuffer.c \
 
 dynLibFiles = png.c
 
-utilityFiles = edgeTable.c
+utilityFiles = edgeTable.c \
+							 vertexUtility.c
 
 objs := $(patsubst %.exe, %.o, $(programs))
 
@@ -102,6 +106,9 @@ guiObjs = $(addprefix $(GUIPATH)/, $(GUI))
 
 renderers = $(patsubst %.c, %.o, $(rendererFiles))
 rendererObjs = $(addprefix $(RENDERERSPATH)/, $(renderers))
+
+resources = $(patsubst %.c, %.o, $(resourceFiles))
+resourceObjs = $(addprefix $(RESOURCEPATH)/, $(resources))
 
 drawables = $(patsubst %.c, %.o, $(drawableFiles))
 drawableObjs = $(addprefix $(DRAWABLESPATH)/, $(drawables))
@@ -152,6 +159,10 @@ $(RENDERERSPATH):
 	@echo "MAKE	Renderers"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(RENDERERSPATH)
 
+$(RESOURCEPATH):
+	@echo "MAKE	Resource"
+	$(Q)$(MAKE) V=$(V) D=$(D) -C $(RESOURCEPATH)
+
 $(UTILITYPATH):
 	@echo "MAKE	Utilities"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(UTILITYPATH)
@@ -164,7 +175,7 @@ font:
 		@echo "Copying Fonts"
 		$(Q)cp -r $(FONTSPATH) $(PATHTOEXEC)
 
-%.exe: $(objs) $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH) $(UTILITYPATH)
+%.exe: $(objs) $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH) $(RESOURCEPATH) $(UTILITYPATH)
 	@echo "MAKE $@"
 	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(guiObjs) $(rendererObjs) $(drawableObjs) $(utilitiesObjs) $(LDFLAGS)
 	@echo "Checking DIR"
@@ -294,5 +305,5 @@ help:
 	@echo "make TARGET=[lin64, win64]"
 	@echo "Makefile will be expanded in the future"
 
-.PRECIOUS: %.o $(STATEPATH)/%.o $(GUIPATH)/%.o $(RENDERERSPATH)/%.o $(DRAWABLESPATH)/%.o $(DYNLIBSPATH)/%.so $(DYNLIBSPATH)/%.o $(DYNLIBSPATH)/%.dll $(UTILITYPATH)/%.o
-.PHONY: $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH) $(UTILITYPATH)
+.PRECIOUS: %.o $(STATEPATH)/%.o $(GUIPATH)/%.o $(RENDERERSPATH)/%.o $(RESOURCEPATH)/%.o $(DRAWABLESPATH)/%.o $(DYNLIBSPATH)/%.so $(DYNLIBSPATH)/%.o $(DYNLIBSPATH)/%.dll $(UTILITYPATH)/%.o
+.PHONY: $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH) $(RESOURCEPATH) $(UTILITYPATH)

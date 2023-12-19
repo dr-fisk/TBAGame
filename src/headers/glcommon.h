@@ -14,7 +14,7 @@
     x;\
     ASSERT(GLLogCall(#x, __FILE__, __LINE__))
 
-struct RenderData {
+struct Vertex {
   Vector2<GLfloat> bottomLeft;
   lg::Color rgba1;
   Vector2<GLfloat> textCoord1;

@@ -82,9 +82,9 @@ void RenderWindow::display() {
  */
 void RenderWindow::draw(Rect &rShape) {
 /*  clear();
-  RenderData vc;
+  Vertex vc;
   uint32_t indeces [] = {0,1,2,2,3,0};
-  vc = createRenderDataBounded(rShape); 
+  vc = createVertexBounded(rShape); 
   std::shared_ptr<VertexBuffer> vbo = std::make_shared<VertexBuffer>(&vc, sizeof(vc));
   VertexBufferLayout layout;
   std::shared_ptr<VertexArray> vao = std::make_shared<VertexArray>(1);
@@ -134,13 +134,13 @@ bool RenderWindow::isOpen()
     return !glfwWindowShouldClose(mpWindow);
 }
 
-/* Function:    createRenderData
+/* Function:    createVertex
    Description: Normalizes Rect coords to be drawn on window this allows us
                 to not have to worry about resolution
    Parameters:  Rect - Rectangle shape to extract coordinates
-   Returns:     RenderData - Vertexes from shape;
+   Returns:     Vertex - Vertexes from shape;
  */
-RenderData RenderWindow::createRenderDataBounded(Rect &rShape)
+Vertex RenderWindow::createVertexBounded(Rect &rShape)
 {
   GLfloat left, top, width, height;
   lg::Color rgba = rShape.getRGBA();

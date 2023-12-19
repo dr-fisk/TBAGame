@@ -83,13 +83,13 @@ void Rect::getDimensions(GLfloat *pLeft, GLfloat *pTop, GLfloat *pHeight, GLfloa
   *pWidth  = mSize.mX;
 }
 
-/* Function:    createRenderData
+/* Function:    createVertex
    Description: Normalizes Rect coords to be drawn on window this allows us
                 to not have to worry about resolution
    Parameters:  Rect - Rectangle shape to extract coordinates
-   Returns:     RenderData - Data that is renderable for batchbuffer;
+   Returns:     Vertex - Data that is renderable for batchbuffer;
 */
-RenderData Rect::createRenderData()
+Vertex Rect::createVertex()
 {
   GLfloat wWidth = gWindowWidth / 2.0f;
   GLfloat wHeight = gWindowHeight / 2.0f;
@@ -104,8 +104,10 @@ RenderData Rect::createRenderData()
   const Vector2<GLfloat> textCoord3(1.0f, 0.0f);
   const Vector2<GLfloat> textCoord4(0.0f, 0.0f);
 
-  return { Vector2<GLfloat>(x1, y2), mRgba, textCoord1, -1.0f, Vector2<GLfloat>(x2, y2), mRgba, textCoord2, -1.0f,
-           Vector2<GLfloat>(x2, y1), mRgba, textCoord3, -1.0f, Vector2<GLfloat>(x1, y1), mRgba, textCoord4, -1.0f };
+  return { Vector2<GLfloat>(x1, y2), mRgba, textCoord1, -1.0f,
+           Vector2<GLfloat>(x2, y2), mRgba, textCoord2, -1.0f,
+           Vector2<GLfloat>(x2, y1), mRgba, textCoord3, -1.0f,
+           Vector2<GLfloat>(x1, y1), mRgba, textCoord4, -1.0f };
 }
 
 Vector2<GLfloat> Rect::getTranslate()
@@ -194,14 +196,22 @@ bool Rect::sortByXIntersection(const Rect& crP1, const Rect& crP2)
    return crP1.getTop() < crP2.getTop();
 }
 
-/* Function:    getRenderData
+/* Function:    getVertex
    Description: Returns render data to be inserted into VBO
    Parameters:  None
-   Returns:     RenderData - Data that is renderable for batchbuffer;
+   Returns:     Vertex - Data that is renderable for batchbuffer;
 */
-std::vector<RenderData> Rect::getRenderData()
+std::vector<Vertex> Rect::getVertex()
 {
-  return {Rect::createRenderData()};
+  return {Rect::createVertex()};
+}
+
+void Rect::SetVertexTextureIndex(Vertex &rData, const float cTextureIndex)
+{
+   rData.textureIndex1 = cTextureIndex;
+   rData.textureIndex2 = cTextureIndex;
+   rData.textureIndex3 = cTextureIndex;
+   rData.textureIndex4 = cTextureIndex;
 }
 
 /* Function:    ~Rect

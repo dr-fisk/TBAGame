@@ -10,7 +10,7 @@ const uint16_t MESH16_SIZE = 256;
    Returns:     None
 */
 PngText::PngText(const std::string &crText, PngFont &rFont) {
-  mRenderData.resize(MESH16_SIZE * crText.size());
+  mVertex.resize(MESH16_SIZE * crText.size());
   std::vector<Rect> temp(MESH16_SIZE);
 
   for (int i = 0; i < crText.size(); i ++) {
@@ -18,7 +18,7 @@ PngText::PngText(const std::string &crText, PngFont &rFont) {
 
     for (int j = 0; j < MESH16_SIZE; j ++) {
         updateTextPos(temp[j], j, i);
-        mRenderData[(MESH16_SIZE * i) + j] = temp[j].getRenderData()[0];
+        mVertex[(MESH16_SIZE * i) + j] = temp[j].getVertex()[0];
     }
   }
 }
@@ -31,13 +31,13 @@ PngText::PngText(const std::string &crText, PngFont &rFont) {
 PngText::~PngText() { 
 }
 
-/* Function:    getRenderData
+/* Function:    getVertex
    Description: Generates render data to be inserted into a VBO
    Parameters:  None
    Returns:     Vector - Render data
 */
-std::vector<RenderData> PngText::getRenderData() {
-  return mRenderData;
+std::vector<Vertex> PngText::getVertex() {
+  return mVertex;
 }
 
 /* Function:    updateTextPos

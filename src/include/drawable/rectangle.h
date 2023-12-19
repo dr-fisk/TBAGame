@@ -25,12 +25,13 @@ class Rect : public Drawable {
     int32_t getTop() const;
     Vector2<int32_t> getPos() const;
     lg::Color getRGBA();
-    RenderData createRenderData();
-    virtual std::vector<RenderData> getRenderData();
+    Vertex createVertex();
+    std::vector<Vertex> getVertex();
     void rotate(GLfloat theta);
     Vector2<GLfloat> getTranslate();
     void translate(Vector2<GLfloat>& rTranslate);
     static bool sortByXIntersection(const Rect& crP1, const Rect& crP2);
+    static void SetVertexTextureIndex(Vertex &rData, const float cTextureIndex=-1.0f);
   private:
     Vector2<int32_t> mPos;
     Vector2<int32_t> mSize;

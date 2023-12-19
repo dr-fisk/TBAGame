@@ -6,21 +6,22 @@
 
 #include "net_utility.h"
 
-class Texture {
+class Texture
+{
   public:
     Texture() = default;
-    Texture(const std::string &crPath);
-    Texture(void *pBuffer, const uint32_t cHeight, const uint32_t cWidth, const uint32_t cBpp);
+    Texture(const uint32_t cSlot);
+    void loadTexture(void *pBuffer, const uint32_t cHeight, const uint32_t cWidth, const uint32_t cBpp);
+    void loadTexture(const std::string &crPath);
     void bind(const uint32_t cSlot) const;
     void unbind();
-    ~Texture();
+    virtual ~Texture();
   private:
-    void initTexture();
-
     uint32_t mTextureId;
     uint32_t mWidth;
     uint32_t mHeight;
     uint32_t mBpp;
+    bool mIsBounded;
     std::vector<uint8_t> mBuffer;
 };
 

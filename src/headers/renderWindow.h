@@ -19,7 +19,7 @@ class RenderWindow : public RenderTarget {
       static void keyCallback(GLFWwindow *pWindow, const int32_t cKey, const int32_t cScanCode, const int32_t cAction,
                               const int32_t cMods);
       int32_t getKeyPress();
-      virtual RenderData createRenderDataBounded(Rect &rShape);
+      virtual Vertex createVertexBounded(Rect &rShape);
       void setActive();
       void initWindow();
       void destroyWindow();

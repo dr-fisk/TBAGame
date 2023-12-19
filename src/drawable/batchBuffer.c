@@ -1,21 +1,22 @@
 #include <iostream>
 
 #include "drawable/batchBuffer.h"
+#include "vertexUtility.h"
 
 const std::string MAIN_SHADER = "./shaders/shader1.txt";
 
 BatchBuffer::BatchBuffer(const uint32_t cNumVao, const uint32_t cNumVbo, const uint32_t cNumIbo,
                          const uint32_t cNumShaders, const uint32_t cNumTextures)
 {
-    // initBatchBuffer(cNumVao, cNumVbo, cNumIbo, crRendData, cDrawType);
-    // mPrimitiveType = cShape;
-    mShader.resize(cNumShaders);
-    mVbo.resize(cNumVbo);
-    mVao.resize(cNumVao);
-    mIbo.resize(cNumIbo);
-    mTexture.resize(cNumTextures);
-
-    initBuffers();
+  // initBatchBuffer(cNumVao, cNumVbo, cNumIbo, crRendData, cDrawType);
+  // mPrimitiveType = cShape;
+  mShader.resize(cNumShaders);
+  mVbo.resize(cNumVbo);
+  mVao.resize(cNumVao);
+  mIbo.resize(cNumIbo);
+  mTexture.resize(cNumTextures);
+  mRenderIdCount = 0;
+  initBuffers();
 }
 
 /* Function:    createRectIndices
@@ -75,23 +76,23 @@ std::vector<uint32_t> BatchBuffer::createTriIndices(const uint32_t cVboSize)
   return indices;
 }
 
-/* Function:    concatRenderData
+/* Function:    concatVertex
    Description: Concatenates render data for each drawable item into one vector
    Parameters:  Vector - List of drawable items
                 Vector - Container for all render data
    Returns:     None
  */
-void BatchBuffer::concatRenderData(const std::vector<Drawable*> &crBufferData, std::vector<RenderData> &rData)
+void BatchBuffer::concatVertex(const std::vector<Drawable*> &crBufferData, std::vector<Vertex> &rData)
 {
-  std::vector<RenderData> temp;
+  std::vector<Vertex> temp;
 
   for(size_t i = 0; i < crBufferData.size(); i ++)
   {
     if (0 == i)
-      rData = crBufferData[i]->getRenderData();
+      rData = crBufferData[i]->getVertex();
     else
     {
-      temp = crBufferData[i]->getRenderData();
+      temp = crBufferData[i]->getVertex();
       rData.insert(rData.end(), temp.begin(), temp.end());
       temp.clear();
     }
@@ -105,22 +106,51 @@ void BatchBuffer::concatRenderData(const std::vector<Drawable*> &crBufferData, s
    Returns:     None
  */
 // TODO Update implementation this is in no way the final function
-void BatchBuffer::registerDrawable(const uint32_t cVboId, const uint32_t cIboId, Drawable* pBufferData)
+void BatchBuffer::registerDrawable(const uint32_t cVboId, const uint32_t cIboId, std::shared_ptr<Drawable> pDrawable)
 {
-  std::vector<RenderData> temp = pBufferData->getRenderData();
-  // int32_t NumVertices = temp.size();
-  // // std::cout << "Num verts: " << mNumVertices << std::endl;
-  // // std::cout << "Size of render data: " << sizeof(RenderData) << std::endl;
-  // // std::cout << "data size: " << mNumVertices * sizeof(RenderData) << std::endl;
-  // // std::cout << "Size vec float: " << sizeof(Vector2<GLfloat>()) << std::endl;
-  // memcpy(mBuffer.data() + mNextAvailableAddress, temp.data(), 
-  //        temp.size() * sizeof(RenderData));
-  // mNextAvailableAddress += temp.size() * sizeof(RenderData);
-  // std::cout << sizeof(RenderData) << std::endl;
-  mVbo.at(cVboId)->updateVboSubBuffer(0, temp.size() * sizeof(RenderData), temp.data());
-  std::vector<uint32_t> indeces = createRectIndices(temp.size());
-  mIbo.at(cIboId)->updateIboSubBuffer(0, indeces.size() * sizeof(uint32_t), indeces.data());
-  //   std::cout << "register done" << std::endl;
+  mQuads[mRenderIdCount] = pDrawable;
+  pDrawable->setRenderId(mRenderIdCount);
+  mRenderIdCount ++;
+
+  // mVbo.at(cVboId)->updateVboSubBuffer(0, temp.size() * sizeof(Vertex), temp.data());
+  // mIbo.at(cIboId)->updateIboSubBuffer(0, temp.size() * 6 * sizeof(uint32_t), nullptr);
+}
+
+void BatchBuffer::update(const uint32_t cVboId, const uint32_t cIboId)
+{
+  //Might need some updating
+  std::vector<Vertex> temp;
+  int index = 0;
+  for(auto &drawable : mQuads)
+  {
+    temp = drawable.second->getVertex();
+
+    for(auto & vertex : temp)
+    {
+      if (index == 0)//drawable.second->getRenderId() != 1)
+      {
+        VertexUtility::setVertexTextureIndex(vertex, 0.0f);
+      }
+      else if (index == 1)
+      {
+        VertexUtility::setVertexTextureIndex(vertex, 1.0f);
+      }
+      else if (index == 2 || index == 4)
+      {
+        VertexUtility::setVertexTextureIndex(vertex, 2.0f);
+      }
+      else if (index == 3)
+      {
+        VertexUtility::setVertexTextureIndex(vertex, 3.0f);
+      }
+
+      mVbo.at(cVboId)->updateVboSubBuffer(index * sizeof(Vertex), sizeof(Vertex), &vertex);
+      index ++;
+    }
+  }
+
+  // Need to update the below thing cuz this ain't good
+  mIbo.at(cIboId)->updateIboSubBuffer(0, index * 6 * sizeof(uint32_t), nullptr);
 }
 
 void BatchBuffer::initBuffers()
@@ -141,6 +171,11 @@ void BatchBuffer::initBuffers()
   {
     vao = std::make_shared<VertexArray>();
     vao->genVao();
+  }
+
+  for(size_t i = 0; i < mTexture.size(); i++)
+  {
+    mTexture[i] = std::make_shared<Texture>(i);
   }
 }
 
@@ -173,13 +208,13 @@ void BatchBuffer::initShader(const uint32_t cId, const std::string &crPath)
 
 void BatchBuffer::initTexture(const uint32_t cId, const std::string &crPath)
 {
-    mTexture.at(cId) = std::make_shared<Texture>(crPath);
+    mTexture.at(cId)->loadTexture(crPath);
 }
 
 void BatchBuffer::initTexture(const uint32_t cId, void *pBuff, const uint32_t cHeight, const uint32_t cWidth,
                               const uint32_t cBpp)
 {
-    mTexture.at(cId) = std::make_shared<Texture>(pBuff, cHeight, cWidth, cBpp);
+    mTexture.at(cId)->loadTexture(pBuff, cHeight, cWidth, cBpp);
 }
 
 void BatchBuffer::bindShader(const uint32_t cId)
@@ -187,9 +222,9 @@ void BatchBuffer::bindShader(const uint32_t cId)
     mShader.at(cId)->bind();
 }
 
-void BatchBuffer::bindTexture(const uint32_t cId)
+void BatchBuffer::bindTexture(const uint32_t cId, const uint32_t cSlot)
 {
-    mTexture.at(cId)->bind(cId);
+    mTexture.at(cId)->bind(cSlot);
 }
 
 void BatchBuffer::bindVbo(const uint32_t cId)

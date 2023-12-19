@@ -47,7 +47,7 @@ namespace EdgeTable
       biggerYVal = std::max(p1.mY, p2.mY);
       smallerYVal = std::min(p1.mY, p2.mY);
 
-      if ((int)p1.mY == (int)p2.mY)
+      if (static_cast<int32_t>(p1.mY) == static_cast<int32_t>(p2.mY))
       {
         continue;
       }
@@ -59,7 +59,7 @@ namespace EdgeTable
       }
       else
       {
-        dy = p2.mY - p1.mY;
+        dy = static_cast<int32_t>(p2.mY) - static_cast<int32_t>(p1.mY);
         dx = p2.mX - p1.mX;
         m = dy / dx;
         rEdgeTable[rNumEdges].dxPerScan = 1.0 / m;
@@ -103,24 +103,23 @@ namespace EdgeTable
 
     std::ofstream fd;
     
-    if (cha == ',')
+    if (cha == '!')
      fd.open("AET.txt");
 
     for(int32_t y = cMinY; y < crDimensions.mY; y ++)
     {
         fillActiveEdgeTable(edgeTable, activeEdgeTable, edgeTableIdx, numEdges, activeEdgeTableIdx, y);
-      if (cha == ',')
+      if (cha == '!')
       {
         fd << y << std::endl;
         for(int i = 0; i < activeEdgeTableIdx; i ++)
         {
-          fd << i << ": " << activeEdgeTable[i].yLower << ", " << activeEdgeTable[i].yUpper << ", " << activeEdgeTable[i].xIntersect << std::endl;
+          fd << i << ": " << activeEdgeTable[i].yLower << ", " << activeEdgeTable[i].yUpper << ", " << activeEdgeTable[i].xIntersect << ", " << activeEdgeTable[i].dxPerScan << std::endl;
         }
       }
 
       for(int32_t dx = 0; dx < scanlineSubDiv; dx++)
       {
-      //   scanline = dx * stepPerScanline;
         for(int32_t i = 0; i < activeEdgeTableIdx && activeEdgeTableIdx > 1; i += 2)
         {
           startIntersection = activeEdgeTable[i].xIntersect;
@@ -131,20 +130,32 @@ namespace EdgeTable
           endIndex = activeEdgeTable[i + 1].xIntersect;
           endCovered = endIntersection - (endIndex);
 
-          // if (startIndex < 0 || startIndex >= crDimensions.mX || endIndex < 0 || endIndex >= crDimensions.mX )
-          // {
-          //   break;
-          // }
-
-          // We fill from left to right, if left X value (start Index) > right X value (end Index) then we are invalid
-          if (startIndex > endIndex)
+          if (startIndex < 0 || startIndex >= crDimensions.mX || endIndex < 0 || endIndex >= crDimensions.mX )
           {
-            continue;
+            std::cout << "Hit the badspot\n";
           }
 
-          // if (cha == ',' && y == 78)
+
+          //Clamp startIndex
+
+          // if(startIndex < lastEnd)
           // {
-          //   std::cout << "Start: " << startIndex << " End: " << endIndex << std::endl;
+          //   startIndex = lastEnd + 1;
+          // }
+
+          if (cha == '!')
+          {
+            fd << y << " at step: " << dx << std::endl;
+            fd << "Start: " << startIndex << " End: " << endIndex << std::endl;
+          }
+          // We fill from left to right, if left X value (start Index) > right X value (end Index) then we are invalid
+          // if (startIndex > endIndex)
+          // {
+          //   // if (cha == '!')
+          //   // {
+          //   //   std::cout << "Skip at y: " << y << std::endl;
+          //   // }
+          //   continue;
           // }
 
           if(startIndex == endIndex)
@@ -188,26 +199,6 @@ namespace EdgeTable
         updateActiveTableXVals(activeEdgeTable, activeEdgeTableIdx, stepPerScanline);
         // sortActiveEdgeTable(activeEdgeTable, activeEdgeTableIdx);
       }
-
-      // for(int i = 0; i < activeEdgeTableIdx; i ++)
-      // {
-      //   if ( i + 1 < activeEdgeTableIdx && activeEdgeTable[i].xIntersect == activeEdgeTable[i + 1].xIntersect &&
-      //          (activeEdgeTable[i].yUpper != activeEdgeTable[i + 1].yUpper || activeEdgeTable[i].yLower != activeEdgeTable[i + 1].yLower))
-      //          {
-      //           std::cout << "Matched.\n";
-      //          }
-      //   if (activeEdgeTable[i].yUpper == y)
-      //   {
-      //     for(int j = i; j < activeEdgeTableIdx - 1; j ++)
-      //     {
-      //       activeEdgeTable[j] = activeEdgeTable[j + 1];
-      //     }
-      //     activeEdgeTableIdx --;
-      //     i--;
-      //   }
-      // }
-
-      // break;
     }
   }
 };

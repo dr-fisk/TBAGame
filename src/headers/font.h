@@ -22,12 +22,15 @@ class Font
     void fillGeneratedPointColor(const char cChar);
     void fillColor(const char cChar);
     void writeGenPoints(const char cChar);
+    Font& operator=(const Font &rhs);
+    // int32_t getYBearing(const char cChar);
   private:
     struct FontMetaData
     {
+      int32_t Ybearing;
+      GlyfHeader FontHeader;
       std::vector<Vector2<float>> GeneratedPoints;
       std::vector<uint32_t> Bitmap;
-      GlyfHeader FontHeader;
       Vector2<int32_t> Dimensions;
       std::vector<Edges<float>> GenPtsEdges;
       std::vector<int32_t> ContourEnds;

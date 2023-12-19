@@ -9,14 +9,15 @@
 #include "drawable/rectangle.h"
 #include "pngFont.h"
 
-class PngText : public Drawable {
+class PngText : public Drawable
+{
   public:
     PngText(){}
     PngText(const std::string &crText, PngFont &rFont);
     virtual ~PngText();
-    virtual std::vector<RenderData> getRenderData();
+    virtual std::vector<Vertex> getVertex();
   private:
-    std::vector<RenderData> mRenderData;
+    std::vector<Vertex> mVertex;
 
     void updateTextPos(Rect &rCurrLetter, const uint32_t cMeshIndex, const uint32_t cTotalIndex);
 };

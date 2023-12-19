@@ -9,9 +9,9 @@
    Returns:     None
  */
 void VertexBuffer::genVboBuffer(const uint32_t cNumVertexes, const GLenum cDrawType) {
-  mBuffer.clear();
-  mBuffer.resize(cNumVertexes * sizeof(RenderData));
-  GLCall(glBufferData(GL_ARRAY_BUFFER, mBuffer.size(), mBuffer.data(), cDrawType));
+  // mBuffer.clear();
+  // mBuffer.resize(cNumVertexes * sizeof(Vertex));
+  GLCall(glBufferData(GL_ARRAY_BUFFER, cNumVertexes * sizeof(Vertex), nullptr, cDrawType));
 }
 
 void VertexBuffer::updateVboSubBuffer(const uint32_t cIndex, const uint32_t cBuffSize, void *pBuffer)

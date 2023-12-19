@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <bits/stdc++.h>
 
 #include "net_utility.h"
 #include "glcommon.h"
@@ -32,8 +33,8 @@ class BatchBuffer {
     std::shared_ptr<VertexArray> getVao();
     std::shared_ptr<IndexBuffer> getIbo();
     ~BatchBuffer() = default;
-    static void concatRenderData(const std::vector<Drawable*> &crBufferData, std::vector<RenderData> &rData);
-    void registerDrawable(const uint32_t cVboId, const uint32_t cIboId, Drawable* pBufferData);
+    static void concatVertex(const std::vector<Drawable*> &crBufferData, std::vector<Vertex> &rData);
+    void registerDrawable(const uint32_t cVboId, const uint32_t cIboId, std::shared_ptr<Drawable> pBufferData);
     void initShader(const uint32_t cId, const std::string &crPath);
     void initTexture(const uint32_t cId, const std::string &crPath);
     void initTexture(const uint32_t cId, void *pBuff, const uint32_t cHeight, const uint32_t cWidth,
@@ -42,11 +43,12 @@ class BatchBuffer {
     void bindVbo(const uint32_t cId);
     void bindIbo(const uint32_t cId);
     void bindVao(const uint32_t cId);
-    void bindTexture(const uint32_t cId);
+    void bindTexture(const uint32_t cId, const uint32_t cSlot);
     void genIboBuffer(const uint32_t cId, const uint32_t cNumVertexes, const GLenum cDrawType);
     void genVboBuffer(const uint32_t cId, const uint32_t cNumVertexes, const GLenum cDrawType);
     void updateIboSubBuffer(const uint32_t cId, const uint32_t cIndex, const uint32_t cBuffSize, void *pBuffer);
     void updateVboSubBuffer(const uint32_t cId, const uint32_t cIndex, const uint32_t cBuffSize, void *pBuffer);
+    void update(const uint32_t cVboId, const uint32_t cIboId);
     void setVaoAttributes(const uint32_t cId, const VertexBufferLayout &crLayout);
     uint32_t getIndicesCount(const uint32_t cId);
     int32_t getUniform(const uint32_t cId, const std::string &crUniform);
@@ -58,9 +60,11 @@ class BatchBuffer {
     std::vector<std::shared_ptr<Shader>> mShader;
     std::vector<std::shared_ptr<Texture>> mTexture;
     std::vector<uint8_t> mBuffer;
+    std::unordered_map<int32_t, std::shared_ptr<Drawable>> mQuads;
     uint64_t mRegisteredDrawables;
     uint64_t mNextAvailableAddress;
     uint64_t mNumVertices;
+    uint32_t mRenderIdCount;
     bool mUpdateDraw;
 
     std::vector<uint32_t> createRectIndices(const uint32_t cVboSize);

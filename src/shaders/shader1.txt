@@ -30,7 +30,7 @@ void main()
 {
    int index = int(v_TextIndex);
 
-   if (index < 0)
+   if (index < 0 || index > 31)
    {
       FragColor = v_Col;
    }

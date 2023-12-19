@@ -48,12 +48,12 @@ Game::Game()
   // Next 2 floats are Texture Coords
   temp.push(TWO_D_COORDS, GL_FLOAT, false);
   temp.push(1, GL_FLOAT, false);
-  mpBatchBuffer = std::make_shared<BatchBuffer>(1, 1, 1, 1, 1);
+  mpBatchBuffer = std::make_shared<BatchBuffer>(1, 1, 1, 1, 32);
   mpBatchBuffer->bindVbo(0);
   mpBatchBuffer->bindVao(0);
   mpBatchBuffer->bindIbo(0);
   mpBatchBuffer->genVboBuffer(0, 300, GL_DYNAMIC_DRAW);
-  mpBatchBuffer->genIboBuffer(0, 300, GL_DYNAMIC_DRAW);
+  mpBatchBuffer->genIboBuffer(0, 300, GL_STATIC_DRAW);
   mpBatchBuffer->initShader(0, "lol");
   mpBatchBuffer->bindShader(0);
   mpBatchBuffer->setVaoAttributes(0, temp);
