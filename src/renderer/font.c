@@ -13,130 +13,14 @@ Font::Font()
 static const int32_t ASCII_CHAR_START = 33;
 static const int32_t ASCII_CHAR_END = 126;
 
-Font::Font(std::string ttfPath, const uint32_t cNumOfSubDivs, const lg::Color cColor, const uint32_t cPixelDim)
+Font::Font(const std::string& crTtfPath, const uint32_t cNumOfSubDivs, const lg::Color cColor, const uint32_t cPixelDim)
 {
-  LestTrueType ttf;
-
-
   mNumSubDiv = cNumOfSubDivs;
   mFontColor = cColor;
   mPixelDimensions = 1;//cPixelDim;
 
-  if (-1 == ttf.read(ttfPath) || !ttf.hasOS2Table())
-  {
-    std::cout << "Ttf failed to read." << std::endl;
-    exit(-1);
-  }
-
-
-  HeadHeader head = ttf.getHeadHeaderTable();
-  OS2Table os2 = ttf.getOS2Table();
-  float scaleY = 0;
-  float scaleX = 0;
-
-  GlyfHeader temp;
-
-  std::cout << "Before loop\n";
-  for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
-  {
-    ttf.getSpecifcCharacterOutline(static_cast<char>(i), temp);
-    std::cout << "After glyf\n";
-    std::cout << "after insert\n";
-    mFont[static_cast<char>(i)].FontHeader = temp;
-
-    if(mFont[static_cast<char>(i)].FontHeader.numberofContours > 0)
-    {
-        mFont[static_cast<char>(i)].ContourEnds.resize(mFont[static_cast<char>(i)].FontHeader.numberofContours);
-    
-        // Update the number of contours for mFont[static_cast<char>(i)] to properly allocate memory for generatedPoints
-        updateNumberOfContours(static_cast<char>(i));
-
-        // Generate points from TTF file
-        mFont[static_cast<char>(i)].GeneratedPoints.resize(mFont[static_cast<char>(i)].ContourEnds[mFont[static_cast<char>(i)].ContourEnds.size() - 1]);
-        // If we get a crash with different fonts this can be why
-        mFont[static_cast<char>(i)].GenPtsEdges.resize(
-        (mFont[static_cast<char>(i)].ContourEnds[mFont[static_cast<char>(i)].ContourEnds.size() - 1] - 1) - (mFont[static_cast<char>(i)].ContourEnds.size() - 1));
-        generateGlyphPoints(static_cast<char>(i));
-
-        // Connect edges together
-        generateEdges(static_cast<char>(i));
-        // scaleY = static_cast<float>(cPixelDim) /
-        //                (mFont[static_cast<char>(i)].FontHeader.yMax - mFont[static_cast<char>(i)].FontHeader.yMin);
-
-        if (mFont[static_cast<char>(i)].FontHeader.yMax - mFont[static_cast<char>(i)].FontHeader.yMin > os2.sCapHeight)
-        {
-          scaleY = 1.0f;
-        }
-        else
-        {
-          scaleY = (mFont[static_cast<char>(i)].FontHeader.yMax - mFont[static_cast<char>(i)].FontHeader.yMin) / (float)os2.sCapHeight;
-        }
-
-        // scaleY = static_cast<float>(cPixelDim) /
-        //                ((mFont[static_cast<char>(i)].FontHeader.yMax - mFont[static_cast<char>(i)].FontHeader.yMin) * scaleY);
-        // scaleX = static_cast<float>(cPixelDim) /
-        //                (mFont[static_cast<char>(i)].FontHeader.xMax - mFont[static_cast<char>(i)].FontHeader.xMin);
-        scaleX = ((float)mFont[static_cast<char>(i)].FontHeader.xMax - (float)mFont[static_cast<char>(i)].FontHeader.xMin) / ((float)mFont[static_cast<char>(i)].FontHeader.yMax - (float)mFont[static_cast<char>(i)].FontHeader.yMin);
-        
-        if (scaleX > 1.0f)
-        {
-          scaleX = 1.0f;
-        }
-        // std::cout << "First scale: " << scaleX << std::endl;
-
-        // mFont[static_cast<char>(i)].Dimensions = Vector2<int32_t>((mFont[static_cast<char>(i)].FontHeader.xMax - mFont[static_cast<char>(i)].FontHeader.xMin) * scaleY,
-        // cPixelDim * scaleY);
-        mFont[static_cast<char>(i)].Dimensions = Vector2<int32_t>(cPixelDim * scaleX, cPixelDim * scaleY);
-      
-        for (auto &edges : mFont[static_cast<char>(i)].GenPtsEdges)
-        {
-          // scale is broken
-          scaleY = edges.p1.mY / ((float)os2.sCapHeight);
-          scaleX = edges.p1.mX / ((float)mFont[static_cast<char>(i)].FontHeader.yMax - (float)mFont[static_cast<char>(i)].FontHeader.yMin);
-          if (scaleX > 1.0f)
-          {
-            scaleX = 1.0f;
-          }
-          if (scaleY > 1.0f)
-          {
-            scaleY = 1.0f;
-          }
-
-          edges.p1.mX = (float)cPixelDim * scaleX;
-          edges.p1.mY = (float)cPixelDim * scaleY;
-          scaleY = edges.p2.mY / ((float)os2.sCapHeight);
-          scaleX = edges.p2.mX / ((float)mFont[static_cast<char>(i)].FontHeader.yMax - (float)mFont[static_cast<char>(i)].FontHeader.yMin);
-
-          if (scaleX > 1.0f)
-          {
-            scaleX = 1.0f;
-          }
-          if (scaleY > 1.0f)
-          {
-            scaleY = 1.0f;
-          }
-          edges.p2.mX = (float)cPixelDim * scaleX;
-          edges.p2.mY = (float)cPixelDim * scaleY;
-
-          if ('"' == static_cast<char>(i))
-          {
-          std::cout << edges.p1;
-          std::cout << edges.p2;
-          }
-        }
-        
-        // std::cout << mFont[static_cast<char>(i)].Dimensions << std::endl;
-
-        // Correct the right dimensions
-        mFont[static_cast<char>(i)].Dimensions.mX += 1;
-        mFont[static_cast<char>(i)].Dimensions.mY += 1;
-        mFont[static_cast<char>(i)].Bitmap.resize(
-          (mFont[static_cast<char>(i)].Dimensions.mY) * (mFont[static_cast<char>(i)].Dimensions.mX), 0);
-        scanLineFill(static_cast<char>(i));
-    }
-
-    std::cout << "Done\n";
-  }
+  readTtfFile(crTtfPath);
+  generateFont(cPixelDim);
 }
 
 void Font::scanLineFill(const char cChar)
@@ -483,6 +367,115 @@ Font& Font::operator=(const Font &rhs)
     mNumSubDiv = rhs.mNumSubDiv;
     mFontColor = rhs.mFontColor;
     mPixelDimensions = rhs.mPixelDimensions;
+    mCapHeight = rhs.mCapHeight;
 
     return *this;
+}
+
+int32_t Font::getYBearing(const char cChar)
+{
+  return mFont.at(cChar).Ybearing;
+}
+
+void Font::readTtfFile(const std::string& crPath)
+{
+  LestTrueType ttf;
+  if (-1 == ttf.read(crPath) || !ttf.hasOS2Table())
+  {
+    std::cout << "Ttf failed to read." << std::endl;
+    exit(-1);
+  }
+
+  OS2Table os2 = ttf.getOS2Table();
+
+  mCapHeight = os2.sCapHeight;
+
+  GlyfHeader tempHeader;
+
+  for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
+  {
+    ttf.getSpecifcCharacterOutline(static_cast<char>(i), tempHeader);
+    mFont[static_cast<char>(i)].FontHeader = tempHeader;
+  }
+}
+
+void Font::generateFont(const uint32_t cPixelDim)
+{
+  float scaleY = 0;
+  float scaleX = 0;
+  char currChar = 'A';
+
+  for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
+  {
+    currChar = static_cast<char>(i);
+    if(mFont[currChar].FontHeader.numberofContours > 0)
+    {
+        mFont[currChar].ContourEnds.resize(mFont[currChar].FontHeader.numberofContours);
+    
+        // Update the number of contours for mFont[currChar] to properly allocate memory for generatedPoints
+        updateNumberOfContours(currChar);
+
+        // Generate points from TTF file
+        mFont[currChar].GeneratedPoints.resize(mFont[currChar].ContourEnds[mFont[currChar].ContourEnds.size() - 1]);
+        // If we get a crash with different fonts this can be why
+        mFont[currChar].GenPtsEdges.resize(
+        (mFont[currChar].ContourEnds[mFont[
+          currChar].ContourEnds.size() - 1] - 1) - (mFont[currChar].ContourEnds.size() - 1));
+        generateGlyphPoints(currChar);
+
+        // Connect edges together
+        generateEdges(currChar);
+
+        // Get a ratio between the max height for current letter / max height for a capital letter
+        // This will be used to scale down Y value correctly
+        scaleY = (static_cast<float>(mFont[currChar].FontHeader.yMax - mFont[currChar].FontHeader.yMin)) /
+                 static_cast<float>(mCapHeight);
+
+        // Get ratio of x / y, this will attempt to keep the X x Y dimenion ratios
+        scaleX = 
+        (static_cast<float>(mFont[currChar].FontHeader.xMax - mFont[currChar].FontHeader.xMin)) /
+        (static_cast<float>(mFont[currChar].FontHeader.yMax - mFont[currChar].FontHeader.yMin));
+        
+        scaleX = std::min(scaleX, 1.0f);
+        scaleY = std::min(scaleY, 1.0f);
+
+        mFont[currChar].Dimensions = Vector2<int32_t>(cPixelDim * scaleX, cPixelDim * scaleY);
+        mFont[currChar].Ybearing = cPixelDim - mFont[currChar].Dimensions.mY;
+        
+        updateEdges(currChar, cPixelDim);
+        
+        // Correct the right dimensions
+        mFont[currChar].Dimensions.mX += 1;
+        mFont[currChar].Dimensions.mY += 1;
+        mFont[currChar].Bitmap.resize(
+          (mFont[currChar].Dimensions.mY) * (mFont[currChar].Dimensions.mX), 0);
+        scanLineFill(currChar);
+    }
+  }
+}
+
+void Font::updateEdges(const char cChar, const uint32_t cPixelDim)
+{
+  float scaleY = 0;
+  float scaleX = 0;
+
+  // Scale down points in edges by the scale
+  for (auto& edges : mFont[cChar].GenPtsEdges)
+  {
+    scaleY = edges.p1.mY / static_cast<float>(mCapHeight);
+    scaleX = edges.p1.mX / static_cast<float>(mFont[cChar].FontHeader.yMax - mFont[cChar].FontHeader.yMin);
+    scaleX = std::min(scaleX, 1.0f);
+    scaleY = std::min(scaleY, 1.0f);
+
+    edges.p1.mX = static_cast<float>(cPixelDim) * scaleX;
+    edges.p1.mY = static_cast<float>(cPixelDim) * scaleY;
+
+    scaleY = edges.p2.mY / static_cast<float>(mCapHeight);
+    scaleX = edges.p2.mX / static_cast<float>(mFont[cChar].FontHeader.yMax - mFont[cChar].FontHeader.yMin);
+    scaleX = std::min(scaleX, 1.0f);
+    scaleY = std::min(scaleY, 1.0f);
+
+    edges.p2.mX = static_cast<float>(cPixelDim) * scaleX;
+    edges.p2.mY = static_cast<float>(cPixelDim) * scaleY;
+  }
 }
