@@ -1,7 +1,7 @@
 #ifndef VERTEXARRAY_H
 #define VERTEXARRAY_H
 
-#include "net_utility.h"
+#include "utility/net_utility.h"
 #include "vertexBufferLayout.h"
 
 class VertexArray {

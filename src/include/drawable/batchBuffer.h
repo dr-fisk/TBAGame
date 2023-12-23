@@ -6,7 +6,7 @@
 #include <string>
 #include <bits/stdc++.h>
 
-#include "net_utility.h"
+#include "utility/net_utility.h"
 #include "glcommon.h"
 #include "drawable/drawable.h"
 #include "drawable/vertexArray.h"

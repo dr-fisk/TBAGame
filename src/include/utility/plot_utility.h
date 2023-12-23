@@ -49,50 +49,50 @@ template <typename T> class PlotUtility
 template <typename T>
 bool PlotUtility<T>::doPointsShareAxis(const Vector2<T> &crP1, const Vector2<T> &crP2)
 {
-  return ((crP1.mY == crP2.mY) || (crP1.mX == crP2.mX));
+  return ((crP1.y == crP2.y) || (crP1.x == crP2.x));
 }
 
 
 template <typename T>
 bool PlotUtility<T>::arePointsInRange(const Vector2<T> &crP1, const Vector2<T> &crP2)
 {
-  Vector2<int32_t> point(crP2.mX - crP1.mX, crP2.mY - crP1.mY);
-  point.mX = abs(point.mX);
-  point.mY = abs(point.mY);
+  Vector2<int32_t> point(crP2.x - crP1.x, crP2.y - crP1.y);
+  point.x = abs(point.x);
+  point.y = abs(point.y);
 
-  return ((1 == point.mY || 0 == point.mY) && (1 == point.mX || 0 == point.mX));
+  return ((1 == point.y || 0 == point.y) && (1 == point.x || 0 == point.x));
 }
 
 template <typename T>
 bool PlotUtility<T>::arePointsTouching(const Vector2<T> &crP1, const Vector2<T> &crP2)
 {
-  Vector2<int32_t> point(crP2.mX - crP1.mX, crP2.mY - crP1.mY);
-  point.mX = abs(point.mX);
-  point.mY = abs(point.mY);
+  Vector2<int32_t> point(crP2.x - crP1.x, crP2.y - crP1.y);
+  point.x = abs(point.x);
+  point.y = abs(point.y);
 
-  return ((1 == point.mX || 0 == point.mX) && (1 == point.mY || 0 == point.mY));
+  return ((1 == point.x || 0 == point.x) && (1 == point.y || 0 == point.y));
 }
 
 template <typename T>
 bool PlotUtility<T>::sortByXIntersection(const Vector2<T>& crP1, const Vector2<T>& crP2)
 {
-   if (crP1.mY == crP2.mY)
+   if (crP1.y == crP2.y)
    {
-      return crP1.mX < crP2.mX;
+      return crP1.x < crP2.x;
    }
 
-   return crP1.mY < crP2.mY;
+   return crP1.y < crP2.y;
 }
 
 template <typename T>
 bool PlotUtility<T>::sortByYIntersection(const Vector2<T>& crP1, const Vector2<T>& crP2)
 {
-   if (crP1.mX == crP2.mX)
+   if (crP1.x == crP2.x)
    {
-      return crP1.mY < crP2.mY;
+      return crP1.y < crP2.y;
    }
 
-   return crP1.mX < crP2.mX;
+   return crP1.x < crP2.x;
 }
 
 template <typename T>
@@ -121,8 +121,8 @@ uint32_t PlotUtility<T>::tessellateQuadBezier(std::vector<Vector2<T>>& crPoints,
     #endif
     t1 = (1.0f - t);
     t2 = t * t;
-    crPoints[itemsAdded + cOffset] = Vector2<T>((t1 * t1 * rP0.mX + 2 * t1 * t * rP1.mX + t2 * rP2.mX),
-                                                (t1 * t1 * rP0.mY + 2 * t1 * t * rP1.mY + t2 * rP2.mY));
+    crPoints[itemsAdded + cOffset] = Vector2<T>((t1 * t1 * rP0.x + 2 * t1 * t * rP1.x + t2 * rP2.x),
+                                                (t1 * t1 * rP0.y + 2 * t1 * t * rP1.y + t2 * rP2.y));
     itemsAdded ++;
   }
 
@@ -133,7 +133,7 @@ template <typename T>
 void PlotUtility<T>::drawPixelInBitmap(const Vector2<T>& crP1, std::vector<uint32_t> &rBitmap, const uint32_t cNumCols,
                                        const lg::Color &crColor)
 {
-  rBitmap[(crP1.mY * cNumCols) + crP1.mX] = crColor.getRgba();
+  rBitmap[(crP1.y * cNumCols) + crP1.x] = crColor.getRgba();
 }
 
 template <typename T>
@@ -141,21 +141,21 @@ void PlotUtility<T>::drawStraightLineToPoint(const Vector2<T>& crP1, const Vecto
                                              std::vector<uint32_t> &rBitmap, const uint32_t cNumCols,
                                              const lg::Color &crColor)
 {
-  if(crP1.mX == crP2.mX)
+  if(crP1.x == crP2.x)
   {
     int8_t addr = 1;
 
-    if(crP1.mY > crP2.mY)
+    if(crP1.y > crP2.y)
     {
       addr = -1;
     }
 
-    int32_t numPts = crP2.mY - crP1.mY - 1;
-    int16_t start_pt = crP1.mY + addr;
+    int32_t numPts = crP2.y - crP1.y - 1;
+    int16_t start_pt = crP1.y + addr;
 
     for(int i = 0; i < numPts; i ++)
     {
-      rBitmap[(start_pt * cNumCols) + crP1.mX] = crColor.getRgba();
+      rBitmap[(start_pt * cNumCols) + crP1.x] = crColor.getRgba();
       start_pt += addr;
     }
   }
@@ -163,17 +163,17 @@ void PlotUtility<T>::drawStraightLineToPoint(const Vector2<T>& crP1, const Vecto
   {
     int8_t addr = 1;
 
-    if(crP1.mX > crP2.mX)
+    if(crP1.x > crP2.x)
     {
       addr = -1;
     }
 
-    int32_t numPts = crP2.mX - crP1.mX - 1;
-    int16_t start_pt = crP1.mX + addr;
+    int32_t numPts = crP2.x - crP1.x - 1;
+    int16_t start_pt = crP1.x + addr;
 
     for(int i = 0; i < numPts; i ++)
     {
-      rBitmap[(crP1.mY * cNumCols) + start_pt] = crColor.getRgba();
+      rBitmap[(crP1.y * cNumCols) + start_pt] = crColor.getRgba();
       start_pt += addr;
     }
   }
@@ -183,8 +183,8 @@ template <typename T>
 void PlotUtility<T>::plotLineLow(const Vector2<T> cP1, const Vector2<T> cP2, std::vector<uint32_t> &rBitmap,
                                  const uint32_t cNumCols, const lg::Color &crColor)
 {
-  int32_t dx = cP2.mX - cP1.mX;
-  int32_t dy = cP2.mY - cP1.mY;
+  int32_t dx = cP2.x - cP1.x;
+  int32_t dy = cP2.y - cP1.y;
 
   int32_t yi = 1;
 
@@ -195,9 +195,9 @@ void PlotUtility<T>::plotLineLow(const Vector2<T> cP1, const Vector2<T> cP2, std
   }
 
   int32_t D = (2 * dy) - dx;
-  int32_t y = cP1.mY;
+  int32_t y = cP1.y;
 
-  for(int32_t x = cP1.mX; x <= cP2.mX; x++)
+  for(int32_t x = cP1.x; x <= cP2.x; x++)
   {
     rBitmap[(y * cNumCols) + x] = crColor.getRgba();
 
@@ -217,8 +217,8 @@ template <typename T>
 void PlotUtility<T>::plotLineHigh(const Vector2<T> cP1, const Vector2<T> cP2, std::vector<uint32_t> &rBitmap,
                                   const uint32_t cNumCols, const lg::Color &crColor)
 {
-  int32_t dx = cP2.mX - cP1.mX;
-  int32_t dy = cP2.mY - cP1.mY;
+  int32_t dx = cP2.x - cP1.x;
+  int32_t dy = cP2.y - cP1.y;
   int32_t xi = 1;
 
   if(0 > dx)
@@ -228,9 +228,9 @@ void PlotUtility<T>::plotLineHigh(const Vector2<T> cP1, const Vector2<T> cP2, st
   }
 
   int32_t D = (2 * dx) - dy;
-  int32_t x = cP1.mX;
+  int32_t x = cP1.x;
 
-  for(int32_t y = cP1.mY; y <= cP2.mY; y++)
+  for(int32_t y = cP1.y; y <= cP2.y; y++)
   {
     rBitmap[(y * cNumCols) + x] = crColor.getRgba();
 
@@ -250,9 +250,9 @@ template <typename T>
 void PlotUtility<T>::plotLine(const Vector2<T> cP1, const Vector2<T> cP2, std::vector<uint32_t> &rBitmap,
                               const uint32_t cNumCols, const lg::Color &crColor)
 {
-  if(abs(cP2.mY - cP1.mY) < abs(cP2.mX - cP1.mX))
+  if(abs(cP2.y - cP1.y) < abs(cP2.x - cP1.x))
   {
-    if(cP1.mX > cP2.mX)
+    if(cP1.x > cP2.x)
     {
       return plotLineLow(cP2, cP1, rBitmap, cNumCols, crColor);
     }
@@ -263,7 +263,7 @@ void PlotUtility<T>::plotLine(const Vector2<T> cP1, const Vector2<T> cP2, std::v
   }
   else
   {
-    if(cP1.mY > cP2.mY)
+    if(cP1.y > cP2.y)
     {
       return plotLineHigh(cP2, cP1, rBitmap, cNumCols, crColor);
     }
@@ -279,21 +279,21 @@ std::vector<Vector2<T>> PlotUtility<T>::drawStraightLineToPoint(const Vector2<T>
 {
   std::vector<Vector2<T>> pts;
 
-  if(crP1.mX == crP2.mX)
+  if(crP1.x == crP2.x)
   {
     int8_t addr = 1;
 
-    if(crP1.mY > crP2.mY)
+    if(crP1.y > crP2.y)
     {
       addr = -1;
     }
 
-    pts.resize(abs(crP2.mY - crP1.mY) - 1);
-    int16_t start_pt = crP1.mY + addr;
+    pts.resize(abs(crP2.y - crP1.y) - 1);
+    int16_t start_pt = crP1.y + addr;
 
     for(int i = 0; i < pts.size(); i ++)
     {
-      pts[i] = Vector2<T>(crP1.mX, start_pt);
+      pts[i] = Vector2<T>(crP1.x, start_pt);
       start_pt += addr;
     }
   }
@@ -301,17 +301,17 @@ std::vector<Vector2<T>> PlotUtility<T>::drawStraightLineToPoint(const Vector2<T>
   {
     int8_t addr = 1;
 
-    if(crP1.mX > crP2.mX)
+    if(crP1.x > crP2.x)
     {
       addr = -1;
     }
 
-    pts.resize(abs(crP2.mX - crP1.mX) - 1);
-    int16_t start_pt = crP1.mX + addr;
+    pts.resize(abs(crP2.x - crP1.x) - 1);
+    int16_t start_pt = crP1.x + addr;
 
     for(int i = 0; i < pts.size(); i ++)
     {
-      pts[i] = Vector2<T>(start_pt, crP1.mY);
+      pts[i] = Vector2<T>(start_pt, crP1.y);
       start_pt += addr;
     }
   }
@@ -323,8 +323,8 @@ template <typename T>
 std::vector<Vector2<T>> PlotUtility<T>::plotLineLow(const Vector2<T> cP1, const Vector2<T> cP2)
 {
   std::vector<Vector2<T>> pts;
-  int32_t dx = cP2.mX - cP1.mX;
-  int32_t dy = cP2.mY - cP1.mY;
+  int32_t dx = cP2.x - cP1.x;
+  int32_t dy = cP2.y - cP1.y;
 
   int32_t yi = 1;
 
@@ -335,12 +335,12 @@ std::vector<Vector2<T>> PlotUtility<T>::plotLineLow(const Vector2<T> cP1, const 
   }
 
   int32_t D = (2 * dy) - dx;
-  int32_t y = cP1.mY;
-  pts.resize(cP2.mX - cP1.mX);
+  int32_t y = cP1.y;
+  pts.resize(cP2.x - cP1.x);
 
-  for(int32_t x = cP1.mX; x < cP2.mX; x++)
+  for(int32_t x = cP1.x; x < cP2.x; x++)
   {
-    pts[x - cP1.mX] = Vector2<T>(x, y);
+    pts[x - cP1.x] = Vector2<T>(x, y);
 
     if(0 < D)
     {
@@ -360,8 +360,8 @@ template <typename T>
 std::vector<Vector2<T>> PlotUtility<T>::plotLineHigh(const Vector2<T> cP1, const Vector2<T> cP2)
 {
   std::vector<Vector2<T>> pts;
-  int32_t dx = cP2.mX - cP1.mX;
-  int32_t dy = cP2.mY - cP1.mY;
+  int32_t dx = cP2.x - cP1.x;
+  int32_t dy = cP2.y - cP1.y;
   int32_t xi = 1;
 
   if(0 > dx)
@@ -371,12 +371,12 @@ std::vector<Vector2<T>> PlotUtility<T>::plotLineHigh(const Vector2<T> cP1, const
   }
 
   int32_t D = (2 * dx) - dy;
-  int32_t x = cP1.mX;
-  pts.resize(cP2.mY - cP1.mY);
+  int32_t x = cP1.x;
+  pts.resize(cP2.y - cP1.y);
 
-  for(int32_t y = cP1.mY; y < cP2.mY; y++)
+  for(int32_t y = cP1.y; y < cP2.y; y++)
   {
-    pts[y - cP1.mY] = Vector2<T>(x, y);
+    pts[y - cP1.y] = Vector2<T>(x, y);
 
     if(0 < D)
     {
@@ -395,9 +395,9 @@ std::vector<Vector2<T>> PlotUtility<T>::plotLineHigh(const Vector2<T> cP1, const
 template <typename T>
 std::vector<Vector2<T>> PlotUtility<T>::plotLine(const Vector2<T> cP1, const Vector2<T> cP2)
 {
-  if(abs(cP2.mY - cP1.mY) < abs(cP2.mX - cP1.mX))
+  if(abs(cP2.y - cP1.y) < abs(cP2.x - cP1.x))
   {
-    if(cP1.mX > cP2.mX)
+    if(cP1.x > cP2.x)
     {
       return plotLineLow(cP2, cP1);
     }
@@ -408,7 +408,7 @@ std::vector<Vector2<T>> PlotUtility<T>::plotLine(const Vector2<T> cP1, const Vec
   }
   else
   {
-    if(cP1.mY > cP2.mY)
+    if(cP1.y > cP2.y)
     {
       return plotLineHigh(cP2, cP1);
     }
@@ -422,25 +422,25 @@ std::vector<Vector2<T>> PlotUtility<T>::plotLine(const Vector2<T> cP1, const Vec
 template <typename T>
 std::vector<Vector2<T>> PlotUtility<T>::plotAALine(Vector2<T> p1, Vector2<T> p2)
 { 
-  int32_t steep = abs(p2.mY - p1.mY) > abs(p2.mX - p1.mX);
+  int32_t steep = abs(p2.y - p1.y) > abs(p2.x - p1.x);
   std::vector<Vector2<T>> pts;
 
   // swap the co-ordinates if slope > 1 or we
   // draw backwards
   if (steep)
   {
-    std::swap(p1.mX , p1.mY);
-    std::swap(p2.mX , p2.mY);
+    std::swap(p1.x , p1.y);
+    std::swap(p2.x , p2.y);
   }
-  if (p1.mX > p2.mX)
+  if (p1.x > p2.x)
   {
-    std::swap(p1.mX ,p2.mX);
-    std::swap(p1.mY ,p2.mY);
+    std::swap(p1.x ,p2.x);
+    std::swap(p1.y ,p2.y);
   }
 
   //compute the slope
-  float dx = p2.mX - p1.mX;
-  float dy = p2.mY - p1.mY;
+  float dx = p2.x - p1.x;
+  float dy = p2.y - p1.y;
   float gradient = dy / dx;
 
   if (dx == 0.0)
@@ -448,9 +448,9 @@ std::vector<Vector2<T>> PlotUtility<T>::plotAALine(Vector2<T> p1, Vector2<T> p2)
     gradient = 1;
   }
 
-  int32_t xpxl1 = p1.mX;
-  int32_t xpxl2 = p2.mX;
-  float intersectY = p1.mY;
+  int32_t xpxl1 = p1.x;
+  int32_t xpxl2 = p2.x;
+  float intersectY = p1.y;
 
   // std::cout << "px 1: " << xpxl2 << " px 2: " << xpxl1 << std::endl;
   pts.resize((xpxl2 - xpxl1 + 1) * 2);
@@ -471,9 +471,9 @@ std::vector<Vector2<T>> PlotUtility<T>::plotAALine(Vector2<T> p1, Vector2<T> p2)
         pts[i + 1] = Vector2<T>(static_cast<int32_t>(intersectY) - 1, x);
         // std::cout << pts[i] << std::endl;
 
-      if (pts[i + 1].mX < 0)
+      if (pts[i + 1].x < 0)
       {
-        pts[i + 1].mX = 0;
+        pts[i + 1].x = 0;
       }
 
         // drawPixel(static_cast<int32_t>(intersectY), x, 1 - intersectY);
@@ -498,9 +498,9 @@ std::vector<Vector2<T>> PlotUtility<T>::plotAALine(Vector2<T> p1, Vector2<T> p2)
       pts[i + 1] = Vector2<T>(x, static_cast<int32_t>(intersectY) - 1);
               // std::cout << pts[i] << std::endl;
 
-      if (pts[i + 1].mY < 0)
+      if (pts[i + 1].y < 0)
       {
-        pts[i + 1].mY = 0;
+        pts[i + 1].y = 0;
       }
 
 //    drawPixel(x, (static_cast<int32_t>(intersectY), 1 - intersectY);

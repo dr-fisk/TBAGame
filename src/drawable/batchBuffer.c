@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "drawable/batchBuffer.h"
-#include "vertexUtility.h"
+#include "utility/vertexUtility.h"
 
 const std::string MAIN_SHADER = "./shaders/shader1.txt";
 
@@ -120,7 +120,9 @@ void BatchBuffer::update(const uint32_t cVboId, const uint32_t cIboId)
 {
   //Might need some updating
   std::vector<Vertex> temp;
+  std::vector<Vertex> drawBuffer(32);
   int index = 0;
+  int currentQuad = 0;
   for(auto &drawable : mQuads)
   {
     temp = drawable.second->getVertex();
@@ -143,9 +145,26 @@ void BatchBuffer::update(const uint32_t cVboId, const uint32_t cIboId)
       {
         VertexUtility::setVertexTextureIndex(vertex, 3.0f);
       }
+      else
+      {
+        VertexUtility::setVertexTextureIndex(vertex, 3.0f);
+      }
 
-      mVbo.at(cVboId)->updateVboSubBuffer(index * sizeof(Vertex), sizeof(Vertex), &vertex);
+      drawBuffer[index % drawBuffer.size()] = vertex;
+
       index ++;
+    }
+
+    currentQuad ++;
+
+    // Group up to max active texture vertexes to update. This limits the amount of updates we need to make per frame
+    // allowing us to increase performance
+    // Some bugs here, and there are a few more optimizations I'd love to do
+    if ((0 == index % drawBuffer.size()) || (currentQuad == mQuads.size()))
+    {
+      mVbo.at(cVboId)->updateVboSubBuffer((index / drawBuffer.size()) * sizeof(Vertex),
+                                          (index % (drawBuffer.size() + 1)) * sizeof(Vertex),
+                                          drawBuffer.data());
     }
   }
 
@@ -175,7 +194,7 @@ void BatchBuffer::initBuffers()
 
   for(size_t i = 0; i < mTexture.size(); i++)
   {
-    mTexture[i] = std::make_shared<Texture>(i);
+    mTexture[i] = std::make_shared<Texture>();
   }
 }
 
@@ -214,6 +233,7 @@ void BatchBuffer::initTexture(const uint32_t cId, const std::string &crPath)
 void BatchBuffer::initTexture(const uint32_t cId, void *pBuff, const uint32_t cHeight, const uint32_t cWidth,
                               const uint32_t cBpp)
 {
+    mTexture.at(cId)->create(cHeight, cWidth);
     mTexture.at(cId)->loadTexture(pBuff, cHeight, cWidth, cBpp);
 }
 

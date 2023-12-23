@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "exceptionState.h"
+#include "states/exceptionState.h"
 
 ExceptionState::ExceptionState(const std::stack<std::shared_ptr<State>> &crStates, const std::shared_ptr<BatchBuffer> &crpBatchBuffer, 
                                const std::string &crError) : State(crStates, crpBatchBuffer)

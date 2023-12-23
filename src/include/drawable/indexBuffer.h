@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "glcommon.h"
-#include "net_utility.h"
+#include "utility/net_utility.h"
 
 class IndexBuffer {
   public:

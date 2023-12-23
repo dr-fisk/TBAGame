@@ -2,7 +2,7 @@
 
 #include "Vector.h"
 #include "common.h"
-#include "plot_utility.h"
+#include "utility/plot_utility.h"
 
 #include <cstdint>
 #include <vector>
@@ -40,34 +40,34 @@ namespace EdgeTable
     Vector2<T> p2 = {0, 0};
     for (int32_t i = 0; i < crEdges.size(); i ++)
     {
-      p1.mX = crEdges[i].p1.mX;
-      p1.mY = crEdges[i].p1.mY;
-      p2.mX = crEdges[i].p2.mX;
-      p2.mY = crEdges[i].p2.mY;
-      biggerYVal = std::max(p1.mY, p2.mY);
-      smallerYVal = std::min(p1.mY, p2.mY);
+      p1.x = crEdges[i].p1.x;
+      p1.y = crEdges[i].p1.y;
+      p2.x = crEdges[i].p2.x;
+      p2.y = crEdges[i].p2.y;
+      biggerYVal = std::max(p1.y, p2.y);
+      smallerYVal = std::min(p1.y, p2.y);
 
-      if (static_cast<int32_t>(p1.mY) == static_cast<int32_t>(p2.mY))
+      if (static_cast<int32_t>(p1.y) == static_cast<int32_t>(p2.y))
       {
         continue;
       }
 
-      if (p1.mX == p2.mX)
+      if (p1.x == p2.x)
       {
         m = 0;
         rEdgeTable[rNumEdges].dxPerScan = m;
       }
       else
       {
-        dy = static_cast<int32_t>(p2.mY) - static_cast<int32_t>(p1.mY);
-        dx = p2.mX - p1.mX;
+        dy = static_cast<int32_t>(p2.y) - static_cast<int32_t>(p1.y);
+        dx = p2.x - p1.x;
         m = dy / dx;
         rEdgeTable[rNumEdges].dxPerScan = 1.0 / m;
       }
 
       rEdgeTable[rNumEdges].yUpper = biggerYVal;
       rEdgeTable[rNumEdges].yLower = smallerYVal;
-      rEdgeTable[rNumEdges].xIntersect = (p2.mY > p1.mY) ? p1.mX : p2.mX;
+      rEdgeTable[rNumEdges].xIntersect = (p2.y > p1.y) ? p1.x : p2.x;
       rNumEdges ++;
     }
 
@@ -101,22 +101,9 @@ namespace EdgeTable
 
     fillEdgeTable(crEdges, edgeTable, numEdges);
 
-    std::ofstream fd;
-    
-    if (cha == '!')
-     fd.open("AET.txt");
-
-    for(int32_t y = cMinY; y < crDimensions.mY; y ++)
+    for(int32_t y = cMinY; y < crDimensions.y; y ++)
     {
         fillActiveEdgeTable(edgeTable, activeEdgeTable, edgeTableIdx, numEdges, activeEdgeTableIdx, y);
-      if (cha == '!')
-      {
-        fd << y << std::endl;
-        for(int i = 0; i < activeEdgeTableIdx; i ++)
-        {
-          fd << i << ": " << activeEdgeTable[i].yLower << ", " << activeEdgeTable[i].yUpper << ", " << activeEdgeTable[i].xIntersect << ", " << activeEdgeTable[i].dxPerScan << std::endl;
-        }
-      }
 
       for(int32_t dx = 0; dx < scanlineSubDiv; dx++)
       {
@@ -130,37 +117,14 @@ namespace EdgeTable
           endIndex = activeEdgeTable[i + 1].xIntersect;
           endCovered = endIntersection - (endIndex);
 
-          if (startIndex < 0 || startIndex >= crDimensions.mX || endIndex < 0 || endIndex >= crDimensions.mX )
+          if (startIndex < 0 || startIndex >= crDimensions.x || endIndex < 0 || endIndex >= crDimensions.x )
           {
             std::cout << "Hit the badspot\n";
           }
 
-
-          //Clamp startIndex
-
-          // if(startIndex < lastEnd)
-          // {
-          //   startIndex = lastEnd + 1;
-          // }
-
-          if (cha == '!')
-          {
-            fd << y << " at step: " << dx << std::endl;
-            fd << "Start: " << startIndex << " End: " << endIndex << std::endl;
-          }
-          // We fill from left to right, if left X value (start Index) > right X value (end Index) then we are invalid
-          // if (startIndex > endIndex)
-          // {
-          //   // if (cha == '!')
-          //   // {
-          //   //   std::cout << "Skip at y: " << y << std::endl;
-          //   // }
-          //   continue;
-          // }
-
           if(startIndex == endIndex)
           {
-            idx1 = (y * crDimensions.mX) + startIndex;
+            idx1 = (y * crDimensions.x) + startIndex;
             alpha = lg::Color(rBitmap[idx1]).getAlpha();
             tempColor = lg::Color(crColor.getRed(), crColor.getGreen(), crColor.getBlue(),
                                   alphaWeight * startCovered);
@@ -169,8 +133,8 @@ namespace EdgeTable
           }
           else
           {
-            idx1 = (y * crDimensions.mX) + startIndex;
-            idx2 = (y * crDimensions.mX) + endIndex;
+            idx1 = (y * crDimensions.x) + startIndex;
+            idx2 = (y * crDimensions.x) + endIndex;
             alpha = lg::Color(rBitmap[idx1]).getAlpha();
             tempColor = lg::Color(crColor.getRed(), crColor.getGreen(), crColor.getBlue(),
                                   alphaWeight * startCovered);
@@ -186,18 +150,14 @@ namespace EdgeTable
           for (int32_t x = startIndex + 1; x < endIndex; x ++)
           {	
             pt = {x, y};
-            alpha = lg::Color(rBitmap[crDimensions.mX * y + x]).getAlpha();
+            alpha = lg::Color(rBitmap[crDimensions.x * y + x]).getAlpha();
             tempColor = lg::Color(crColor.getRed(), crColor.getGreen(), crColor.getBlue(), alphaWeight);
             tempColor.addAlpha(alpha);
-            PlotUtility<int32_t>::drawPixelInBitmap(pt, rBitmap, crDimensions.mX, tempColor);
+            PlotUtility<int32_t>::drawPixelInBitmap(pt, rBitmap, crDimensions.x, tempColor);
           }
         }
 
-        if (y == crDimensions.mY)
-          break;
-
         updateActiveTableXVals(activeEdgeTable, activeEdgeTableIdx, stepPerScanline);
-        // sortActiveEdgeTable(activeEdgeTable, activeEdgeTableIdx);
       }
     }
   }

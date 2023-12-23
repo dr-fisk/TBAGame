@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <queue>
 #include <iostream>
-#include "mainMenuState.h"
+#include "states/mainMenuState.h"
 #include "drawable/text.h"
 
 MainMenu::MainMenu(const std::stack<std::shared_ptr<State>> &crStates, const std::shared_ptr<BatchBuffer> &crpBatchBuffer) : State(crStates, crpBatchBuffer)
@@ -11,31 +11,36 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>> &crStates, const std
   mStartTime = std::chrono::system_clock::now();
   // mMesh = Mesh("../src/art.png");
   // mTexture = Texture("../src/art.png");
-  mNewFont = Font(temp, 5, lg::Black, 12);
+  mNewFont = Font(temp, 5, lg::Black);
+  mNewFont.updateFontTextures(12);
 
-  std::shared_ptr<Drawable> text = std::make_shared<Text>(mNewFont, "Simam");
-  // mNewFont.writeGenPoints((char)89);
+  std::shared_ptr<Drawable> text = std::make_shared<Text>(mNewFont, "S", 100, 100);
+  // mNewFont.writeGenPoints('g');
   Vector2<int32_t> dim = mNewFont.getCharacterDimensions('S');
+  mpBatchBuffer->initTexture(0, mNewFont['S'].data(), dim.y, dim.x, 8);
+  // dim = mNewFont.getCharacterDimensions('i');
 
-  mpBatchBuffer->initTexture(0, mNewFont['S'].data(), dim.mY, dim.mX, 8);
-  dim = mNewFont.getCharacterDimensions('i');
 
-    // temprect = std::make_shared<Rect>(100,100, dim.mY, dim.mX, lg::Black);
+    // temprect = std::make_shared<Rect>(100,100, dim.y, dim.x, lg::Black);
 
   // dim = mNewFont.getCharacterDimensions((char)45);
-  mpBatchBuffer->initTexture(1, mNewFont['i'].data(), dim.mY, dim.mX, 8);
-  dim = mNewFont.getCharacterDimensions('m');
-  mpBatchBuffer->initTexture(2, mNewFont['m'].data(), dim.mY, dim.mX, 8);
-  dim = mNewFont.getCharacterDimensions('a');
-  mpBatchBuffer->initTexture(3, mNewFont['a'].data(), dim.mY, dim.mX, 8);
+  // mpBatchBuffer->initTexture(1, mNewFont['i'].data(), dim.y, dim.x, 8);
+  // dim = mNewFont.getCharacterDimensions('m');
+  //   std::cout << dim;
+
+  // mpBatchBuffer->initTexture(2, mNewFont['m'].data(), dim.y, dim.x, 8);
+  // dim = mNewFont.getCharacterDimensions('a');
+  //   std::cout << dim;
+
+  // mpBatchBuffer->initTexture(3, mNewFont['a'].data(), dim.y, dim.x, 8);
   // dim = mNewFont.getCharacterDimensions((char)48);
-  // mpBatchBuffer->initTexture(4, mNewFont[(char)48].data(), dim.mY, dim.mX, 8);
-  // std::shared_ptr<Rect> newrect = std::make_shared<Rect>(500,500, dim.mY, dim.mX, lg::Black);
+  // mpBatchBuffer->initTexture(4, mNewFont[(char)48].data(), dim.y, dim.x, 8);
+  // std::shared_ptr<Rect> newrect = std::make_shared<Rect>(500,500, dim.y, dim.x, lg::Black);
     // mpBatchBuffer->initTexture(0, "../src/art.png");
   mpBatchBuffer->bindTexture(0, 0);
-  mpBatchBuffer->bindTexture(1, 1);
-  mpBatchBuffer->bindTexture(2, 2);
-  mpBatchBuffer->bindTexture(3, 3);
+  // mpBatchBuffer->bindTexture(1, 1);
+  // mpBatchBuffer->bindTexture(2, 2);
+  // mpBatchBuffer->bindTexture(3, 3);
   // mpBatchBuffer->bindTexture(4, 4);
 
   mpBatchBuffer->registerDrawable(0, 0, text);
@@ -107,7 +112,7 @@ void MainMenu::update(const std::shared_ptr<RenderTarget> &crpTarget)
   //   Vector2<int32_t> dim = mNewFont.getCharacterDimensions((char)cha);
   //   mStartTime = std::chrono::system_clock::now();
   //   auto uni = mpBatchBuffer->getUniform(0, "u_Textures");
-  //   mpBatchBuffer->initTexture(0, mNewFont[(char)cha].data(), dim.mY, dim.mX, 8);
+  //   mpBatchBuffer->initTexture(0, mNewFont[(char)cha].data(), dim.y, dim.x, 8);
   //   // mpBatchBuffer->initTexture(0, "../src/art.png");
   //   mpBatchBuffer->bindTexture(0,0);
   //   int sampler[1] = {0};

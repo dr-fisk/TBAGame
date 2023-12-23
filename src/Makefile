@@ -22,6 +22,7 @@ RENDERERSPATH = ./renderer
 RESOURCEPATH = ./resource
 GUIPATH = ./gui
 DRAWABLESPATH = ./drawable
+RENDERENGINEPATH = ./engine
 SRC = ./src
 SHADERSPATH = ./shaders
 FONTSPATH = ./fonts
@@ -83,6 +84,8 @@ drawableFiles = indexBuffer.c \
 								text.c \
 								texture.c
 
+renderEngineFiles = renderEngine.c
+
 dynLibFiles = png.c
 
 utilityFiles = edgeTable.c \
@@ -112,6 +115,10 @@ resourceObjs = $(addprefix $(RESOURCEPATH)/, $(resources))
 
 drawables = $(patsubst %.c, %.o, $(drawableFiles))
 drawableObjs = $(addprefix $(DRAWABLESPATH)/, $(drawables))
+
+
+renderEngine = $(patsubst %.c, %.o, $(renderEngineFiles))
+renderEngineObjs = $(addprefix $(RENDERENGINEPATH)/, $(renderEngine))
 
 dynLibPrefix = lest
 
@@ -159,6 +166,10 @@ $(RENDERERSPATH):
 	@echo "MAKE	Renderers"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(RENDERERSPATH)
 
+$(RENDERENGINEPATH):
+	@echo "MAKE	Render Engine"
+	$(Q)$(MAKE) V=$(V) D=$(D) -C $(RENDERENGINEPATH)
+
 $(RESOURCEPATH):
 	@echo "MAKE	Resource"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(RESOURCEPATH)
@@ -175,7 +186,7 @@ font:
 		@echo "Copying Fonts"
 		$(Q)cp -r $(FONTSPATH) $(PATHTOEXEC)
 
-%.exe: $(objs) $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH) $(RESOURCEPATH) $(UTILITYPATH)
+%.exe: $(objs) $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH) $(RENDERENGINEPATH) $(RESOURCEPATH) $(UTILITYPATH)
 	@echo "MAKE $@"
 	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(guiObjs) $(rendererObjs) $(drawableObjs) $(utilitiesObjs) $(LDFLAGS)
 	@echo "Checking DIR"
@@ -276,14 +287,31 @@ clean_main:
 	fi \
 	done
 
-clean_dep:
-	@echo "Clean Dependencies"
-	@for item in ${deps}; do \
+clean_renderengine:
+	@echo "Clean Render Engine"
+	@for item in ${renderEngineObjs}; do \
 	if [ -f $${item} ]; then \
 	echo "Rm $${item}"; \
 	rm $${item}; \
 	fi \
 	done
+
+clean_utilities:
+	@echo "Clean Utilities"
+	@for item in ${utilitiesObjs}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done
+
+clean_dep:
+	@echo "Clean Dependencies"
+	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(UTILITYPATH)
+	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(STATEPATH)
+	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(RENDERERSPATH)
+	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(DRAWABLESPATH)
+	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(RENDERENGINEPATH)
 
 clean_exe:
 	@echo "Clean Executable"
@@ -292,7 +320,7 @@ clean_exe:
 		rm $(programs); \
 	fi
 
-clean: clean_state clean_gui clean_render clean_drawable clean_lib clean_main clean_dep clean_exe
+clean: clean_state clean_gui clean_render clean_drawable clean_lib clean_main clean_dep clean_exe clean_utilities clean_renderengine
 	@echo "Checking win DIR"
 	$(Q)if [ -d $(PATHTOEXEC) ]; then \
 		echo "RM Win DIR"; \
@@ -305,5 +333,5 @@ help:
 	@echo "make TARGET=[lin64, win64]"
 	@echo "Makefile will be expanded in the future"
 
-.PRECIOUS: %.o $(STATEPATH)/%.o $(GUIPATH)/%.o $(RENDERERSPATH)/%.o $(RESOURCEPATH)/%.o $(DRAWABLESPATH)/%.o $(DYNLIBSPATH)/%.so $(DYNLIBSPATH)/%.o $(DYNLIBSPATH)/%.dll $(UTILITYPATH)/%.o
-.PHONY: $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH) $(RESOURCEPATH) $(UTILITYPATH)
+.PRECIOUS: %.o $(STATEPATH)/%.o $(GUIPATH)/%.o $(RENDERERSPATH)/%.o $(RESOURCEPATH)/%.o $(DRAWABLESPATH)/%.o $(RENDERENGINEPATH)/%.o $(DYNLIBSPATH)/%.so $(DYNLIBSPATH)/%.o $(DYNLIBSPATH)/%.dll $(UTILITYPATH)/%.o
+.PHONY: $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH) $(RESOURCEPATH) $(UTILITYPATH) $(RENDERENGINEPATH)

@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "net_utility.h"
+#include "utility/net_utility.h"
 #include "glcommon.h"
 
 class VertexBuffer {

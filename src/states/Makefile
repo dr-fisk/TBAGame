@@ -13,3 +13,12 @@ StateDeps := $(patsubst %.o, %.d, $(states))
 %.o: %.c
 	@echo "MAKE $<"
 	$(Q)$(CC) $(CFLAGS) $< $(LDFLAGS) -c
+
+clean_dep:
+	@echo "Clean Dependencies"
+	@for item in ${StateDeps}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done

@@ -3,8 +3,9 @@
 
 #include <memory>
 #include <stack>
+#include <chrono>
 
-#include "state.h"
+#include "states/state.h"
 #include "renderWindow.h"
 #include "lestTtf.h"
 
@@ -21,9 +22,9 @@ class Game {
     std::shared_ptr<BatchBuffer> mpBatchBuffer;
     LestTrueType ttf;
     int mGameRuntime;
-    int mStartTime;
-    int mEndTime;
-    static int mFps;
+    std::chrono::time_point<std::chrono::steady_clock> mStartTime;
+    std::chrono::time_point<std::chrono::steady_clock> mEndTime;
+    int mFps;
 
     void initMainState();
     void gameEnd();

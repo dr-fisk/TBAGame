@@ -77,10 +77,10 @@ lg::Color Rect::getRGBA()
 */
 void Rect::getDimensions(GLfloat *pLeft, GLfloat *pTop, GLfloat *pHeight, GLfloat *pWidth)
 {
-  *pLeft   = mPos.mX;
-  *pTop    = mPos.mY;
-  *pHeight = mSize.mY;
-  *pWidth  = mSize.mX;
+  *pLeft   = mPos.x;
+  *pTop    = mPos.y;
+  *pHeight = mSize.y;
+  *pWidth  = mSize.x;
 }
 
 /* Function:    createVertex
@@ -94,10 +94,10 @@ Vertex Rect::createVertex()
   GLfloat wWidth = gWindowWidth / 2.0f;
   GLfloat wHeight = gWindowHeight / 2.0f;
 
-  GLfloat x1 = (static_cast<GLfloat>(mPos.mX) / wWidth) - 1.0f;
-  GLfloat x2 = ((static_cast<GLfloat>(mPos.mX) + static_cast<GLfloat>(mSize.mX)) / wWidth) - 1.0f;
-  GLfloat y1 = -1 * ((static_cast<GLfloat>(mPos.mY) / wHeight) - 1.0f);
-  GLfloat y2 = -1 * (((static_cast<GLfloat>(mPos.mY) + static_cast<GLfloat>(mSize.mY)) / wHeight) - 1.0f);
+  GLfloat x1 = (static_cast<GLfloat>(mPos.x) / wWidth) - 1.0f;
+  GLfloat x2 = ((static_cast<GLfloat>(mPos.x) + static_cast<GLfloat>(mSize.x)) / wWidth) - 1.0f;
+  GLfloat y1 = -1 * ((static_cast<GLfloat>(mPos.y) / wHeight) - 1.0f);
+  GLfloat y2 = -1 * (((static_cast<GLfloat>(mPos.y) + static_cast<GLfloat>(mSize.y)) / wHeight) - 1.0f);
 
   const Vector2<GLfloat> textCoord1(0.0f, 1.0f);
   const Vector2<GLfloat> textCoord2(1.0f, 1.0f);
@@ -114,16 +114,16 @@ Vector2<GLfloat> Rect::getTranslate()
 {
    GLfloat wWidth = gWindowWidth / 2.0f;
    GLfloat wHeight = gWindowHeight / 2.0f;
-   return Vector2<GLfloat>((static_cast<GLfloat>(mPos.mX) / wWidth) - 1.0f,
-                           -1 * ((static_cast<GLfloat>(mPos.mY) / wHeight) - 1.0f));
+   return Vector2<GLfloat>((static_cast<GLfloat>(mPos.x) / wWidth) - 1.0f,
+                           -1 * ((static_cast<GLfloat>(mPos.y) / wHeight) - 1.0f));
 }
 
 void Rect::translate(Vector2<GLfloat>& rTranslate)
 {
    GLfloat wWidth = gWindowWidth / 2.0f;
    GLfloat wHeight = gWindowHeight / 2.0f;
-   mPos.mX = (rTranslate.mX * wWidth) + wWidth;
-   mPos.mY = -1 * ((rTranslate.mY * wHeight) + wHeight);
+   mPos.x = (rTranslate.x * wWidth) + wWidth;
+   mPos.y = -1 * ((rTranslate.y * wHeight) + wHeight);
 }
 
 // TODO: Add default params to be centered around bottom left of screen
@@ -131,16 +131,16 @@ void Rect::rotate(GLfloat theta)
 {
    GLfloat wWidth = gWindowWidth / 2.0f;
    GLfloat wHeight = gWindowHeight / 2.0f;
-   GLfloat x1 = (static_cast<GLfloat>(mPos.mX) / wWidth) - 1.0f;
-   GLfloat y1 = -1 * ((static_cast<GLfloat>(mPos.mY) / wHeight) - 1.0f);
+   GLfloat x1 = (static_cast<GLfloat>(mPos.x) / wWidth) - 1.0f;
+   GLfloat y1 = -1 * ((static_cast<GLfloat>(mPos.y) / wHeight) - 1.0f);
 
 
    x1 = (x1 + 1.0f)*std::cos(theta) - (y1 + 1.0f)*std::sin(theta);
    y1 = (x1 + 1.0f)*std::sin(theta) + (y1 + 1.0f)*std::cos(theta);
 
-   mPos.mX = x1 * wWidth + wWidth;
-   mPos.mY = -y1 * wHeight - wHeight;
-   // mPos.mY = -y1 * wHeight - wHeight / 2;
+   mPos.x = x1 * wWidth + wWidth;
+   mPos.y = -y1 * wHeight - wHeight;
+   // mPos.y = -y1 * wHeight - wHeight / 2;
 }
 
 /* Function:    setPos
@@ -151,8 +151,8 @@ void Rect::rotate(GLfloat theta)
 */
 void Rect::setPos(const int32_t cLeft, const int32_t cTop)
 {
-  mPos.mX   = cLeft;
-  mPos.mY    = cTop;
+  mPos.x   = cLeft;
+  mPos.y    = cTop;
 }
 
 void Rect::setPos(const Vector2<int32_t>& crPos)
@@ -167,18 +167,18 @@ void Rect::setSize(const Vector2<int32_t>& crSize)
 
 void Rect::movePos(const int32_t cLeft, const int32_t cTop)
 {
-  mPos.mX   += cLeft;
-  mPos.mY   += cTop;
+  mPos.x   += cLeft;
+  mPos.y   += cTop;
 }
 
 int32_t Rect::getLeft() const
 {
-   return mPos.mX;
+   return mPos.x;
 }
 
 int32_t Rect::getTop() const
 {
-   return mPos.mY;
+   return mPos.y;
 }
 
 Vector2<int32_t> Rect::getPos() const

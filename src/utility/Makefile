@@ -13,3 +13,12 @@ UTILITYDEPS := $(patsubst %.o, %.d, $(utilities))
 %.o: %.c
 	@echo "MAKE $<"
 	$(Q)$(CC) $(CFLAGS) $< $(LDFLAGS) -c
+
+clean_dep:
+	@echo "Clean Dependencies"
+	@for item in ${UTILITYDEPS}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done

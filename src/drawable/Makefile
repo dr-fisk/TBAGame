@@ -14,3 +14,11 @@ DrawableDeps := $(patsubst %.o, %.d, $(drawables))
 	@echo "MAKE $<"
 	$(Q)$(CC) $(CFLAGS) $< $(LDFLAGS) -c
 
+clean_dep:
+	@echo "Clean Dependencies"
+	@for item in ${DrawableDeps}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done

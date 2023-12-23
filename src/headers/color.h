@@ -80,6 +80,4 @@ class Color
   const Color Transparent = Color(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
-
-
 #endif

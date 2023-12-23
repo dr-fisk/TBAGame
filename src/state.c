@@ -1,4 +1,4 @@
-#include "state.h"
+#include "states/state.h"
 
 /* Function:    State
    Description: Constructs new state which contains stack of states and window context

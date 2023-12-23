@@ -7,7 +7,7 @@
 #include <string>
 #include <fstream>
 
-#include"net_utility.h"
+#include"utility/net_utility.h"
 #include "common.h"
 
 #define IHDR_MASK  0x01

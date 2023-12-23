@@ -2,10 +2,8 @@
 #include <ctime>
 
 #include "game.h"
-#include "mainMenuState.h"
-#include "exceptionState.h"
-
-int Game::mFps = 0;
+#include "states/mainMenuState.h"
+#include "states/exceptionState.h"
 
 GLfloat gWindowWidth = 0;
 GLfloat gWindowHeight = 0;
@@ -57,6 +55,7 @@ Game::Game()
   mpBatchBuffer->initShader(0, "lol");
   mpBatchBuffer->bindShader(0);
   mpBatchBuffer->setVaoAttributes(0, temp);
+  mFps = 0;
   //init textures
 
 
@@ -76,7 +75,7 @@ Game::Game()
       std::cout << e.what();
     }  */
   mGameRuntime = time(nullptr);
-  mStartTime = time(nullptr);
+  mStartTime = std::chrono::steady_clock::now();
 
 }
 
@@ -111,11 +110,11 @@ void Game::gameLoop() {
     mStates.top()->update(mpWindow);
     mStates.top()->render(mpWindow);
     Game::mFps ++;
-    mEndTime = time(nullptr);
-    if ((mEndTime - mStartTime) > 0) {
-      std::cout << "FPS: " << Game::mFps / (mEndTime - mStartTime) << std::endl;
+    mEndTime = std::chrono::steady_clock::now();
+    if (std::chrono::duration_cast<std::chrono::seconds>(mEndTime - mStartTime).count() >= 1.0f) {
+      std::cout << "FPS: " << Game::mFps / std::chrono::duration_cast<std::chrono::seconds>(mEndTime - mStartTime).count() << std::endl;
       mFps = 0;
-      mStartTime = mEndTime;
+      mStartTime = std::chrono::steady_clock::now();
     }
   }
 

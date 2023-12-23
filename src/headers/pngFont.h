@@ -5,7 +5,7 @@
 #include <string>
 
 #include "drawable/rectangle.h"
-#include "net_utility.h"
+#include "utility/net_utility.h"
 
 struct FontAttrib {
   int8_t glyphLeft;

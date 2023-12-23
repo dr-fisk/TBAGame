@@ -1,4 +1,4 @@
-#include "edgeTable.h"
+#include "utility/edgeTable.h"
 
 #include <algorithm>
 

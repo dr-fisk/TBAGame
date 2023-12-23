@@ -4,7 +4,7 @@
 #include <queue>
 
 #include "font.h"
-#include "edgeTable.h"
+#include "utility/edgeTable.h"
 
 Font::Font()
 {
@@ -13,14 +13,25 @@ Font::Font()
 static const int32_t ASCII_CHAR_START = 33;
 static const int32_t ASCII_CHAR_END = 126;
 
-Font::Font(const std::string& crTtfPath, const uint32_t cNumOfSubDivs, const lg::Color cColor, const uint32_t cPixelDim)
+Font::Font(const std::string& crTtfPath, const uint32_t cNumOfSubDivs, const lg::Color cColor)
 {
   mNumSubDiv = cNumOfSubDivs;
   mFontColor = cColor;
-  mPixelDimensions = 1;//cPixelDim;
 
-  readTtfFile(crTtfPath);
-  generateFont(cPixelDim);
+  LestTrueType ttf;
+  readTtfFile(crTtfPath, ttf);
+
+  char currChar = '\0';
+  for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
+  {
+    currChar = static_cast<char>(i);
+    mFont[currChar].FontHeader = getCharGlyfHeader(currChar, ttf);
+  
+    if(mFont[currChar].FontHeader.numberofContours > 0)
+    {
+      generateGlyfData(currChar);
+    }
+  }
 }
 
 void Font::scanLineFill(const char cChar)
@@ -39,8 +50,8 @@ void Font::fillColor(const char cChar)
   int32_t point_above = 0;
   int32_t point_right = 0;
   int32_t point_left = 0;
-  uint32_t num_rows = mFont[cChar].Dimensions.mY;
-  uint32_t num_cols = mFont[cChar].Dimensions.mX;
+  uint32_t num_rows = mFont[cChar].Dimensions.y;
+  uint32_t num_cols = mFont[cChar].Dimensions.x;
   const uint32_t color_map_size = mFont[cChar].Bitmap.size();
   Vector2<int32_t> curr_point_coords;
   Vector2<int32_t> point_above_coords;
@@ -104,17 +115,17 @@ void Font::fillColor(const char cChar)
 
 void Font::fillGeneratedPointColor(const char cChar)
 {
-  const uint32_t num_cols = mFont[cChar].Dimensions.mX;
+  const uint32_t num_cols = mFont[cChar].Dimensions.x;
   int i = 0;
   Vector2<int32_t> p1 = {0, 0};
   Vector2<int32_t> p2 = {0, 0};
   
   for (const auto &edge : mFont[cChar].GenPtsEdges)
   {
-    p1.mX = edge.p1.mX;
-    p1.mY = edge.p1.mY;
-    p2.mX = edge.p2.mX;
-    p2.mY = edge.p2.mY;
+    p1.x = edge.p1.x;
+    p1.y = edge.p1.y;
+    p2.x = edge.p2.x;
+    p2.y = edge.p2.y;
     PlotUtility<int32_t>::plotLine(p1, p2, mFont[cChar].Bitmap, num_cols, mFontColor);
   }
 }
@@ -206,11 +217,11 @@ int32_t Font::generateGlyphPoints(const char cChar)
   int8_t contourStart = 0;
   int32_t nextIdx = 0;
   int32_t contourLen = 0;
-  Vector2<GLfloat> minCoord = Vector2<GLfloat>(mFont[cChar].FontHeader.xMin / mPixelDimensions,
-                                               mFont[cChar].FontHeader.yMin / mPixelDimensions);
-  Vector2<GLfloat> maxCoord = Vector2<GLfloat>(mFont[cChar].FontHeader.xMax / mPixelDimensions,
-                                               mFont[cChar].FontHeader.yMax / mPixelDimensions);
-  GLfloat yShift = -maxCoord.mY;
+  Vector2<GLfloat> minCoord = Vector2<GLfloat>(mFont[cChar].FontHeader.xMin,
+                                               mFont[cChar].FontHeader.yMin);
+  Vector2<GLfloat> maxCoord = Vector2<GLfloat>(mFont[cChar].FontHeader.xMax,
+                                               mFont[cChar].FontHeader.yMax);
+  GLfloat yShift = -maxCoord.y;
 
   for(int32_t i = 0; i < mFont[cChar].FontHeader.numberofContours; i++)
   {
@@ -220,8 +231,8 @@ int32_t Font::generateGlyphPoints(const char cChar)
     contourStartedOff = 0;
     for(; j <= mFont[cChar].FontHeader.endPtsOfContours[i]; j ++)
     {
-      xPos = (mFont[cChar].FontHeader.xCoordinates[j] / mPixelDimensions) - minCoord.mX;
-      yPos = abs((mFont[cChar].FontHeader.yCoordinates[j] / mPixelDimensions) + yShift);
+      xPos = (mFont[cChar].FontHeader.xCoordinates[j]) - minCoord.x;
+      yPos = abs((mFont[cChar].FontHeader.yCoordinates[j]) + yShift);
       contourLen = mFont[cChar].FontHeader.endPtsOfContours[i] - contourStartIdx + 1;
       nextIdx = (j + 1 - contourStartIdx) % contourLen + contourStartIdx;
 
@@ -239,34 +250,34 @@ int32_t Font::generateGlyphPoints(const char cChar)
           if (ON_CURVE_POINT & mFont[cChar].FontHeader.flags[nextIdx])
           {
             mFont[cChar].GeneratedPoints[currIdx] = Vector2<float>(
-              (mFont[cChar].FontHeader.xCoordinates[nextIdx] / mPixelDimensions) - minCoord.mX,
-              abs((mFont[cChar].FontHeader.yCoordinates[nextIdx] / mPixelDimensions) + yShift));
+              (mFont[cChar].FontHeader.xCoordinates[nextIdx]) - minCoord.x,
+              abs((mFont[cChar].FontHeader.yCoordinates[nextIdx]) + yShift));
             currIdx++;
             j++;
             continue;
           }
 
           xPos = xPos + ((
-            (mFont[cChar].FontHeader.xCoordinates[nextIdx] / mPixelDimensions) - minCoord.mX - xPos) / 2.0f);
+            (mFont[cChar].FontHeader.xCoordinates[nextIdx]) - minCoord.x - xPos) / 2.0f);
           yPos = yPos + ((
-            abs((mFont[cChar].FontHeader.yCoordinates[nextIdx] / mPixelDimensions) + yShift) - yPos) / 2.0f);
+            abs((mFont[cChar].FontHeader.yCoordinates[nextIdx]) + yShift) - yPos) / 2.0f);
           // I changed the order here, might have effects
-          mFont[cChar].GeneratedPoints[currIdx].mX = xPos;
-          mFont[cChar].GeneratedPoints[currIdx].mY = yPos;
+          mFont[cChar].GeneratedPoints[currIdx].x = xPos;
+          mFont[cChar].GeneratedPoints[currIdx].y = yPos;
 
           currIdx ++;
         }
 
         p0 = mFont[cChar].GeneratedPoints[currIdx - 1];
         p1 = Vector2<float>(xPos, yPos);
-        p2 = Vector2<float>((mFont[cChar].FontHeader.xCoordinates[nextIdx] / mPixelDimensions) - minCoord.mX,
-                              abs((mFont[cChar].FontHeader.yCoordinates[nextIdx] / mPixelDimensions) + yShift)); 
+        p2 = Vector2<float>((mFont[cChar].FontHeader.xCoordinates[nextIdx]) - minCoord.x,
+                              abs((mFont[cChar].FontHeader.yCoordinates[nextIdx]) + yShift)); 
 
         if (!(ON_CURVE_POINT & mFont[cChar].FontHeader.flags[nextIdx]))
         {
           // Get midpoint between p1 and p2
-          p2 = Vector2<float>(p1.mX + ((p2.mX - p1.mX) / 2.0f),
-                                p1.mY + ((p2.mY - p1.mY) / 2.0f));
+          p2 = Vector2<float>(p1.x + ((p2.x - p1.x) / 2.0f),
+                                p1.y + ((p2.y - p1.y) / 2.0f));
         }
         else
         {
@@ -291,8 +302,8 @@ int32_t Font::generateGlyphPoints(const char cChar)
     if(contourStartedOff)
     {
       p0 = mFont[cChar].GeneratedPoints[currIdx - 1];
-      p1.mX = (mFont[cChar].FontHeader.xCoordinates[contourStartIdx] / mPixelDimensions) - minCoord.mX;
-      p1.mY = abs((mFont[cChar].FontHeader.yCoordinates[contourStartIdx] / mPixelDimensions) + yShift);
+      p1.x = (mFont[cChar].FontHeader.xCoordinates[contourStartIdx]) - minCoord.x;
+      p1.y = abs((mFont[cChar].FontHeader.yCoordinates[contourStartIdx]) + yShift);
       p2 = mFont[cChar].GeneratedPoints[genPtsStartIdx];
       currIdx += PlotUtility<float>::tessellateQuadBezier(mFont[cChar].GeneratedPoints,
                                                             currIdx, mNumSubDiv, p0, p1, p2);
@@ -338,9 +349,9 @@ void Font::writeGenPoints(const char cChar)
   fd << "Dimensions: " << mFont[cChar].Dimensions;
   fd << mFont[cChar].GeneratedPoints.size() << std::endl;
   int i = 0;
-  for(const auto& pts : mFont[cChar].GenPtsEdges)
+  for(const auto& pts : mFont[cChar].GeneratedPoints)
   {
-    fd << i << ": " << pts.p1 << pts.p2;
+    fd << i << ": " << pts;
     i++;
   }
   fd << "-----------------------------------------------------" << std::endl;
@@ -362,12 +373,14 @@ Font& Font::operator=(const Font &rhs)
       mFont[glyf.first].Dimensions = glyf.second.Dimensions;
       mFont[glyf.first].GenPtsEdges = glyf.second.GenPtsEdges;
       mFont[glyf.first].ContourEnds = glyf.second.ContourEnds;
+      mFont[glyf.first].Ydescent = glyf.second.Ydescent;
     }
 
     mNumSubDiv = rhs.mNumSubDiv;
     mFontColor = rhs.mFontColor;
     mPixelDimensions = rhs.mPixelDimensions;
     mCapHeight = rhs.mCapHeight;
+    mMaxWidth = rhs.mMaxWidth;
 
     return *this;
 }
@@ -377,52 +390,58 @@ int32_t Font::getYBearing(const char cChar)
   return mFont.at(cChar).Ybearing;
 }
 
-void Font::readTtfFile(const std::string& crPath)
+int32_t Font::getYDescent(const char cChar)
 {
-  LestTrueType ttf;
-  if (-1 == ttf.read(crPath) || !ttf.hasOS2Table())
+  return mFont.at(cChar).Ydescent;
+}
+
+void Font::readTtfFile(const std::string& crPath, LestTrueType& rTtf)
+{
+  if (-1 == rTtf.read(crPath) || !rTtf.hasOS2Table())
   {
     std::cout << "Ttf failed to read." << std::endl;
     exit(-1);
   }
 
-  OS2Table os2 = ttf.getOS2Table();
+  OS2Table os2 = rTtf.getOS2Table();
+  HeadHeader head = rTtf.getHeadHeaderTable();
 
   mCapHeight = os2.sCapHeight;
+  mMaxWidth = head.xMax - head.xMin;
 
   GlyfHeader tempHeader;
+}
 
-  for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
+void Font::generateGlyfData(const char cChar)
+{
+  if(mFont[cChar].FontHeader.numberofContours > 0)
   {
-    ttf.getSpecifcCharacterOutline(static_cast<char>(i), tempHeader);
-    mFont[static_cast<char>(i)].FontHeader = tempHeader;
+    mFont[cChar].ContourEnds.resize(mFont[cChar].FontHeader.numberofContours);
+
+    // Update the number of contours for mFont[cChar] to properly allocate memory for generatedPoints
+    updateNumberOfContours(cChar);
+
+    // Generate points from TTF file
+    mFont[cChar].GeneratedPoints.resize(mFont[cChar].ContourEnds[mFont[cChar].ContourEnds.size() - 1]);
+    generateGlyphPoints(cChar);
   }
 }
 
-void Font::generateFont(const uint32_t cPixelDim)
+void Font::updateFontTextures(const uint32_t cCharSize)
 {
+  char currChar = '\0';
   float scaleY = 0;
   float scaleX = 0;
-  char currChar = 'A';
-
   for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
   {
     currChar = static_cast<char>(i);
-    if(mFont[currChar].FontHeader.numberofContours > 0)
+    if(mFont[currChar].ContourEnds.size() > 0)
     {
-        mFont[currChar].ContourEnds.resize(mFont[currChar].FontHeader.numberofContours);
-    
-        // Update the number of contours for mFont[currChar] to properly allocate memory for generatedPoints
-        updateNumberOfContours(currChar);
-
-        // Generate points from TTF file
-        mFont[currChar].GeneratedPoints.resize(mFont[currChar].ContourEnds[mFont[currChar].ContourEnds.size() - 1]);
         // If we get a crash with different fonts this can be why
+        mFont[currChar].GenPtsEdges.clear();
         mFont[currChar].GenPtsEdges.resize(
         (mFont[currChar].ContourEnds[mFont[
           currChar].ContourEnds.size() - 1] - 1) - (mFont[currChar].ContourEnds.size() - 1));
-        generateGlyphPoints(currChar);
-
         // Connect edges together
         generateEdges(currChar);
 
@@ -434,48 +453,56 @@ void Font::generateFont(const uint32_t cPixelDim)
         // Get ratio of x / y, this will attempt to keep the X x Y dimenion ratios
         scaleX = 
         (static_cast<float>(mFont[currChar].FontHeader.xMax - mFont[currChar].FontHeader.xMin)) /
-        (static_cast<float>(mFont[currChar].FontHeader.yMax - mFont[currChar].FontHeader.yMin));
-        
-        scaleX = std::min(scaleX, 1.0f);
-        scaleY = std::min(scaleY, 1.0f);
+        static_cast<float>(mMaxWidth);
 
-        mFont[currChar].Dimensions = Vector2<int32_t>(cPixelDim * scaleX, cPixelDim * scaleY);
-        mFont[currChar].Ybearing = cPixelDim - mFont[currChar].Dimensions.mY;
+        mFont[currChar].Dimensions = Vector2<int32_t>(cCharSize * scaleX, cCharSize * scaleY);
+
+        mFont[currChar].Ybearing = cCharSize - mFont[currChar].Dimensions.y;
         
-        updateEdges(currChar, cPixelDim);
+        updateEdges(currChar, cCharSize);
         
         // Correct the right dimensions
-        mFont[currChar].Dimensions.mX += 1;
-        mFont[currChar].Dimensions.mY += 1;
+        mFont[currChar].Dimensions.x += 1;
+        mFont[currChar].Dimensions.y += 1;
         mFont[currChar].Bitmap.resize(
-          (mFont[currChar].Dimensions.mY) * (mFont[currChar].Dimensions.mX), 0);
+          (mFont[currChar].Dimensions.y) * (mFont[currChar].Dimensions.x), 0);
         scanLineFill(currChar);
+
+        mFont[currChar].Ydescent = abs(cCharSize * (static_cast<float>(mFont[currChar].FontHeader.yMin) /
+                                       static_cast<float>(mCapHeight)));
     }
   }
 }
 
-void Font::updateEdges(const char cChar, const uint32_t cPixelDim)
+void Font::updateEdges(const char cChar, const uint32_t cCharSize)
 {
   float scaleY = 0;
   float scaleX = 0;
+  float yMax = mFont[cChar].FontHeader.yMax - mFont[cChar].FontHeader.yMin;
+  float xMax = mFont[cChar].FontHeader.xMax - mFont[cChar].FontHeader.xMin;
 
   // Scale down points in edges by the scale
   for (auto& edges : mFont[cChar].GenPtsEdges)
   {
-    scaleY = edges.p1.mY / static_cast<float>(mCapHeight);
-    scaleX = edges.p1.mX / static_cast<float>(mFont[cChar].FontHeader.yMax - mFont[cChar].FontHeader.yMin);
-    scaleX = std::min(scaleX, 1.0f);
-    scaleY = std::min(scaleY, 1.0f);
-
-    edges.p1.mX = static_cast<float>(cPixelDim) * scaleX;
-    edges.p1.mY = static_cast<float>(cPixelDim) * scaleY;
-
-    scaleY = edges.p2.mY / static_cast<float>(mCapHeight);
-    scaleX = edges.p2.mX / static_cast<float>(mFont[cChar].FontHeader.yMax - mFont[cChar].FontHeader.yMin);
-    scaleX = std::min(scaleX, 1.0f);
-    scaleY = std::min(scaleY, 1.0f);
-
-    edges.p2.mX = static_cast<float>(cPixelDim) * scaleX;
-    edges.p2.mY = static_cast<float>(cPixelDim) * scaleY;
+    scaleY = edges.p1.y / yMax;
+    scaleX = edges.p1.x / xMax;
+    edges.p1.x = static_cast<float>(mFont[cChar].Dimensions.x) * scaleX;
+    edges.p1.y = static_cast<float>(mFont[cChar].Dimensions.y) * scaleY;
+    scaleY = edges.p2.y / yMax;
+    scaleX = edges.p2.x / xMax;
+    edges.p2.x = static_cast<float>(mFont[cChar].Dimensions.x) * scaleX;
+    edges.p2.y = static_cast<float>(mFont[cChar].Dimensions.y) * scaleY;
   }
+}
+
+GlyfHeader Font::getCharGlyfHeader(const char cChar, LestTrueType& rTtf)
+{
+  GlyfHeader tempHeader;
+  rTtf.getSpecifcCharacterOutline(cChar, tempHeader);
+  return tempHeader;
+}
+
+int32_t Font::getTexture(const char cChar)
+{
+  return mFont[cChar].GlyfTexture.getTextureId();
 }

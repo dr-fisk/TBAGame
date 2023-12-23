@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "net_utility.h"
+#include "utility/net_utility.h"
 
 struct ShaderProgSource {
   std::string vertexShader;

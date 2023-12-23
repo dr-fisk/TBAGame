@@ -88,12 +88,12 @@ template <typename T> class Vector2
     T operator*(const Vector2<T>& crVector);
     friend std::ostream& operator<< <>(std::ostream& rOs, const Vector2<T>& crVector);
 
-    T mX;
-    T mY;
+    T x;
+    T y;
 };
 
 template <typename T>
-Vector2<T>::Vector2(const T cXPos, const T cYPos) : mX(cXPos), mY(cYPos)
+Vector2<T>::Vector2(const T cXPos, const T cYPos) : x(cXPos), y(cYPos)
 {
 }
 
@@ -118,113 +118,113 @@ Vector2<T>::~Vector2()
 template <typename T>
 Vector2<T>& Vector2<T>::operator=(const Vector2<T> &crRhs)
 {
-  mX = crRhs.mX;
-  mY = crRhs.mY;
+  x = crRhs.x;
+  y = crRhs.y;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator+=(const Vector2 &crRhs)
 {
-  mX += crRhs.mX;
-  mY += crRhs.mY;
+  x += crRhs.x;
+  y += crRhs.y;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator-=(const Vector2 &crRhs)
 {
-  mX -= crRhs.mX;
-  mY -= crRhs.mY;
+  x -= crRhs.x;
+  y -= crRhs.y;
   return *this;
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator+(const Vector2 &crRhs)
 {
-  return Vector2<T>(mX + crRhs.mX, mY + crRhs.mY);
+  return Vector2<T>(x + crRhs.x, y + crRhs.y);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator-(const Vector2 &crRhs)
 {
-  return Vector2<T>(mX - crRhs.mX, mY - crRhs.mY);
+  return Vector2<T>(x - crRhs.x, y - crRhs.y);
 }
 
 template <typename T>
 bool Vector2<T>::operator!=(const Vector2<T> &crRhs)
 {
-  return (mX != crRhs.mX) || (mY != crRhs.mY);
+  return (x != crRhs.x) || (y != crRhs.y);
 }
 
 
 template <typename T>
 bool Vector2<T>::operator==(const Vector2<T> &crRhs) const
 {
-  return (mX == crRhs.mX) && (mY == crRhs.mY);
+  return (x == crRhs.x) && (y == crRhs.y);
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator*=(const int8_t &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator*=(const int16_t &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator*=(const int32_t &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator*=(const int64_t &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator*=(const uint8_t &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator*=(const uint16_t &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator*=(const uint32_t &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator*=(const uint64_t &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   return *this;
 }
 
@@ -232,16 +232,16 @@ Vector2<T>& Vector2<T>::operator*=(const uint64_t &crRhs)
 template <typename T>
 Vector2<T>& Vector2<T>::operator*=(const GLfloat &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator*=(const GLdouble &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   return *this;
 }
 #endif
@@ -249,126 +249,126 @@ Vector2<T>& Vector2<T>::operator*=(const GLdouble &crRhs)
 template <typename T>
 Vector2<T> Vector2<T>::operator*(const int8_t &crRhs)
 {
-  return Vector2<T>(mX * crRhs, mY * crRhs);
+  return Vector2<T>(x * crRhs, y * crRhs);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator*(const int16_t &crRhs)
 {
-  return Vector2<T>(mX * crRhs, mY * crRhs);
+  return Vector2<T>(x * crRhs, y * crRhs);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator*(const int32_t &crRhs)
 {
-  return Vector2<T>(mX * crRhs, mY * crRhs);
+  return Vector2<T>(x * crRhs, y * crRhs);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator*(const int64_t &crRhs)
 {
-  return Vector2<T>(mX * crRhs, mY * crRhs);
+  return Vector2<T>(x * crRhs, y * crRhs);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator*(const uint8_t &crRhs)
 {
-  return Vector2<T>(mX * crRhs, mY * crRhs);
+  return Vector2<T>(x * crRhs, y * crRhs);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator*(const uint16_t &crRhs)
 {
-  return Vector2<T>(mX * crRhs, mY * crRhs);
+  return Vector2<T>(x * crRhs, y * crRhs);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator*(const uint32_t &crRhs)
 {
-  return Vector2<T>(mX * crRhs, mY * crRhs);
+  return Vector2<T>(x * crRhs, y * crRhs);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator*(const uint64_t &crRhs)
 {
-  return Vector2<T>(mX * crRhs, mY * crRhs);
+  return Vector2<T>(x * crRhs, y * crRhs);
 }
 
 #ifdef GLEW_STATIC
 template <typename T>
 Vector2<T> Vector2<T>::operator*(const GLfloat &crRhs)
 {
-  return Vector2<T>(mX * crRhs, mY * crRhs);
+  return Vector2<T>(x * crRhs, y * crRhs);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator*(const GLdouble &crRhs)
 {
-  return Vector2<T>(mX * crRhs, mY * crRhs);
+  return Vector2<T>(x * crRhs, y * crRhs);
 }
 #endif
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator/=(const int8_t &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator/=(const int16_t &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator/=(const int32_t &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator/=(const int64_t &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator/=(const uint8_t &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator/=(const uint16_t &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator/=(const uint32_t &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator/=(const uint64_t &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   return *this;
 }
 
@@ -376,16 +376,16 @@ Vector2<T>& Vector2<T>::operator/=(const uint64_t &crRhs)
 template <typename T>
 Vector2<T>& Vector2<T>::operator/=(const GLfloat &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   return *this;
 }
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator/=(const GLdouble &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   return *this;
 }
 #endif
@@ -393,75 +393,75 @@ Vector2<T>& Vector2<T>::operator/=(const GLdouble &crRhs)
 template <typename T>
 Vector2<T> Vector2<T>::operator/(const int8_t &crRhs)
 {
-  return Vector2<T>(mX / crRhs, mY / crRhs);
+  return Vector2<T>(x / crRhs, y / crRhs);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator/(const int16_t &crRhs)
 {
-  return Vector2<T>(mX / crRhs, mY / crRhs);
+  return Vector2<T>(x / crRhs, y / crRhs);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator/(const int32_t &crRhs)
 {
-  return Vector2<T>(mX / crRhs, mY / crRhs);
+  return Vector2<T>(x / crRhs, y / crRhs);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator/(const int64_t &crRhs)
 {
-  return Vector2<T>(mX / crRhs, mY / crRhs);
+  return Vector2<T>(x / crRhs, y / crRhs);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator/(const uint8_t &crRhs)
 {
-  return Vector2<T>(mX / crRhs, mY / crRhs);
+  return Vector2<T>(x / crRhs, y / crRhs);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator/(const uint16_t &crRhs)
 {
-  return Vector2<T>(mX / crRhs, mY / crRhs);
+  return Vector2<T>(x / crRhs, y / crRhs);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator/(const uint32_t &crRhs)
 {
-  return Vector2<T>(mX / crRhs, mY / crRhs);
+  return Vector2<T>(x / crRhs, y / crRhs);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator/(const uint64_t &crRhs)
 {
-  return Vector2<T>(mX / crRhs, mY / crRhs);
+  return Vector2<T>(x / crRhs, y / crRhs);
 }
 
 #ifdef GLEW_STATIC
 template <typename T>
 Vector2<T> Vector2<T>::operator/(const GLfloat &crRhs)
 {
-  return Vector2<T>(mX / crRhs, mY / crRhs);
+  return Vector2<T>(x / crRhs, y / crRhs);
 }
 
 template <typename T>
 Vector2<T> Vector2<T>::operator/(const GLdouble &crRhs)
 {
-  return Vector2<T>(mX / crRhs, mY / crRhs);
+  return Vector2<T>(x / crRhs, y / crRhs);
 }
 #endif
 
 template <typename T>
 T Vector2<T>::operator*(const Vector2<T>& crVector)
 {
-  return mX * crVector.mX + mY * crVector.mY;
+  return x * crVector.x + y * crVector.y;
 }
 
 template <typename T>
 std::ostream& operator<<(std::ostream& rOs, const Vector2<T>& crVector)
 {
-  rOs << "(" << crVector.mX << ", " << crVector.mY << ")" << std::endl;
+  rOs << "(" << crVector.x << ", " << crVector.y << ")" << std::endl;
 
   return rOs;
 }
@@ -545,13 +545,13 @@ template <typename T> class Vector3
     T operator*(const Vector3<T>& crVector);
     friend std::ostream& operator<< <>(std::ostream& rOs, const Vector3<T>& crVector);
 
-    T mX;
-    T mY;
+    T x;
+    T y;
     T mZ;
 };
 
 template <typename T>
-Vector3<T>::Vector3(const T cXPos, const T cYPos, const T cZPos) : mX(cXPos), mY(cYPos), mZ(cZPos)
+Vector3<T>::Vector3(const T cXPos, const T cYPos, const T cZPos) : x(cXPos), y(cYPos), mZ(cZPos)
 {
 }
 
@@ -576,8 +576,8 @@ Vector3<T>::~Vector3()
 template <typename T>
 Vector3<T>& Vector3<T>::operator=(const Vector3<T> &crRhs)
 {
-  mX = crRhs.mX;
-  mY = crRhs.mY;
+  x = crRhs.x;
+  y = crRhs.y;
   mZ = crRhs.mZ;
   return *this;
 }
@@ -585,8 +585,8 @@ Vector3<T>& Vector3<T>::operator=(const Vector3<T> &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator+=(const Vector3 &crRhs)
 {
-  mX += crRhs.mX;
-  mY += crRhs.mY;
+  x += crRhs.x;
+  y += crRhs.y;
   mZ += crRhs.mZ;
   return *this;
 }
@@ -594,8 +594,8 @@ Vector3<T>& Vector3<T>::operator+=(const Vector3 &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator-=(const Vector3 &crRhs)
 {
-  mX -= crRhs.mX;
-  mY -= crRhs.mY;
+  x -= crRhs.x;
+  y -= crRhs.y;
   mZ -= crRhs.mZ;
   return *this;
 }
@@ -603,33 +603,33 @@ Vector3<T>& Vector3<T>::operator-=(const Vector3 &crRhs)
 template <typename T>
 Vector3<T> Vector3<T>::operator+(const Vector3 &crRhs)
 {
-  return Vector3<T>(mX + crRhs.mX, mY + crRhs.mY, mZ + crRhs.mZ);
+  return Vector3<T>(x + crRhs.x, y + crRhs.y, mZ + crRhs.mZ);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator-(const Vector3 &crRhs)
 {
-  return Vector3<T>(mX - crRhs.mX, mY - crRhs.mY, mZ - crRhs.mZ);
+  return Vector3<T>(x - crRhs.x, y - crRhs.y, mZ - crRhs.mZ);
 }
 
 template <typename T>
 bool Vector3<T>::operator!=(const Vector3<T> &crRhs)
 {
-  return (mX != crRhs.mX) || (mY != crRhs.mY) || (mZ != crRhs.mZ);
+  return (x != crRhs.x) || (y != crRhs.y) || (mZ != crRhs.mZ);
 }
 
 
 template <typename T>
 bool Vector3<T>::operator==(const Vector3<T> &crRhs)
 {
-  return (mX == crRhs.mX) && (mY == crRhs.mY) && (mZ == crRhs.mZ);
+  return (x == crRhs.x) && (y == crRhs.y) && (mZ == crRhs.mZ);
 }
 
 template <typename T>
 Vector3<T>& Vector3<T>::operator*=(const int8_t &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   mZ *= crRhs;
   return *this;
 }
@@ -637,8 +637,8 @@ Vector3<T>& Vector3<T>::operator*=(const int8_t &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator*=(const int16_t &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   mZ *= crRhs;
   return *this;
 }
@@ -646,8 +646,8 @@ Vector3<T>& Vector3<T>::operator*=(const int16_t &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator*=(const int32_t &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   mZ *= crRhs;
   return *this;
 }
@@ -655,8 +655,8 @@ Vector3<T>& Vector3<T>::operator*=(const int32_t &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator*=(const int64_t &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   mZ *= crRhs;
   return *this;
 }
@@ -664,8 +664,8 @@ Vector3<T>& Vector3<T>::operator*=(const int64_t &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator*=(const uint8_t &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   mZ *= crRhs;
   return *this;
 }
@@ -673,8 +673,8 @@ Vector3<T>& Vector3<T>::operator*=(const uint8_t &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator*=(const uint16_t &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   mZ *= crRhs;
   return *this;
 }
@@ -682,8 +682,8 @@ Vector3<T>& Vector3<T>::operator*=(const uint16_t &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator*=(const uint32_t &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   mZ *= crRhs;
   return *this;
 }
@@ -691,8 +691,8 @@ Vector3<T>& Vector3<T>::operator*=(const uint32_t &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator*=(const uint64_t &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   mZ *= crRhs;
   return *this;
 }
@@ -701,8 +701,8 @@ Vector3<T>& Vector3<T>::operator*=(const uint64_t &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator*=(const GLfloat &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   mZ *= crRhs;
   return *this;
 }
@@ -710,8 +710,8 @@ Vector3<T>& Vector3<T>::operator*=(const GLfloat &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator*=(const GLdouble &crRhs)
 {
-  mX *= crRhs;
-  mY *= crRhs;
+  x *= crRhs;
+  y *= crRhs;
   mZ *= crRhs;
   return *this;
 }
@@ -720,70 +720,70 @@ Vector3<T>& Vector3<T>::operator*=(const GLdouble &crRhs)
 template <typename T>
 Vector3<T> Vector3<T>::operator*(const int8_t &crRhs)
 {
-  return Vector3<T>(mX * crRhs, mY * crRhs, mZ * crRhs);
+  return Vector3<T>(x * crRhs, y * crRhs, mZ * crRhs);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator*(const int16_t &crRhs)
 {
-  return Vector3<T>(mX * crRhs, mY * crRhs, mZ * crRhs);
+  return Vector3<T>(x * crRhs, y * crRhs, mZ * crRhs);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator*(const int32_t &crRhs)
 {
-  return Vector3<T>(mX * crRhs, mY * crRhs, mZ * crRhs);
+  return Vector3<T>(x * crRhs, y * crRhs, mZ * crRhs);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator*(const int64_t &crRhs)
 {
-  return Vector3<T>(mX * crRhs, mY * crRhs, mZ * crRhs);
+  return Vector3<T>(x * crRhs, y * crRhs, mZ * crRhs);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator*(const uint8_t &crRhs)
 {
-  return Vector3<T>(mX * crRhs, mY * crRhs, mZ * crRhs);
+  return Vector3<T>(x * crRhs, y * crRhs, mZ * crRhs);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator*(const uint16_t &crRhs)
 {
-  return Vector3<T>(mX * crRhs, mY * crRhs, mZ * crRhs);
+  return Vector3<T>(x * crRhs, y * crRhs, mZ * crRhs);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator*(const uint32_t &crRhs)
 {
-  return Vector3<T>(mX * crRhs, mY * crRhs, mZ * crRhs);
+  return Vector3<T>(x * crRhs, y * crRhs, mZ * crRhs);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator*(const uint64_t &crRhs)
 {
-  return Vector3<T>(mX * crRhs, mY * crRhs, mZ * crRhs);
+  return Vector3<T>(x * crRhs, y * crRhs, mZ * crRhs);
 }
 
 #ifdef GLEW_STATIC
 template <typename T>
 Vector3<T> Vector3<T>::operator*(const GLfloat &crRhs)
 {
-  return Vector3<T>(mX * crRhs, mY * crRhs, mZ * crRhs);
+  return Vector3<T>(x * crRhs, y * crRhs, mZ * crRhs);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator*(const GLdouble &crRhs)
 {
-  return Vector3<T>(mX * crRhs, mY * crRhs, mZ * crRhs);
+  return Vector3<T>(x * crRhs, y * crRhs, mZ * crRhs);
 }
 #endif
 
 template <typename T>
 Vector3<T>& Vector3<T>::operator/=(const int8_t &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   mZ /= crRhs;
   return *this;
 }
@@ -791,8 +791,8 @@ Vector3<T>& Vector3<T>::operator/=(const int8_t &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator/=(const int16_t &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   mZ /= crRhs;
   return *this;
 }
@@ -800,8 +800,8 @@ Vector3<T>& Vector3<T>::operator/=(const int16_t &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator/=(const int32_t &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   mZ /= crRhs;
   return *this;
 }
@@ -809,8 +809,8 @@ Vector3<T>& Vector3<T>::operator/=(const int32_t &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator/=(const int64_t &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   mZ /= crRhs;
   return *this;
 }
@@ -818,8 +818,8 @@ Vector3<T>& Vector3<T>::operator/=(const int64_t &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator/=(const uint8_t &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   mZ /= crRhs;
   return *this;
 }
@@ -827,8 +827,8 @@ Vector3<T>& Vector3<T>::operator/=(const uint8_t &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator/=(const uint16_t &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   mZ /= crRhs;
   return *this;
 }
@@ -836,8 +836,8 @@ Vector3<T>& Vector3<T>::operator/=(const uint16_t &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator/=(const uint32_t &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   mZ /= crRhs;
   return *this;
 }
@@ -845,8 +845,8 @@ Vector3<T>& Vector3<T>::operator/=(const uint32_t &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator/=(const uint64_t &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   mZ /= crRhs;
   return *this;
 }
@@ -855,8 +855,8 @@ Vector3<T>& Vector3<T>::operator/=(const uint64_t &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator/=(const GLfloat &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   mZ /= crRhs;
   return *this;
 }
@@ -864,8 +864,8 @@ Vector3<T>& Vector3<T>::operator/=(const GLfloat &crRhs)
 template <typename T>
 Vector3<T>& Vector3<T>::operator/=(const GLdouble &crRhs)
 {
-  mX /= crRhs;
-  mY /= crRhs;
+  x /= crRhs;
+  y /= crRhs;
   mZ /= crRhs;
   return *this;
 }
@@ -874,75 +874,75 @@ Vector3<T>& Vector3<T>::operator/=(const GLdouble &crRhs)
 template <typename T>
 Vector3<T> Vector3<T>::operator/(const int8_t &crRhs)
 {
-  return Vector3<T>(mX / crRhs, mY / crRhs, mZ / crRhs);
+  return Vector3<T>(x / crRhs, y / crRhs, mZ / crRhs);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator/(const int16_t &crRhs)
 {
-  return Vector3<T>(mX / crRhs, mY / crRhs, mZ / crRhs);
+  return Vector3<T>(x / crRhs, y / crRhs, mZ / crRhs);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator/(const int32_t &crRhs)
 {
-  return Vector3<T>(mX / crRhs, mY / crRhs, mZ / crRhs);
+  return Vector3<T>(x / crRhs, y / crRhs, mZ / crRhs);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator/(const int64_t &crRhs)
 {
-  return Vector3<T>(mX / crRhs, mY / crRhs, mZ / crRhs);
+  return Vector3<T>(x / crRhs, y / crRhs, mZ / crRhs);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator/(const uint8_t &crRhs)
 {
-  return Vector3<T>(mX / crRhs, mY / crRhs, mZ / crRhs);
+  return Vector3<T>(x / crRhs, y / crRhs, mZ / crRhs);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator/(const uint16_t &crRhs)
 {
-  return Vector3<T>(mX / crRhs, mY / crRhs, mZ / crRhs);
+  return Vector3<T>(x / crRhs, y / crRhs, mZ / crRhs);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator/(const uint32_t &crRhs)
 {
-  return Vector3<T>(mX / crRhs, mY / crRhs, mZ / crRhs);
+  return Vector3<T>(x / crRhs, y / crRhs, mZ / crRhs);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator/(const uint64_t &crRhs)
 {
-  return Vector3<T>(mX / crRhs, mY / crRhs, mZ / crRhs);
+  return Vector3<T>(x / crRhs, y / crRhs, mZ / crRhs);
 }
 
 #ifdef GLEW_STATIC
 template <typename T>
 Vector3<T> Vector3<T>::operator/(const GLfloat &crRhs)
 {
-  return Vector3<T>(mX / crRhs, mY / crRhs, mZ / crRhs);
+  return Vector3<T>(x / crRhs, y / crRhs, mZ / crRhs);
 }
 
 template <typename T>
 Vector3<T> Vector3<T>::operator/(const GLdouble &crRhs)
 {
-  return Vector3<T>(mX / crRhs, mY / crRhs, mZ / crRhs);
+  return Vector3<T>(x / crRhs, y / crRhs, mZ / crRhs);
 }
 #endif
 
 template <typename T>
 T Vector3<T>::operator*(const Vector3<T>& crVector)
 {
-  return mX * crVector.mX + mY * crVector.mY + mZ * crVector.mZ;
+  return x * crVector.x + y * crVector.y + mZ * crVector.mZ;
 }
 
 template <typename T>
 std::ostream& operator<<(std::ostream& rOs, const Vector3<T>& crVector)
 {
-  rOs << "(" << crVector.mX << ", " << crVector.mY << ", " << crVector.mZ << ")" << std::endl;
+  rOs << "(" << crVector.x << ", " << crVector.y << ", " << crVector.mZ << ")" << std::endl;
 
   return rOs;
 }

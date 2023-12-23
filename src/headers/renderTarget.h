@@ -1,7 +1,7 @@
 #ifndef RENDERTARGET_H
 #define RENDERTARGET_H
 
-#include "net_utility.h"
+#include "utility/net_utility.h"
 #include "drawable/rectangle.h"
 
 class RenderTarget {

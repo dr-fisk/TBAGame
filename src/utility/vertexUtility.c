@@ -1,4 +1,4 @@
-#include "vertexUtility.h"
+#include "utility/vertexUtility.h"
 
 namespace VertexUtility
 {

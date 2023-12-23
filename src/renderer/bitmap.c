@@ -1,7 +1,7 @@
 #include <queue>
 
 #include "bitmap.h"
-#include "plot_utility.h"
+#include "utility/plot_utility.h"
 
 Bitmap::Bitmap(const int32_t cNumRows, const int32_t cNumCols, const lg::Color& crDefaultColor)
 {
@@ -22,8 +22,8 @@ void Bitmap::constructBitmap(const std::vector<Vector2<int32_t>>& crPoints, cons
 
   for(const auto& points : crPoints)
   {
-    mBitmap.at(points.mX * mNumRows + points.mY)->setPos(points);
-    mBitmap[points.mX * mNumRows + points.mY]->setColor(crColor);
+    mBitmap.at(points.x * mNumRows + points.y)->setPos(points);
+    mBitmap[points.x * mNumRows + points.y]->setColor(crColor);
   }
 }
 
