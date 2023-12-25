@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "drawable/batchBuffer.h"
+#include "renderEngine/batchBuffer.h"
 #include "utility/vertexUtility.h"
 
 const std::string MAIN_SHADER = "./shaders/shader1.txt";
@@ -125,6 +125,7 @@ void BatchBuffer::update(const uint32_t cVboId, const uint32_t cIboId)
   int currentQuad = 0;
   for(auto &drawable : mQuads)
   {
+    //Return Sprite instead of Vertex
     temp = drawable.second->getVertex();
 
     for(auto & vertex : temp)
@@ -233,7 +234,7 @@ void BatchBuffer::initTexture(const uint32_t cId, const std::string &crPath)
 void BatchBuffer::initTexture(const uint32_t cId, void *pBuff, const uint32_t cHeight, const uint32_t cWidth,
                               const uint32_t cBpp)
 {
-    mTexture.at(cId)->create(cHeight, cWidth);
+    mTexture.at(cId)->create(30, 30);
     mTexture.at(cId)->loadTexture(pBuff, cHeight, cWidth, cBpp);
 }
 

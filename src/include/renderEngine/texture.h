@@ -16,9 +16,27 @@ class Texture
     int8_t loadTexture(const std::string &crPath);
     void bind(const uint32_t cSlot) const;
     void unbind();
-
     int32_t getTextureId();
     virtual ~Texture();
+    //temporary remove after resource manager implemented
+    Texture& operator=(const Texture &rhs)
+    {
+      mTextureId = rhs.mTextureId;
+      mSize = rhs.mSize;
+      mBpp = rhs.mBpp;
+      mBufferGenerated = rhs.mBufferGenerated;
+      mBuffer = rhs.mBuffer;
+      mBuffer.resize(rhs.mBuffer.size());
+
+      int i = 0;
+      for(auto element = rhs.mBuffer.begin(); element != rhs.mBuffer.end(); element ++)
+      {
+        mBuffer[i] = *element;
+        i ++;
+      }
+
+      return *this;
+    }
   private:
     uint32_t mTextureId;
     Vector2<int32_t> mSize;

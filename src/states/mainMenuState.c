@@ -5,19 +5,19 @@
 #include "states/mainMenuState.h"
 #include "drawable/text.h"
 
-MainMenu::MainMenu(const std::stack<std::shared_ptr<State>> &crStates, const std::shared_ptr<BatchBuffer> &crpBatchBuffer) : State(crStates, crpBatchBuffer)
+MainMenu::MainMenu(const std::stack<std::shared_ptr<State>> &crStates,
+                   const std::shared_ptr<BatchBuffer> &crpBatchBuffer) : State(crStates, crpBatchBuffer)
 {
   std::string temp = "Envy Code R.ttf";
   mStartTime = std::chrono::system_clock::now();
   // mMesh = Mesh("../src/art.png");
   // mTexture = Texture("../src/art.png");
   mNewFont = Font(temp, 5, lg::Black);
-  mNewFont.updateFontTextures(12);
-
-  std::shared_ptr<Drawable> text = std::make_shared<Text>(mNewFont, "S", 100, 100);
+  // mNewFont.loadGlyphs(12);
+  std::shared_ptr<Drawable> text = std::make_shared<Text>(mNewFont, "S", 12, 100, 100);
   // mNewFont.writeGenPoints('g');
-  Vector2<int32_t> dim = mNewFont.getCharacterDimensions('S');
-  mpBatchBuffer->initTexture(0, mNewFont['S'].data(), dim.y, dim.x, 8);
+  Vector2<int32_t> dim = mNewFont.getCharacterDimensions(12,'S');
+  mpBatchBuffer->initTexture(0, mNewFont.getData(12, 'S').data(), dim.y, dim.x, 8);
   // dim = mNewFont.getCharacterDimensions('i');
 
 
@@ -26,7 +26,7 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>> &crStates, const std
   // dim = mNewFont.getCharacterDimensions((char)45);
   // mpBatchBuffer->initTexture(1, mNewFont['i'].data(), dim.y, dim.x, 8);
   // dim = mNewFont.getCharacterDimensions('m');
-  //   std::cout << dim;
+    // std::cout << dim;
 
   // mpBatchBuffer->initTexture(2, mNewFont['m'].data(), dim.y, dim.x, 8);
   // dim = mNewFont.getCharacterDimensions('a');

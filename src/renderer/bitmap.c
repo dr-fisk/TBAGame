@@ -10,7 +10,7 @@ Bitmap::Bitmap(const int32_t cNumRows, const int32_t cNumCols, const lg::Color& 
   mBitmap.resize(mNumRows * mNumCols, nullptr);
 }
 
-void Bitmap::constructBitmap(const std::vector<Vector2<int32_t>>& crPoints, const lg::Color& crColor)
+void Bitmap::constructBitmap(const std::vector<Vector2<float>>& crPoints, const lg::Color& crColor)
 {
   for(int32_t i = 0; i < mNumCols; i++)
   {
@@ -41,7 +41,7 @@ void Bitmap::fillColor(const int32_t cStartingPoint, const lg::Color& crColor)
 
     if(currPoint + mNumRows < mBitmap.size() && !(mBitmap[currPoint + mNumRows]->getRGBA() == crColor))
     {
-      if(PlotUtility<int32_t>::arePointsTouching(mBitmap[currPoint + mNumRows]->getPos(), mBitmap[currPoint]->getPos()))
+      if(PlotUtility<float>::arePointsTouching(mBitmap[currPoint + mNumRows]->getPos(), mBitmap[currPoint]->getPos()))
       {
         visited.push(currPoint + mNumRows);
         mBitmap[currPoint + mNumRows]->setColor(crColor);
@@ -50,7 +50,7 @@ void Bitmap::fillColor(const int32_t cStartingPoint, const lg::Color& crColor)
 
     if(currPoint - mNumRows >= 0 && !(mBitmap[currPoint - mNumRows]->getRGBA() == crColor))
     {
-      if(PlotUtility<int32_t>::arePointsTouching(mBitmap[currPoint - mNumRows]->getPos(), mBitmap[currPoint]->getPos()))
+      if(PlotUtility<float>::arePointsTouching(mBitmap[currPoint - mNumRows]->getPos(), mBitmap[currPoint]->getPos()))
       {
         visited.push(currPoint - mNumRows);
         mBitmap[currPoint - mNumRows]->setColor(crColor);
@@ -59,7 +59,7 @@ void Bitmap::fillColor(const int32_t cStartingPoint, const lg::Color& crColor)
 
     if(currPoint + 1 < mBitmap.size() && !(mBitmap[currPoint + 1]->getRGBA() == crColor))
     {
-      if (PlotUtility<int32_t>::arePointsTouching(mBitmap[currPoint + 1]->getPos(), mBitmap[currPoint]->getPos()))
+      if (PlotUtility<float>::arePointsTouching(mBitmap[currPoint + 1]->getPos(), mBitmap[currPoint]->getPos()))
       {
 
         visited.push(currPoint + 1);
@@ -69,7 +69,7 @@ void Bitmap::fillColor(const int32_t cStartingPoint, const lg::Color& crColor)
 
     if(currPoint - 1 >= 0 && !(mBitmap[currPoint - 1]->getRGBA() == crColor))
     {
-      if(PlotUtility<int32_t>::arePointsTouching(mBitmap[currPoint - 1]->getPos(), mBitmap[currPoint]->getPos()))
+      if(PlotUtility<float>::arePointsTouching(mBitmap[currPoint - 1]->getPos(), mBitmap[currPoint]->getPos()))
       {
         visited.push(currPoint - 1);
         mBitmap[currPoint - 1]->setColor(crColor);

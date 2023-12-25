@@ -6,7 +6,8 @@
 #include "glcommon.h"
 #include "utility/net_utility.h"
 
-class IndexBuffer {
+class IndexBuffer
+{
   public:
     IndexBuffer() = default;
     void genIbo();

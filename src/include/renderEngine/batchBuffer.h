@@ -9,12 +9,12 @@
 #include "utility/net_utility.h"
 #include "glcommon.h"
 #include "drawable/drawable.h"
-#include "drawable/vertexArray.h"
-#include "drawable/vertexBuffer.h"
-#include "drawable/indexBuffer.h"
-#include "drawable/shader.h"
-#include "vertexBufferLayout.h"
-#include "drawable/texture.h"
+#include "renderEngine/vertexArray.h"
+#include "renderEngine/vertexBuffer.h"
+#include "renderEngine/indexBuffer.h"
+#include "renderEngine/shader.h"
+#include "renderEngine/vertexBufferLayout.h"
+#include "renderEngine/texture.h"
 
 const uint8_t TWO_D_COORDS = 2;
 const uint8_t TRIANGLE_VERTICES2D = 3;

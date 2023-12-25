@@ -2,7 +2,7 @@
 #define VERTEXARRAY_H
 
 #include "utility/net_utility.h"
-#include "vertexBufferLayout.h"
+#include "renderEngine/vertexBufferLayout.h"
 
 class VertexArray {
   public:

@@ -22,7 +22,7 @@ RENDERERSPATH = ./renderer
 RESOURCEPATH = ./resource
 GUIPATH = ./gui
 DRAWABLESPATH = ./drawable
-RENDERENGINEPATH = ./engine
+RENDERENGINEPATH = ./renderEngine
 SRC = ./src
 SHADERSPATH = ./shaders
 FONTSPATH = ./fonts
@@ -67,24 +67,24 @@ guiFiles   = gui.c
 rendererFiles =  renderWindow.c \
                  renderTarget.c \
                  pngFont.c \
-								 bitmap.c \
-								 font.c
+								 bitmap.c
 
-resourceFiles = pngTexture.c \
-                fontTexture.c
+resourceFiles = image.c \
+                font.c
 
-drawableFiles = indexBuffer.c \
-                shader.c \
-                batchBuffer.c \
-                vertexBuffer.c \
-                vertexArray.c \
-                rectangle.c \
+drawableFiles = rectangle.c \
                 mesh.c \
 								pngText.c \
-								text.c \
-								texture.c
+								text.c
+								
 
-renderEngineFiles = renderEngine.c
+renderEngineFiles = renderEngine.c \
+										indexBuffer.c \
+										shader.c \
+										batchBuffer.c \
+										vertexBuffer.c \
+										vertexArray.c \
+										texture.c
 
 dynLibFiles = png.c
 
@@ -188,7 +188,7 @@ font:
 
 %.exe: $(objs) $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(RENDERERSPATH) $(RENDERENGINEPATH) $(RESOURCEPATH) $(UTILITYPATH)
 	@echo "MAKE $@"
-	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(guiObjs) $(rendererObjs) $(drawableObjs) $(utilitiesObjs) $(LDFLAGS)
+	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(guiObjs) $(rendererObjs) $(drawableObjs) $(utilitiesObjs) $(renderEngineObjs) $(resourceObjs) $(LDFLAGS)
 	@echo "Checking DIR"
 	$(Q)if [ ! -d $(PATHTOEXEC) ]; then \
 		echo "Creating Win DIR"; \

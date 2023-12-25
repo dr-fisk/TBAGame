@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "drawable/vertexBuffer.h"
+#include "renderEngine/vertexBuffer.h"
 
 /* Function:     VertexBuffer
    Description: Generates a VBO and binds the buffer for the VAO

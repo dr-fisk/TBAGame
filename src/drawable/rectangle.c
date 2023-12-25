@@ -8,32 +8,32 @@
 */
 Rect::Rect()
 {
-  mPos  = Vector2<int32_t>(0, 0);
-  mSize = Vector2<int32_t>(0, 0);
+  mPos  = Vector2<float>(0, 0);
+  mSize = Vector2<float>(0, 0);
   mRgba = lg::Color(0, 0, 0);
   mPrimitiveType = PrimitiveType::RECTANGLE;
 }
 
 /* Function:    Rect
    Description: Creates rectangle shape
-   Parameters:  int32_t - leftmost coordinate
-                int32_t - topmost coordinate
-                int32_t - height of rect
-                int32_t - width of rect
+   Parameters:  float - leftmost coordinate
+                float - topmost coordinate
+                float - height of rect
+                float - width of rect
    Returns:     None
 */
-Rect::Rect(const int32_t cLeft, const int32_t cTop, const int32_t cHeight, const int32_t cWidth, const lg::Color& crColor)
+Rect::Rect(const float cLeft, const float cTop, const float cHeight, const float cWidth, const lg::Color& crColor)
 {
-  mPos  = Vector2<int32_t>(cLeft, cTop);
-  mSize = Vector2<int32_t>(cWidth, cHeight);
+  mPos  = Vector2<float>(cLeft, cTop);
+  mSize = Vector2<float>(cWidth, cHeight);
   mRgba = crColor;
   mPrimitiveType = PrimitiveType::RECTANGLE;
 }
 
-Rect::Rect(const Vector2<int32_t>& cPos, const int32_t cHeight, const int32_t cWidth)
+Rect::Rect(const Vector2<float>& cPos, const float cHeight, const float cWidth)
 {
   mPos = cPos;
-  mSize = Vector2<int32_t>(cWidth, cHeight);
+  mSize = Vector2<float>(cWidth, cHeight);
   mPrimitiveType = PrimitiveType::RECTANGLE;
 }
 
@@ -99,6 +99,7 @@ Vertex Rect::createVertex()
   GLfloat y1 = -1 * ((static_cast<GLfloat>(mPos.y) / wHeight) - 1.0f);
   GLfloat y2 = -1 * (((static_cast<GLfloat>(mPos.y) + static_cast<GLfloat>(mSize.y)) / wHeight) - 1.0f);
 
+  // These need to be updated to reflect actual size / maxSize of texture
   const Vector2<GLfloat> textCoord1(0.0f, 1.0f);
   const Vector2<GLfloat> textCoord2(1.0f, 1.0f);
   const Vector2<GLfloat> textCoord3(1.0f, 0.0f);
@@ -145,43 +146,43 @@ void Rect::rotate(GLfloat theta)
 
 /* Function:    setPos
    Description: Updates position of Rectangle
-   Parameters:  int32_t - left position of rectangle
-                int32_t - top position of rectangle
+   Parameters:  float - left position of rectangle
+                float - top position of rectangle
    Returns:     None
 */
-void Rect::setPos(const int32_t cLeft, const int32_t cTop)
+void Rect::setPos(const float cLeft, const float cTop)
 {
   mPos.x   = cLeft;
   mPos.y    = cTop;
 }
 
-void Rect::setPos(const Vector2<int32_t>& crPos)
+void Rect::setPos(const Vector2<float>& crPos)
 {
    mPos = crPos;
 }
 
-void Rect::setSize(const Vector2<int32_t>& crSize)
+void Rect::setSize(const Vector2<float>& crSize)
 {
    mSize = crSize;
 }
 
-void Rect::movePos(const int32_t cLeft, const int32_t cTop)
+void Rect::movePos(const float cLeft, const float cTop)
 {
   mPos.x   += cLeft;
   mPos.y   += cTop;
 }
 
-int32_t Rect::getLeft() const
+float Rect::getLeft() const
 {
    return mPos.x;
 }
 
-int32_t Rect::getTop() const
+float Rect::getTop() const
 {
    return mPos.y;
 }
 
-Vector2<int32_t> Rect::getPos() const
+Vector2<float> Rect::getPos() const
 {
    return mPos;
 }

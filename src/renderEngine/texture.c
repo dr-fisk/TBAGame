@@ -1,13 +1,23 @@
-#include "drawable/texture.h"
+#include "renderEngine/texture.h"
 #include "glcommon.h"
 #include "png.h"
 
+//! @brief Default Constructor
+//!
+//! @return Texture Object
 Texture::Texture()
 {
   GLCall(glCreateTextures(GL_TEXTURE_2D, 1, &mTextureId));
   mBufferGenerated = false;
 }
 
+//! @brief Creates Texture Buffer
+//!
+//! @param[in] cHeight Height of Texture
+//! @param[in] cWidth  Width of Texture
+//!
+//! @return 0 on successful create
+//! @return -1 on failed create 
 int8_t Texture::create(const uint32_t cHeight, const uint32_t cWidth)
 {
   GLCall(glBindTexture(GL_TEXTURE_2D, mTextureId));
@@ -31,6 +41,15 @@ int8_t Texture::create(const uint32_t cHeight, const uint32_t cWidth)
   return 0;
 }
 
+//! @brief Loads Texture from byte array
+//!
+//! @param[in] pBuffer Byte array representing Texture
+//! @param[in] cHeight Height of byte array Texture
+//! @param[in] cWidth  Width of byte array Texture 
+//! @param[in] cBpp    TODO: Remove me
+//!
+//! @return 0 on successful load
+//! @return -1 on failed load 
 int8_t Texture::loadTexture(void *pBuffer, const uint32_t cHeight, const uint32_t cWidth, const uint32_t cBpp)
 {
   if(!mBufferGenerated)
@@ -41,18 +60,26 @@ int8_t Texture::loadTexture(void *pBuffer, const uint32_t cHeight, const uint32_
 
   mBpp = cBpp;
 
-  mBuffer.resize(mSize.y * mSize.x * sizeof(uint32_t));
+  mBuffer.resize(cHeight * cWidth * sizeof(uint32_t));
   memcpy(mBuffer.data(), pBuffer, mBuffer.size());
 
   auto internalFormat = GL_RGBA8;
   auto format = GL_RGBA;
   GLCall(glBindTexture(GL_TEXTURE_2D, mTextureId));
-  GLCall(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mSize.x, mSize.y, format, GL_UNSIGNED_BYTE, mBuffer.data()));
+  glPixelStorei(GL_UNPACK_ROW_LENGTH, cWidth);
+  glPixelStorei(GL_PACK_ROW_LENGTH, cWidth);
+  GLCall(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, cWidth, cHeight, format, GL_UNSIGNED_BYTE, mBuffer.data()));
   GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 
   return 0;
 }
 
+//! @brief Loads Texture from file
+//!
+//! @param[in] crPath Path to file to load
+//!
+//! @return 0 on successful load
+//! @return -1 on failed load 
 int8_t Texture::loadTexture(const std::string &crPath)
 {
   GLCall(glBindTexture(GL_TEXTURE_2D, mTextureId));
@@ -89,22 +116,36 @@ int8_t Texture::loadTexture(const std::string &crPath)
   return 0;
 }
 
+//! @brief Binds Texture Resource and sets active slot
+//!
+//! @param[in] cSlot Specific Slot number to set active
+//!
+//! @return None
 void Texture::bind(const uint32_t cSlot) const
 {
   //Can select different textures 0-31
   GLCall(glBindTextureUnit(cSlot, mTextureId));
 }
 
+//! @brief Unbinds Texture Resource
+//!
+//! @return None
 void Texture::unbind()
 {
   GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
+//! @brief Gets Texture ID associated with Texture Resource
+//!
+//! @return     Texture ID
 int32_t Texture::getTextureId()
 {
   return mTextureId;
 }
 
+//! @brief Destructs Texture Object
+//!
+//! @return None
 Texture::~Texture()
 {
   GLCall(glDeleteTextures(1, &mTextureId));

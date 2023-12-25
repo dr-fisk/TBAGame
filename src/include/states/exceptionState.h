@@ -8,7 +8,7 @@
 #include "exception.h"
 #include "renderWindow.h"
 #include "state.h"
-#include "drawable/batchBuffer.h"
+#include "renderEngine/batchBuffer.h"
 
 class ExceptionState : public State {
   public:

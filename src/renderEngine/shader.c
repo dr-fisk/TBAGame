@@ -3,7 +3,7 @@
 #include <sstream>
 
 #include "glcommon.h"
-#include "drawable/shader.h"
+#include "renderEngine/shader.h"
 
 /* Function:    Shader
    Description: Constructs a shader program

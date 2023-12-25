@@ -9,7 +9,7 @@
 #include "drawable/mesh.h"
 #include "pngFont.h"
 #include "drawable/pngText.h"
-#include "drawable/batchBuffer.h"
+#include "renderEngine/batchBuffer.h"
 
 class State {
   public:

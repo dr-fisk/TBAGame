@@ -8,8 +8,8 @@
 
 #include "state.h"
 #include "lestTtf.h"
-#include "font.h"
-#include "drawable/texture.h"
+#include "resource/font.h"
+#include "renderEngine/texture.h"
 
 class MainMenu : public State {
   public:

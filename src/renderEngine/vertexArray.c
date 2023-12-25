@@ -1,5 +1,5 @@
 #include "glcommon.h"
-#include "drawable/vertexArray.h"
+#include "renderEngine/vertexArray.h"
 
 /* Function:    VertexArray
    Description: Creates a VertexArray, if not on the main stack allocate

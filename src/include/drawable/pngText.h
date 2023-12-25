@@ -16,6 +16,7 @@ class PngText : public Drawable
     PngText(const std::string &crText, PngFont &rFont);
     virtual ~PngText();
     virtual std::vector<Vertex> getVertex();
+    virtual std::vector<VertexData> getVertexData() { return std::vector<VertexData>();}
   private:
     std::vector<Vertex> mVertex;
 
