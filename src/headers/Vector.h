@@ -2,7 +2,6 @@
 #define VECTOR_H
 
 #include <ostream>
-#include <vector>
 
 #ifdef GLEW_STATIC
   #include <GL/glew.h>

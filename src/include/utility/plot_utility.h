@@ -4,6 +4,7 @@
 #include <utility>
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 #include "Vector.h"
 #include "color.h"

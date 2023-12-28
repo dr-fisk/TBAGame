@@ -12,7 +12,10 @@
 
 class ExceptionState : public State {
   public:
-      ExceptionState(const std::stack<std::shared_ptr<State>> &crStates, const std::shared_ptr<BatchBuffer> &crpBatchBuffer, const std::string &crError);
+      ExceptionState(const std::stack<std::shared_ptr<State>>& crStates,
+                     const std::shared_ptr<RenderEngine> cpRenderEngine, 
+                     const std::shared_ptr<BatchBuffer> cpBatchBuffer,
+                     const std::string& crError);
       ~ExceptionState();
       void render(const std::shared_ptr<RenderTarget> &crpTarget);
       void update(const std::shared_ptr<RenderTarget> &crpTarget);

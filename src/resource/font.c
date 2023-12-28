@@ -23,6 +23,17 @@ Font::Font(const std::string& crTtfPath, const uint32_t cNumOfSubDivs, const lg:
   mNumSubDiv = cNumOfSubDivs;
   mFontColor = cColor;
 
+  const char EXTENSION[] = ".ttf";
+  int32_t temp2 = -1;
+
+  if(std::string::npos != crTtfPath.find_last_of("/"))
+  {
+    temp2 = crTtfPath.find_last_of("/");
+  }
+
+  temp2 ++;
+  mFontFamily = crTtfPath.substr(temp2, crTtfPath.size() - ((sizeof(EXTENSION) - 1) + temp2));
+
   LestTrueType ttf;
   readTtfFile(crTtfPath, ttf);
 
@@ -390,7 +401,7 @@ std::vector<uint32_t> Font::getData(const uint8_t cCharSize, const char cChar)
 //! @param[in] cChar     Character to get dimensions from
 //!
 //! @return Dimensions of character in Vector2 format
-Vector2<int32_t> Font::getCharacterDimensions(const uint8_t cCharSize, const char cChar)
+Vector2<uint32_t> Font::getCharacterDimensions(const uint8_t cCharSize, const char cChar)
 {
   return mFont.at(cCharSize).at(cChar).Dimensions;
 }
@@ -411,49 +422,6 @@ void Font::writeGenPoints(const char cChar, const uint8_t cCharSize)
     i++;
   }
   fd << "-----------------------------------------------------" << std::endl;
-}
-
-// This is getting very expensive, I'm starting to think doing operator=delete and copy=delete so that this is only
-// allowed to be passed by reference or pointer to avoid this expensive assignment
-Font& Font::operator=(const Font &rhs)
-{
-    if(this == &rhs)
-    {
-      return *this;
-    }
-
-    // mGlyfData = rhs.mGlyfData;
-    for(const auto& glyf : rhs.mGlyfData)
-    {
-      mGlyfData[glyf.first].FontHeader = glyf.second.FontHeader;
-      mGlyfData[glyf.first].Contours = glyf.second.Contours;
-      mGlyfData[glyf.first].GeneratedPoints = glyf.second.GeneratedPoints;
-    }
-
-    // mFont[cCharSize] = rhs.mFont[cCharSize];
-    for(auto table = rhs.mFont.begin(); table != rhs.mFont.end(); table ++)
-    {
-      for(auto glyf = table->second.begin(); glyf != table->second.end(); glyf ++)
-      {
-        mFont[table->first][glyf->first].Ybearing = glyf->second.Ybearing;
-        mFont[table->first][glyf->first].Bitmap = glyf->second.Bitmap;
-        mFont[table->first][glyf->first].Dimensions = glyf->second.Dimensions;
-        mFont[table->first][glyf->first].GenPtsEdges = glyf->second.GenPtsEdges;
-        mFont[table->first][glyf->first].Ydescent = glyf->second.Ydescent;
-      }
-    }
-
-    // for(const auto& texture : rhs.mTextures)
-    // {
-    //   mTextures[texture.first] = texture.second;
-    // }
-
-    mNumSubDiv = rhs.mNumSubDiv;
-    mFontColor = rhs.mFontColor;
-    mCapHeight = rhs.mCapHeight;
-    mMaxWidth = rhs.mMaxWidth;
-
-    return *this;
 }
 
 //! @brief Gets Ybearing from character in font size map
@@ -527,21 +495,25 @@ void Font::generateGlyfData(const char cChar)
 
 //! @brief Loads glyph data for given character size
 //!
-//! @param[in] cCharSize Size of character to load Glyphs
+//! @param[in] cCharSize     Size of character to load Glyphs
+//! @param[in] pRenderEngine Resource Manager
 //!
 //! @return None
-void Font::loadGlyphs(const uint32_t cCharSize)
+void Font::loadGlyphs(const uint32_t cCharSize, std::shared_ptr<RenderEngine>& prRenderEngine)
 {
   // Don't remake font size if it exists in map, return early
   if(mFont.find(cCharSize) != mFont.end())
   {
     std::cout << "Font size already exists." << std::endl;
+    // Doesn't matter dimensions here, because font exists, resource already exists
+    mTextures.try_emplace(cCharSize, TextureResource(mFontFamily + std::to_string(cCharSize), prRenderEngine, {0, 0}));
     return;
   }
 
   char currChar = '\0';
   float scaleY = 0;
   float scaleX = 0;
+  Vector2<uint32_t> offset(0, 0);
   
   for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
   {
@@ -566,7 +538,7 @@ void Font::loadGlyphs(const uint32_t cCharSize)
         (static_cast<float>(mGlyfData[currChar].FontHeader.xMax - mGlyfData[currChar].FontHeader.xMin)) /
         static_cast<float>(mMaxWidth);
 
-        mFont[cCharSize][currChar].Dimensions = Vector2<int32_t>(cCharSize * scaleX, cCharSize * scaleY);
+        mFont[cCharSize][currChar].Dimensions = Vector2<uint32_t>(cCharSize * scaleX, cCharSize * scaleY);
 
         mFont[cCharSize][currChar].Ybearing = cCharSize - mFont[cCharSize][currChar].Dimensions.y;
         
@@ -579,12 +551,26 @@ void Font::loadGlyphs(const uint32_t cCharSize)
           (mFont[cCharSize][currChar].Dimensions.y) * (mFont[cCharSize][currChar].Dimensions.x), 0);
         scanLineFill(currChar, cCharSize);
 
+        mFont[cCharSize][currChar].Offset = offset;
+
+        offset.x += mFont[cCharSize][currChar].Dimensions.x;
+        offset.y += mFont[cCharSize][currChar].Dimensions.y;
+
         mFont[cCharSize][currChar].Ydescent = abs(cCharSize * (static_cast<float>(mGlyfData[currChar].FontHeader.yMin) /
                                        static_cast<float>(mCapHeight)));
     }
   }
 
-  // mTextures.emplace(cCharSize, Texture());
+  mTextures.try_emplace(cCharSize, TextureResource(mFontFamily + std::to_string(cCharSize), prRenderEngine,
+                        {offset.x, offset.y}));
+  std::cout << "Done getting texture\n";
+
+  for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
+  {
+    currChar = static_cast<char>(i);
+    mTextures[cCharSize].update(mFont[cCharSize][currChar].Bitmap.data(), mFont[cCharSize][currChar].Dimensions,
+                                mFont[cCharSize][currChar].Offset);
+  }
 }
 
 //! @brief Updates edges scaled down to cCharSize
@@ -627,13 +613,35 @@ GlyfHeader Font::getCharGlyfHeader(const char cChar, const LestTrueType& crTtf)
   return tempHeader;
 }
 
-//! @brief Get Texture from Character and Font Size map
+//! @brief Determines if Font has been loaded with given Char Size
 //!
-//! @param[in] cChar     Character to grab texture from
-//! @param[in] cCharSize Character size to get character texture from specific map
+//! @param[in] cCharSize Character size to check against map
 //!
-//! @return TextureID
-int32_t Font::getTexture(const char cChar, const uint8_t cCharSize)
+//! @return true if glyphs are loaded
+//! @return false if glyphs are not loaded
+bool Font::hasGlyphsLoaded(const uint8_t cCharSize)
 {
-  return mFont[cCharSize][cChar].GlyfTexture.getTextureId();
+  return mFont.find(cCharSize) != mFont.end();
+}
+
+//! @brief Get Offset from FontTable of character size
+//!        This offset will be used to determine texture coordinates
+//!
+//! @param[in] cChar     Character to grab offset from
+//! @param[in] cCharSize Character size to get character offset from specific map
+//!
+//! @return Offset for Texture buffer
+Vector2<uint32_t> Font::getOffset(const char cChar, const uint8_t cCharSize)
+{
+  return mFont[cCharSize][cChar].Offset;
+}
+
+//! @brief Get Resource from Texture map of character size
+//!
+//! @param[in] cCharSize Character size to get resource from specific map
+//!
+//! @return Texture Resource
+TextureResource& Font::getResource(const uint8_t cCharSize)
+{
+  return mTextures.at(cCharSize);
 }

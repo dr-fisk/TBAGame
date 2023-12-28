@@ -17,7 +17,7 @@ GLfloat gWindowHeight = 0;
 void Game::initMainState()
 {
   //mStates.push(std::make_shared<ExceptionState>(mStates, "TESTING", mShaders[MAIN_SHADER], mpWindow->getGlWindow(), mpVao));
-  mStates.push(std::make_shared<MainMenu>(mStates, mpBatchBuffer));
+  mStates.push(std::make_shared<MainMenu>(mStates, mpRenderEngine, mpBatchBuffer));
 }
 
 /* Function:    Game
@@ -46,7 +46,7 @@ Game::Game()
   // Next 2 floats are Texture Coords
   temp.push(TWO_D_COORDS, GL_FLOAT, false);
   temp.push(1, GL_FLOAT, false);
-  mpBatchBuffer = std::make_shared<BatchBuffer>(1, 1, 1, 1, 32);
+  mpBatchBuffer = std::make_shared<BatchBuffer>(1, 1, 1, 1);
   mpBatchBuffer->bindVbo(0);
   mpBatchBuffer->bindVao(0);
   mpBatchBuffer->bindIbo(0);
@@ -55,6 +55,7 @@ Game::Game()
   mpBatchBuffer->initShader(0, "lol");
   mpBatchBuffer->bindShader(0);
   mpBatchBuffer->setVaoAttributes(0, temp);
+  mpRenderEngine = std::make_shared<RenderEngine>();
   mFps = 0;
   //init textures
 
@@ -86,10 +87,12 @@ Game::Game()
  */
 Game::~Game()
 {
-  while(!mStates.empty()) {
+  while(!mStates.empty())
+  {
     mStates.pop();
   }
 
+  mpRenderEngine.reset();
   mpBatchBuffer.reset();
   mpWindow->destroyWindow();
   glfwTerminate();
@@ -101,8 +104,10 @@ Game::~Game()
    Returns:     None
  */
 void Game::gameLoop() {
-  while(!mStates.empty() && mpWindow->isOpen()) {
-    if (mStates.top()->shouldStateExit()) {
+  while(!mStates.empty() && mpWindow->isOpen())
+  {
+    if (mStates.top()->shouldStateExit())
+    {
       mStates.pop();
     }
     
@@ -111,7 +116,8 @@ void Game::gameLoop() {
     mStates.top()->render(mpWindow);
     Game::mFps ++;
     mEndTime = std::chrono::steady_clock::now();
-    if (std::chrono::duration_cast<std::chrono::seconds>(mEndTime - mStartTime).count() >= 1.0f) {
+    if (std::chrono::duration_cast<std::chrono::seconds>(mEndTime - mStartTime).count() >= 1.0f)
+    {
       std::cout << "FPS: " << Game::mFps / std::chrono::duration_cast<std::chrono::seconds>(mEndTime - mStartTime).count() << std::endl;
       mFps = 0;
       mStartTime = std::chrono::steady_clock::now();

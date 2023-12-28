@@ -1,26 +1,63 @@
+#include <iostream>
+
 #include "renderEngine/renderEngine.h"
 
-Texture& RenderEngine::createTexture(const std::string& crTag, const uint32_t cHeight, const uint32_t cWidth,
-                                     void* pBuffer)
+//! @brief Wrapper function to create Texture
+//!
+//! @param[in] crTag   Tag associated with texture to avoid creating repeats
+//! @param[in] cHeight Height of Texture
+//! @param[in] cWidth  Width of Texture
+//!
+//! @return Texture Object
+Texture& RenderEngine::createTexture(const std::string& crTag, const uint32_t cHeight, const uint32_t cWidth)
 {
   if(mTextureCache.find(crTag) != mTextureCache.end())
   {
-    return mTextureCache[crTag];
+    mTextureCache[crTag].Count ++;
+    return mTextureCache[crTag].ResourceType;
   }
 
-  mTextureCache[crTag].loadTexture(pBuffer, cHeight, cWidth, 8);
-  mTextureIdToTag[mTextureCache[crTag].getTextureId()] = crTag;
-  return mTextureCache[crTag];
+  std::cout << "Creating " << crTag << std::endl;
+  mTextureCache[crTag].ResourceType.create(cHeight, cWidth);
+  mTextureCache[crTag].Count ++;
+  mTextureIdToTag[mTextureCache[crTag].ResourceType.getTextureId()] = crTag;
+  std::cout << "Created " << crTag << std::endl;
+  return mTextureCache[crTag].ResourceType;
 }
 
-Texture& RenderEngine::createTexture(const std::string& crTag, const std::string& crPath)
+//! @brief Checks to see if Texture with Tag already exists
+//!
+//! @param[in] crTag Tag to check against map
+//!
+//! @return true if Texture exists
+//! @return false if Texture does not exist
+bool RenderEngine::textureExists(const std::string& crTag)
 {
-  if(mTextureCache.find(crTag) != mTextureCache.end())
-  {
-    return mTextureCache[crTag];
-  }
+  return mTextureCache.find(crTag) != mTextureCache.end();
+}
 
-  mTextureCache[crTag].loadTexture(crPath);
-  mTextureIdToTag[mTextureCache[crTag].getTextureId()] = crTag;
-  return mTextureCache[crTag];
+//! @brief Checks to see if Texture with Tag already exists
+//!        Note: Will throw exception if Key is not in map
+//!
+//! @param[in] cId ID of Texture to get Tag from
+//!
+//! @return Texture Tag
+std::string RenderEngine::getTag(const uint32_t cId)
+{
+  return mTextureIdToTag.at(cId);
+}
+
+//! @brief Decrements Resource Reference Counter, if count == 0 then it is removed from map
+//!
+//! @param[in] crTag Tag to check against map
+//!
+//! @return None
+void RenderEngine::removeResource(const std::string& crTag)
+{
+  mTextureCache[crTag].Count --;
+
+  if(0 == mTextureCache[crTag].Count)
+  {
+    mTextureCache.erase(crTag);
+  }
 }

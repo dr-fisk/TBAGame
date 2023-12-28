@@ -11,10 +11,19 @@ class RenderEngine
   public:
     RenderEngine() = default;
     ~RenderEngine() = default;
-    Texture& createTexture(const std::string& crTag, const uint32_t cHeight, const uint32_t cWidth, void* pBuffer);
-    Texture& createTexture(const std::string& crTag, const std::string& crPath);
+    Texture& createTexture(const std::string& crTag, const uint32_t cHeight, const uint32_t cWidth);
+    bool textureExists(const std::string& crTag);
+    std::string getTag(const uint32_t cId);
+    void removeResource(const std::string& crTag);
   private:
-    std::map<std::string, Texture> mTextureCache;
+    template <typename T>
+    struct ResourceData
+    {
+      T ResourceType;
+      uint32_t Count;
+    };
+
+    std::map<std::string, ResourceData<Texture>> mTextureCache;
     std::map<uint32_t, std::string> mTextureIdToTag;
 };
 

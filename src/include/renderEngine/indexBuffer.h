@@ -18,11 +18,9 @@ class IndexBuffer
     void updateIboSubBuffer(const uint32_t cIndex, const uint32_t cBuffSize, void *pBuffer);
     void updateIndexBuffer(const uint64_t cNumVertexes);
 
-    /* Function:    getCount
-       Description: Returns the IndexBuffer count
-       Parameters:  None
-       Returns:     uint32_t - IndexBuffer count
-    */
+    //! @brief Returns the IndexBuffer count
+    //!
+    //! @return IndexBuffer count
     inline uint32_t getCount() const { return mCount; }
   private:
     uint32_t mIboId;

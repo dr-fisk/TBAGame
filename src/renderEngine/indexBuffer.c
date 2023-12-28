@@ -4,13 +4,12 @@
 const uint8_t SQUARE_VERTICES2D = 4;
 const uint8_t NUM_INDICES_PER_VERTEX = 6;
 
-/* Function:    IndexBuffer
-   Description: Creates IndexBuffer as an Element Array Buffer
-   Parameters:  uint32_t - Number of Index Buffer Objects to generate
-                uint32_t* - Indeces describing VBO
-                uint32_t  - Size of array
-   Returns:     None
- */
+//! @brief Creates IndexBuffer as an Element Array Buffer
+//!
+//! @param[in]  cNumVertexes Number of Index Buffer Objects to generate
+//! @param[in]  cDrawType    Indeces describing VBO
+//!
+//! @return None
 void IndexBuffer::genIboBuffer(const uint32_t cNumVertexes, const GLenum cDrawType)
 {
   mBuffer.clear();
@@ -41,37 +40,34 @@ void IndexBuffer::genIboBuffer(const uint32_t cNumVertexes, const GLenum cDrawTy
   GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, mBuffer.size() * sizeof(uint32_t), mBuffer.data(), cDrawType));
 }
 
+//! @brief Generates IBO
+//!
+//! @return None
 void IndexBuffer::genIbo()
 {
   GLCall(glGenBuffers(1, &mIboId));
 }
 
-/* Function:    ~IndexBuffer
-   Description: Deletes IndexBuffer
-   Parameters:  None
-   Returns:     None
- */
+//! @brief Deletes IndexBuffer
+//!
+//! @return None
 IndexBuffer::~IndexBuffer()
 {
   GLCall(glDeleteBuffers(1, &mIboId));
 }
 
-/* Function:    bind
-   Description: Prepares IBO to be rendered
-                Always call before drawing
-   Parameters:  uint32_t - Specific Index Buffer Object to be bounded
-   Returns:     None
- */
+//! @brief Prepares IBO to be rendered
+//!        Always call before drawing
+//!
+//! @return None
 void IndexBuffer::bind() const
 {
   GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIboId));
 }
 
-/* Function:    unbind
-   Description: Cleans up IBO after being drawn
-   Parameters:  None
-   Returns:     None
- */
+//! @brief Cleans up IBO after being drawn
+//!
+//! @return None
 void IndexBuffer::unbind() const
 {
   GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));

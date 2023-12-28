@@ -4,10 +4,12 @@
 #include "common.h"
 #include "glcommon.h"
 #include "drawable/drawable.h"
+#include "resource/textureResource.h"
 
 const uint8_t PIXEL_SIZE = 1;
 
-class Rect : public Drawable {
+class Rect : public Drawable
+{
   public:
     Rect();
     Rect(const float cLeft, const float cTop, const float cHeight=1, const float cWidth=1,
@@ -27,6 +29,7 @@ class Rect : public Drawable {
     lg::Color getRGBA();
     Vertex createVertex();
     std::vector<Vertex> getVertex();
+    TextureResource& getResource() {}
     virtual std::vector<VertexData> getVertexData() { return std::vector<VertexData>();}
     void rotate(GLfloat theta);
     Vector2<GLfloat> getTranslate();

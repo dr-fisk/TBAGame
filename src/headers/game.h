@@ -6,6 +6,7 @@
 #include <chrono>
 
 #include "states/state.h"
+#include "renderEngine/renderEngine.h"
 #include "renderWindow.h"
 #include "lestTtf.h"
 
@@ -20,6 +21,7 @@ class Game {
     std::stack<std::shared_ptr<State>> mStates;
     std::shared_ptr<RenderWindow> mpWindow;
     std::shared_ptr<BatchBuffer> mpBatchBuffer;
+    std::shared_ptr<RenderEngine> mpRenderEngine;
     LestTrueType ttf;
     int mGameRuntime;
     std::chrono::time_point<std::chrono::steady_clock> mStartTime;

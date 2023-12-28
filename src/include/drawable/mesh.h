@@ -7,6 +7,7 @@
 #include "utility/net_utility.h"
 #include "drawable/drawable.h"
 #include "glcommon.h"
+#include "resource/textureResource.h"
 
 class Mesh : public Drawable
 {
@@ -16,6 +17,7 @@ class Mesh : public Drawable
     virtual ~Mesh();
     virtual std::vector<Vertex> getVertex();
     virtual std::vector<VertexData> getVertexData() { return std::vector<VertexData>();}
+    TextureResource& getResource() {}
   private:
     std::vector<Vertex> mMesh;
 };

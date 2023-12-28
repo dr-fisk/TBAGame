@@ -17,19 +17,27 @@ struct EdgeTableNode
 
 namespace EdgeTable
 {
-  bool edgeTableYLessThan(const EdgeTableNode &crNode1, const EdgeTableNode &crNode2);
-  float currentXVal(const EdgeTableNode &crNode, const float cDy = 1.0);
-  bool edgeTableXLessThan(const EdgeTableNode &crNode1, const EdgeTableNode &crNode2);
-  void fillActiveEdgeTable(const std::vector<EdgeTableNode> &crEdgeTable, std::vector<EdgeTableNode> &rActiveEdgeTable,
-                           uint32_t &rEdgeTableIdx, const uint32_t cNumEdges,
-                           size_t &rActiveTableIdx, const int32_t cY);
-  void sortEdgeTable(std::vector<EdgeTableNode> &rEdgeTable, const uint32_t cNumEdges);
-  void sortActiveEdgeTable(std::vector<EdgeTableNode> &rActiveEdgeTable, const size_t cActiveTableIdx);
-  void updateActiveTableXVals(std::vector<EdgeTableNode> &rActiveEdgeTable, const size_t cActiveTableIdx, const float cDy = 1.0);
+  bool edgeTableYLessThan(const EdgeTableNode& crNode1, const EdgeTableNode& crNode2);
+  float currentXVal(const EdgeTableNode& crNode, const float cDy = 1.0);
+  bool edgeTableXLessThan(const EdgeTableNode &crNode1, const EdgeTableNode& crNode2);
+  void fillActiveEdgeTable(const std::vector<EdgeTableNode>& crEdgeTable, std::vector<EdgeTableNode>& rActiveEdgeTable,
+                           uint32_t& rEdgeTableIdx, const uint32_t cNumEdges,
+                           size_t& rActiveTableIdx, const int32_t cY);
+  void sortEdgeTable(std::vector<EdgeTableNode>& rEdgeTable, const uint32_t cNumEdges);
+  void sortActiveEdgeTable(std::vector<EdgeTableNode>& rActiveEdgeTable, const size_t cActiveTableIdx);
+  void updateActiveTableXVals(std::vector<EdgeTableNode>& rActiveEdgeTable, const size_t cActiveTableIdx,
+                              const float cDy = 1.0);
   
+  //! @brief Fills rEdgeTable from crEdges list
+  //!
+  //! @param[in]  crEdges    List of Edges to construct an Edge Table from
+  //! @param[out] rEdgeTable Edge Table list of crEdges size initialized
+  //! @param[out] rNumEdges  Number of edges inserted into Edge Table
+  //!
+  //! @return None
   template<typename T>
-  static void fillEdgeTable(const std::vector<Edges<T>> &crEdges, std::vector<EdgeTableNode> &rEdgeTable,
-                            uint32_t &rNumEdges)
+  static void fillEdgeTable(const std::vector<Edges<T>>& crEdges, std::vector<EdgeTableNode>& rEdgeTable,
+                            uint32_t& rNumEdges)
   {
     float biggerYVal = 0;
     float smallerYVal = 0;
@@ -74,9 +82,19 @@ namespace EdgeTable
     sortEdgeTable(rEdgeTable, rNumEdges);
   }
 
+  //! @brief Performs the Scanline fill algorithm and stores result in rBitmap
+  //!        SubPixel AA involved TODO: Remove cha param
+  //!
+  //! @param[in]  crEdges      Edge Table
+  //! @param[in]  crDimensions Dimensions of bitmap
+  //! @param[out] rBitmap      Bitmap to construct polygon in
+  //! @param[in]  crColor      Color to fill Bitmap with
+  //! @param[in]  cMinY        Minimum Y Value to start Scanline fill algorithm
+  //!
+  //! @return None
   template<typename T>
-  static void scanLineFill(const std::vector<Edges<T>> &crEdges, const Vector2<int32_t> &crDimensions,
-                           std::vector<uint32_t> &rBitmap, const lg::Color &crColor, const int32_t cMinY, char cha)
+  static void scanLineFill(const std::vector<Edges<T>>& crEdges, const Vector2<uint32_t>& crDimensions,
+                           std::vector<uint32_t>& rBitmap, const lg::Color &crColor, const int32_t cMinY, char cha)
   {
     std::vector<EdgeTableNode> edgeTable(crEdges.size());
     std::vector<EdgeTableNode> activeEdgeTable(crEdges.size());

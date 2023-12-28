@@ -14,7 +14,8 @@ struct FontAttrib {
   int8_t glyphBottom;
 };
 
-class PngFont {
+class PngFont
+{
   public:
   PngFont() {}
     PngFont(const std::string &crPngFilePath);

@@ -13,7 +13,8 @@
 
 class MainMenu : public State {
   public:
-    MainMenu(const std::stack<std::shared_ptr<State>> &crStates, const std::shared_ptr<BatchBuffer> &crpBatchBuffer);
+    MainMenu(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<RenderEngine> cpRenderEngine,
+             const std::shared_ptr<BatchBuffer> cpBatchBuffer);
     ~MainMenu();
     void render(const std::shared_ptr<RenderTarget> &crpTarget);
     void update(const std::shared_ptr<RenderTarget> &crpTarget);
@@ -24,7 +25,8 @@ class MainMenu : public State {
     LestTrueType ttf;
     std::vector<std::shared_ptr<Rect>> final;
     std::shared_ptr<Rect> temprect;
-    Font mNewFont;
+    std::shared_ptr<Font> mNewFont;
+    std::shared_ptr<Drawable> mText;
     std::chrono::time_point<std::chrono::system_clock> mStartTime;
 };
 

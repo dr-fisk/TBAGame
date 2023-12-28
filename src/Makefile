@@ -70,9 +70,12 @@ rendererFiles =  renderWindow.c \
 								 bitmap.c
 
 resourceFiles = image.c \
-                font.c
+                font.c \
+								resource.c \
+								textureResource.c
 
-drawableFiles = rectangle.c \
+drawableFiles = drawable.c \
+                rectangle.c \
                 mesh.c \
 								pngText.c \
 								text.c

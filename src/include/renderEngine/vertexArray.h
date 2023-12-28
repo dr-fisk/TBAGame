@@ -9,7 +9,7 @@ class VertexArray {
     VertexArray() = default;
     void genVao();
     ~VertexArray();
-    void setVaoAttributes(const VertexBufferLayout &crLayout);
+    void setVaoAttributes(const VertexBufferLayout& crLayout);
     void bind() const;
     void unbind() const;
   private:

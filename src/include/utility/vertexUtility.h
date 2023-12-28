@@ -8,6 +8,13 @@ namespace VertexUtility
 {
   void setVertexTextureIndex(Vertex& rVertex, const float cTextureIndex=-1.0f);
 
+  //! @brief Creates Vertex Data for rendering
+  //!
+  //! @param[in] crPos   Position of Quad
+  //! @param[in] crSize  Size of Quad
+  //! @param[in] crColor Color of Quad can be transparent if Texture will be rendered onto Quad
+  //!
+  //! @return Vertex Data
   template <typename T>
   Vertex createVertex(const Vector2<T>& crPos, const Vector2<T>& crSize, const lg::Color& crColor)
   {
@@ -31,16 +38,26 @@ namespace VertexUtility
             Vector2<GLfloat>(x1, y1), crColor, textCoord4, -1.0f };
   }
 
-  template <typename T>
-  void updateTextureCoordinates(Vertex& rVertex, const Vector2<T>& crActualSize, const Vector2<T>& crTextureSize)
+  //! @brief Updates Texture Coordinates in Vertex Data
+  //!
+  //! @param[out] rVertex       Vertex to update Texture Coordinates for
+  //! @param[in]  crActualSize  Size of Quad
+  //! @param[in]  crTextureSize Size of Texture
+  //!
+  //! @return None
+  template <typename A, typename B, typename C>
+  void updateTextureCoordinates(Vertex& rVertex, const Vector2<A>& crActualSize, const Vector2<B>& crOffset,
+                                const Vector2<C>& crTextureSize)
   {
-    const float xCoord = static_cast<float>(crActualSize.x) / static_cast<float>(crTextureSize.x);
-    const float yCoord = static_cast<float>(crActualSize.y) / static_cast<float>(crTextureSize.y);
+    const float xMax = static_cast<float>(crActualSize.x + crOffset.x) / static_cast<float>(crTextureSize.x);
+    const float yMax = static_cast<float>(crActualSize.y + crOffset.y) / static_cast<float>(crTextureSize.y);
+    const float xMin = static_cast<float>(crOffset.x) / static_cast<float>(crTextureSize.x);
+    const float yMin = static_cast<float>(crOffset.y) / static_cast<float>(crTextureSize.y);
 
-    rVertex.textCoord1 = Vector2<GLfloat>(0.0f, yCoord);
-    rVertex.textCoord2 = Vector2<GLfloat>(xCoord, yCoord);
-    rVertex.textCoord3 = Vector2<GLfloat>(xCoord,0.0f);
-    rVertex.textCoord4 = Vector2<GLfloat>(0.0f, 0.0f);
+    rVertex.textCoord1 = Vector2<GLfloat>(xMin, yMax);
+    rVertex.textCoord2 = Vector2<GLfloat>(xMax, yMax);
+    rVertex.textCoord3 = Vector2<GLfloat>(xMax, yMin);
+    rVertex.textCoord4 = Vector2<GLfloat>(xMin, yMin);
   }
 };
 

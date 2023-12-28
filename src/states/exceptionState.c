@@ -2,8 +2,10 @@
 
 #include "states/exceptionState.h"
 
-ExceptionState::ExceptionState(const std::stack<std::shared_ptr<State>> &crStates, const std::shared_ptr<BatchBuffer> &crpBatchBuffer, 
-                               const std::string &crError) : State(crStates, crpBatchBuffer)
+ExceptionState::ExceptionState(const std::stack<std::shared_ptr<State>>& crStates,
+                               const std::shared_ptr<RenderEngine> cpRenderEngine,
+                               const std::shared_ptr<BatchBuffer> cpBatchBuffer, 
+                               const std::string& crError) : State(crStates, cpRenderEngine, cpBatchBuffer)
 {
   mError = crError;
   mpWindow = std::make_shared<RenderWindow>(800, 800, "Exception Encountered");
