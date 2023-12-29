@@ -14,12 +14,14 @@ class Text : public Drawable
   public:
     Text() = default;
     Text(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<RenderEngine>& prRenderEngine,
-         std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize, const int32_t cTop, const int32_t cLeft,
+         std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize, const float cTop, const float cLeft,
          const int32_t cLineWrap=-1);
     std::vector<Vertex> getVertex();
     std::vector<VertexData> getVertexData();
     void gridfitText();
-    TextureResource& getResource();
+    std::shared_ptr<TextureResource> getResource();
+    bool needUpdate();
+    void getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx);
     ~Text();
   private:
     std::shared_ptr<Font> mpFont;
@@ -27,8 +29,8 @@ class Text : public Drawable
     std::vector<Vertex> mVertexes;
     std::vector<VertexData> mVertexesData;
 
-    int32_t mTop;
-    int32_t mLeft;
+    float mTop;
+    float mLeft;
     int32_t mLineWrap;
     uint8_t mCharSize;
 };

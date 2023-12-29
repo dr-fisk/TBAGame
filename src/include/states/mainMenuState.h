@@ -13,8 +13,8 @@
 
 class MainMenu : public State {
   public:
-    MainMenu(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<RenderEngine> cpRenderEngine,
-             const std::shared_ptr<BatchBuffer> cpBatchBuffer);
+    MainMenu(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<RenderEngine>& crpRenderEngine,
+             const std::shared_ptr<BatchBuffer>& crpBatchBuffer);
     ~MainMenu();
     void render(const std::shared_ptr<RenderTarget> &crpTarget);
     void update(const std::shared_ptr<RenderTarget> &crpTarget);

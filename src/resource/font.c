@@ -506,7 +506,6 @@ void Font::loadGlyphs(const uint32_t cCharSize, std::shared_ptr<RenderEngine>& p
   {
     std::cout << "Font size already exists." << std::endl;
     // Doesn't matter dimensions here, because font exists, resource already exists
-    mTextures.try_emplace(cCharSize, TextureResource(mFontFamily + std::to_string(cCharSize), prRenderEngine, {0, 0}));
     return;
   }
 
@@ -561,15 +560,15 @@ void Font::loadGlyphs(const uint32_t cCharSize, std::shared_ptr<RenderEngine>& p
     }
   }
 
-  mTextures.try_emplace(cCharSize, TextureResource(mFontFamily + std::to_string(cCharSize), prRenderEngine,
-                        {offset.x, offset.y}));
+  mTextures.try_emplace(cCharSize, std::make_shared<TextureResource>(mFontFamily + std::to_string(cCharSize), prRenderEngine,
+                        offset));
   std::cout << "Done getting texture\n";
 
   for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
   {
     currChar = static_cast<char>(i);
-    mTextures[cCharSize].update(mFont[cCharSize][currChar].Bitmap.data(), mFont[cCharSize][currChar].Dimensions,
-                                mFont[cCharSize][currChar].Offset);
+    mTextures[cCharSize]->update(mFont[cCharSize][currChar].Bitmap.data(), mFont[cCharSize][currChar].Dimensions,
+                                 mFont[cCharSize][currChar].Offset);
   }
 }
 
@@ -641,7 +640,7 @@ Vector2<uint32_t> Font::getOffset(const char cChar, const uint8_t cCharSize)
 //! @param[in] cCharSize Character size to get resource from specific map
 //!
 //! @return Texture Resource
-TextureResource& Font::getResource(const uint8_t cCharSize)
+std::shared_ptr<TextureResource> Font::getResource(const uint8_t cCharSize)
 {
   return mTextures.at(cCharSize);
 }

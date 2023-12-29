@@ -33,7 +33,7 @@ class Font
     void loadGlyphs(const uint32_t cCharSize, std::shared_ptr<RenderEngine>& prRenderEngine);
     bool hasGlyphsLoaded(const uint8_t cCharSize);
     Vector2<uint32_t> getOffset(const char cChar, const uint8_t cCharSize);
-    TextureResource& getResource(const uint8_t cCharSize);
+    std::shared_ptr<TextureResource> getResource(const uint8_t cCharSize);
   private:
     struct GlyfRawData
     {
@@ -66,7 +66,7 @@ class Font
     typedef std::map<char, FontPage> FontTable;
     std::map<char, GlyfRawData> mGlyfData;
     std::map<uint8_t, FontTable> mFont;
-    std::map<uint8_t, TextureResource> mTextures;
+    std::map<uint8_t, std::shared_ptr<TextureResource>> mTextures;
     uint32_t mNumSubDiv;
     lg::Color mFontColor;
     int32_t mCapHeight;

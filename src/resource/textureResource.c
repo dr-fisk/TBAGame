@@ -60,6 +60,30 @@ int8_t TextureResource::bind(uint32_t cActiveSlot)
   return 0;
 }
 
+//! @brief Unbinds Texture Resource
+//!
+//! @return None
+void TextureResource::unbind()
+{
+  mpTexture->unbind();
+}
+
+//! @brief Gets Cache ID of Texture
+//!
+//! @return Cache ID
+uint8_t TextureResource::getCacheId()
+{
+  return mpTexture->getCacheId();
+}
+
+//! @brief Gets Texture ID associated with Texture Resource
+//!
+//! @return Texture ID
+uint32_t TextureResource::getTextureId()
+{
+  return mpTexture->getTextureId();
+}
+
 //! @brief Wrapper function to get Texture Dimensions
 //!
 //! @return (0, 0) if Texture is nullptr
@@ -72,6 +96,22 @@ Vector2<uint32_t> TextureResource::getSize()
   }
 
   return mpTexture->getSize();
+}
+
+//! @brief Determine if TextureIndex needs updating
+//!
+//! @return true if cache ID was updated false otherwise
+bool TextureResource::updateTextureIndex()
+{
+  return mpTexture->updateTextureIndex();
+}
+
+//! @brief Unset CacheUpdated flag
+//!
+//! @return None
+void TextureResource::unsetCacheUpdate()
+{
+  mpTexture->unsetCacheUpdate();
 }
 
 //! @brief Destructs and removes itself from Resource Manager

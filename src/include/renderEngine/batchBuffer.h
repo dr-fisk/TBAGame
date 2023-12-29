@@ -56,12 +56,11 @@ class BatchBuffer
     std::vector<std::shared_ptr<VertexArray>> mVao;
     std::vector<std::shared_ptr<IndexBuffer>> mIbo;
     std::vector<std::shared_ptr<Shader>> mShader;
-    std::vector<uint8_t> mBuffer;
+    std::vector<Vertex> mVertexes;
     std::unordered_map<int32_t, Drawable*> mQuads;
-    uint64_t mRegisteredDrawables;
-    uint64_t mNextAvailableAddress;
-    uint64_t mNumVertices;
-    uint32_t mRenderIdCount;
+    std::map<uint8_t, std::shared_ptr<TextureResource>> mTextureCache;
+    uint8_t mNumBoundedTextures;
+    uint64_t mRenderIdCount;
     bool mUpdateDraw;
 
     std::vector<uint32_t> createRectIndices(const uint32_t cVboSize);

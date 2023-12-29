@@ -13,7 +13,7 @@ Texture::Texture()
   mBufferGenerated = false;
 
   // Hardware determines how many Textures can be active which is usually around <= 32
-  mCacheId = std::numeric_limits<uint32_t>::max();
+  mCacheId = std::numeric_limits<uint8_t>::max();
 }
 
 //! @brief Creates Texture Buffer
@@ -118,6 +118,8 @@ void Texture::bind(const uint32_t cSlot) const
   //Can select different textures 0-31
   GLCall(glBindTexture(GL_TEXTURE_2D, mTextureId));
   GLCall(glBindTextureUnit(cSlot, mTextureId));
+  mCacheId = cSlot;
+  mCacheUpdated = true;
 }
 
 //! @brief Unbinds Texture Resource
@@ -126,19 +128,47 @@ void Texture::bind(const uint32_t cSlot) const
 void Texture::unbind()
 {
   GLCall(glBindTexture(GL_TEXTURE_2D, 0));
+  mCacheId = std::numeric_limits<uint8_t>::max();
 }
 
 //! @brief Gets Texture ID associated with Texture Resource
 //!
-//! @return     Texture ID
-int32_t Texture::getTextureId()
+//! @return Texture ID
+uint32_t Texture::getTextureId()
 {
   return mTextureId;
 }
 
+//! @brief Gets Size of Texture
+//!
+//! @return Size of Texture in (l x w)
 Vector2<uint32_t> Texture::getSize()
 {
   return mSize;
+}
+
+//! @brief Gets Cache ID of Texture
+//!
+//! @return Cache ID
+uint8_t Texture::getCacheId()
+{
+  return mCacheId;
+}
+
+//! @brief Determine if TextureIndex needs updating
+//!
+//! @return true if cache ID was updated false otherwise
+bool Texture::updateTextureIndex()
+{
+  return mCacheUpdated;
+}
+
+//! @brief Unset CacheUpdated flag
+//!
+//! @return None
+void Texture::unsetCacheUpdate()
+{
+  mCacheUpdated = false;
 }
 
 //! @brief Destructs Texture Object

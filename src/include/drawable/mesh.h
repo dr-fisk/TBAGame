@@ -17,7 +17,8 @@ class Mesh : public Drawable
     virtual ~Mesh();
     virtual std::vector<Vertex> getVertex();
     virtual std::vector<VertexData> getVertexData() { return std::vector<VertexData>();}
-    TextureResource& getResource() {}
+    std::shared_ptr<TextureResource> getResource() {}
+    void getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx){}
   private:
     std::vector<Vertex> mMesh;
 };

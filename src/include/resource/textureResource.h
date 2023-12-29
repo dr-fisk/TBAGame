@@ -12,7 +12,12 @@ class TextureResource : public Resource
                     const Vector2<uint32_t>& crDimensions);
     int8_t update(void *pBuffer, const Vector2<uint32_t>& crDimensions, const Vector2<uint32_t>& crOffset);
     int8_t bind(uint32_t cActiveSlot);
+    void unbind();
     Vector2<uint32_t> getSize();
+    uint32_t getTextureId();
+    uint8_t getCacheId();
+    bool updateTextureIndex();
+    void unsetCacheUpdate();
     ~TextureResource();
   private:
     Texture* mpTexture;

@@ -24,6 +24,7 @@ BatchBuffer::BatchBuffer(const uint32_t cNumVao, const uint32_t cNumVbo, const u
   mIbo.resize(cNumIbo);
   mRenderIdCount = 0;
   initBuffers();
+  mNumBoundedTextures = 0;
 }
 
 //! @brief Creates Rect IBO data to associate with VBO
@@ -143,59 +144,44 @@ void BatchBuffer::unregisterDrawable(const uint32_t cId)
 //! @return None
 void BatchBuffer::update(const uint32_t cVboId, const uint32_t cIboId)
 {
-  //Might need some updating
-  std::vector<Vertex> temp;
-  std::vector<Vertex> drawBuffer(32);
-  int index = 0;
-  int currentQuad = 0;
+  uint32_t numVertexes = 0;
+  uint32_t offset = 0;
+  uint32_t currentQuad = 0;
   for(auto drawable : mQuads)
   {
-    //Return Sprite instead of Vertex
-    temp = drawable.second->getVertex();
-
-    for(auto & vertex : temp)
+    if(0 == mNumBoundedTextures)
     {
-      if (index == 0)//drawable.second->getRenderId() != 1)
-      {
-        VertexUtility::setVertexTextureIndex(vertex, 1.0f);
-      }
-      else if (index == 1)
-      {
-        VertexUtility::setVertexTextureIndex(vertex, 1.0f);
-      }
-      else if (index == 2 || index == 4)
-      {
-        VertexUtility::setVertexTextureIndex(vertex, 2.0f);
-      }
-      else if (index == 3)
-      {
-        VertexUtility::setVertexTextureIndex(vertex, 3.0f);
-      }
-      else
-      {
-        VertexUtility::setVertexTextureIndex(vertex, 3.0f);
-      }
-
-      drawBuffer[index % drawBuffer.size()] = vertex;
-
-      index ++;
+      mTextureCache[mNumBoundedTextures] = drawable.second->getResource();
+      mTextureCache[mNumBoundedTextures]->bind(mNumBoundedTextures);
+      mNumBoundedTextures ++;
     }
+    // else
+    // {
+    //   if(mNumBoundedTextures > temp->getResource().getCacheId() && mTextureCache[mNumBoundedTextures]->getTextureId() !=)
+    // }
+    drawable.second->getVertex(mVertexes, numVertexes);
 
     currentQuad ++;
 
     // Group up to max active texture vertexes to update. This limits the amount of updates we need to make per frame
     // allowing us to increase performance
     // Some bugs here, and there are a few more optimizations I'd love to do
-    if ((0 == index % drawBuffer.size()) || (currentQuad == mQuads.size()))
+    if ((32 == mNumBoundedTextures) || (currentQuad == mQuads.size()))
     {
-      mVbo.at(cVboId)->updateVboSubBuffer((index / drawBuffer.size()) * sizeof(Vertex),
-                                          (index % (drawBuffer.size() + 1)) * sizeof(Vertex),
-                                          drawBuffer.data());
+      mVbo.at(cVboId)->updateVboSubBuffer(offset * sizeof(Vertex),
+                                          numVertexes * sizeof(Vertex),
+                                          mVertexes.data());
+      offset += numVertexes;
     }
   }
 
+  for(auto& texture : mTextureCache)
+  {
+    texture.second->unsetCacheUpdate();
+  }
+
   // Need to update the below thing cuz this ain't good
-  mIbo.at(cIboId)->updateIboSubBuffer(0, index * 6 * sizeof(uint32_t), nullptr);
+  mIbo.at(cIboId)->updateIboSubBuffer(0, numVertexes * 6 * sizeof(uint32_t), nullptr);
 }
 
 //! @brief Init Buffers to default states
@@ -243,6 +229,7 @@ void BatchBuffer::genIboBuffer(const uint32_t cId, const uint32_t cNumVertexes, 
 //! @return None
 void BatchBuffer::genVboBuffer(const uint32_t cId, const uint32_t cNumVertexes, const GLenum cDrawType)
 {
+  mVertexes.resize(cNumVertexes);
   mVbo.at(cId)->genVboBuffer(cNumVertexes, cDrawType);
 }
 

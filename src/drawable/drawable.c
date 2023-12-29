@@ -5,6 +5,7 @@ Drawable::Drawable(std::shared_ptr<BatchBuffer>& prBatch)
   mRenderId = 0;
   mpBatch = prBatch;
   mpBatch->registerDrawable(this);
+  mNeedUpdate = false;
   std::cout << mRenderId << " Constructed" << std::endl;
 }
 

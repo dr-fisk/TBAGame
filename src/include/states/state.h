@@ -14,8 +14,8 @@
 
 class State {
   public:
-    State(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<RenderEngine> cpRenderEngine,
-          const std::shared_ptr<BatchBuffer> cpBatchBuffer);
+    State(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<RenderEngine>& crpRenderEngine,
+          const std::shared_ptr<BatchBuffer>& crpBatchBuffer);
     ~State();
     virtual void render(const std::shared_ptr<RenderTarget> &) = 0;
     virtual void update(const std::shared_ptr<RenderTarget> &crpTarget) = 0;

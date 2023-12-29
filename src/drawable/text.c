@@ -14,7 +14,7 @@
 //!
 //! @return Text Object 
 Text::Text(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<RenderEngine>& prRenderEngine,
-           std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize, const int32_t cTop, const int32_t cLeft,
+           std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize, const float cTop, const float cLeft,
            const int32_t cLineWrap) : Drawable(prBatch)
 {
   mpFont = prFont;
@@ -43,13 +43,16 @@ void Text::gridfitText()
 {
   Vector2<uint32_t> dim(0,0);
 
-  int32_t top = mTop;
-  int32_t left = mLeft;
-  TextureResource& temp = getResource();
+  float top = mTop;
+  float left = mLeft;
+  std::shared_ptr<TextureResource> temp = getResource();
+  float textureId = temp->getCacheId();
 
   for(size_t i = 0; i < mText.size(); i ++)
   {
     dim = mpFont->getCharacterDimensions(mCharSize, mText[i]);
+    dim.x --;
+    dim.y --;
 
     // Update for more dynamic behavior
     if((0 <= mLineWrap) && (left > mLeft + mLineWrap))
@@ -58,18 +61,12 @@ void Text::gridfitText()
       left = mLeft;
     }
 
-    mVertexes[i] = Rect(left, top + mpFont->getYBearing(mText[i], mCharSize) + 
-    mpFont->getYDescent(mText[i], mCharSize), dim.y - 1,dim.x - 1, lg::Black).getVertex()[0];
+    VertexUtility::createVertex(mVertexes[i], Vector2<float>(left, top + mpFont->getYBearing(mText[i], mCharSize) + 
+                                mpFont->getYDescent(mText[i], mCharSize)), dim, lg::Black, textureId); 
   
-    std::cout << mpFont->getOffset(mText[i], mCharSize);
-    std::cout << temp.getSize();
     VertexUtility::updateTextureCoordinates(mVertexes[i], Vector2<float>(dim.x, dim.y), 
                                             mpFont->getOffset(mText[i], mCharSize),
-                                            temp.getSize());
-
-    mVertexesData[i].QuadVertex = Rect(left, top + mpFont->getYBearing(mText[i], mCharSize) + 
-    mpFont->getYDescent(mText[i], mCharSize), dim.y - 1,dim.x - 1, lg::Black).getVertex()[0];
-    mVertexesData[i].Dimensions = Vector2<float>(dim.x, dim.y);
+                                            temp->getSize());
 
     left += dim.x + 1;
   }
@@ -91,15 +88,52 @@ std::vector<VertexData> Text::getVertexData()
   return mVertexesData;
 }
 
-
 //! @brief Get Texture Resource for Drawable
 //!
 //! @return Texture Resource
-TextureResource& Text::getResource()
+std::shared_ptr<TextureResource> Text::getResource()
 {
   return mpFont->getResource(mCharSize);
 }
 
+//! @brief Check if Drawable needs Vertexes updated
+//!
+//! @return true if update need false otherwise
+bool Text::needUpdate()
+{
+  return mNeedUpdate | mpFont->getResource(mCharSize)->updateTextureIndex();
+}
+
+//! @brief Grab all vertexes from Text Object
+//!        Performs all updates needed for rendering
+//!
+//! @param[out] rBatchVertexes Vertex list
+//! @param[out] rVertexIdx     Current index in vertex list
+//!
+//! @return None
+void Text::getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx)
+{
+  std::shared_ptr<TextureResource> temp = mpFont->getResource(mCharSize);
+  for(auto& vertex : mVertexes)
+  {
+    if(mNeedUpdate)
+    {
+      // do this
+    }
+
+    if(temp->updateTextureIndex())
+    {
+      VertexUtility::setVertexTextureIndex(vertex, static_cast<float>(temp->getCacheId()));
+    }
+
+    rBatchVertexes[rVertexIdx] = vertex;
+    rVertexIdx ++;
+  }
+}
+
+//! @brief Destructor
+//!
+//! @return None
 Text::~Text()
 {
   std::cout << mRenderId << " Being destructed now.\n";

@@ -29,13 +29,14 @@ class Rect : public Drawable
     lg::Color getRGBA();
     Vertex createVertex();
     std::vector<Vertex> getVertex();
-    TextureResource& getResource() {}
+    std::shared_ptr<TextureResource> getResource() {}
     virtual std::vector<VertexData> getVertexData() { return std::vector<VertexData>();}
     void rotate(GLfloat theta);
     Vector2<GLfloat> getTranslate();
     void translate(Vector2<GLfloat>& rTranslate);
     static bool sortByXIntersection(const Rect& crP1, const Rect& crP2);
     static void SetVertexTextureIndex(Vertex &rData, const float cTextureIndex=-1.0f);
+    void getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx){}
   private:
     Vector2<float> mPos;
     Vector2<float> mSize;

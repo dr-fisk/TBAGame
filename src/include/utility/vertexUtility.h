@@ -10,13 +10,15 @@ namespace VertexUtility
 
   //! @brief Creates Vertex Data for rendering
   //!
-  //! @param[in] crPos   Position of Quad
-  //! @param[in] crSize  Size of Quad
-  //! @param[in] crColor Color of Quad can be transparent if Texture will be rendered onto Quad
+  //! @param[in] crPos       Position of Quad
+  //! @param[in] crSize      Size of Quad
+  //! @param[in] crColor     Color of Quad can be transparent if Texture will be rendered onto Quad
+  //! @param[in] cTextureIdx Texture Coordinate to set in Vertex
   //!
   //! @return Vertex Data
-  template <typename T>
-  Vertex createVertex(const Vector2<T>& crPos, const Vector2<T>& crSize, const lg::Color& crColor)
+  template <typename A, typename B>
+  Vertex createVertex(const Vector2<A>& crPos, const Vector2<B>& crSize, const lg::Color& crColor,
+                      const float cTextureIdx=-1.0f)
   {
     GLfloat wWidth = gWindowWidth / 2.0f;
     GLfloat wHeight = gWindowHeight / 2.0f;
@@ -32,10 +34,56 @@ namespace VertexUtility
     const Vector2<GLfloat> textCoord3(1.0f, 0.0f);
     const Vector2<GLfloat> textCoord4(0.0f, 0.0f);
 
-  return {  Vector2<GLfloat>(x1, y2), crColor, textCoord1, -1.0f,
-            Vector2<GLfloat>(x2, y2), crColor, textCoord2, -1.0f,
-            Vector2<GLfloat>(x2, y1), crColor, textCoord3, -1.0f,
-            Vector2<GLfloat>(x1, y1), crColor, textCoord4, -1.0f };
+  return {  Vector2<GLfloat>(x1, y2), crColor, textCoord1, cTextureIdx,
+            Vector2<GLfloat>(x2, y2), crColor, textCoord2, cTextureIdx,
+            Vector2<GLfloat>(x2, y1), crColor, textCoord3, cTextureIdx,
+            Vector2<GLfloat>(x1, y1), crColor, textCoord4, cTextureIdx };
+  }
+
+  //! @brief Creates Vertex Data for rendering
+  //!
+  //! @param[out] rVertex     Vertex to create in place
+  //! @param[in]  crPos       Position of Quad
+  //! @param[in]  crSize      Size of Quad
+  //! @param[in]  crColor     Color of Quad can be transparent if Texture will be rendered onto Quad
+  //! @param[in]  cTextureIdx Texture Coordinate to set in Vertex
+  //!
+  //! @return None
+  template <typename A, typename B>
+  void createVertex(Vertex& rVertex, const Vector2<A>& crPos, const Vector2<B>& crSize, const lg::Color& crColor,
+                    const float cTextureIdx=-1.0f)
+  {
+    GLfloat wWidth = gWindowWidth / 2.0f;
+    GLfloat wHeight = gWindowHeight / 2.0f;
+
+    GLfloat x1 = (static_cast<GLfloat>(crPos.x) / wWidth) - 1.0f;
+    GLfloat x2 = ((static_cast<GLfloat>(crPos.x) + static_cast<GLfloat>(crSize.x)) / wWidth) - 1.0f;
+    GLfloat y1 = -1 * ((static_cast<GLfloat>(crPos.y) / wHeight) - 1.0f);
+    GLfloat y2 = -1 * (((static_cast<GLfloat>(crPos.y) + static_cast<GLfloat>(crSize.y)) / wHeight) - 1.0f);
+
+    // These need to be updated to reflect actual size / maxSize of texture
+    const Vector2<GLfloat> textCoord1(0.0f, 1.0f);
+    const Vector2<GLfloat> textCoord2(1.0f, 1.0f);
+    const Vector2<GLfloat> textCoord3(1.0f, 0.0f);
+    const Vector2<GLfloat> textCoord4(0.0f, 0.0f);
+
+    
+    rVertex.bottomLeft = Vector2<GLfloat>(x1, y2);
+    rVertex.rgba1 = crColor;
+    rVertex.textCoord1 = textCoord1;
+    rVertex.textureIndex1 = cTextureIdx;
+    rVertex.bottomRight = Vector2<GLfloat>(x2, y2);
+    rVertex.rgba2 = crColor;
+    rVertex.textCoord2 = textCoord1;
+    rVertex.textureIndex2 = cTextureIdx;
+    rVertex.topRight = Vector2<GLfloat>(x2, y1);
+    rVertex.rgba3 = crColor;
+    rVertex.textCoord3 = textCoord1;
+    rVertex.textureIndex3 = cTextureIdx;
+    rVertex.topLeft = Vector2<GLfloat>(x1, y1);
+    rVertex.rgba4 = crColor;
+    rVertex.textCoord4 = textCoord1;
+    rVertex.textureIndex4 = cTextureIdx;
   }
 
   //! @brief Updates Texture Coordinates in Vertex Data

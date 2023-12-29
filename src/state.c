@@ -5,12 +5,12 @@
    Parameters:  None
    Returns:     None
  */
-State::State(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<RenderEngine> cpRenderEngine,
-             const std::shared_ptr<BatchBuffer> cpBatchBuffer)
+State::State(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<RenderEngine>& crpRenderEngine,
+             const std::shared_ptr<BatchBuffer>& crpBatchBuffer)
 {
   mStates = crStates;
-  mpRenderEngine = cpRenderEngine;
-  mpBatchBuffer = cpBatchBuffer;
+  mpRenderEngine = crpRenderEngine;
+  mpBatchBuffer = crpBatchBuffer;
 }
 
 /* Function:    ~State

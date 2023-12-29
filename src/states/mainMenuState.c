@@ -6,48 +6,24 @@
 #include "drawable/text.h"
 
 MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
-                   const std::shared_ptr<RenderEngine> cpRenderEngine,
-                   const std::shared_ptr<BatchBuffer> cpBatchBuffer) : State(crStates, cpRenderEngine, cpBatchBuffer)
+                   const std::shared_ptr<RenderEngine>& crpRenderEngine,
+                   const std::shared_ptr<BatchBuffer>& crpBatchBuffer) :
+                   State(crStates, crpRenderEngine, crpBatchBuffer)
 {
   std::string temp = "Envy Code R.ttf";
   mStartTime = std::chrono::system_clock::now();
   // mMesh = Mesh("../src/art.png");
   // mTexture = Texture("../src/art.png");
   mNewFont = std::make_shared<Font>(temp, 5, lg::Black);
-  // mNewFont->loadGlyphs(12);
-  mText = std::make_shared<Text>(mNewFont, "S", mpRenderEngine, mpBatchBuffer, 12, 100, 100);
+  mText = std::make_shared<Text>(mNewFont, "Simam", mpRenderEngine, mpBatchBuffer, 12, 100, 100);
   // mNewFont->writeGenPoints('g');
-  // Vector2<uint32_t> dim = mNewFont->getCharacterDimensions(12,'S');
-  // mpBatchBuffer->initTexture(0, mNewFont->getData(12, 'S').data(), dim.y, dim.x, 8);
-  // dim = mNewFont->getCharacterDimensions('i');
-
-
     // temprect = std::make_shared<Rect>(100,100, dim.y, dim.x, lg::Black);
-
-  // dim = mNewFont->getCharacterDimensions((char)45);
-  // mpBatchBuffer->initTexture(1, mNewFont['i'].data(), dim.y, dim.x, 8);
-  // dim = mNewFont->getCharacterDimensions('m');
-    // std::cout << dim;
-
-  // mpBatchBuffer->initTexture(2, mNewFont['m'].data(), dim.y, dim.x, 8);
-  // dim = mNewFont->getCharacterDimensions('a');
-  //   std::cout << dim;
-
   // mpBatchBuffer->initTexture(3, mNewFont['a'].data(), dim.y, dim.x, 8);
   // dim = mNewFont->getCharacterDimensions((char)48);
   // mpBatchBuffer->initTexture(4, mNewFont[(char)48].data(), dim.y, dim.x, 8);
   // std::shared_ptr<Rect> newrect = std::make_shared<Rect>(500,500, dim.y, dim.x, lg::Black);
     // mpBatchBuffer->initTexture(0, "../src/art.png");
-  // mpBatchBuffer->bindTexture(0, 0);
-  mText->getResource().bind(1);
-  // mpBatchBuffer->bindTexture(1, 1);
-  // mpBatchBuffer->bindTexture(2, 2);
-  // mpBatchBuffer->bindTexture(3, 3);
-  // mpBatchBuffer->bindTexture(4, 4);
 
-  // mpBatchBuffer->registerDrawable(text.get());
-  // mpBatchBuffer->registerDrawable(temprect);
-  // mpBatchBuffer->registerDrawable(newrect);
   auto uni = mpBatchBuffer->getUniform(0, "u_Textures");
   int sampler[5] = {0,1,2,3,4};
   GLCall(glUniform1iv(uni, 5, sampler));
