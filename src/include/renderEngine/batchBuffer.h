@@ -34,7 +34,6 @@ class BatchBuffer
     std::shared_ptr<VertexArray> getVao();
     std::shared_ptr<IndexBuffer> getIbo();
     ~BatchBuffer() = default;
-    static void concatVertex(const std::vector<Drawable*>& crBufferData, std::vector<Vertex>& rData);
     void registerDrawable(Drawable *pDrawable);
     void unregisterDrawable(const uint32_t cId);
     void initShader(const uint32_t cId, const std::string &crPath);

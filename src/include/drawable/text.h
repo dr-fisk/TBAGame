@@ -16,7 +16,6 @@ class Text : public Drawable
     Text(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<RenderEngine>& prRenderEngine,
          std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize, const float cTop, const float cLeft,
          const int32_t cLineWrap=-1);
-    std::vector<Vertex> getVertex();
     void gridfitText();
     void updateText(const std::string& crText);
     std::shared_ptr<TextureResource> getResource();
@@ -24,6 +23,7 @@ class Text : public Drawable
     void getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx);
     bool hasResource();
     bool textureBounded();
+    void movePos(float cX, float cY);
     ~Text();
   private:
     std::shared_ptr<Font> mpFont;
@@ -34,6 +34,8 @@ class Text : public Drawable
     float mLeft;
     int32_t mLineWrap;
     uint8_t mCharSize;
+    uint16_t mAdvancedWidth;
+    int32_t mCapHeight;
 };
 
 #endif

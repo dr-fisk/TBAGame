@@ -13,12 +13,14 @@ TextureResource::TextureResource() : mpTexture(nullptr)
 //! @param[in] crTag          Tag associated with resource
 //! @param[in] prRenderEngine Render Engine manager
 //! @param[in] crDimensions   Dimensions to create new Texture
+//! @param[in] cInternalFormat Specifies the number of color components in the texture
 //!
 //! @return Texture Resource object
 TextureResource::TextureResource(const std::string& crTag, std::shared_ptr<RenderEngine>& prRenderEngine,
-                                 const Vector2<uint32_t>& crDimensions)
+                                 const Vector2<uint32_t>& crDimensions, const int32_t cInternalFormat)
                                  : Resource(crTag, prRenderEngine),
-                                   mpTexture(&prRenderEngine->createTexture(crTag, crDimensions.y, crDimensions.x))
+                                   mpTexture(&prRenderEngine->createTexture(crTag, crDimensions.y, crDimensions.x,
+                                             cInternalFormat))
 {
 }
 
@@ -27,17 +29,20 @@ TextureResource::TextureResource(const std::string& crTag, std::shared_ptr<Rende
 //! @param[in] pBuffer      Data to place into Texture Buffer
 //! @param[in] crDimensions Dimensions of Buffer Data (L x W)
 //! @param[in] crOffset     Offset in Texture Buffer to store data in
+//! @param[in] cFormat      Specifies the format of the pixel data
+//! @param[in] cType        Specifies the data type of the pixel data
 //!
 //! @return 0 if data in Texture Buffer updated successfully
 //! @return -1 if data in Texture Buffer updated unsuccessfully
-int8_t TextureResource::update(void *pBuffer, const Vector2<uint32_t>& crDimensions, const Vector2<uint32_t>& crOffset)
+int8_t TextureResource::update(void *pBuffer, const Vector2<uint32_t>& crDimensions, const Vector2<uint32_t>& crOffset,
+                               const int32_t cFormat, const int32_t cType)
 {
   if(nullptr == mpTexture)
   {
     return -1;
   }
 
-  return mpTexture->update(pBuffer, crDimensions, crOffset);
+  return mpTexture->update(pBuffer, crDimensions, crOffset, cFormat, cType);
 }
 
 //! @brief Wrapper function for Texture Update to update specific part of Buffer from Texture

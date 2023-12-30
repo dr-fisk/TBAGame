@@ -85,29 +85,6 @@ std::vector<uint32_t> BatchBuffer::createTriIndices(const uint32_t cVboSize)
   return indices;
 }
 
-//! @brief Concatenates render data for each drawable item into one vector
-//!
-//! @param[in] List of drawable items
-//! @param[out] Container for all render data
-//!
-//! @return None
-void BatchBuffer::concatVertex(const std::vector<Drawable*>& crBufferData, std::vector<Vertex>& rData)
-{
-  std::vector<Vertex> temp;
-
-  for(size_t i = 0; i < crBufferData.size(); i ++)
-  {
-    if (0 == i)
-      rData = crBufferData[i]->getVertex();
-    else
-    {
-      temp = crBufferData[i]->getVertex();
-      rData.insert(rData.end(), temp.begin(), temp.end());
-      temp.clear();
-    }
-  }
-}
-
 //! @brief Registers drawable to batch render
 //!
 //! @param[in] pDrawable Drawable Object to register
@@ -122,6 +99,7 @@ void BatchBuffer::registerDrawable(Drawable *pDrawable)
   }
 
   mQuads[mRenderIdCount] = pDrawable;
+  std::cout << mQuads.size() << std::endl;
   pDrawable->setRenderId(mRenderIdCount);
 }
 
@@ -149,22 +127,22 @@ void BatchBuffer::update(const uint32_t cVboId, const uint32_t cIboId)
   uint32_t currentQuad = 0;
   for(auto drawable : mQuads)
   {
-    if(drawable.second->hasResource())
+    if(drawable.second->hasResource() && !drawable.second->textureBounded())
     {
-      if(0 == mNumBoundedTextures)
-      {
-        mTextureCache[mNumBoundedTextures] = drawable.second->getResource();
-        mTextureCache[mNumBoundedTextures]->bind(mNumBoundedTextures);
-        mNumBoundedTextures ++;
-      }
-      else if(!drawable.second->textureBounded())
-      {
+        if(32 > mNumBoundedTextures)
+        {
+          mTextureCache[mNumBoundedTextures] = drawable.second->getResource();
+          mTextureCache[mNumBoundedTextures]->bind(mNumBoundedTextures);
+          mNumBoundedTextures ++;
+          std::cout << "Textures bound: " << (int)mNumBoundedTextures << std::endl;
+        }
+        else
+        {
 
-      }
+        }
     }
     
     drawable.second->getVertex(mVertexes, numVertexes);
-
     currentQuad ++;
 
     // Group up to max active texture vertexes to update. This limits the amount of updates we need to make per frame

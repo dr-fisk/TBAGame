@@ -471,6 +471,8 @@ void Font::readTtfFile(const std::string& crPath, LestTrueType &rTtf)
   HeadHeader head = rTtf.getHeadHeaderTable();
   mCapHeight = os2.sCapHeight;
   mMaxWidth = head.xMax - head.xMin;
+  HheaHeader hhea = rTtf.getHheaHeader();
+  mAdvancedWidth = hhea.advancedWidthMax;
 }
 
 //! @brief Generates Glyf Data for given character
@@ -644,4 +646,20 @@ Vector2<uint32_t> Font::getOffset(const char cChar, const uint8_t cCharSize)
 std::shared_ptr<TextureResource> Font::getResource(const uint8_t cCharSize)
 {
   return mTextures.at(cCharSize - 1);
+}
+
+//! @brief Returns the Advanced Width value
+//!
+//! @return Advanced Width
+uint16_t Font::getAdvancedWidth()
+{
+  return mAdvancedWidth;
+}
+
+//! @brief Gets Capital Height
+//!
+//! @return Capital Height
+int32_t Font::getCapitalHeight()
+{
+  return mCapHeight;
 }

@@ -1,5 +1,4 @@
 #include "renderEngine/texture.h"
-#include "glcommon.h"
 #include "png.h"
 
 //! @brief Default Constructor
@@ -17,12 +16,13 @@ Texture::Texture()
 
 //! @brief Creates Texture Buffer
 //!
-//! @param[in] cHeight Height of Texture
-//! @param[in] cWidth  Width of Texture
+//! @param[in] cHeight         Height of Texture
+//! @param[in] cWidth          Width of Texture
+//! @param[in] cInternalFormat Specifies the number of color components in the texture
 //!
 //! @return 0 on successful create
 //! @return -1 on failed create 
-int8_t Texture::create(const uint32_t cHeight, const uint32_t cWidth)
+int8_t Texture::create(const uint32_t cHeight, const uint32_t cWidth, const int32_t cInternalFormat)
 {
   std::vector<uint32_t> tempBuffer(cWidth * cHeight, 0);
   GLCall(glBindTexture(GL_TEXTURE_2D, mTextureId));
@@ -30,7 +30,7 @@ int8_t Texture::create(const uint32_t cHeight, const uint32_t cWidth)
   GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
   GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
   GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-  GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, cWidth, cHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+  GLCall(glTexImage2D(GL_TEXTURE_2D, 0, cInternalFormat, cWidth, cHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
          tempBuffer.data()));
   unbind();
 
@@ -46,7 +46,18 @@ int8_t Texture::create(const uint32_t cHeight, const uint32_t cWidth)
   return 0;
 }
 
-int8_t Texture::update(void *pBuffer, const Vector2<uint32_t>& crDimensions, const Vector2<uint32_t>& crOffset)
+//! @brief Update specific part of Buffer from Texture
+//!
+//! @param[in] pBuffer      Data to place into Texture Buffer
+//! @param[in] crDimensions Dimensions of Buffer Data (L x W)
+//! @param[in] crOffset     Offset in Texture Buffer to store data in
+//! @param[in] cFormat      Specifies the format of the pixel data
+//! @param[in] cType        Specifies the data type of the pixel data
+//!
+//! @return 0 if data in Texture Buffer updated successfully
+//! @return -1 if data in Texture Buffer updated unsuccessfully
+int8_t Texture::update(void *pBuffer, const Vector2<uint32_t>& crDimensions, const Vector2<uint32_t>& crOffset,
+                       const int32_t cFormat, const int32_t cType)
 {
   if(!mBufferGenerated)
   {
@@ -54,13 +65,9 @@ int8_t Texture::update(void *pBuffer, const Vector2<uint32_t>& crDimensions, con
     return -1;
   }
 
-  auto internalFormat = GL_RGBA8;
-  auto format = GL_RGBA;
   GLCall(glBindTexture(GL_TEXTURE_2D, mTextureId));
-  // glPixelStorei(GL_UNPACK_ROW_LENGTH, crDimensions.x);
-  // glPixelStorei(GL_PACK_ROW_LENGTH, crDimensions.x);
-  GLCall(glTexSubImage2D(GL_TEXTURE_2D, 0, crOffset.x, crOffset.y, crDimensions.x, crDimensions.y, format,
-                         GL_UNSIGNED_BYTE, pBuffer));
+  GLCall(glTexSubImage2D(GL_TEXTURE_2D, 0, crOffset.x, crOffset.y, crDimensions.x, crDimensions.y, cFormat,
+                         cType, pBuffer));
   GLCall(glBindTexture(GL_TEXTURE_2D, 0));
   return 0;
 }
@@ -114,9 +121,9 @@ int8_t Texture::loadTexture(const std::string &crPath)
 //! @return None
 void Texture::bind(const int32_t cSlot) const
 {
-  //Can select different textures 0-31
+  //Can select different textures 0-31 depending on platform
+  GLCall(glActiveTexture(GL_TEXTURE0 + cSlot));
   GLCall(glBindTexture(GL_TEXTURE_2D, mTextureId));
-  GLCall(glBindTextureUnit(cSlot, mTextureId));
   mCacheId = static_cast<int8_t>(cSlot);
   mCacheUpdated = true;
   mIsBounded = true;

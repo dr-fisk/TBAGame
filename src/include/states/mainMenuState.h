@@ -10,6 +10,7 @@
 #include "lestTtf.h"
 #include "resource/font.h"
 #include "drawable/text.h"
+#include "drawable/sprite.h"
 
 class MainMenu : public State
 {
@@ -24,10 +25,10 @@ class MainMenu : public State
   private:
     Texture mTexture;
     LestTrueType ttf;
-    std::vector<std::shared_ptr<Rect>> final;
-    std::shared_ptr<Rect> temprect;
     std::shared_ptr<Font> mNewFont;
     std::shared_ptr<Text> mText;
+    std::shared_ptr<Sprite> mSprite;
+    std::shared_ptr<Sprite> mSprite2;
     std::chrono::time_point<std::chrono::system_clock> mStartTime;
 };
 

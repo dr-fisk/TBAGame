@@ -17,3 +17,13 @@ Drawable::~Drawable()
     mpBatch->unregisterDrawable(mRenderId);
   }
 }
+
+void Drawable::setRenderId(const uint64_t cRenderId)
+{
+  mRenderId = cRenderId;
+}
+
+uint64_t Drawable::getRenderId()
+{
+  return mRenderId;
+}

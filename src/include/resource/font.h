@@ -34,6 +34,8 @@ class Font
     bool hasGlyphsLoaded(const uint8_t cCharSize);
     Vector2<uint32_t> getOffset(const char cChar, const uint8_t cCharSize);
     std::shared_ptr<TextureResource> getResource(const uint8_t cCharSize);
+    uint16_t getAdvancedWidth();
+    int32_t getCapitalHeight();
   private:
     struct GlyfRawData
     {
@@ -71,6 +73,7 @@ class Font
     lg::Color mFontColor;
     int32_t mCapHeight;
     int32_t mMaxWidth;
+    uint16_t mAdvancedWidth;
     std::string mFontFamily;
 };
 

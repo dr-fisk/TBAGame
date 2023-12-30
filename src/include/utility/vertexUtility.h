@@ -86,6 +86,30 @@ namespace VertexUtility
     rVertex.textureIndex4 = cTextureIdx;
   }
 
+  //! @brief Updates position of Vertex Data for rendering
+  //!
+  //! @param[out] rVertex     Vertex to create in place
+  //! @param[in]  crPos       Position of Quad
+  //! @param[in]  crSize      Size of Quad
+  //!
+  //! @return None
+  template<typename A, typename B>
+  void updateVertex(Vertex& rVertex, const Vector2<A>& crPos, const Vector2<B>& crSize)
+  {
+    GLfloat wWidth = gWindowWidth / 2.0f;
+    GLfloat wHeight = gWindowHeight / 2.0f;
+
+    GLfloat x1 = (static_cast<GLfloat>(crPos.x) / wWidth) - 1.0f;
+    GLfloat x2 = ((static_cast<GLfloat>(crPos.x) + static_cast<GLfloat>(crSize.x)) / wWidth) - 1.0f;
+    GLfloat y1 = -1 * ((static_cast<GLfloat>(crPos.y) / wHeight) - 1.0f);
+    GLfloat y2 = -1 * (((static_cast<GLfloat>(crPos.y) + static_cast<GLfloat>(crSize.y)) / wHeight) - 1.0f);
+
+    rVertex.bottomLeft = Vector2<GLfloat>(x1, y2);
+    rVertex.bottomRight = Vector2<GLfloat>(x2, y2);
+    rVertex.topRight = Vector2<GLfloat>(x2, y1);
+    rVertex.topLeft = Vector2<GLfloat>(x1, y1);
+  }
+
   //! @brief Updates Texture Coordinates in Vertex Data
   //!
   //! @param[out] rVertex       Vertex to update Texture Coordinates for
