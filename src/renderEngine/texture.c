@@ -1,5 +1,3 @@
-#include <limits>
-
 #include "renderEngine/texture.h"
 #include "glcommon.h"
 #include "png.h"
@@ -13,7 +11,8 @@ Texture::Texture()
   mBufferGenerated = false;
 
   // Hardware determines how many Textures can be active which is usually around <= 32
-  mCacheId = std::numeric_limits<uint8_t>::max();
+  mCacheId = -1;
+  mIsBounded = false;
 }
 
 //! @brief Creates Texture Buffer
@@ -113,13 +112,14 @@ int8_t Texture::loadTexture(const std::string &crPath)
 //! @param[in] cSlot Specific Slot number to set active
 //!
 //! @return None
-void Texture::bind(const uint32_t cSlot) const
+void Texture::bind(const int32_t cSlot) const
 {
   //Can select different textures 0-31
   GLCall(glBindTexture(GL_TEXTURE_2D, mTextureId));
   GLCall(glBindTextureUnit(cSlot, mTextureId));
-  mCacheId = cSlot;
+  mCacheId = static_cast<int8_t>(cSlot);
   mCacheUpdated = true;
+  mIsBounded = true;
 }
 
 //! @brief Unbinds Texture Resource
@@ -128,7 +128,16 @@ void Texture::bind(const uint32_t cSlot) const
 void Texture::unbind()
 {
   GLCall(glBindTexture(GL_TEXTURE_2D, 0));
-  mCacheId = std::numeric_limits<uint8_t>::max();
+  mCacheId = -1;
+  mIsBounded = false;
+}
+
+//! @brief Check if Texture is bounded
+//!
+//! @return true if Texture is bounded false otherwise
+bool Texture::isBounded()
+{
+  return mIsBounded;
 }
 
 //! @brief Gets Texture ID associated with Texture Resource

@@ -58,8 +58,8 @@ class BatchBuffer
     std::vector<std::shared_ptr<Shader>> mShader;
     std::vector<Vertex> mVertexes;
     std::unordered_map<int32_t, Drawable*> mQuads;
-    std::map<uint8_t, std::shared_ptr<TextureResource>> mTextureCache;
-    uint8_t mNumBoundedTextures;
+    std::map<int8_t, std::shared_ptr<TextureResource>> mTextureCache;
+    int8_t mNumBoundedTextures;
     uint64_t mRenderIdCount;
     bool mUpdateDraw;
 

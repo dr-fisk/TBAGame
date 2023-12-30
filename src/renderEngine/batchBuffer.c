@@ -149,16 +149,20 @@ void BatchBuffer::update(const uint32_t cVboId, const uint32_t cIboId)
   uint32_t currentQuad = 0;
   for(auto drawable : mQuads)
   {
-    if(0 == mNumBoundedTextures)
+    if(drawable.second->hasResource())
     {
-      mTextureCache[mNumBoundedTextures] = drawable.second->getResource();
-      mTextureCache[mNumBoundedTextures]->bind(mNumBoundedTextures);
-      mNumBoundedTextures ++;
+      if(0 == mNumBoundedTextures)
+      {
+        mTextureCache[mNumBoundedTextures] = drawable.second->getResource();
+        mTextureCache[mNumBoundedTextures]->bind(mNumBoundedTextures);
+        mNumBoundedTextures ++;
+      }
+      else if(!drawable.second->textureBounded())
+      {
+
+      }
     }
-    // else
-    // {
-    //   if(mNumBoundedTextures > temp->getResource().getCacheId() && mTextureCache[mNumBoundedTextures]->getTextureId() !=)
-    // }
+    
     drawable.second->getVertex(mVertexes, numVertexes);
 
     currentQuad ++;
@@ -181,7 +185,7 @@ void BatchBuffer::update(const uint32_t cVboId, const uint32_t cIboId)
   }
 
   // Need to update the below thing cuz this ain't good
-  mIbo.at(cIboId)->updateIboSubBuffer(0, numVertexes * 6 * sizeof(uint32_t), nullptr);
+  mIbo.at(cIboId)->updateIboSubBuffer(0, numVertexes * 6, nullptr);
 }
 
 //! @brief Init Buffers to default states

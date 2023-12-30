@@ -40,5 +40,8 @@ extern bool GLLogCall(const char* function, const char *file, int line);
 
 extern GLfloat gWindowWidth;
 extern GLfloat gWindowHeight;
+//Temp stuff
+extern uint16_t gFrames;
+extern uint16_t gFps;
 
 #endif

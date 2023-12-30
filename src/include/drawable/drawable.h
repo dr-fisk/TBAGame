@@ -29,10 +29,11 @@ class Drawable
     Drawable(std::shared_ptr<BatchBuffer>& prBatch);
     virtual ~Drawable();
     virtual std::vector<Vertex> getVertex() = 0;
-    virtual std::vector<VertexData> getVertexData() = 0;
     virtual std::shared_ptr<TextureResource> getResource() = 0;
     virtual bool needUpdate() {return false;}
     virtual void getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx) = 0;
+    virtual bool hasResource(){return false;}
+    virtual bool textureBounded() {return false;}
     void setRenderId(const uint64_t cRenderId) {mRenderId = cRenderId;}
     uint64_t getRenderId() {return mRenderId;}
   protected:

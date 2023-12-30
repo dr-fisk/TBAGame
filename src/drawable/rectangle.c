@@ -1,114 +1,52 @@
 #include "drawable/rectangle.h"
 #include <cmath>
 
-/* Function:    Rect
-   Description: Default Constructor
-   Parameters:  None
-   Returns:     None
-*/
+//! @brief Default Constructor
+//!
+//! @return Object
 Rect::Rect()
 {
   mPos  = Vector2<float>(0, 0);
   mSize = Vector2<float>(0, 0);
-  mRgba = lg::Color(0, 0, 0);
-  mPrimitiveType = PrimitiveType::RECTANGLE;
 }
 
-/* Function:    Rect
-   Description: Creates rectangle shape
-   Parameters:  float - leftmost coordinate
-                float - topmost coordinate
-                float - height of rect
-                float - width of rect
-   Returns:     None
-*/
-Rect::Rect(const float cLeft, const float cTop, const float cHeight, const float cWidth, const lg::Color& crColor)
+//! @brief Creates rectangle shape
+//!
+//! @param[in] cLeft   Leftmost coordinate
+//! @param[in] cTop    Topmost coordinate
+//! @param[in] cHeight Height of rect
+//! @param[in] cWidth  Width of rect
+//!
+//! @return Rect Object
+Rect::Rect(const float cLeft, const float cTop, const float cHeight, const float cWidth)
 {
   mPos  = Vector2<float>(cLeft, cTop);
   mSize = Vector2<float>(cWidth, cHeight);
-  mRgba = crColor;
-  mPrimitiveType = PrimitiveType::RECTANGLE;
 }
 
-Rect::Rect(const Vector2<float>& cPos, const float cHeight, const float cWidth)
+//! @brief Creates rectangle shape
+//!
+//! @param[in] crPos   Position of Rect
+//! @param[in] cHeight Height of rect
+//! @param[in] cWidth  Width of rect
+//!
+//! @return Rect Object
+Rect::Rect(const Vector2<float>& crPos, const float cHeight, const float cWidth)
 {
-  mPos = cPos;
+  mPos = crPos;
   mSize = Vector2<float>(cWidth, cHeight);
-  mPrimitiveType = PrimitiveType::RECTANGLE;
 }
 
-/* Function:    setColor
-   Description: Sets the color for the rectangle
-   Parameters:  uint8_t - Red color attribute
-                uint8_t - Green color attribute
-                uint8_t - Blue color attribute
-   Returns:     None
-*/
-void Rect::setColor(const uint8_t cRed, const uint8_t cGreen, const uint8_t cBlue, const uint8_t cAlpha)
-{
-  mRgba = lg::Color(cRed, cGreen, cBlue, cAlpha);
-}
-
-/* Function:    setColor
-   Description: Sets the color for the rectangle
-   Parameters:  Color - Pre-defined color attribute
-   Returns:     None
-*/
-void Rect::setColor(const lg::Color cColor)
-{
-  mRgba = cColor;
-}
-
-/* Function:    getRBGA
-   Description: Returns the color attached to the rect shape
-   Parameters:  None
-   Returns:     Color - Color of rectangle
-*/
-lg::Color Rect::getRGBA()
-{
-  return mRgba;
-}
-
-/* Function:    getDimensions
-   Description: Assigns dimensions of rectangle use function with either pointers
-                or pass by reference
-   Parameters:  None
-   Returns:     None
-*/
+//!   @brief Assigns dimensions of rectangle use function with either pointers
+//!                or pass by reference
+//!   Parameters:  None
+//!   @return     None
 void Rect::getDimensions(GLfloat *pLeft, GLfloat *pTop, GLfloat *pHeight, GLfloat *pWidth)
 {
   *pLeft   = mPos.x;
   *pTop    = mPos.y;
   *pHeight = mSize.y;
   *pWidth  = mSize.x;
-}
-
-/* Function:    createVertex
-   Description: Normalizes Rect coords to be drawn on window this allows us
-                to not have to worry about resolution
-   Parameters:  Rect - Rectangle shape to extract coordinates
-   Returns:     Vertex - Data that is renderable for batchbuffer;
-*/
-Vertex Rect::createVertex()
-{
-  GLfloat wWidth = gWindowWidth / 2.0f;
-  GLfloat wHeight = gWindowHeight / 2.0f;
-
-  GLfloat x1 = (static_cast<GLfloat>(mPos.x) / wWidth) - 1.0f;
-  GLfloat x2 = ((static_cast<GLfloat>(mPos.x) + static_cast<GLfloat>(mSize.x)) / wWidth) - 1.0f;
-  GLfloat y1 = -1 * ((static_cast<GLfloat>(mPos.y) / wHeight) - 1.0f);
-  GLfloat y2 = -1 * (((static_cast<GLfloat>(mPos.y) + static_cast<GLfloat>(mSize.y)) / wHeight) - 1.0f);
-
-  // These need to be updated to reflect actual size / maxSize of texture
-  const Vector2<GLfloat> textCoord1(0.0f, 1.0f);
-  const Vector2<GLfloat> textCoord2(1.0f, 1.0f);
-  const Vector2<GLfloat> textCoord3(1.0f, 0.0f);
-  const Vector2<GLfloat> textCoord4(0.0f, 0.0f);
-
-  return { Vector2<GLfloat>(x1, y2), mRgba, textCoord1, -1.0f,
-           Vector2<GLfloat>(x2, y2), mRgba, textCoord2, -1.0f,
-           Vector2<GLfloat>(x2, y1), mRgba, textCoord3, -1.0f,
-           Vector2<GLfloat>(x1, y1), mRgba, textCoord4, -1.0f };
 }
 
 Vector2<GLfloat> Rect::getTranslate()
@@ -144,12 +82,10 @@ void Rect::rotate(GLfloat theta)
    // mPos.y = -y1 * wHeight - wHeight / 2;
 }
 
-/* Function:    setPos
-   Description: Updates position of Rectangle
-   Parameters:  float - left position of rectangle
-                float - top position of rectangle
-   Returns:     None
-*/
+//!   @brief Updates position of Rectangle
+//!   Parameters:  float - left position of rectangle
+//!                float - top position of rectangle
+//!   @return     None
 void Rect::setPos(const float cLeft, const float cTop)
 {
   mPos.x   = cLeft;
@@ -187,39 +123,9 @@ Vector2<float> Rect::getPos() const
    return mPos;
 }
 
-bool Rect::sortByXIntersection(const Rect& crP1, const Rect& crP2)
-{
-   if (crP1.getTop() == crP2.getTop())
-   {
-      return crP1.getLeft() < crP2.getLeft();
-   }
-
-   return crP1.getTop() < crP2.getTop();
-}
-
-/* Function:    getVertex
-   Description: Returns render data to be inserted into VBO
-   Parameters:  None
-   Returns:     Vertex - Data that is renderable for batchbuffer;
-*/
-std::vector<Vertex> Rect::getVertex()
-{
-  return {Rect::createVertex()};
-}
-
-void Rect::SetVertexTextureIndex(Vertex &rData, const float cTextureIndex)
-{
-   rData.textureIndex1 = cTextureIndex;
-   rData.textureIndex2 = cTextureIndex;
-   rData.textureIndex3 = cTextureIndex;
-   rData.textureIndex4 = cTextureIndex;
-}
-
-/* Function:    ~Rect
-   Description: Destructor
-   Parameters:  None
-   Returns:     None
-*/
+//!   @brief Destructor
+//!   Parameters:  None
+//!   @return     None
 Rect::~Rect()
 {
 }

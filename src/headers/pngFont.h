@@ -20,12 +20,12 @@ class PngFont
   PngFont() {}
     PngFont(const std::string &crPngFilePath);
     ~PngFont();
-    std::vector<Rect> operator[](const char &crRhs);
+    std::vector<Vertex> operator[](const char &crRhs);
   private:
     void initCharVecSize();
-    void insertFontData(const uint8_t cPixelPos, const uint8_t cCurrLetter, const std::vector<Rect> &crData);
+    void insertFontData(const uint8_t cPixelPos, const uint8_t cCurrLetter, const std::vector<Vertex> &crData);
 
-    std::map<char, std::vector<Rect>> mFontData;
+    std::map<char, std::vector<Vertex>> mFontData;
     std::map<char, FontAttrib> mFontAttribute;
 };
 

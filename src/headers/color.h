@@ -37,6 +37,12 @@ class Color
       mRGBA |= (0x000000ff & tempAlpha) << 24;
     }
 
+    void setAlpha(const uint8_t cAlpha)
+    {
+      mRGBA &= (0x00ffffff);
+      mRGBA |= (0x000000ff & cAlpha) << 24;
+    }
+
     Color& operator=(const Color &crRhs)
     {
       mRGBA = crRhs.mRGBA;

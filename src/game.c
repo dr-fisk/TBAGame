@@ -7,6 +7,8 @@
 
 GLfloat gWindowWidth = 0;
 GLfloat gWindowHeight = 0;
+uint16_t gFrames = 0;
+uint16_t gFps = 0;
 
 /* Function:    initMainState
    Description: Helper function which starts our stack of states
@@ -56,7 +58,6 @@ Game::Game()
   mpBatchBuffer->bindShader(0);
   mpBatchBuffer->setVaoAttributes(0, temp);
   mpRenderEngine = std::make_shared<RenderEngine>();
-  mFps = 0;
   //init textures
 
 
@@ -114,12 +115,13 @@ void Game::gameLoop() {
     GLCall(glfwPollEvents());
     mStates.top()->update(mpWindow);
     mStates.top()->render(mpWindow);
-    Game::mFps ++;
+    gFrames ++;
     mEndTime = std::chrono::steady_clock::now();
     if (std::chrono::duration_cast<std::chrono::seconds>(mEndTime - mStartTime).count() >= 1.0f)
     {
-      std::cout << "FPS: " << Game::mFps / std::chrono::duration_cast<std::chrono::seconds>(mEndTime - mStartTime).count() << std::endl;
-      mFps = 0;
+      gFps = gFrames / std::chrono::duration_cast<std::chrono::seconds>(mEndTime - mStartTime).count();
+      // std::cout << "FPS: " <<  << std::endl;
+      gFrames = 0;
       mStartTime = std::chrono::steady_clock::now();
     }
   }

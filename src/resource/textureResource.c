@@ -48,7 +48,7 @@ int8_t TextureResource::update(void *pBuffer, const Vector2<uint32_t>& crDimensi
 //!
 //! @return 0 if Texture in binded
 //! @return -1 if Texture not binded
-int8_t TextureResource::bind(uint32_t cActiveSlot)
+int8_t TextureResource::bind(int32_t cActiveSlot)
 {
   if(nullptr == mpTexture)
   {
@@ -104,6 +104,14 @@ Vector2<uint32_t> TextureResource::getSize()
 bool TextureResource::updateTextureIndex()
 {
   return mpTexture->updateTextureIndex();
+}
+
+//! @brief Check if Texture is bounded
+//!
+//! @return true if Texture is bounded false otherwise
+bool TextureResource::isBounded()
+{
+  return mpTexture->isBounded();
 }
 
 //! @brief Unset CacheUpdated flag

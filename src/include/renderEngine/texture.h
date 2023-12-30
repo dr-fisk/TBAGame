@@ -15,11 +15,12 @@ class Texture
     int8_t loadTexture(void *pBuffer, const uint32_t cHeight, const uint32_t cWidth, const uint32_t cBpp);
     int8_t update(void *pBuffer, const Vector2<uint32_t>& crDimensions, const Vector2<uint32_t>& crOffset);
     int8_t loadTexture(const std::string &crPath);
-    void bind(const uint32_t cSlot) const;
+    void bind(const int32_t cSlot) const;
     void unbind();
     uint32_t getTextureId();
     uint8_t getCacheId();
     bool updateTextureIndex();
+    bool isBounded();
     void unsetCacheUpdate();
     Vector2<uint32_t> getSize();
     ~Texture();
@@ -31,8 +32,9 @@ class Texture
     uint32_t mBpp;
     bool mBufferGenerated;
     std::vector<uint8_t> mBuffer;
-    mutable uint8_t mCacheId;
+    mutable int8_t mCacheId;
     mutable bool mCacheUpdated;
+    mutable bool mIsBounded;
 };
 
 #endif

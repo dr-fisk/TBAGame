@@ -47,16 +47,16 @@ namespace EdgeTable
   //! @param[out]  rEdgeTableIdx    Current index of crEdgeTable to avoid looping from the beginning of list
   //! @param[in]   cNumEdges        Number of Edges om EdgeTable
   //! @param[out]  rActiveTableIdx  Current Index in Active Edge Table to know where to place Edges into
-  //! @param[in]  cY                Current Scanline
+  //! @param[in]   cY               Current Scanline
   //!
   //! @return None
   void fillActiveEdgeTable(const std::vector<EdgeTableNode>& crEdgeTable, std::vector<EdgeTableNode>& rActiveEdgeTable,
                            uint32_t& rEdgeTableIdx, const uint32_t cNumEdges, size_t& rActiveTableIdx,
-                           const int32_t cY)
+                           const float cY, const uint32_t cMaxY)
   {
     for(int i = rEdgeTableIdx; i < cNumEdges; i ++)
     {
-      if (crEdgeTable[i].yLower == cY)
+      if (crEdgeTable[i].yLower < cY || decimalCmp(cY, crEdgeTable[i].yLower))
       {
         rEdgeTableIdx ++;
         rActiveEdgeTable[rActiveTableIdx] = crEdgeTable[i];
@@ -68,7 +68,7 @@ namespace EdgeTable
 
     for(int i = 0; i < rActiveTableIdx; i ++)
     {
-      if (rActiveEdgeTable[i].yUpper == cY)
+      if (rActiveEdgeTable[i].yUpper < cY || decimalCmp(cY, rActiveEdgeTable[i].yUpper) || cY + 1 >= cMaxY)
       {
         for(int j = i; j < rActiveTableIdx - 1; j ++)
         {

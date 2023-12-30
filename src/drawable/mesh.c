@@ -1,6 +1,7 @@
 #include "drawable/mesh.h"
 #include "png.h"
 #include "drawable/rectangle.h"
+#include "utility/vertexUtility.h"
 
 /* Function:    Mesh
    Description: Default constructor
@@ -20,7 +21,6 @@ Mesh::Mesh() : Drawable() {
  */
 Mesh::Mesh(const std::string &crPngFile, const uint8_t cLeft, const uint8_t cTop, const uint8_t cSize)
 {
-  Rect rect;
   uint32_t l = 0;
   uint32_t t = 0;
   uint32_t currPixel  = 0;
@@ -29,21 +29,33 @@ Mesh::Mesh(const std::string &crPngFile, const uint8_t cLeft, const uint8_t cTop
   Png png(crPngFile);
   imgData = png.getImgData();
   ihdr = png.getIhdr();
+  lg::Color color;
 
   mMesh.resize(ihdr.width * ihdr.height);
+  Vector2<float> pos(0.0f, 0.0f);
+  Vector2<uint32_t> size(0, 0);
   // If size = 0 then there will be rectangles with area 0 so skip
-  for (int i = 0; i < ihdr.width * ihdr.height && cSize > 0; i ++) {
+  for (int i = 0; i < ihdr.width * ihdr.height && cSize > 0; i ++)
+  {
     t = ((i / ihdr.width) + cTop) * cSize;
     l = ((i % ihdr.width) + cLeft) * cSize;
 
-    rect = Rect(l, t, cSize, cSize);
     // handle diff colortypes still
     if (ihdr.colorType == Png::ColorType::RGBTRIP)
-      rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2]);
+    {
+      color = lg::Color(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2]);
+    }
     else if(ihdr.colorType == Png::ColorType::RGBTRIPA)
-      rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2], imgData[currPixel + 3]);
+    {
+      color = lg::Color(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2], imgData[currPixel + 3]);
+    }
 
-    mMesh[i] = rect.createVertex();
+    pos.x = l;
+    pos.y = t;
+    size.x = cSize;
+    size.y = cSize;
+
+    VertexUtility::createVertex(mMesh[i], pos, size, color);
 
     if (ihdr.colorType == Png::ColorType::RGBTRIP)
       currPixel += RGBSIZE;

@@ -36,7 +36,8 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
   mTitle = cpTitle;
   mpWindow = glfwCreateWindow(mWdwWidth, mWdwHeight, cpTitle, NULL, pWindow);
 
-  if (!mpWindow) {
+  if (!mpWindow)
+  {
     std::cout << "Error opening window" << std::endl;
     glfwTerminate();
     exit(-1);
@@ -140,29 +141,29 @@ bool RenderWindow::isOpen()
    Parameters:  Rect - Rectangle shape to extract coordinates
    Returns:     Vertex - Vertexes from shape;
  */
-Vertex RenderWindow::createVertexBounded(Rect &rShape)
-{
-  GLfloat left, top, width, height;
-  lg::Color rgba = rShape.getRGBA();
-  rShape.getDimensions(&left, &top, &width, &height);
-  GLfloat wWidth = static_cast<GLfloat>(getWindowWidth()) / 2.0f;
-  GLfloat wHeight = static_cast<GLfloat>(getWindowHeight()) / 2.0f;
+// Vertex RenderWindow::createVertexBounded(Rect &rShape)
+// {
+//   GLfloat left, top, width, height;
+//   lg::Color rgba = rShape.getRGBA();
+//   rShape.getDimensions(&left, &top, &width, &height);
+//   GLfloat wWidth = static_cast<GLfloat>(getWindowWidth()) / 2.0f;
+//   GLfloat wHeight = static_cast<GLfloat>(getWindowHeight()) / 2.0f;
 
-  boundCoords(&left, &width, &top, &height);
+//   boundCoords(&left, &width, &top, &height);
 
-  GLfloat x1 = (left / wWidth) - 1.0f;
-  GLfloat x2 = ((left + width)/ wWidth) - 1.0f;
-  GLfloat y1 = -1 * ((top / wHeight) - 1.0f);
-  GLfloat y2 = -1 * (((top + height) / wHeight) - 1.0f);
+//   GLfloat x1 = (left / wWidth) - 1.0f;
+//   GLfloat x2 = ((left + width)/ wWidth) - 1.0f;
+//   GLfloat y1 = -1 * ((top / wHeight) - 1.0f);
+//   GLfloat y2 = -1 * (((top + height) / wHeight) - 1.0f);
 
-  const Vector2<GLfloat> textCoord1(0.0f, 0.0f);
-  const Vector2<GLfloat> textCoord2(1.0f, 0.0f);
-  const Vector2<GLfloat> textCoord3(1.0f, 1.0f);
-  const Vector2<GLfloat> textCoord4(0.0f, 1.0f);
+//   const Vector2<GLfloat> textCoord1(0.0f, 0.0f);
+//   const Vector2<GLfloat> textCoord2(1.0f, 0.0f);
+//   const Vector2<GLfloat> textCoord3(1.0f, 1.0f);
+//   const Vector2<GLfloat> textCoord4(0.0f, 1.0f);
 
-  return { Vector2<GLfloat>(x1, y2), rgba, textCoord1, -1.0f, Vector2<GLfloat>(x2, y2), rgba, textCoord2, -1.0f,
-           Vector2<GLfloat>(x2, y1), rgba, textCoord3, -1.0f, Vector2<GLfloat>(x1, y1), rgba, textCoord4, -1.0f };
-}
+//   return { Vector2<GLfloat>(x1, y2), rgba, textCoord1, -1.0f, Vector2<GLfloat>(x2, y2), rgba, textCoord2, -1.0f,
+//            Vector2<GLfloat>(x2, y1), rgba, textCoord3, -1.0f, Vector2<GLfloat>(x1, y1), rgba, textCoord4, -1.0f };
+// }
 
 /* Function:    boundCoords
    Description: Ensures coordinates are never out of bounds from resolution

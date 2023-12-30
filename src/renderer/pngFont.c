@@ -2,6 +2,8 @@
 
 #include "pngFont.h"
 #include "png.h"
+#include "utility/vertexUtility.h"
+#include "utility/net_utility.h"
 
 #define FONT_PNG_WIDTH 208
 #define FONT_PNG_HEIGHT 64
@@ -20,7 +22,6 @@ const std::vector<char> chars = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J
 */
 PngFont::PngFont(const std::string &crPngFilePath)
 {
-  Rect rect;
   uint32_t currPixel = 0;
   uint8_t currLetter = 0;
   uint8_t currLetterHeight = 0;
@@ -29,8 +30,11 @@ PngFont::PngFont(const std::string &crPngFilePath)
   uint8_t modHeight = 0;
 
   std::vector<uint8_t> imgData;
-  std::vector<Rect> vertexes(FONT_SIZE);
+  std::vector<Vertex> vertexes(FONT_SIZE);
   struct Png::IHDR ihdr;
+  lg::Color color;
+  Vector2<float> pos(0.0f, 0.0f);
+  Vector2<uint32_t> size(1, 1);
 
   Png png(crPngFilePath);
   imgData = png.getImgData();
@@ -52,18 +56,23 @@ PngFont::PngFont(const std::string &crPngFilePath)
     {
        std::cout << "Error: Png Font image contains more characters than supported";
     }
-
-    rect = Rect(i % FONT_SIZE, currHeight % FONT_SIZE);
     
     if (ihdr.colorType == Png::ColorType::RGBTRIP)
-      rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2]);
+    {
+      color = lg::Color(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2]);
+    }
     else if(ihdr.colorType == Png::ColorType::RGBTRIPA)
-      rect.setColor(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2], imgData[currPixel + 3]);
-    
+    {
+      color = lg::Color(imgData[currPixel], imgData[currPixel + 1], imgData[currPixel + 2], imgData[currPixel + 3]);
+    }
+
     modCol = (i + 1) % FONT_SIZE;
     modHeight = currHeight % FONT_SIZE;
 
-    vertexes[i % FONT_SIZE] = rect;
+    pos.x = i % FONT_SIZE;
+    pos.y = currHeight % FONT_SIZE;
+
+    VertexUtility::createVertex(vertexes[i], pos, size, color);
 
     // The following if statements keep track of what 16x16 pixel character we are on
     
@@ -107,7 +116,7 @@ PngFont::~PngFont()
    Parameters:  char - Specific character to grab Rect data
    Returns:     Vector - Rect data to create render data
 */
-std::vector<Rect> PngFont::operator[](const char &crRhs)
+std::vector<Vertex> PngFont::operator[](const char &crRhs)
 {
   if(mFontData.find(crRhs) == mFontData.end())
   {
@@ -141,8 +150,10 @@ void PngFont::initCharVecSize()
                 Vector  - The Rect data that will be inserted
    Returns:     None
 */
-void PngFont::insertFontData(const uint8_t cPixelPos, const uint8_t cCurrLetter, const std::vector<Rect> &crData)
+void PngFont::insertFontData(const uint8_t cPixelPos, const uint8_t cCurrLetter, const std::vector<Vertex> &crData)
 {
   for (int i = cPixelPos * FONT_SIZE; i < (cPixelPos + 1) * FONT_SIZE; i ++)
+  {
     mFontData[chars[cCurrLetter]][i] = crData[i % FONT_SIZE];
+  }
 }

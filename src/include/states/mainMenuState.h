@@ -9,15 +9,15 @@
 #include "state.h"
 #include "lestTtf.h"
 #include "resource/font.h"
-#include "renderEngine/texture.h"
+#include "drawable/text.h"
 
 class MainMenu : public State {
   public:
     MainMenu(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<RenderEngine>& crpRenderEngine,
              const std::shared_ptr<BatchBuffer>& crpBatchBuffer);
     ~MainMenu();
-    void render(const std::shared_ptr<RenderTarget> &crpTarget);
-    void update(const std::shared_ptr<RenderTarget> &crpTarget);
+    void render(const std::shared_ptr<RenderTarget>& crpTarget);
+    void update(const std::shared_ptr<RenderTarget>& crpTarget);
     bool shouldStateExit();
 
   private:
@@ -26,7 +26,7 @@ class MainMenu : public State {
     std::vector<std::shared_ptr<Rect>> final;
     std::shared_ptr<Rect> temprect;
     std::shared_ptr<Font> mNewFont;
-    std::shared_ptr<Drawable> mText;
+    std::shared_ptr<Text> mText;
     std::chrono::time_point<std::chrono::system_clock> mStartTime;
 };
 

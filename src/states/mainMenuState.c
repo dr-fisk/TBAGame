@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <queue>
 #include <iostream>
+
 #include "states/mainMenuState.h"
 #include "drawable/text.h"
 
@@ -15,7 +16,11 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   // mMesh = Mesh("../src/art.png");
   // mTexture = Texture("../src/art.png");
   mNewFont = std::make_shared<Font>(temp, 5, lg::Black);
-  mText = std::make_shared<Text>(mNewFont, "Simam", mpRenderEngine, mpBatchBuffer, 12, 100, 100);
+  // char temp1[1];
+  // temp1[0] = (char)33;
+
+  // std::string temp2 = temp1;
+  mText = std::make_shared<Text>(mNewFont, "0", mpRenderEngine, mpBatchBuffer, 12, 100, 100);
   // mNewFont->writeGenPoints('g');
     // temprect = std::make_shared<Rect>(100,100, dim.y, dim.x, lg::Black);
   // mpBatchBuffer->initTexture(3, mNewFont['a'].data(), dim.y, dim.x, 8);
@@ -37,6 +42,32 @@ void MainMenu::render(const std::shared_ptr<RenderTarget> &crpTarget)
 
 void MainMenu::update(const std::shared_ptr<RenderTarget> &crpTarget)
 {
+  // static int cha = 33;
+  // const int32_t ASCII_CHAR_START = 33;
+  // const int32_t ASCII_CHAR_END = 126;
+  mText->updateText(std::to_string(gFps));
+
+  // std::chrono::duration<double> elapsed_time = std::chrono::system_clock::now() - mStartTime;
+  // if(crpTarget->isKeyPressed(GLFW_KEY_SPACE) && elapsed_time.count() >= 0.3)
+  // {
+  //   if (cha == 126)
+  //   {
+  //     cha = 33;
+  //   }
+  //   else
+  //   {
+  //     cha ++;
+  //   }
+
+  //   char temp1[2];
+  //   temp1[1] = '\0';
+  //   temp1[0] = (char) cha;
+  //   std::string temp = temp1;
+  //   std::cout << temp << std::endl;
+  //   mText->updateText(temp);
+  //   mStartTime = std::chrono::system_clock::now();
+  // }
+
   // static int move = 0;
 
   // if (move != 800)

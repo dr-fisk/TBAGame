@@ -17,17 +17,18 @@ class Text : public Drawable
          std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize, const float cTop, const float cLeft,
          const int32_t cLineWrap=-1);
     std::vector<Vertex> getVertex();
-    std::vector<VertexData> getVertexData();
     void gridfitText();
+    void updateText(const std::string& crText);
     std::shared_ptr<TextureResource> getResource();
     bool needUpdate();
     void getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx);
+    bool hasResource();
+    bool textureBounded();
     ~Text();
   private:
     std::shared_ptr<Font> mpFont;
     std::string mText;
     std::vector<Vertex> mVertexes;
-    std::vector<VertexData> mVertexesData;
 
     float mTop;
     float mLeft;

@@ -65,9 +65,7 @@ stateFiles = mainMenuState.c \
 guiFiles   = gui.c
 
 rendererFiles =  renderWindow.c \
-                 renderTarget.c \
-                 pngFont.c \
-								 bitmap.c
+                 renderTarget.c
 
 resourceFiles = image.c \
                 font.c \
@@ -76,8 +74,6 @@ resourceFiles = image.c \
 
 drawableFiles = drawable.c \
                 rectangle.c \
-                mesh.c \
-								pngText.c \
 								text.c
 								
 

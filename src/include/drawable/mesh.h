@@ -16,8 +16,7 @@ class Mesh : public Drawable
     Mesh(const std::string &crPngFile, const uint8_t cLeft = 0, uint8_t cTop = 0, uint8_t cSize = 1);
     virtual ~Mesh();
     virtual std::vector<Vertex> getVertex();
-    virtual std::vector<VertexData> getVertexData() { return std::vector<VertexData>();}
-    std::shared_ptr<TextureResource> getResource() {}
+    std::shared_ptr<TextureResource> getResource() { return nullptr; }
     void getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx){}
   private:
     std::vector<Vertex> mMesh;

@@ -9,8 +9,8 @@
 #include <fstream>
 struct EdgeTableNode
 {
-  int32_t yUpper;
-  int32_t yLower;
+  float yUpper;
+  float yLower;
   float xIntersect;
   float dxPerScan;
 };
@@ -22,7 +22,7 @@ namespace EdgeTable
   bool edgeTableXLessThan(const EdgeTableNode &crNode1, const EdgeTableNode& crNode2);
   void fillActiveEdgeTable(const std::vector<EdgeTableNode>& crEdgeTable, std::vector<EdgeTableNode>& rActiveEdgeTable,
                            uint32_t& rEdgeTableIdx, const uint32_t cNumEdges,
-                           size_t& rActiveTableIdx, const int32_t cY);
+                           size_t& rActiveTableIdx, const float cY, const uint32_t cMaxY);
   void sortEdgeTable(std::vector<EdgeTableNode>& rEdgeTable, const uint32_t cNumEdges);
   void sortActiveEdgeTable(std::vector<EdgeTableNode>& rActiveEdgeTable, const size_t cActiveTableIdx);
   void updateActiveTableXVals(std::vector<EdgeTableNode>& rActiveEdgeTable, const size_t cActiveTableIdx,
@@ -55,22 +55,29 @@ namespace EdgeTable
       biggerYVal = std::max(p1.y, p2.y);
       smallerYVal = std::min(p1.y, p2.y);
 
-      if (static_cast<int32_t>(p1.y) == static_cast<int32_t>(p2.y))
+      if (decimalCmp(p1.y, p2.y))
       {
         continue;
       }
 
-      if (p1.x == p2.x)
+      if (decimalCmp(p1.x, p2.x))
       {
         m = 0;
         rEdgeTable[rNumEdges].dxPerScan = m;
       }
       else
       {
-        dy = static_cast<int32_t>(p2.y) - static_cast<int32_t>(p1.y);
+        dy = p2.y - p1.y;
         dx = p2.x - p1.x;
-        m = dy / dx;
-        rEdgeTable[rNumEdges].dxPerScan = 1.0 / m;
+        if(dy == 0.0f)
+        {
+          rEdgeTable[rNumEdges].dxPerScan = 0;
+        }
+        else
+        {
+          m = dy / dx;
+          rEdgeTable[rNumEdges].dxPerScan = 1.0f / m;
+        }
       }
 
       rEdgeTable[rNumEdges].yUpper = biggerYVal;
@@ -116,15 +123,16 @@ namespace EdgeTable
     int32_t idx2 = 0;
     lg::Color tempColor;
     uint8_t alpha = 0;
+    float dy = 0;
 
     fillEdgeTable(crEdges, edgeTable, numEdges);
 
     for(int32_t y = cMinY; y < crDimensions.y; y ++)
     {
-        fillActiveEdgeTable(edgeTable, activeEdgeTable, edgeTableIdx, numEdges, activeEdgeTableIdx, y);
-
+      dy = y;
       for(int32_t dx = 0; dx < scanlineSubDiv; dx++)
       {
+        fillActiveEdgeTable(edgeTable, activeEdgeTable, edgeTableIdx, numEdges, activeEdgeTableIdx, dy, crDimensions.y);
         for(int32_t i = 0; i < activeEdgeTableIdx && activeEdgeTableIdx > 1; i += 2)
         {
           startIntersection = activeEdgeTable[i].xIntersect;
@@ -134,11 +142,6 @@ namespace EdgeTable
           endIntersection = activeEdgeTable[i + 1].xIntersect;
           endIndex = activeEdgeTable[i + 1].xIntersect;
           endCovered = endIntersection - (endIndex);
-
-          if (startIndex < 0 || startIndex >= crDimensions.x || endIndex < 0 || endIndex >= crDimensions.x )
-          {
-            std::cout << "Hit the badspot\n";
-          }
 
           if(startIndex == endIndex)
           {
@@ -176,6 +179,7 @@ namespace EdgeTable
         }
 
         updateActiveTableXVals(activeEdgeTable, activeEdgeTableIdx, stepPerScanline);
+        dy += stepPerScanline;
       }
     }
   }

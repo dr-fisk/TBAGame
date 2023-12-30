@@ -107,6 +107,8 @@ namespace VertexUtility
     rVertex.textCoord3 = Vector2<GLfloat>(xMax, yMin);
     rVertex.textCoord4 = Vector2<GLfloat>(xMin, yMin);
   }
+
+  void setVertexColor(Vertex& rVertex, const lg::Color& crColor);
 };
 
 #endif

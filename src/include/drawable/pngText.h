@@ -16,9 +16,8 @@ class PngText : public Drawable
     PngText(){}
     PngText(const std::string &crText, PngFont &rFont);
     ~PngText();
-    std::shared_ptr<TextureResource> getResource() {}
+    std::shared_ptr<TextureResource> getResource() {return nullptr;}
     std::vector<Vertex> getVertex();
-    std::vector<VertexData> getVertexData() { return std::vector<VertexData>();}
     void getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx){}
   private:
     std::vector<Vertex> mVertex;
