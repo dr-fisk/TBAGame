@@ -48,6 +48,7 @@ namespace EdgeTable
   //! @param[in]   cNumEdges        Number of Edges om EdgeTable
   //! @param[out]  rActiveTableIdx  Current Index in Active Edge Table to know where to place Edges into
   //! @param[in]   cY               Current Scanline
+  //! @param[in]   cMaxY            Max Y value for current glyph
   //!
   //! @return None
   void fillActiveEdgeTable(const std::vector<EdgeTableNode>& crEdgeTable, std::vector<EdgeTableNode>& rActiveEdgeTable,

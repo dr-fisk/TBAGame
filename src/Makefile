@@ -75,7 +75,6 @@ resourceFiles = image.c \
 drawableFiles = drawable.c \
                 rectangle.c \
 								text.c
-								
 
 renderEngineFiles = renderEngine.c \
 										indexBuffer.c \

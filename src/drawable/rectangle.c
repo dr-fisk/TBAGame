@@ -37,10 +37,14 @@ Rect::Rect(const Vector2<float>& crPos, const float cHeight, const float cWidth)
   mSize = Vector2<float>(cWidth, cHeight);
 }
 
-//!   @brief Assigns dimensions of rectangle use function with either pointers
-//!                or pass by reference
-//!   Parameters:  None
-//!   @return     None
+//! @brief Assigns dimensions of rectangle
+//!
+//! @param[in]  pLeft
+//! @param[in]  pTop
+//! @param[in]  pHeight
+//! @param[in]  pWidth
+//!
+//! @return None
 void Rect::getDimensions(GLfloat *pLeft, GLfloat *pTop, GLfloat *pHeight, GLfloat *pWidth)
 {
   *pLeft   = mPos.x;
@@ -49,78 +53,112 @@ void Rect::getDimensions(GLfloat *pLeft, GLfloat *pTop, GLfloat *pHeight, GLfloa
   *pWidth  = mSize.x;
 }
 
+//! @brief Returns Normalized Coordinates
+//!
+//! @return Normalized Coordinates
 Vector2<GLfloat> Rect::getTranslate()
 {
-   GLfloat wWidth = gWindowWidth / 2.0f;
-   GLfloat wHeight = gWindowHeight / 2.0f;
-   return Vector2<GLfloat>((static_cast<GLfloat>(mPos.x) / wWidth) - 1.0f,
-                           -1 * ((static_cast<GLfloat>(mPos.y) / wHeight) - 1.0f));
+  const GLfloat wWidth = gWindowWidth / 2.0f;
+  const GLfloat wHeight = gWindowHeight / 2.0f;
+  return Vector2<GLfloat>((static_cast<GLfloat>(mPos.x) / wWidth) - 1.0f,
+                          -1 * ((static_cast<GLfloat>(mPos.y) / wHeight) - 1.0f));
 }
 
+//! @brief Returns Normalized Coordinates
+//!
+//! @param[out] rTranslate Vector2 to store Normalized Coordinates
+//!
+//! @return None
 void Rect::translate(Vector2<GLfloat>& rTranslate)
 {
-   GLfloat wWidth = gWindowWidth / 2.0f;
-   GLfloat wHeight = gWindowHeight / 2.0f;
-   mPos.x = (rTranslate.x * wWidth) + wWidth;
-   mPos.y = -1 * ((rTranslate.y * wHeight) + wHeight);
+  const GLfloat wWidth = gWindowWidth / 2.0f;
+  const GLfloat wHeight = gWindowHeight / 2.0f;
+  mPos.x = (rTranslate.x * wWidth) + wWidth;
+  mPos.y = -1 * ((rTranslate.y * wHeight) + wHeight);
 }
 
 // TODO: Add default params to be centered around bottom left of screen
 void Rect::rotate(GLfloat theta)
 {
-   GLfloat wWidth = gWindowWidth / 2.0f;
-   GLfloat wHeight = gWindowHeight / 2.0f;
-   GLfloat x1 = (static_cast<GLfloat>(mPos.x) / wWidth) - 1.0f;
-   GLfloat y1 = -1 * ((static_cast<GLfloat>(mPos.y) / wHeight) - 1.0f);
+  GLfloat wWidth = gWindowWidth / 2.0f;
+  GLfloat wHeight = gWindowHeight / 2.0f;
+  GLfloat x1 = (static_cast<GLfloat>(mPos.x) / wWidth) - 1.0f;
+  GLfloat y1 = -1 * ((static_cast<GLfloat>(mPos.y) / wHeight) - 1.0f);
 
 
-   x1 = (x1 + 1.0f)*std::cos(theta) - (y1 + 1.0f)*std::sin(theta);
-   y1 = (x1 + 1.0f)*std::sin(theta) + (y1 + 1.0f)*std::cos(theta);
+  x1 = (x1 + 1.0f)*std::cos(theta) - (y1 + 1.0f)*std::sin(theta);
+  y1 = (x1 + 1.0f)*std::sin(theta) + (y1 + 1.0f)*std::cos(theta);
 
-   mPos.x = x1 * wWidth + wWidth;
-   mPos.y = -y1 * wHeight - wHeight;
-   // mPos.y = -y1 * wHeight - wHeight / 2;
+  mPos.x = x1 * wWidth + wWidth;
+  mPos.y = -y1 * wHeight - wHeight;
 }
 
-//!   @brief Updates position of Rectangle
-//!   Parameters:  float - left position of rectangle
-//!                float - top position of rectangle
-//!   @return     None
+//! @brief Updates position of Rectangle with given position
+//!
+//! @param[in] cLeft Left position of rectangle
+//! @param[in] cTop  Top position of rectangle
+//!
+//! @return None
 void Rect::setPos(const float cLeft, const float cTop)
 {
   mPos.x   = cLeft;
   mPos.y    = cTop;
 }
 
+//! @brief Updates position of Rectangle with given position
+//!
+//! @param[in] crPos Position in Vector2 format
+//!
+//! @return None
 void Rect::setPos(const Vector2<float>& crPos)
 {
-   mPos = crPos;
+  mPos = crPos;
 }
 
+//! @brief Updates size of Rectangle with given size
+//!
+//! @param[in] crSize Size in Vector2 format
+//!
+//! @return None
 void Rect::setSize(const Vector2<float>& crSize)
 {
-   mSize = crSize;
+  mSize = crSize;
 }
 
+//! @brief Updates position of Rectangle by adding the position values given
+//!
+//! @param[in] cLeft Units to move X value
+//! @param[in] cTop  Units to move Y value
+//!
+//! @return None
 void Rect::movePos(const float cLeft, const float cTop)
 {
   mPos.x   += cLeft;
   mPos.y   += cTop;
 }
 
+//! @brief Gets the X position of Rectangle
+//!
+//! @return X position
 float Rect::getLeft() const
 {
-   return mPos.x;
+  return mPos.x;
 }
 
+//! @brief Gets the Y position of Rectangle
+//!
+//! @return Y position
 float Rect::getTop() const
 {
-   return mPos.y;
+  return mPos.y;
 }
 
+//! @brief Gets Position Coordinate of Rectangle
+//!
+//! @return Coordinate Position
 Vector2<float> Rect::getPos() const
 {
-   return mPos;
+  return mPos;
 }
 
 //!   @brief Destructor

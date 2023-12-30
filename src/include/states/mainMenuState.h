@@ -11,7 +11,8 @@
 #include "resource/font.h"
 #include "drawable/text.h"
 
-class MainMenu : public State {
+class MainMenu : public State
+{
   public:
     MainMenu(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<RenderEngine>& crpRenderEngine,
              const std::shared_ptr<BatchBuffer>& crpBatchBuffer);

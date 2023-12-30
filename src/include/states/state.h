@@ -6,9 +6,6 @@
 #include "common.h"
 #include "glcommon.h"
 #include "renderWindow.h"
-#include "drawable/mesh.h"
-#include "pngFont.h"
-#include "drawable/pngText.h"
 #include "renderEngine/batchBuffer.h"
 #include "renderEngine/renderEngine.h"
 
