@@ -1,5 +1,4 @@
 #include "drawable/text.h"
-#include "drawable/rectangle.h"
 #include "utility/vertexUtility.h"
 
 //! @brief Text Constructor
@@ -9,20 +8,19 @@
 //! @param[out] prRenderEngine Resource Manager to create Texture Resource
 //! @param[out] prBatch        BatchBuffer to register drawable
 //! @param[in]  cCharSize      Font Size
-//! @param[in]  cTop           Top position of Text
-//! @param[in]  cLeft          Left Position of Text
+//! @param[in]  crPos          Position of Text
 //! @param[in]  cLineWrap      Number of pixels before line of texts wraps under
 //! @param[in]  cLineHeight    Height of Line multiplier
 //!
 //! @return Text Object 
 Text::Text(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<RenderEngine>& prRenderEngine,
-           std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize, const float cTop, const float cLeft,
+           std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize, const Vector2<float>& crPos,
            const int32_t cLineWrap, const float cLineHeight)
 {
   mpFont = prFont;
   mText = crText;
-  mPos.y = cTop;
-  mPos.x = cLeft;
+
+  // mBox.setPos({cLeft, cTop});
   mLineWrap = cLineWrap;
   mCharSize = cCharSize;
 
@@ -37,7 +35,7 @@ Text::Text(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared
   mLineSpace = std::ceil(cLineHeight * mCharSize);
   mTexture = mpFont->getResource(mCharSize);
 
-  gridfitText();
+  gridfitText(crPos);
   registerDrawable(prBatch, mTexture->getTextureId());
 }
 
@@ -56,13 +54,13 @@ void Text::updateText(const std::string& crText)
 //! @brief Creates layout of Text
 //!
 //! @return None
-void Text::gridfitText()
+void Text::gridfitText(const Vector2<float>& crTopLeft)
 {
   Vector2<uint32_t> dim(0,0);
   Vector2<uint32_t> offset(0,0);
   Vector2<uint32_t> size(0,0);
-  float top = mPos.y;
-  float left = mPos.x;
+  float top = crTopLeft.y;
+  float left = crTopLeft.x;
   Vector2<float> pos(0.0f, 0.0f);
   Vector2<float> textCoord(0.0f, 0.0f);
   lg::Color color = lg::Black;
@@ -73,10 +71,10 @@ void Text::gridfitText()
   for(size_t i = 0; i < mText.size(); i ++)
   {
     // Update for more dynamic behavior
-    if((0 <= mLineWrap) && (left > mPos.x + mLineWrap))
+    if((0 <= mLineWrap) && (left > crTopLeft.x + mLineWrap))
     {
       top += mLineSpace; // replace with top member variable plus linespace
-      left = mPos.x;
+      left = crTopLeft.x;
     }
 
     switch(static_cast<uint8_t>(mText[i]))
@@ -86,7 +84,7 @@ void Text::gridfitText()
         continue;
       case U'\n':
         top += mLineSpace; // replace with top member variable plus linespace
-        left = mPos.x;
+        left = crTopLeft.x;
         continue;
       case U'\t':
         left += (mAdvancedWidth * 4);
@@ -111,8 +109,7 @@ void Text::gridfitText()
     left += dim.x;
   }
 
-  mDimensions.x = left - mPos.x;
-  mDimensions.y = (top + mCharSize) - mPos.y;
+  mBox.setBoxTopLeft(crTopLeft, {left - crTopLeft.x, (top + mCharSize) - crTopLeft.y});
 }
 
 //! @brief Get Texture Resource for Drawable
@@ -134,7 +131,7 @@ void Text::getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx)
 {
   if(mNeedUpdate)
   {
-    gridfitText();
+    gridfitText(mBox.getTopLeft());
     mNeedUpdate = false;
   }
 
@@ -168,15 +165,23 @@ bool Text::hasResource()
 
 //! @brief Moves Position by adding x and y values
 //!
-//! @param[in] cX X value to add
-//! @param[in] cY Y value to add
+//! @param[in] crMoveVector Vector values to move Text
 //!
 //! @return None
-void Text::movePos(const float cX, const float cY)
+void Text::movePos(const Vector2<float>& crMoveVector)
 {
-  mPos.x += cX;
-  mPos.y += cY;
+  mBox.movePos(crMoveVector);
+  mNeedUpdate = true;
+}
 
+//! @brief Sets Text Position
+//!
+//! @param[in] crPos New Text Position
+//!
+//! @return None
+void Text::setPos(const Vector2<float>& crPos)
+{
+  mBox.setTopLeft(crPos);
   mNeedUpdate = true;
 }
 
@@ -188,26 +193,12 @@ std::string Text::getText()
   return mText;
 }
 
-//! @brief Sets Position
-//!
-//! @param[in] cLeft Left Position
-//! @param[in] cTop  Top Position
-//!
-//! @return None
-void Text::setPos(const float cLeft, const float cTop)
-{
-  mPos.x = cLeft;
-  mPos.y = cTop;
-
-  mNeedUpdate = true;
-}
-
 //! @brief Gets Size of Text
 //!
 //! @return Size of Text
-Vector2<uint32_t> Text::getSize()
+Vector2<float> Text::getSize()
 {
-  return mDimensions;
+  return mBox.getSize();
 }
 
 //! @brief Returns Text Position
@@ -215,7 +206,7 @@ Vector2<uint32_t> Text::getSize()
 //! @return Text Position 
 Vector2<float> Text::getPos()
 {
-  return mPos;
+  return mBox.getPos();
 }
 
 //! @brief Destructor

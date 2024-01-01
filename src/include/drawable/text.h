@@ -8,33 +8,32 @@
 #include "drawable.h"
 #include "renderEngine/renderEngine.h"
 #include "renderEngine/batchBuffer.h"
+#include "shapes/box.h"
 
 class Text : public Drawable
 {
   public:
     Text() = default;
     Text(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<RenderEngine>& prRenderEngine,
-         std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize, const float cTop, const float cLeft,
+         std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize, const Vector2<float>& crPos,
          const int32_t cLineWrap=-1, const float cLineHeight=1.2f);
-    void gridfitText();
+    void gridfitText(const Vector2<float>& crTopLeft);
     void updateText(const std::string& crText);
     std::shared_ptr<TextureResource> getResource();
     void getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx);
     bool hasResource();
     bool textureBounded();
-    void movePos(const float cX, const float cY);
-    void setPos(const float cLeft, const float cTop);
+    void movePos(const Vector2<float>& crMoveVector);
+    void setPos(const Vector2<float>& crPos);
     Vector2<float> getPos();
     std::string getText();
-    Vector2<uint32_t> getSize();
+    Vector2<float> getSize();
     ~Text();
   private:
     std::shared_ptr<Font> mpFont;
     std::string mText;
     std::vector<Vertex> mVertexes;
-
-    Vector2<float> mPos;
-    Vector2<uint32_t> mDimensions;
+    Box<float> mBox;
     int32_t mLineWrap;
     int32_t mLineSpace;
     uint8_t mCharSize;

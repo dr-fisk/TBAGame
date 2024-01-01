@@ -9,28 +9,22 @@
 //! @param[in]  crPath         Path of image
 //! @param[out] prRenderEngine Resource Manager to create Texture Resource
 //! @param[out] prBatch        BatchBuffer to register drawable
-//! @param[in]  cTop           Top position of Sprite
-//! @param[in]  cLeft          Left Position of Sprite
-//! @param[in]  cHeight        Height of Sprite
-//! @param[in]  cWidth         Width of Sprite
+//! @param[in]  crPos          Position of Sprite
+//! @param[in]  crSize         Size of Sprite
 //!
 //! @return Sprite Object 
 Sprite::Sprite(const std::string& crPath, std::shared_ptr<RenderEngine>& prRenderEngine,
-               std::shared_ptr<BatchBuffer>& prBatch, const float cTop, const float cLeft,
-               const float cHeight, const float cWidth)
+               std::shared_ptr<BatchBuffer>& prBatch, const Vector2<float>& crPos, const Vector2<float>& crSize)
 {
   Image temp(crPath);
   mTexture = std::make_shared<TextureResource>(temp.getName(), prRenderEngine, temp.getDimensions(),
                                                temp.getInternalFormat());
 
   mColor = lg::Transparent;
-  mPos.x = cLeft;
-  mPos.y = cTop;
-  mDimensions.x = cWidth;
-  mDimensions.y = cHeight;
+  mBox.setBox(crPos, crSize);
 
   mTexture->update(temp.getImgData().data(), temp.getDimensions(), temp.getOffset(), temp.getFormat(), temp.getType());
-  VertexUtility::createVertex(mVertex, mPos, mDimensions, mColor, mTexture->getCacheId());
+  VertexUtility::createVertex(mVertex, mBox.getTopLeft(), mBox.getSize(), mColor, mTexture->getCacheId());
   VertexUtility::updateTextureCoordinates(mVertex, temp.getDimensions(), temp.getOffset(),
                                           mTexture->getSize());
   registerDrawable(prBatch, mTexture->getTextureId());
@@ -40,24 +34,19 @@ Sprite::Sprite(const std::string& crPath, std::shared_ptr<RenderEngine>& prRende
 //!        Use this constructor if you do not want a Texture on Sprite
 //!
 //! @param[out] prBatch        BatchBuffer to register drawable
-//! @param[in]  cTop           Top position of Sprite
-//! @param[in]  cLeft          Left Position of Sprite
-//! @param[in]  cHeight        Height of Sprite
-//! @param[in]  cWidth         Width of Sprite
+//! @param[in]  crPos          Position of Sprite
+//! @param[in]  crSize         Size of Sprite
 //! @param[in]  crColor        Color of Sprite
 //!
 //! @return Sprite Object 
-Sprite::Sprite(std::shared_ptr<BatchBuffer>& prBatch, const float cTop, const float cLeft, const float cHeight,
-               const float cWidth, const lg::Color& crColor)
+Sprite::Sprite(std::shared_ptr<BatchBuffer>& prBatch, const Vector2<float>& crPos, const Vector2<float>& crSize,
+               const lg::Color& crColor)
 {
   mColor = crColor;
-  mPos.x = cLeft;
-  mPos.y = cTop;
-  mDimensions.x = cWidth;
-  mDimensions.y = cHeight;
   Vector2<float> offset(0.0f, 0.0f);
-  VertexUtility::createVertex(mVertex, mPos, mDimensions, mColor, -1.0f);
-  VertexUtility::updateTextureCoordinates(mVertex, mDimensions, offset, mDimensions);
+  mBox.setBox(crPos, crSize);
+  VertexUtility::createVertex(mVertex, mBox.getTopLeft(), mBox.getSize(), mColor, -1.0f);
+  VertexUtility::updateTextureCoordinates(mVertex, mBox.getSize(), offset, mBox.getSize());
   registerDrawable(prBatch, 0);
 }
 
@@ -80,7 +69,7 @@ void Sprite::getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx
 {
   if(mNeedUpdate)
   {
-    VertexUtility::updateVertex(mVertex, mPos, mDimensions, mColor);
+    VertexUtility::updateVertex(mVertex, mBox.getTopLeft(), mBox.getSize(), mColor);
     mNeedUpdate = false;
   }
 
@@ -109,34 +98,6 @@ bool Sprite::textureBounded()
   return mTexture->isBounded();
 }
 
-//! @brief Moves Position by adding x and y values
-//!
-//! @param[in] cX X value to add
-//! @param[in] cY Y value to add
-//!
-//! @return None
-void Sprite::movePos(const float cX, const float cY)
-{
-  mPos.x += cX;
-  mPos.y += cY;
-
-  mNeedUpdate = true;
-}
-
-//! @brief Sets Position
-//!
-//! @param[in] cLeft Left Position
-//! @param[in] cTop  Top Position
-//!
-//! @return None
-void Sprite::setPos(const float cLeft, const float cTop)
-{
-  mPos.x = cLeft;
-  mPos.y = cTop;
-
-  mNeedUpdate = true;
-}
-
 //! @brief Sets Color of Sprite
 //!        Only useful for Sprites without Textures
 //!
@@ -149,33 +110,62 @@ void Sprite::setColor(const lg::Color& crColor)
   mNeedUpdate = true;
 }
 
-//! @brief Gets the Size of Sprite
-//!
-//! @return Size of Sprite
-Vector2<uint32_t> Sprite::getSize()
-{
-  return mDimensions;
-}
-
 //! @brief Returns position of Sprite
 //!
 //! @return Sprite Position
 Vector2<float> Sprite::getPos()
 {
-  return mPos;
+  return mBox.getPos();
 }
 
-//! @brief Sets Sprite Size
+//! @brief Moves Sprite
 //!
-//! @param cWidth  New Width
-//! @param cHeight New Height
+//! @param[in] crMoveVector Vector to add to Sprite
 //!
 //! @return None
-void Sprite::setSize(const uint32_t cWidth, const uint32_t cHeight)
+void Sprite::movePos(const Vector2<float>& crMoveVector)
 {
-  mDimensions.x = cWidth;
-  mDimensions.y = cHeight;
+  mBox.movePos(crMoveVector);
   mNeedUpdate = true;
+}
+
+//! @brief Sets the Sprite Positition
+//!        Note: This works by setting the Center Position
+//!
+//! @param crPos New Sprite Position
+//!
+//! @return None
+void Sprite::setPos(const Vector2<float>& crPos)
+{
+  mBox.setPos(crPos);
+  mNeedUpdate = true;
+}
+
+//! @brief Sets Size of Sprite
+//!
+//! @param crSize New Sprite Size
+//!
+//! @return None
+void Sprite::setSize(const Vector2<float>& crSize)
+{
+  mBox.setSize(crSize);
+  mNeedUpdate = true;
+}
+
+//! @brief Gets the Box corresponding to Sprite
+//!
+//! @return Box of Sprite 
+Box<float>& Sprite::getBox()
+{
+  return mBox;
+}
+
+//! @brief Gets the Size of Sprite
+//!
+//! @return Size of Sprite
+Vector2<float> Sprite::getSize()
+{
+  return mBox.getSize();
 }
 
 //! @brief Default Destructor

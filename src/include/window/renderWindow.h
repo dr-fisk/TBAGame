@@ -2,6 +2,7 @@
 #define RENDERWINDOW_H
 
 #include "window/renderTarget.h"
+#include "glcommon.h"
 
 class RenderWindow : public RenderTarget
 {

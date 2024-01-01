@@ -11,14 +11,14 @@ class Button
   public:
     Button() = default;
     Button(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<RenderEngine>& prRenderEngine,
-           std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize, const float cTop, const float cLeft,
-           const uint32_t cWidth, const uint32_t cHeight);
+           std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize, const Vector2<float>& crPos,
+           const Vector2<float>& crSize);
     void setDefaultColor(const lg::Color& crColor);
     void setHoverColor(const lg::Color& crColor);
     void setPressedColor(const lg::Color& crColor);
-    void setPos(const float cLeft, const float cTop);
+    void setPos(const Vector2<float>& crPos);
     void update();
-    void setSize(const uint32_t cWidth, const uint32_t cHeight);
+    void setSize(const Vector2<float>& crSize);
     bool buttonPressed();
     ~Button() = default;
   private:

@@ -32,10 +32,10 @@ class Drawable
     virtual void getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx) = 0;
     virtual bool hasResource() = 0;
     virtual bool textureBounded() = 0;
-    virtual void movePos(const float cX, const float cY) = 0;
-    virtual void setPos(const float cLeft, const float cTop) = 0;
     virtual Vector2<float> getPos() = 0;
-    virtual Vector2<uint32_t> getSize() = 0;
+    virtual Vector2<float> getSize() = 0;
+    virtual void movePos(const Vector2<float>& crMoveVector) = 0;
+    virtual void setPos(const Vector2<float>& crPos) = 0;
     void setRenderId(const uint64_t cRenderId);
     uint64_t getRenderId();
   protected:

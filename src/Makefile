@@ -75,7 +75,6 @@ resourceFiles = image.c \
 								textureResource.c
 
 drawableFiles = drawable.c \
-                rectangle.c \
 								text.c \
 								sprite.c
 
