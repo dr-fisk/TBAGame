@@ -24,73 +24,17 @@ BatchBuffer::BatchBuffer(const uint32_t cNumVao, const uint32_t cNumVbo, const u
   mIbo.resize(cNumIbo);
   mRenderIdCount = 0;
   initBuffers();
-  mNumBoundedTextures = 0;
-}
-
-//! @brief Creates Rect IBO data to associate with VBO
-//! TODO: Might be able to delete this function
-//!
-//! @param[in]  cVboSize Size of VBO
-//!
-//! @return Indices to construct Rect IBO
-std::vector<uint32_t> BatchBuffer::createRectIndices(const uint32_t cVboSize)
-{
-  // Probably should allocate before hand later
-  std::vector<uint32_t> indices((cVboSize + 1) * 6);
-  indices[0] = 0;
-  indices[1] = 1;
-  indices[2] = 2;
-  indices[3] = 2;
-  indices[4] = 3;
-  indices[5] = 0;
-  uint32_t offset = SQUARE_VERTICES2D;
-  uint64_t curr_idx = 0;
-  uint64_t curr_offset = 0;
-
-  /* Squares contain 6 Vertices indexed from 0-5*/
-  for(uint32_t i = 1; i < cVboSize; i++)
-  {
-    curr_idx = i * 6;
-    curr_offset = offset * i;
-    indices[curr_idx] = (indices[0] + curr_offset); 
-    indices[curr_idx + 1] = (indices[1] + curr_offset);
-    indices[curr_idx + 2] = (indices[2] + curr_offset);
-    indices[curr_idx + 3] = (indices[3] + curr_offset);
-    indices[curr_idx + 4] = (indices[4] + curr_offset);
-    indices[curr_idx + 5] = (indices[5] + curr_offset);
-  }
-
-  return indices;
-}
-
-//! @brief Creates Triangle IBO data to associate with VBO
-//!
-//! @param[in] cVboSize Size of VBO
-//!
-//! @return Indices to construct Triangle IBO
-std::vector<uint32_t> BatchBuffer::createTriIndices(const uint32_t cVboSize)
-{
-  std::vector<uint32_t> indices = {0, 1, 2};
-  uint32_t offset = TRIANGLE_VERTICES2D;
-
-  /* Triangles contain 3 vertices indexed 0-2 */
-  for (int i = 1; i < cVboSize; i++)
-  {
-    // cache offset * i later
-    indices.push_back(indices[0] + (offset * i)); 
-    indices.push_back(indices[1] + (offset * i));
-    indices.push_back(indices[2] + (offset * i));
-  }
-
-  return indices;
+  mBoundedTextureIdx = 0;
+  glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &mMaxTextureUnits);
 }
 
 //! @brief Registers drawable to batch render
 //!
-//! @param[in] pDrawable Drawable Object to register
+//! @param[in] pDrawable  Drawable Object to register
+//! @param[in] cTextureId Texture ID useful for sorting map via Textures
 //!
 //! @return None
-void BatchBuffer::registerDrawable(Drawable *pDrawable)
+void BatchBuffer::registerDrawable(Drawable *pDrawable, const uint32_t cTextureId)
 {
   mRenderIdCount ++;
   if(0 == mRenderIdCount)
@@ -98,8 +42,7 @@ void BatchBuffer::registerDrawable(Drawable *pDrawable)
     mRenderIdCount ++;
   }
 
-  mQuads[mRenderIdCount] = pDrawable;
-  std::cout << mQuads.size() << std::endl;
+  mQuads[std::pair(cTextureId, mRenderIdCount)] = pDrawable;
   pDrawable->setRenderId(mRenderIdCount);
 }
 
@@ -108,9 +51,9 @@ void BatchBuffer::registerDrawable(Drawable *pDrawable)
 //! @param[in] pDrawable Drawable Object to register
 //!
 //! @return None
-void BatchBuffer::unregisterDrawable(const uint32_t cId)
+void BatchBuffer::unregisterDrawable(const uint64_t cId, const uint32_t cTextureId)
 {
-  mQuads.erase(cId);
+  mQuads.erase(std::pair(cTextureId, cId));
 }
 
 //! @brief Updates all Buffer Object items to incorporate any updates made to registered drawables
@@ -120,41 +63,54 @@ void BatchBuffer::unregisterDrawable(const uint32_t cId)
 //! @param[in] cIboId IBO ID to store indices data TODO: Determine if necessary, I doubt this is needed
 //!
 //! @return None
-void BatchBuffer::update(const uint32_t cVboId, const uint32_t cIboId)
+void BatchBuffer::render(const uint32_t cVboId, const uint32_t cIboId, const std::shared_ptr<RenderTarget> &crpTarget)
 {
   uint32_t numVertexes = 0;
   uint32_t offset = 0;
   uint32_t currentQuad = 0;
+  crpTarget->clear();
   for(auto drawable : mQuads)
   {
     if(drawable.second->hasResource() && !drawable.second->textureBounded())
     {
-        if(32 > mNumBoundedTextures)
-        {
-          mTextureCache[mNumBoundedTextures] = drawable.second->getResource();
-          mTextureCache[mNumBoundedTextures]->bind(mNumBoundedTextures);
-          mNumBoundedTextures ++;
-          std::cout << "Textures bound: " << (int)mNumBoundedTextures << std::endl;
-        }
-        else
-        {
-
-        }
+      if(mMaxTextureUnits > mTextureCache.size())
+      {
+        mTextureCache[mBoundedTextureIdx] = drawable.second->getResource();
+        mTextureCache[mBoundedTextureIdx]->bind(mBoundedTextureIdx);
+        mBoundedTextureIdx ++;
+      }
+      else
+      {
+        mTextureCache[mBoundedTextureIdx]->unbind();
+        mTextureCache[mBoundedTextureIdx] = drawable.second->getResource();
+        mTextureCache[mBoundedTextureIdx]->bind(mBoundedTextureIdx);
+        mBoundedTextureIdx ++;
+      }
     }
     
     drawable.second->getVertex(mVertexes, numVertexes);
-    currentQuad ++;
 
-    // Group up to max active texture vertexes to update. This limits the amount of updates we need to make per frame
-    // allowing us to increase performance
-    // Some bugs here, and there are a few more optimizations I'd love to do
-    if ((32 == mNumBoundedTextures) || (currentQuad == mQuads.size()))
+    if (mMaxTextureUnits == mBoundedTextureIdx)
     {
       mVbo.at(cVboId)->updateVboSubBuffer(offset * sizeof(Vertex),
                                           numVertexes * sizeof(Vertex),
                                           mVertexes.data());
       offset += numVertexes;
+      crpTarget->draw(numVertexes * 6);
+      mBoundedTextureIdx = 0;
+      numVertexes = 0;
     }
+  }
+
+  // Group up to max active texture vertexes to update. This limits the amount of updates we need to make per frame
+  // allowing us to increase performance
+  // Some bugs here, and there are a few more optimizations I'd love to do
+  if (0 != numVertexes)
+  {
+    mVbo.at(cVboId)->updateVboSubBuffer(offset * sizeof(Vertex),
+                                        numVertexes * sizeof(Vertex),
+                                        mVertexes.data());
+    crpTarget->draw(numVertexes * 6);
   }
 
   for(auto& texture : mTextureCache)
@@ -163,7 +119,7 @@ void BatchBuffer::update(const uint32_t cVboId, const uint32_t cIboId)
   }
 
   // Need to update the below thing cuz this ain't good
-  mIbo.at(cIboId)->updateIboSubBuffer(0, numVertexes * 6, nullptr);
+  // mIbo.at(cIboId)->updateIboSubBuffer(0, numVertexes * 6, nullptr);
 }
 
 //! @brief Init Buffers to default states
@@ -251,7 +207,7 @@ void BatchBuffer::updateVboSubBuffer(const uint32_t cId, const uint32_t cIndex, 
 //! @return None
 void BatchBuffer::initShader(const uint32_t cId, const std::string& crPath)
 {
-    mShader.at(cId) = std::make_shared<Shader>(MAIN_SHADER);
+  mShader.at(cId) = std::make_shared<Shader>(MAIN_SHADER);
 }
 
 //! @brief Binds Shader
@@ -264,7 +220,6 @@ void BatchBuffer::bindShader(const uint32_t cId)
     mShader.at(cId)->bind();
 }
 
-
 //! @brief Binds VBO
 //!
 //! @param[in] cId ID of VBO to bind
@@ -272,8 +227,7 @@ void BatchBuffer::bindShader(const uint32_t cId)
 //! @return None
 void BatchBuffer::bindVbo(const uint32_t cId)
 {
-    mVbo.at(cId)->bind();
-
+  mVbo.at(cId)->bind();
 }
 
 //! @brief Binds IBO
@@ -283,7 +237,7 @@ void BatchBuffer::bindVbo(const uint32_t cId)
 //! @return None
 void BatchBuffer::bindIbo(const uint32_t cId)
 {
-    mIbo.at(cId)->bind();
+  mIbo.at(cId)->bind();
 }
 
 //! @brief Binds VAO
@@ -293,7 +247,7 @@ void BatchBuffer::bindIbo(const uint32_t cId)
 //! @return None
 void BatchBuffer::bindVao(const uint32_t cId)
 {
-    mVao.at(cId)->bind();
+  mVao.at(cId)->bind();
 }
 
 //! @brief Sets attributes in VAO to decode VBO
@@ -322,8 +276,16 @@ uint32_t BatchBuffer::getIndicesCount(const uint32_t cId)
 //! @param[in] cId       ID of Shader to get uniform from
 //! @param[in] crUniform Uniform name to get
 //!
-//! @return None
+//! @return Uniform ID
 int32_t BatchBuffer::getUniform(const uint32_t cId, const std::string& crUniform)
 {
   return mShader.at(cId)->getUniform(crUniform);
+}
+
+//! @brief Gets Max Texture Units supported
+//!
+//! @return Max Texture Units
+int32_t BatchBuffer::getMaxTextureUnits()
+{
+  return mMaxTextureUnits;
 }

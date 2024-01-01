@@ -11,14 +11,14 @@
 #include "resource/font.h"
 #include "drawable/text.h"
 #include "drawable/sprite.h"
+#include "graphics/button.h"
 
 class MainMenu : public State
 {
   public:
-    MainMenu(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<RenderEngine>& crpRenderEngine,
-             const std::shared_ptr<BatchBuffer>& crpBatchBuffer);
+    MainMenu(const std::stack<std::shared_ptr<State>>& crStates, std::shared_ptr<RenderEngine>& crpRenderEngine,
+             std::shared_ptr<BatchBuffer>& crpBatchBuffer);
     ~MainMenu();
-    void render(const std::shared_ptr<RenderTarget>& crpTarget);
     void update(const std::shared_ptr<RenderTarget>& crpTarget);
     bool shouldStateExit();
 
@@ -29,6 +29,8 @@ class MainMenu : public State
     std::shared_ptr<Text> mText;
     std::shared_ptr<Sprite> mSprite;
     std::shared_ptr<Sprite> mSprite2;
+    std::shared_ptr<Sprite> mSprite3;
+    std::shared_ptr<Button> mButton;
     std::chrono::time_point<std::chrono::system_clock> mStartTime;
 };
 

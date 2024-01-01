@@ -14,6 +14,7 @@
 #include "renderEngine/indexBuffer.h"
 #include "renderEngine/shader.h"
 #include "renderEngine/vertexBufferLayout.h"
+#include "window/renderTarget.h"
 
 class Drawable;
 
@@ -34,8 +35,8 @@ class BatchBuffer
     std::shared_ptr<VertexArray> getVao();
     std::shared_ptr<IndexBuffer> getIbo();
     ~BatchBuffer() = default;
-    void registerDrawable(Drawable *pDrawable);
-    void unregisterDrawable(const uint32_t cId);
+    void registerDrawable(Drawable *pDrawable, const uint32_t cTextureId);
+    void unregisterDrawable(const uint64_t cId, const uint32_t cTextureId);
     void initShader(const uint32_t cId, const std::string &crPath);
     void bindShader(const uint32_t cId);
     void bindVbo(const uint32_t cId);
@@ -45,10 +46,11 @@ class BatchBuffer
     void genVboBuffer(const uint32_t cId, const uint32_t cNumVertexes, const GLenum cDrawType);
     void updateIboSubBuffer(const uint32_t cId, const uint32_t cIndex, const uint32_t cBuffSize, void *pBuffer);
     void updateVboSubBuffer(const uint32_t cId, const uint32_t cIndex, const uint32_t cBuffSize, void *pBuffer);
-    void update(const uint32_t cVboId, const uint32_t cIboId);
+    void render(const uint32_t cVboId, const uint32_t cIboId, const std::shared_ptr<RenderTarget> &crpTarget);
     void setVaoAttributes(const uint32_t cId, const VertexBufferLayout& crLayout);
     uint32_t getIndicesCount(const uint32_t cId);
     int32_t getUniform(const uint32_t cId, const std::string& crUniform);
+    int32_t getMaxTextureUnits();
 
   private:
     std::vector<std::shared_ptr<VertexBuffer>> mVbo;
@@ -56,14 +58,13 @@ class BatchBuffer
     std::vector<std::shared_ptr<IndexBuffer>> mIbo;
     std::vector<std::shared_ptr<Shader>> mShader;
     std::vector<Vertex> mVertexes;
-    std::unordered_map<int32_t, Drawable*> mQuads;
+    std::map<std::pair<uint64_t, uint32_t>, Drawable*> mQuads;
     std::map<int8_t, std::shared_ptr<TextureResource>> mTextureCache;
-    int8_t mNumBoundedTextures;
+    int8_t mBoundedTextureIdx;
     uint64_t mRenderIdCount;
     bool mUpdateDraw;
+    int32_t mMaxTextureUnits;
 
-    std::vector<uint32_t> createRectIndices(const uint32_t cVboSize);
-    std::vector<uint32_t> createTriIndices(const uint32_t cVboSize);
     void initBuffers();
 };
 

@@ -26,14 +26,16 @@ class Drawable
 {
   public:
     Drawable(){ mRenderId = 0; }
-    Drawable(std::shared_ptr<BatchBuffer>& prBatch);
-    virtual ~Drawable();
+    void registerDrawable(std::shared_ptr<BatchBuffer>& prBatch, const uint32_t cTextureId);
+    virtual ~Drawable() = default;
     virtual std::shared_ptr<TextureResource> getResource() = 0;
-    virtual bool needUpdate() = 0;
     virtual void getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx) = 0;
     virtual bool hasResource() = 0;
     virtual bool textureBounded() = 0;
-    virtual void movePos(float cX, float cY) = 0;
+    virtual void movePos(const float cX, const float cY) = 0;
+    virtual void setPos(const float cLeft, const float cTop) = 0;
+    virtual Vector2<float> getPos() = 0;
+    virtual Vector2<uint32_t> getSize() = 0;
     void setRenderId(const uint64_t cRenderId);
     uint64_t getRenderId();
   protected:

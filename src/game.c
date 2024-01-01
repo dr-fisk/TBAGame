@@ -10,23 +10,35 @@ GLfloat gWindowHeight = 0;
 uint16_t gFrames = 0;
 uint16_t gFps = 0;
 
-/* Function:    initMainState
-   Description: Helper function which starts our stack of states
-                Always start on main menu state
-   Parameters:  None
-   Returns:     None
- */
+//! @brief Initializes Main State
+//!
+//! @return None
 void Game::initMainState()
 {
   //mStates.push(std::make_shared<ExceptionState>(mStates, "TESTING", mShaders[MAIN_SHADER], mpWindow->getGlWindow(), mpVao));
   mStates.push(std::make_shared<MainMenu>(mStates, mpRenderEngine, mpBatchBuffer));
 }
 
-/* Function:    Game
-   Description: Initializes core components for the game
-   Parameters:  None
-   Returns:     None
- */
+//! @brief Initializes Texture Sampler via the max number of Texture Units allowed by hardware
+//!
+//! @return None
+void Game::initTextureSampler()
+{
+  const int32_t NUM_TEXTURE_UNITS = mpBatchBuffer->getMaxTextureUnits();
+  auto uni = mpBatchBuffer->getUniform(0, "u_Textures");
+  int sampler[NUM_TEXTURE_UNITS];
+
+  for(int i = 0; i < NUM_TEXTURE_UNITS; i ++)
+  {
+    sampler[i] = i;
+  }
+
+  GLCall(glUniform1iv(uni, NUM_TEXTURE_UNITS, sampler));
+}
+
+//! @brief Default Constructor
+//!
+//! @return Game Object
 Game::Game()
 {
   mpWindow = std::make_shared<RenderWindow>(1920, 1080, "Lest Window");   
@@ -56,11 +68,9 @@ Game::Game()
   mpBatchBuffer->genIboBuffer(0, 300, GL_STATIC_DRAW);
   mpBatchBuffer->initShader(0, "lol");
   mpBatchBuffer->bindShader(0);
+  initTextureSampler();
   mpBatchBuffer->setVaoAttributes(0, temp);
   mpRenderEngine = std::make_shared<RenderEngine>();
-  //init textures
-
-
   //temp
   gWindowWidth = 1920;
   gWindowHeight = 1080;
@@ -81,11 +91,9 @@ Game::Game()
 
 }
 
-/* Function:    ~Game
-   Description: Cleans up all allocated memory
-   Parameters:  None
-   Returns:     None
- */
+//! @brief Default Destructor
+//!
+//! @return None
 Game::~Game()
 {
   while(!mStates.empty())
@@ -99,12 +107,11 @@ Game::~Game()
   glfwTerminate();
 }
 
-/* Function:    gameLoop
-   Description: Runs gameloop until window has been closed
-   Parameters:  None
-   Returns:     None
- */
-void Game::gameLoop() {
+//! @brief Runs gameloop until window has been closed or states popped
+//!
+//! @return None
+void Game::gameLoop()
+{
   while(!mStates.empty() && mpWindow->isOpen())
   {
     if (mStates.top()->shouldStateExit())
@@ -129,11 +136,9 @@ void Game::gameLoop() {
   gameEnd();
 }
 
-/* Function:    gameEnd
-   Description: Handles how application should act when game is closed
-   Parameters:  None
-   Returns:     None
- */
+//! @brief Handles how application should act when game is closed
+//!
+//! @return None
 void Game::gameEnd()
 {
 }

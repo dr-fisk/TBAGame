@@ -19,7 +19,7 @@ TextureResource::TextureResource() : mpTexture(nullptr)
 TextureResource::TextureResource(const std::string& crTag, std::shared_ptr<RenderEngine>& prRenderEngine,
                                  const Vector2<uint32_t>& crDimensions, const int32_t cInternalFormat)
                                  : Resource(crTag, prRenderEngine),
-                                   mpTexture(&prRenderEngine->createTexture(crTag, crDimensions.y, crDimensions.x,
+                                   mpTexture(prRenderEngine->createTexture(crTag, crDimensions.y, crDimensions.x,
                                              cInternalFormat))
 {
 }

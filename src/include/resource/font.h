@@ -36,6 +36,8 @@ class Font
     std::shared_ptr<TextureResource> getResource(const uint8_t cCharSize);
     uint16_t getAdvancedWidth();
     int32_t getCapitalHeight();
+    int32_t getMaxHeight();
+    int32_t getMaxWidth();
   private:
     struct GlyfRawData
     {
@@ -51,7 +53,6 @@ class Font
       std::vector<uint32_t> Bitmap;
       Vector2<uint32_t> Dimensions;
       std::vector<Edges<float>> GenPtsEdges;
-      Texture GlyfTexture;
       Vector2<uint32_t> Offset;
     };
 
@@ -73,6 +74,7 @@ class Font
     lg::Color mFontColor;
     int32_t mCapHeight;
     int32_t mMaxWidth;
+    int32_t mMaxHeight;
     uint16_t mAdvancedWidth;
     std::string mFontFamily;
 };

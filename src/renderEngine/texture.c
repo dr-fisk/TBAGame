@@ -9,7 +9,6 @@ Texture::Texture()
   GLCall(glCreateTextures(GL_TEXTURE_2D, 1, &mTextureId));
   mBufferGenerated = false;
 
-  // Hardware determines how many Textures can be active which is usually around <= 32
   mCacheId = -1;
   mIsBounded = false;
 }

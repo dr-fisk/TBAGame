@@ -471,6 +471,7 @@ void Font::readTtfFile(const std::string& crPath, LestTrueType &rTtf)
   HeadHeader head = rTtf.getHeadHeaderTable();
   mCapHeight = os2.sCapHeight;
   mMaxWidth = head.xMax - head.xMin;
+  mMaxHeight = head.yMax - head.yMin;
   HheaHeader hhea = rTtf.getHheaHeader();
   mAdvancedWidth = hhea.advancedWidthMax;
 }
@@ -543,6 +544,11 @@ void Font::loadGlyphs(const uint32_t cCharSize, std::shared_ptr<RenderEngine>& p
         mFont[size][currChar].Dimensions = Vector2<uint32_t>(size * scaleX, size * scaleY);
 
         mFont[size][currChar].Ybearing = size - mFont[size][currChar].Dimensions.y;
+
+        if(mFont[size][currChar].Ybearing < 0)
+        {
+          mFont[size][currChar].Ybearing = 0;
+        }
         
         updateEdges(currChar, cCharSize);
         
@@ -558,8 +564,8 @@ void Font::loadGlyphs(const uint32_t cCharSize, std::shared_ptr<RenderEngine>& p
         offset.x += mFont[size][currChar].Dimensions.x;
         offset.y += mFont[size][currChar].Dimensions.y;
 
-        mFont[size][currChar].Ydescent = abs(size * (static_cast<float>(mGlyfData[currChar].FontHeader.yMin) /
-                                       static_cast<float>(mCapHeight)));
+        mFont[size][currChar].Ydescent = abs(cCharSize * (static_cast<float>(mGlyfData[currChar].FontHeader.yMin) /
+                                             static_cast<float>(mMaxHeight)));
     }
   }
 
@@ -662,4 +668,20 @@ uint16_t Font::getAdvancedWidth()
 int32_t Font::getCapitalHeight()
 {
   return mCapHeight;
+}
+
+//! @brief Gets Max Height
+//!
+//! @return Max Height
+int32_t Font::getMaxHeight()
+{
+  return mMaxHeight;
+}
+
+//! @brief Gets Max Width
+//!
+//! @return Max Width
+int32_t Font::getMaxWidth()
+{
+  return mMaxWidth;
 }

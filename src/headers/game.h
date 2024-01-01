@@ -7,7 +7,7 @@
 
 #include "states/state.h"
 #include "renderEngine/renderEngine.h"
-#include "renderWindow.h"
+#include "window/renderWindow.h"
 #include "lestTtf.h"
 
 #define ONE_SEC 1
@@ -29,6 +29,7 @@ class Game {
     int mFps;
 
     void initMainState();
+    void initTextureSampler();
     void gameEnd();
 };
 

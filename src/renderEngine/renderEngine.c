@@ -10,21 +10,19 @@
 //! @param[in] cInternalFormat Specifies the number of color components in the texture
 //!
 //! @return Texture Object
-Texture& RenderEngine::createTexture(const std::string& crTag, const uint32_t cHeight, const uint32_t cWidth,
+Texture* RenderEngine::createTexture(const std::string& crTag, const uint32_t cHeight, const uint32_t cWidth,
                                      const int32_t cInternalFormat)
 {
   if(mTextureCache.find(crTag) != mTextureCache.end())
   {
     mTextureCache[crTag].Count ++;
-    return mTextureCache[crTag].ResourceType;
+    return &mTextureCache[crTag].ResourceType;
   }
 
-  std::cout << "Creating " << crTag << std::endl;
   mTextureCache[crTag].ResourceType.create(cHeight, cWidth, cInternalFormat);
   mTextureCache[crTag].Count ++;
   mTextureIdToTag[mTextureCache[crTag].ResourceType.getTextureId()] = crTag;
-  std::cout << "Created " << crTag << std::endl;
-  return mTextureCache[crTag].ResourceType;
+  return &mTextureCache[crTag].ResourceType;
 }
 
 //! @brief Checks to see if Texture with Tag already exists

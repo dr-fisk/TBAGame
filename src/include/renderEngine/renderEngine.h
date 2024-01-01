@@ -12,7 +12,7 @@ class RenderEngine
   public:
     RenderEngine() = default;
     ~RenderEngine() = default;
-    Texture& createTexture(const std::string& crTag, const uint32_t cHeight, const uint32_t cWidth,
+    Texture* createTexture(const std::string& crTag, const uint32_t cHeight, const uint32_t cWidth,
                            const int32_t cInternalFormat=GL_RGBA8);
     bool textureExists(const std::string& crTag);
     std::string getTag(const uint32_t cId);

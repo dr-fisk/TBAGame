@@ -86,15 +86,17 @@ namespace VertexUtility
     rVertex.textureIndex4 = cTextureIdx;
   }
 
-  //! @brief Updates position of Vertex Data for rendering
+  //! @brief Updates Vertex
   //!
   //! @param[out] rVertex     Vertex to create in place
   //! @param[in]  crPos       Position of Quad
   //! @param[in]  crSize      Size of Quad
+  //! @param[in]  crColor     Color of Quad can be transparent if Texture will be rendered onto Quad
   //!
   //! @return None
   template<typename A, typename B>
-  void updateVertex(Vertex& rVertex, const Vector2<A>& crPos, const Vector2<B>& crSize)
+  void updateVertex(Vertex& rVertex, const Vector2<A>& crPos, const Vector2<B>& crSize,
+                    const lg::Color& crColor=lg::Transparent)
   {
     GLfloat wWidth = gWindowWidth / 2.0f;
     GLfloat wHeight = gWindowHeight / 2.0f;
@@ -108,6 +110,10 @@ namespace VertexUtility
     rVertex.bottomRight = Vector2<GLfloat>(x2, y2);
     rVertex.topRight = Vector2<GLfloat>(x2, y1);
     rVertex.topLeft = Vector2<GLfloat>(x1, y1);
+    rVertex.rgba1 = crColor;
+    rVertex.rgba2 = crColor;
+    rVertex.rgba3 = crColor;
+    rVertex.rgba4 = crColor;
   }
 
   //! @brief Updates Texture Coordinates in Vertex Data
