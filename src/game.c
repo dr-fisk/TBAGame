@@ -119,7 +119,6 @@ void Game::gameLoop()
       mStates.pop();
     }
     
-    GLCall(glfwPollEvents());
     mStates.top()->update(mpWindow);
     mStates.top()->render(mpWindow);
     gFrames ++;

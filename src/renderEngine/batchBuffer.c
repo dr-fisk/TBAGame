@@ -118,6 +118,8 @@ void BatchBuffer::render(const uint32_t cVboId, const uint32_t cIboId, const std
     texture.second->unsetCacheUpdate();
   }
 
+  GLCall(glfwPollEvents());
+
   // Need to update the below thing cuz this ain't good
   // mIbo.at(cIboId)->updateIboSubBuffer(0, numVertexes * 6, nullptr);
 }
