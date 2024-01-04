@@ -4,6 +4,7 @@
 #include <cstdint>
 
 #include "utility/net_utility.h"
+#include "event/event.h"
 
 class RenderTarget
 {
@@ -18,6 +19,7 @@ class RenderTarget
       virtual void setActive() = 0;
       virtual void setKeyCallback() = 0;
       virtual bool isKeyPressed(const int cKey) = 0;
+      virtual bool pollEvent(Event&) = 0;
     private:
 };
 

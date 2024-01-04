@@ -25,6 +25,7 @@ class Game {
     LestTrueType ttf;
     int mGameRuntime;
     std::chrono::time_point<std::chrono::steady_clock> mStartTime;
+    std::chrono::time_point<std::chrono::steady_clock> mFrameTime;
     std::chrono::time_point<std::chrono::steady_clock> mEndTime;
     int mFps;
 

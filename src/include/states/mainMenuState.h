@@ -19,10 +19,11 @@ class MainMenu : public State
     MainMenu(const std::stack<std::shared_ptr<State>>& crStates, std::shared_ptr<RenderEngine>& crpRenderEngine,
              std::shared_ptr<BatchBuffer>& crpBatchBuffer);
     ~MainMenu();
-    void update(const std::shared_ptr<RenderTarget>& crpTarget);
+    void update(const std::shared_ptr<RenderTarget>& crpTarget, const float cDeltaTime);
     bool shouldStateExit();
 
   private:
+    static void buttonCallback();
     Texture mTexture;
     LestTrueType ttf;
     std::shared_ptr<Font> mNewFont;

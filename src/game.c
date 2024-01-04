@@ -112,14 +112,17 @@ Game::~Game()
 //! @return None
 void Game::gameLoop()
 {
+  float deltaTime = 0.0f;
   while(!mStates.empty() && mpWindow->isOpen())
   {
+    mFrameTime = std::chrono::steady_clock::now();
+
     if (mStates.top()->shouldStateExit())
     {
       mStates.pop();
     }
     
-    mStates.top()->update(mpWindow);
+    mStates.top()->update(mpWindow, deltaTime);
     mStates.top()->render(mpWindow);
     gFrames ++;
     mEndTime = std::chrono::steady_clock::now();
@@ -130,6 +133,9 @@ void Game::gameLoop()
       gFrames = 0;
       mStartTime = std::chrono::steady_clock::now();
     }
+
+    deltaTime = std::chrono::duration<float>(std::chrono::steady_clock::now() - mFrameTime).count();
+    // std::cout << "Delta: " << deltaTime << std::endl;
   }
 
   gameEnd();

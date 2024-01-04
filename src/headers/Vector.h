@@ -3,11 +3,6 @@
 
 #include <ostream>
 
-#ifdef GLEW_STATIC
-  #include <GL/glew.h>
-  #include <GLFW/glfw3.h>
-#endif
-
 template <typename T> 
 class Vector2;
 
@@ -37,11 +32,6 @@ template <typename T> class Vector2
     Vector2& operator*=(const uint32_t &crRhs);
     Vector2& operator*=(const uint64_t &crRhs);
 
-    #ifdef GLEW_STATIC
-      Vector2& operator*=(const GLfloat &crRhs);
-      Vector2& operator*=(const GLdouble &crRhs);
-    #endif
-
     Vector2 operator*(const int8_t &crRhs);
     Vector2 operator*(const int16_t &crRhs);
     Vector2 operator*(const int32_t &crRhs);
@@ -50,11 +40,6 @@ template <typename T> class Vector2
     Vector2 operator*(const uint16_t &crRhs);
     Vector2 operator*(const uint32_t &crRhs);
     Vector2 operator*(const uint64_t &crRhs);
-
-    #ifdef GLEW_STATIC
-      Vector2 operator*(const GLfloat &crRhs);
-      Vector2 operator*(const GLdouble &crRhs);
-    #endif
 
     Vector2& operator/=(const int8_t &crRhs);
     Vector2& operator/=(const int16_t &crRhs);
@@ -65,11 +50,6 @@ template <typename T> class Vector2
     Vector2& operator/=(const uint32_t &crRhs);
     Vector2& operator/=(const uint64_t &crRhs);
 
-    #ifdef GLEW_STATIC
-      Vector2& operator/=(const GLfloat &crRhs);
-      Vector2& operator/=(const GLdouble &crRhs);
-    #endif
-
     Vector2 operator/(const int8_t &crRhs);
     Vector2 operator/(const int16_t &crRhs);
     Vector2 operator/(const int32_t &crRhs);
@@ -79,11 +59,6 @@ template <typename T> class Vector2
     Vector2 operator/(const uint32_t &crRhs);
     Vector2 operator/(const uint64_t &crRhs);
     
-    #ifdef GLEW_STATIC
-      Vector2 operator/(const GLfloat &crRhs);
-      Vector2 operator/(const GLdouble &crRhs);
-    #endif
-
     T operator*(const Vector2<T>& crVector);
     friend std::ostream& operator<< <>(std::ostream& rOs, const Vector2<T>& crVector);
 
@@ -227,24 +202,6 @@ Vector2<T>& Vector2<T>::operator*=(const uint64_t &crRhs)
   return *this;
 }
 
-#ifdef GLEW_STATIC
-template <typename T>
-Vector2<T>& Vector2<T>::operator*=(const GLfloat &crRhs)
-{
-  x *= crRhs;
-  y *= crRhs;
-  return *this;
-}
-
-template <typename T>
-Vector2<T>& Vector2<T>::operator*=(const GLdouble &crRhs)
-{
-  x *= crRhs;
-  y *= crRhs;
-  return *this;
-}
-#endif
-
 template <typename T>
 Vector2<T> Vector2<T>::operator*(const int8_t &crRhs)
 {
@@ -292,20 +249,6 @@ Vector2<T> Vector2<T>::operator*(const uint64_t &crRhs)
 {
   return Vector2<T>(x * crRhs, y * crRhs);
 }
-
-#ifdef GLEW_STATIC
-template <typename T>
-Vector2<T> Vector2<T>::operator*(const GLfloat &crRhs)
-{
-  return Vector2<T>(x * crRhs, y * crRhs);
-}
-
-template <typename T>
-Vector2<T> Vector2<T>::operator*(const GLdouble &crRhs)
-{
-  return Vector2<T>(x * crRhs, y * crRhs);
-}
-#endif
 
 template <typename T>
 Vector2<T>& Vector2<T>::operator/=(const int8_t &crRhs)
@@ -371,24 +314,6 @@ Vector2<T>& Vector2<T>::operator/=(const uint64_t &crRhs)
   return *this;
 }
 
-#ifdef GLEW_STATIC
-template <typename T>
-Vector2<T>& Vector2<T>::operator/=(const GLfloat &crRhs)
-{
-  x /= crRhs;
-  y /= crRhs;
-  return *this;
-}
-
-template <typename T>
-Vector2<T>& Vector2<T>::operator/=(const GLdouble &crRhs)
-{
-  x /= crRhs;
-  y /= crRhs;
-  return *this;
-}
-#endif
-
 template <typename T>
 Vector2<T> Vector2<T>::operator/(const int8_t &crRhs)
 {
@@ -437,20 +362,6 @@ Vector2<T> Vector2<T>::operator/(const uint64_t &crRhs)
   return Vector2<T>(x / crRhs, y / crRhs);
 }
 
-#ifdef GLEW_STATIC
-template <typename T>
-Vector2<T> Vector2<T>::operator/(const GLfloat &crRhs)
-{
-  return Vector2<T>(x / crRhs, y / crRhs);
-}
-
-template <typename T>
-Vector2<T> Vector2<T>::operator/(const GLdouble &crRhs)
-{
-  return Vector2<T>(x / crRhs, y / crRhs);
-}
-#endif
-
 template <typename T>
 T Vector2<T>::operator*(const Vector2<T>& crVector)
 {
@@ -494,11 +405,6 @@ template <typename T> class Vector3
     Vector3& operator*=(const uint32_t &crRhs);
     Vector3& operator*=(const uint64_t &crRhs);
 
-    #ifdef GLEW_STATIC
-      Vector3& operator*=(const GLfloat &crRhs);
-      Vector3& operator*=(const GLdouble &crRhs);
-    #endif
-
     Vector3 operator*(const int8_t &crRhs);
     Vector3 operator*(const int16_t &crRhs);
     Vector3 operator*(const int32_t &crRhs);
@@ -507,11 +413,6 @@ template <typename T> class Vector3
     Vector3 operator*(const uint16_t &crRhs);
     Vector3 operator*(const uint32_t &crRhs);
     Vector3 operator*(const uint64_t &crRhs);
-
-    #ifdef GLEW_STATIC
-      Vector3 operator*(const GLfloat &crRhs);
-      Vector3 operator*(const GLdouble &crRhs);
-    #endif
 
     Vector3& operator/=(const int8_t &crRhs);
     Vector3& operator/=(const int16_t &crRhs);
@@ -522,11 +423,6 @@ template <typename T> class Vector3
     Vector3& operator/=(const uint32_t &crRhs);
     Vector3& operator/=(const uint64_t &crRhs);
 
-    #ifdef GLEW_STATIC
-      Vector3& operator/=(const GLfloat &crRhs);
-      Vector3& operator/=(const GLdouble &crRhs);
-    #endif
-
     Vector3 operator/(const int8_t &crRhs);
     Vector3 operator/(const int16_t &crRhs);
     Vector3 operator/(const int32_t &crRhs);
@@ -536,11 +432,6 @@ template <typename T> class Vector3
     Vector3 operator/(const uint32_t &crRhs);
     Vector3 operator/(const uint64_t &crRhs);
     
-    #ifdef GLEW_STATIC
-      Vector3 operator/(const GLfloat &crRhs);
-      Vector3 operator/(const GLdouble &crRhs);
-    #endif
-
     T operator*(const Vector3<T>& crVector);
     friend std::ostream& operator<< <>(std::ostream& rOs, const Vector3<T>& crVector);
 
@@ -696,26 +587,6 @@ Vector3<T>& Vector3<T>::operator*=(const uint64_t &crRhs)
   return *this;
 }
 
-#ifdef GLEW_STATIC
-template <typename T>
-Vector3<T>& Vector3<T>::operator*=(const GLfloat &crRhs)
-{
-  x *= crRhs;
-  y *= crRhs;
-  mZ *= crRhs;
-  return *this;
-}
-
-template <typename T>
-Vector3<T>& Vector3<T>::operator*=(const GLdouble &crRhs)
-{
-  x *= crRhs;
-  y *= crRhs;
-  mZ *= crRhs;
-  return *this;
-}
-#endif
-
 template <typename T>
 Vector3<T> Vector3<T>::operator*(const int8_t &crRhs)
 {
@@ -763,20 +634,6 @@ Vector3<T> Vector3<T>::operator*(const uint64_t &crRhs)
 {
   return Vector3<T>(x * crRhs, y * crRhs, mZ * crRhs);
 }
-
-#ifdef GLEW_STATIC
-template <typename T>
-Vector3<T> Vector3<T>::operator*(const GLfloat &crRhs)
-{
-  return Vector3<T>(x * crRhs, y * crRhs, mZ * crRhs);
-}
-
-template <typename T>
-Vector3<T> Vector3<T>::operator*(const GLdouble &crRhs)
-{
-  return Vector3<T>(x * crRhs, y * crRhs, mZ * crRhs);
-}
-#endif
 
 template <typename T>
 Vector3<T>& Vector3<T>::operator/=(const int8_t &crRhs)
@@ -850,26 +707,6 @@ Vector3<T>& Vector3<T>::operator/=(const uint64_t &crRhs)
   return *this;
 }
 
-#ifdef GLEW_STATIC
-template <typename T>
-Vector3<T>& Vector3<T>::operator/=(const GLfloat &crRhs)
-{
-  x /= crRhs;
-  y /= crRhs;
-  mZ /= crRhs;
-  return *this;
-}
-
-template <typename T>
-Vector3<T>& Vector3<T>::operator/=(const GLdouble &crRhs)
-{
-  x /= crRhs;
-  y /= crRhs;
-  mZ /= crRhs;
-  return *this;
-}
-#endif
-
 template <typename T>
 Vector3<T> Vector3<T>::operator/(const int8_t &crRhs)
 {
@@ -917,20 +754,6 @@ Vector3<T> Vector3<T>::operator/(const uint64_t &crRhs)
 {
   return Vector3<T>(x / crRhs, y / crRhs, mZ / crRhs);
 }
-
-#ifdef GLEW_STATIC
-template <typename T>
-Vector3<T> Vector3<T>::operator/(const GLfloat &crRhs)
-{
-  return Vector3<T>(x / crRhs, y / crRhs, mZ / crRhs);
-}
-
-template <typename T>
-Vector3<T> Vector3<T>::operator/(const GLdouble &crRhs)
-{
-  return Vector3<T>(x / crRhs, y / crRhs, mZ / crRhs);
-}
-#endif
 
 template <typename T>
 T Vector3<T>::operator*(const Vector3<T>& crVector)

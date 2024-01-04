@@ -5,6 +5,7 @@
 
 #include "drawable/sprite.h"
 #include "drawable/text.h"
+#include "event/event.h"
 
 class Button
 {
@@ -17,16 +18,15 @@ class Button
     void setHoverColor(const lg::Color& crColor);
     void setPressedColor(const lg::Color& crColor);
     void setPos(const Vector2<float>& crPos);
-    void update();
+    void handleEvents(const Event& crEvent);
     void setSize(const Vector2<float>& crSize);
-    bool buttonPressed();
+    void setCallback(std::function<void(void)> pFunc);
     ~Button() = default;
   private:
     enum ButtonState
     {
       DEFAULT_STATE,
-      HOVER_STATE,
-      PRESSED_STATE
+      HOVER_STATE
     };
     
     std::shared_ptr<Sprite> mBox;
@@ -35,8 +35,13 @@ class Button
     lg::Color mHoverColor;
     lg::Color mPressedColor;
     ButtonState mState;
+    std::function<void(void)> mCallback;
 
-    bool isInAABB();
+    bool isInAABB(const Vector2<float>& crPos);
+    void mouseMoveUpdate(const Event::MouseMoveEvent& crEvent);
+    void mouseButtonUpdate(const Event::MouseButtonEvent& crEvent);
+    void mouseButtonRelease(const Event::MouseButtonEvent& crEvent);
+    // void noEventUpdate();
 };
 
 #endif

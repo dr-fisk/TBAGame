@@ -3,6 +3,8 @@
 
 #include "window/renderWindow.h"
 #include "window/mouse.h"
+#include "input/input.h"
+#include "window/keyboard.h"
 
 bool RenderWindow::msIsInitialized = false;
 int RenderWindow::mKeyPressed = GLFW_KEY_UNKNOWN;
@@ -162,7 +164,7 @@ void RenderWindow::setActive()
   glewInit();
   glfwSetCursorPosCallback(mpWindow, lg::Mouse::mousePositionCallback);
   glfwSetMouseButtonCallback(mpWindow, lg::Mouse::mouseButtonCallback);
-  glfwSetKeyCallback(mpWindow, RenderWindow::keyCallback);
+  glfwSetKeyCallback(mpWindow, lg::Keyboard::keyCallback);
 }
 
 //! @brief Cleans up the render window, must be called as this allows for multiple windows to be used
@@ -236,4 +238,9 @@ void RenderWindow::keyCallback(GLFWwindow *pWindow, const int32_t cKey, const in
 bool RenderWindow::isKeyPressed(const int cKey)
 {
   return glfwGetKey(mpWindow, cKey) == GLFW_PRESS;
+}
+
+bool RenderWindow::pollEvent(Event& rEvent)
+{
+  return lg::Input::popEvent(rEvent);
 }

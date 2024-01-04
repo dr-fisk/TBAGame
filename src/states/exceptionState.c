@@ -22,7 +22,7 @@ bool ExceptionState::shouldStateExit()
   return !mpWindow->isOpen();
 }
 
-void ExceptionState::update(const std::shared_ptr<RenderTarget> &crpTarget)
+void ExceptionState::update(const std::shared_ptr<RenderTarget>& crpTarget, const float cDeltaTime)
 {
 }
 

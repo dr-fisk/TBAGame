@@ -3,6 +3,7 @@
 
 #include "window/renderTarget.h"
 #include "glcommon.h"
+#include "event/event.h"
 
 class RenderWindow : public RenderTarget
 {
@@ -26,6 +27,7 @@ class RenderWindow : public RenderTarget
       void enableBlend();
       void disableBlend();
       GLFWwindow *getGlWindow();
+      bool pollEvent(Event& rEvent);
 
     private:
       uint32_t mWdwHeight;

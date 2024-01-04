@@ -2,7 +2,8 @@
 #define MOUSE_H
 
 #include "Vector.h"
-#include "glcommon.h"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 namespace lg
 {
@@ -13,8 +14,6 @@ namespace lg
 
     Vector2<int32_t> getMousePosi();
     Vector2<float> getMousePosf();
-    bool isMouseButtonPressed(const int32_t cButton);
-    int32_t getMouseButtonState(const int32_t cButton);
   }
 }
 

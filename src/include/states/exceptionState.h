@@ -17,7 +17,7 @@ class ExceptionState : public State {
                     std::shared_ptr<BatchBuffer> cpBatchBuffer,
                     const std::string& crError);
     ~ExceptionState();
-    void update(const std::shared_ptr<RenderTarget> &crpTarget);
+    void update(const std::shared_ptr<RenderTarget>& crpTarget, const float cDeltaTime);
     bool shouldStateExit();
   private:
     std::shared_ptr<RenderWindow> mpWindow;

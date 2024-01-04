@@ -24,6 +24,7 @@ GUIPATH = ./gui
 DRAWABLESPATH = ./drawable
 RENDERENGINEPATH = ./renderEngine
 GRAPHICSPATH = ./graphics
+INPUTPATH = ./input
 SRC = ./src
 SHADERSPATH = ./shaders
 FONTSPATH = ./fonts
@@ -67,7 +68,8 @@ guiFiles   = gui.c
 
 windowFiles = renderWindow.c \
               renderTarget.c \
-							mouse.c
+							mouse.c \
+							keyboard.c
 
 resourceFiles = image.c \
                 font.c \
@@ -85,6 +87,8 @@ renderEngineFiles = renderEngine.c \
 										vertexBuffer.c \
 										vertexArray.c \
 										texture.c
+
+inputFiles = input.c
 
 graphicsFiles = button.c
 
@@ -123,6 +127,9 @@ renderEngineObjs = $(addprefix $(RENDERENGINEPATH)/, $(renderEngine))
 
 graphics = $(patsubst %.c, %.o, $(graphicsFiles))
 graphicsObjs = $(addprefix $(GRAPHICSPATH)/, $(graphics))
+
+inputs = $(patsubst %.c, %.o, $(inputFiles))
+inputObjs = $(addprefix $(INPUTPATH)/, $(inputs))
 
 dynLibPrefix = lest
 
@@ -186,6 +193,10 @@ $(UTILITYPATH):
 	@echo "MAKE	Utilities"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(UTILITYPATH)
 
+$(INPUTPATH):
+	@echo "MAKE	Inputs"
+	$(Q)$(MAKE) V=$(V) D=$(D) -C $(INPUTPATH)
+
 shader:
 		@echo "Copying Shaders"
 		$(Q)cp -r $(SHADERSPATH) $(PATHTOEXEC)
@@ -194,9 +205,9 @@ font:
 		@echo "Copying Fonts"
 		$(Q)cp -r $(FONTSPATH) $(PATHTOEXEC)
 
-%.exe: $(objs) $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RENDERENGINEPATH) $(RESOURCEPATH) $(GRAPHICSPATH) $(UTILITYPATH)
+%.exe: $(objs) $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RENDERENGINEPATH) $(RESOURCEPATH) $(GRAPHICSPATH) $(UTILITYPATH) $(INPUTPATH)
 	@echo "MAKE $@"
-	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(guiObjs) $(windowObjs) $(drawableObjs) $(utilitiesObjs) $(renderEngineObjs) $(resourceObjs) $(graphicsObjs) $(LDFLAGS)
+	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(guiObjs) $(windowObjs) $(drawableObjs) $(utilitiesObjs) $(renderEngineObjs) $(resourceObjs) $(graphicsObjs) $(inputObjs) $(LDFLAGS)
 	@echo "Checking DIR"
 	$(Q)if [ ! -d $(PATHTOEXEC) ]; then \
 		echo "Creating Win DIR"; \
@@ -331,6 +342,15 @@ clean_utilities:
 	fi \
 	done
 
+clean_input:
+	@echo "Clean Inputs"
+	@for item in ${inputObjs}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done
+
 clean_dep:
 	@echo "Clean Dependencies"
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(UTILITYPATH)
@@ -340,6 +360,7 @@ clean_dep:
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(RENDERENGINEPATH)
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(GRAPHICSPATH)
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(RESOURCEPATH)
+	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(INPUTPATH)
 
 clean_exe:
 	@echo "Clean Executable"
@@ -348,8 +369,8 @@ clean_exe:
 		rm $(programs); \
 	fi
 
-clean: clean_state clean_gui clean_window clean_drawable clean_lib clean_main clean_dep clean_exe clean_utilities\
-       clean_renderengine clean_graphics clean_resource
+clean: clean_state clean_gui clean_window clean_drawable clean_lib clean_main clean_dep clean_exe clean_utilities \
+       clean_renderengine clean_graphics clean_resource clean_input
 	@echo "Checking win DIR"
 	$(Q)if [ -d $(PATHTOEXEC) ]; then \
 		echo "RM Win DIR"; \
@@ -362,5 +383,8 @@ help:
 	@echo "make TARGET=[lin64, win64]"
 	@echo "Makefile will be expanded in the future"
 
-.PRECIOUS: %.o $(STATEPATH)/%.o $(GUIPATH)/%.o $(WINDOWPATH)/%.o $(RESOURCEPATH)/%.o $(DRAWABLESPATH)/%.o $(RENDERENGINEPATH)/%.o $(GRAPHICSPATH)/%.o $(DYNLIBSPATH)/%.so $(DYNLIBSPATH)/%.o $(DYNLIBSPATH)/%.dll $(UTILITYPATH)/%.o
-.PHONY: $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RESOURCEPATH) $(UTILITYPATH) $(RENDERENGINEPATH) $(GRAPHICSPATH)
+.PRECIOUS: %.o $(STATEPATH)/%.o $(GUIPATH)/%.o $(WINDOWPATH)/%.o $(RESOURCEPATH)/%.o $(DRAWABLESPATH)/%.o \
+           $(RENDERENGINEPATH)/%.o $(GRAPHICSPATH)/%.o $(DYNLIBSPATH)/%.so $(DYNLIBSPATH)/%.o $(DYNLIBSPATH)/%.dll \
+					 $(UTILITYPATH)/%.o $(INPUTPATH)/%.o
+.PHONY: $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RESOURCEPATH) $(UTILITYPATH) \
+        $(RENDERENGINEPATH) $(GRAPHICSPATH) $(INPUTPATH)
