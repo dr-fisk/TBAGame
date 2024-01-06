@@ -1,6 +1,8 @@
 #ifndef VERTEX_UTILITY_H
 #define VERTEX_UTILITY_H
 
+#include <iostream>
+
 #include "glcommon.h"
 #include "Vector.h"
 

@@ -112,5 +112,4 @@ bool Box<T>::inLocalBounds(const Vector2<float>& crPos)
          (crPos.y > mTopLeft.y) && (crPos.y < (mTopLeft.y + this->mSize.y));
 }
 
-
 #endif

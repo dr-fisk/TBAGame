@@ -45,6 +45,10 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
     glfwTerminate();
     exit(-1);
   }
+
+  int w, h;
+  glfwGetWindowSize(mpWindow, &w, &h);
+  std::cout << "Width: " << w << " Height: " << h << std::endl;
 }
 
 //! @brief Enables blend for Rendering
@@ -212,11 +216,11 @@ int32_t RenderWindow::getKeyPress()
 
 //! @brief KeyPress callback function when key is pressed
 //!
-//! @param pWindow   Active Window
-//! @param cKey      Key that was pressed
-//! @param cScanCode ScanCode type
-//! @param cAction   Action used
-//! @param cMods     Mod behavior
+//! @param[in] pWindow   Active Window
+//! @param[in] cKey      Key that was pressed
+//! @param[in] cScanCode ScanCode type
+//! @param[in] cAction   Action used
+//! @param[in] cMods     Mod behavior
 //!
 //! @return None
 void RenderWindow::keyCallback(GLFWwindow *pWindow, const int32_t cKey, const int32_t cScanCode, const int32_t cAction,
@@ -232,7 +236,7 @@ void RenderWindow::keyCallback(GLFWwindow *pWindow, const int32_t cKey, const in
 
 //! @brief Determines if key is pressed
 //!
-//! @param cKey Key Pressed
+//! @param[in] cKey Key Pressed
 //!
 //! @return true if key supplied was pressed false otherwise
 bool RenderWindow::isKeyPressed(const int cKey)
@@ -240,7 +244,23 @@ bool RenderWindow::isKeyPressed(const int cKey)
   return glfwGetKey(mpWindow, cKey) == GLFW_PRESS;
 }
 
+//! @brief Polls Event queue
+//!
+//! @param[out] rEvent Event returned from Event Queue
+//!
+//! @return True if event returned, false otherwise
 bool RenderWindow::pollEvent(Event& rEvent)
 {
   return lg::Input::popEvent(rEvent);
+}
+
+int8_t RenderWindow::createSharedWindow(GLFWwindow *pWindow)
+{
+  if(nullptr == mpWindow)
+  {
+    return -1;
+  }
+
+  pWindow = glfwCreateWindow(800, 600, "A shared window", NULL, mpWindow);
+  return 0;
 }

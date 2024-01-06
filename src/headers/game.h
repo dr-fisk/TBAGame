@@ -32,6 +32,7 @@ class Game {
     void initMainState();
     void initTextureSampler();
     void gameEnd();
+    GLFWwindow* wind;
 };
 
 #endif

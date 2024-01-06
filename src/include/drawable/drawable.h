@@ -25,7 +25,7 @@ class BatchBuffer;
 class Drawable
 {
   public:
-    Drawable(){ mRenderId = 0; }
+    Drawable(){ mRenderId = 0; mRender = false; }
     void registerDrawable(std::shared_ptr<BatchBuffer>& prBatch, const uint32_t cTextureId);
     virtual ~Drawable() = default;
     virtual std::shared_ptr<TextureResource> getResource() = 0;
@@ -38,10 +38,15 @@ class Drawable
     virtual void setPos(const Vector2<float>& crPos) = 0;
     void setRenderId(const uint64_t cRenderId);
     uint64_t getRenderId();
+    void setRender(const bool cEnable);
+    bool getRender();
+    void reregisterDrawable(const uint32_t cTextureId);
   protected:
     uint64_t mRenderId;
     std::shared_ptr<BatchBuffer> mpBatch;
     bool mNeedUpdate;
+    bool mRender;
+    uint32_t mLayer;
 };
 
 #endif

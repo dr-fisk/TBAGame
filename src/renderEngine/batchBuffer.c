@@ -26,15 +26,17 @@ BatchBuffer::BatchBuffer(const uint32_t cNumVao, const uint32_t cNumVbo, const u
   initBuffers();
   mBoundedTextureIdx = 0;
   glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &mMaxTextureUnits);
+  std::cout << "Max textures " << mMaxTextureUnits << std::endl;
 }
 
 //! @brief Registers drawable to batch render
 //!
 //! @param[in] pDrawable  Drawable Object to register
 //! @param[in] cTextureId Texture ID useful for sorting map via Textures
+//! @param[in] cLayer     The Layer the vertex will be ordered on
 //!
 //! @return None
-void BatchBuffer::registerDrawable(Drawable *pDrawable, const uint32_t cTextureId)
+void BatchBuffer::registerDrawable(Drawable *pDrawable, const uint32_t cTextureId, const uint32_t cLayer)
 {
   mRenderIdCount ++;
   if(0 == mRenderIdCount)
@@ -42,18 +44,35 @@ void BatchBuffer::registerDrawable(Drawable *pDrawable, const uint32_t cTextureI
     mRenderIdCount ++;
   }
 
-  mQuads[std::pair(cTextureId, mRenderIdCount)] = pDrawable;
   pDrawable->setRenderId(mRenderIdCount);
+  mQuads.insert(std::pair{RenderKey(mRenderIdCount, cTextureId, cLayer), pDrawable});
 }
 
 //! @brief Registers drawable to batch render
 //!
-//! @param[in] pDrawable Drawable Object to register
+//! @param[in] pDrawable   Drawable Object to register
+//! @param[in] crRenderKey Object that contains order information for drawable
 //!
 //! @return None
-void BatchBuffer::unregisterDrawable(const uint64_t cId, const uint32_t cTextureId)
+void BatchBuffer::registerDrawable(Drawable *pDrawable, const RenderKey& crRenderKey)
 {
-  mQuads.erase(std::pair(cTextureId, cId));
+  mQuads.insert(std::pair{crRenderKey, pDrawable});
+}
+
+//! @brief Registers drawable to batch render
+//!
+//! @param[in] pDrawable Drawable Object to unregister
+//!
+//! @return None
+void BatchBuffer::unregisterDrawable(const RenderKey& crRenderKey)
+{
+  auto it = mQuads.find(crRenderKey);
+  if (it != mQuads.end())
+  {
+    mQuads.erase(it);
+  }
+
+  // std::cout << "Size of quads " << mQuads.size() << std::endl;
 }
 
 //! @brief Updates all Buffer Object items to incorporate any updates made to registered drawables
@@ -69,8 +88,14 @@ void BatchBuffer::render(const uint32_t cVboId, const uint32_t cIboId, const std
   uint32_t offset = 0;
   uint32_t currentQuad = 0;
   crpTarget->clear();
+
   for(auto drawable : mQuads)
   {
+    if(!drawable.second->getRender())
+    {
+      continue;
+    }
+
     if(drawable.second->hasResource() && !drawable.second->textureBounded())
     {
       if(mMaxTextureUnits > mTextureCache.size())
@@ -87,10 +112,10 @@ void BatchBuffer::render(const uint32_t cVboId, const uint32_t cIboId, const std
         mBoundedTextureIdx ++;
       }
     }
-    
+
     drawable.second->getVertex(mVertexes, numVertexes);
 
-    if (mMaxTextureUnits == mBoundedTextureIdx)
+    if(mMaxTextureUnits == mBoundedTextureIdx)
     {
       mVbo.at(cVboId)->updateVboSubBuffer(offset * sizeof(Vertex),
                                           numVertexes * sizeof(Vertex),

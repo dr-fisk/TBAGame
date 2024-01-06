@@ -7,6 +7,12 @@
 #include "drawable/text.h"
 #include "event/event.h"
 
+struct ButtonValue
+{
+  void* Value;
+};
+
+template <typename T=void *>
 class Button
 {
   public:
@@ -17,10 +23,21 @@ class Button
     void setDefaultColor(const lg::Color& crColor);
     void setHoverColor(const lg::Color& crColor);
     void setPressedColor(const lg::Color& crColor);
-    void setPos(const Vector2<float>& crPos);
-    void handleEvents(const Event& crEvent);
+    void setPos(const Vector2<float>& crPos, const bool cCheckIfMouseHovering=true);
+    bool clicked(const Event& crEvent);
     void setSize(const Vector2<float>& crSize);
-    void setCallback(std::function<void(void)> pFunc);
+    void onClick(std::function<void(const Button<T>&)> pFunc);
+    void enableCallback(const bool cEnable);
+    void setRender(const bool cEnable);
+    void setId(const int64_t cId);
+    int64_t getId() const;
+    Vector2<float> getPos() const;
+    Vector2<float> getSize() const;
+    void setDefaultTexture(const std::shared_ptr<TextureResource>& crpTexture);
+    void setHoverTexture(const std::shared_ptr<TextureResource>& crpTexture);
+    void setPressedTexture(const std::shared_ptr<TextureResource>& crpTexture);
+    void setValue(const T& rValue);
+    T getValue() const;
     ~Button() = default;
   private:
     enum ButtonState
@@ -31,17 +48,24 @@ class Button
     
     std::shared_ptr<Sprite> mBox;
     std::shared_ptr<Text> mText;
+    std::shared_ptr<TextureResource> mDefaultTexture;
+    std::shared_ptr<TextureResource> mHoverTexture;
+    std::shared_ptr<TextureResource> mPressedTexture;
     lg::Color mDefaultColor;
     lg::Color mHoverColor;
     lg::Color mPressedColor;
     ButtonState mState;
-    std::function<void(void)> mCallback;
+    std::function<void(const Button<T>&)> mCallback;
+    bool mCallbackDisabled;
+    int64_t mId;
+    T mValue;
 
     bool isInAABB(const Vector2<float>& crPos);
     void mouseMoveUpdate(const Event::MouseMoveEvent& crEvent);
     void mouseButtonUpdate(const Event::MouseButtonEvent& crEvent);
-    void mouseButtonRelease(const Event::MouseButtonEvent& crEvent);
-    // void noEventUpdate();
+    bool mouseButtonRelease(const Event::MouseButtonEvent& crEvent);
 };
+
+#include "../../graphics/button.c"
 
 #endif

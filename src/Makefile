@@ -90,7 +90,7 @@ renderEngineFiles = renderEngine.c \
 
 inputFiles = input.c
 
-graphicsFiles = button.c
+graphicsFiles =
 
 dynLibFiles = png.c
 

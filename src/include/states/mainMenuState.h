@@ -12,6 +12,7 @@
 #include "drawable/text.h"
 #include "drawable/sprite.h"
 #include "graphics/button.h"
+#include "graphics/dropdownmenu.h"
 
 class MainMenu : public State
 {
@@ -23,15 +24,15 @@ class MainMenu : public State
     bool shouldStateExit();
 
   private:
-    static void buttonCallback();
-    Texture mTexture;
+    static void buttonCallback(const Button<>& rVal);
     LestTrueType ttf;
     std::shared_ptr<Font> mNewFont;
     std::shared_ptr<Text> mText;
     std::shared_ptr<Sprite> mSprite;
     std::shared_ptr<Sprite> mSprite2;
     std::shared_ptr<Sprite> mSprite3;
-    std::shared_ptr<Button> mButton;
+    std::shared_ptr<Button<>> mButton;
+    std::shared_ptr<DropDownMenu<Vector2<int32_t>>> mMenu;
     std::chrono::time_point<std::chrono::system_clock> mStartTime;
 };
 

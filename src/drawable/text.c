@@ -1,5 +1,6 @@
 #include "drawable/text.h"
 #include "utility/vertexUtility.h"
+#include <limits>
 
 //! @brief Text Constructor
 //!
@@ -19,6 +20,7 @@ Text::Text(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared
 {
   mpFont = prFont;
   mText = crText;
+  mLayer = std::numeric_limits<uint32_t>::max();
 
   // mBox.setPos({cLeft, cTop});
   mLineWrap = cLineWrap;
@@ -102,6 +104,7 @@ void Text::gridfitText(const Vector2<float>& crTopLeft)
     offset = mpFont->getOffset(mText[i], mCharSize);
     size = mTexture->getSize();
     VertexUtility::updateVertex(tempVert, pos, dim, color);
+    VertexUtility::setVertexTextureIndex(tempVert, static_cast<float>(mTexture->getCacheId()));
     VertexUtility::updateTextureCoordinates(tempVert, textCoord, offset, size);
 
     mVertexes.push_back(tempVert);
@@ -216,6 +219,6 @@ Text::~Text()
 {
   if(0 != mRenderId && nullptr != mTexture)
   {
-    mpBatch->unregisterDrawable(mRenderId, mTexture->getTextureId());
+    mpBatch->unregisterDrawable(RenderKey(mRenderId, mTexture->getTextureId(), mLayer));
   }
 }

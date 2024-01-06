@@ -19,12 +19,14 @@ Sprite::Sprite(const std::string& crPath, std::shared_ptr<RenderEngine>& prRende
   Image temp(crPath);
   mTexture = std::make_shared<TextureResource>(temp.getName(), prRenderEngine, temp.getDimensions(),
                                                temp.getInternalFormat());
-
+  mLayer = 0;
   mColor = lg::Transparent;
   mBox.setBox(crPos, crSize);
-
+  Vector2<int> temp2;
+  temp2.x = round(mBox.getTopLeft().x);
+  temp2.y = round(mBox.getTopLeft().y);
   mTexture->update(temp.getImgData().data(), temp.getDimensions(), temp.getOffset(), temp.getFormat(), temp.getType());
-  VertexUtility::createVertex(mVertex, mBox.getTopLeft(), mBox.getSize(), mColor, mTexture->getCacheId());
+  VertexUtility::createVertex(mVertex, temp2, mBox.getSize(), mColor, mTexture->getCacheId());
   VertexUtility::updateTextureCoordinates(mVertex, temp.getDimensions(), temp.getOffset(),
                                           mTexture->getSize());
   registerDrawable(prBatch, mTexture->getTextureId());
@@ -45,7 +47,10 @@ Sprite::Sprite(std::shared_ptr<BatchBuffer>& prBatch, const Vector2<float>& crPo
   mColor = crColor;
   Vector2<float> offset(0.0f, 0.0f);
   mBox.setBox(crPos, crSize);
-  VertexUtility::createVertex(mVertex, mBox.getTopLeft(), mBox.getSize(), mColor, -1.0f);
+  Vector2<int> temp;
+  temp.x = round(mBox.getTopLeft().x);
+  temp.y = round(mBox.getTopLeft().y);
+  VertexUtility::createVertex(mVertex, temp, mBox.getSize(), mColor, -1.0f);
   VertexUtility::updateTextureCoordinates(mVertex, mBox.getSize(), offset, mBox.getSize());
   registerDrawable(prBatch, 0);
 }
@@ -69,6 +74,9 @@ void Sprite::getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx
 {
   if(mNeedUpdate)
   {
+    Vector2<int> temp;
+    temp.x = round(mBox.getTopLeft().x);
+    temp.y = round(mBox.getTopLeft().y);
     VertexUtility::updateVertex(mVertex, mBox.getTopLeft(), mBox.getSize(), mColor);
     mNeedUpdate = false;
   }
@@ -132,7 +140,7 @@ void Sprite::movePos(const Vector2<float>& crMoveVector)
 //! @brief Sets the Sprite Positition
 //!        Note: This works by setting the Center Position
 //!
-//! @param crPos New Sprite Position
+//! @param[in] crPos New Sprite Position
 //!
 //! @return None
 void Sprite::setPos(const Vector2<float>& crPos)
@@ -143,7 +151,7 @@ void Sprite::setPos(const Vector2<float>& crPos)
 
 //! @brief Sets Size of Sprite
 //!
-//! @param crSize New Sprite Size
+//! @param[in] crSize New Sprite Size
 //!
 //! @return None
 void Sprite::setSize(const Vector2<float>& crSize)
@@ -176,12 +184,56 @@ Sprite::~Sprite()
 {
   if(0 != mRenderId)
   {
-    uint32_t id = 0;
+    int64_t id = 0;
     if(nullptr != mTexture)
     {
       id = mTexture->getTextureId();
     }
 
-    mpBatch->unregisterDrawable(mRenderId, id);
+    mpBatch->unregisterDrawable(RenderKey(mRenderId, id, mLayer));
   }
+}
+
+//! @brief Sets Texture for Sprite
+//!
+//! @param[in] crpTexture Texture to set on Sprite
+//!
+//! @return None 
+void Sprite::setTexture(const std::shared_ptr<TextureResource>& crpTexture)
+{
+  Vector2<float> offset(0, 0); // Update offset
+  
+  int64_t id = 0;
+  if(nullptr != mTexture)
+  {
+    id = mTexture->getTextureId();
+  }
+
+  mpBatch->unregisterDrawable(RenderKey(mRenderId, id, mLayer));
+  mTexture = crpTexture;
+  VertexUtility::updateTextureCoordinates(mVertex, mTexture->getSize(), offset,
+                                          mTexture->getSize());
+  reregisterDrawable(mTexture->getTextureId());
+  VertexUtility::setVertexTextureIndex(mVertex, static_cast<float>(mTexture->getCacheId()));
+}
+
+//! @brief Setst the Layer for the Sprite
+//!        Handles Reregistering into Map of Drawables for sorting
+//!
+//! @param cLayer Layer to set Sprite Draw, Higher Layers means Quad will render over lower Layer Quads
+//!        Think of Layer = 0 as Background
+//!
+//! @return None
+void Sprite::setLayer(const uint32_t cLayer)
+{
+  int64_t id = 0;
+  if(nullptr != mTexture)
+  {
+    id = mTexture->getTextureId();
+  }
+
+  RenderKey temp = RenderKey(mRenderId, id, mLayer);
+  mpBatch->unregisterDrawable(temp);
+  mLayer = cLayer;
+  reregisterDrawable(id);
 }

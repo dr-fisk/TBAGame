@@ -54,7 +54,7 @@ Game::Game()
   std::cout << view[0] << " " << view[1] << " " << view[2] << " " << view[3] << std::endl;
   VertexBufferLayout temp;
   // First set of Float are quad position
-  temp.push(TWO_D_COORDS, GL_FLOAT, true);
+  temp.push(TWO_D_COORDS, GL_FLOAT, false);
   // Next 4 bytes are RGBA
   temp.push(RGBA, GL_UNSIGNED_BYTE, true);
   // Next 2 floats are Texture Coords
@@ -74,6 +74,7 @@ Game::Game()
   //temp
   gWindowWidth = 1920;
   gWindowHeight = 1080;
+
   initMainState();
   /* vbo holds vertex data (cooridnates and RGB color)
      You can combine both in one vbo or separate vbo, if
@@ -113,9 +114,16 @@ Game::~Game()
 void Game::gameLoop()
 {
   float deltaTime = 0.0f;
+  float smoothDeltaTime = 0.0f;
+  int64_t smoothUpdate = 1;
+  mFrameTime = std::chrono::steady_clock::now();
   while(!mStates.empty() && mpWindow->isOpen())
   {
+    deltaTime = std::chrono::duration<float>(std::chrono::steady_clock::now() - mFrameTime).count();
     mFrameTime = std::chrono::steady_clock::now();
+    smoothDeltaTime -= smoothDeltaTime / static_cast<float>(smoothUpdate);
+    smoothDeltaTime += deltaTime / static_cast<float>(smoothUpdate);
+    // std::cout << smoothDeltaTime << std::endl;
 
     if (mStates.top()->shouldStateExit())
     {
@@ -134,8 +142,13 @@ void Game::gameLoop()
       mStartTime = std::chrono::steady_clock::now();
     }
 
-    deltaTime = std::chrono::duration<float>(std::chrono::steady_clock::now() - mFrameTime).count();
     // std::cout << "Delta: " << deltaTime << std::endl;
+
+    smoothUpdate ++;
+    if (smoothUpdate == 0)
+    {
+      smoothUpdate = 1;
+    }
   }
 
   gameEnd();

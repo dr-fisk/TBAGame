@@ -96,3 +96,89 @@ int32_t Image::getInternalFormat()
 {
   return mInternalFormat;
 }
+
+//! @brief Fills all non-transparent pixels with given color
+//!        Useful for loading a shape and changing it's color this is not a polygon fill algorithm, this is a meant
+//!        to be a fast fill
+//!
+//! @param[in] crColor Color to fill image with
+//!
+//! @return None
+void Image::fillAllColor(const lg::Color& crColor)
+{
+  int adder = mFormat == GL_RGBA ? 4 : 3;
+  for(size_t i = 0; i < mPixelData.size(); i += adder)
+  {
+    if(GL_RGBA == mFormat)
+    {
+      if(0 != mPixelData[i + 3])
+      {
+        mPixelData[i] = crColor.getRed();
+        mPixelData[i + 1] = crColor.getGreen();
+        mPixelData[i + 2] = crColor.getBlue();
+      }
+    }
+    else
+    {
+      mPixelData[i] = crColor.getRed();
+      mPixelData[i + 1] = crColor.getGreen();
+      mPixelData[i + 2] = crColor.getBlue();
+    }
+  }
+}
+
+//! @brief Recolors a Shape image with border, you must know the shape within the border to actually fill
+//!
+//! @param crBorderColor       Color to set on border
+//! @param crFillColor         Color to fill shape
+//! @param crOriginalFillColor Original Color of shape to check against
+//!
+//! @return None
+void Image::recolorBorderedShape(const lg::Color& crBorderColor, const lg::Color& crFillColor,
+                                 const lg::Color& crOriginalFillColor)
+{
+  int adder = mFormat == GL_RGBA ? 4 : 3;
+  for(size_t i = 0; i < mPixelData.size(); i += adder)
+  {
+    if(GL_RGBA == mFormat)
+    {
+      if(0 != mPixelData[i + 3])
+      {
+        if(mPixelData[i] == crOriginalFillColor.getRed() &&
+           mPixelData[i + 1] == crOriginalFillColor.getGreen() &&
+           mPixelData[i + 2] == crOriginalFillColor.getBlue())
+        {
+          mPixelData[i] = crFillColor.getRed();
+          mPixelData[i + 1] = crFillColor.getGreen();
+          mPixelData[i + 2] = crFillColor.getBlue();
+        }
+        else
+        {
+          mPixelData[i] = crBorderColor.getRed();
+          mPixelData[i + 1] = crBorderColor.getGreen();
+          mPixelData[i + 2] = crBorderColor.getBlue();
+        }
+      }
+    }
+    else
+    {
+      if(0 != mPixelData[i + 3])
+      {
+        if(mPixelData[i] == crOriginalFillColor.getRed() &&
+           mPixelData[i + 1] == crOriginalFillColor.getGreen() &&
+           mPixelData[i + 2] == crOriginalFillColor.getBlue())
+        {
+          mPixelData[i] = crFillColor.getRed();
+          mPixelData[i + 1] = crFillColor.getGreen();
+          mPixelData[i + 2] = crFillColor.getBlue();
+        }
+        else
+        {
+          mPixelData[i] = crBorderColor.getRed();
+          mPixelData[i + 1] = crBorderColor.getGreen();
+          mPixelData[i + 2] = crBorderColor.getBlue();
+        }
+      }
+    }
+  }
+}

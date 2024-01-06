@@ -15,6 +15,7 @@
 #include "renderEngine/shader.h"
 #include "renderEngine/vertexBufferLayout.h"
 #include "window/renderTarget.h"
+#include "renderEngine/renderKey.h"
 
 class Drawable;
 
@@ -35,8 +36,9 @@ class BatchBuffer
     std::shared_ptr<VertexArray> getVao();
     std::shared_ptr<IndexBuffer> getIbo();
     ~BatchBuffer() = default;
-    void registerDrawable(Drawable *pDrawable, const uint32_t cTextureId);
-    void unregisterDrawable(const uint64_t cId, const uint32_t cTextureId);
+    void registerDrawable(Drawable *pDrawable, const uint32_t cTextureId, const uint32_t cLayer);
+    void registerDrawable(Drawable *pDrawable, const RenderKey& crRenderKey);
+    void unregisterDrawable(const RenderKey& crRenderKey);
     void initShader(const uint32_t cId, const std::string &crPath);
     void bindShader(const uint32_t cId);
     void bindVbo(const uint32_t cId);
@@ -58,7 +60,7 @@ class BatchBuffer
     std::vector<std::shared_ptr<IndexBuffer>> mIbo;
     std::vector<std::shared_ptr<Shader>> mShader;
     std::vector<Vertex> mVertexes;
-    std::map<std::pair<uint64_t, uint32_t>, Drawable*> mQuads;
+    std::map<RenderKey, Drawable*> mQuads;
     std::map<int8_t, std::shared_ptr<TextureResource>> mTextureCache;
     int8_t mBoundedTextureIdx;
     uint64_t mRenderIdCount;

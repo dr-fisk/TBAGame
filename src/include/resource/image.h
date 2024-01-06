@@ -6,6 +6,8 @@
 
 #include "utility/net_utility.h"
 #include "Vector.h"
+#include "color.h"
+
 class Image
 {
   public:
@@ -18,6 +20,9 @@ class Image
     int32_t getFormat();
     int32_t getType();
     int32_t getInternalFormat();
+    void fillAllColor(const lg::Color& crColor);
+    void recolorBorderedShape(const lg::Color& crBorderColor, const lg::Color& crFillColor,
+                              const lg::Color& crOriginalFillColor);
   private:
     std::vector<uint8_t> mPixelData;
     Vector2<uint32_t> mDimensions;

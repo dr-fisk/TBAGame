@@ -31,6 +31,7 @@ template <typename T> class Vector2
     Vector2& operator*=(const uint16_t &crRhs);
     Vector2& operator*=(const uint32_t &crRhs);
     Vector2& operator*=(const uint64_t &crRhs);
+    Vector2& operator*=(const float &crRhs);
 
     Vector2 operator*(const int8_t &crRhs);
     Vector2 operator*(const int16_t &crRhs);
@@ -40,6 +41,7 @@ template <typename T> class Vector2
     Vector2 operator*(const uint16_t &crRhs);
     Vector2 operator*(const uint32_t &crRhs);
     Vector2 operator*(const uint64_t &crRhs);
+    Vector2 operator*(const float &crRhs);
 
     Vector2& operator/=(const int8_t &crRhs);
     Vector2& operator/=(const int16_t &crRhs);
@@ -203,6 +205,14 @@ Vector2<T>& Vector2<T>::operator*=(const uint64_t &crRhs)
 }
 
 template <typename T>
+Vector2<T>& Vector2<T>::operator*=(const float &crRhs)
+{
+  x *= crRhs;
+  y *= crRhs;
+  return *this;
+}
+
+template <typename T>
 Vector2<T> Vector2<T>::operator*(const int8_t &crRhs)
 {
   return Vector2<T>(x * crRhs, y * crRhs);
@@ -246,6 +256,12 @@ Vector2<T> Vector2<T>::operator*(const uint32_t &crRhs)
 
 template <typename T>
 Vector2<T> Vector2<T>::operator*(const uint64_t &crRhs)
+{
+  return Vector2<T>(x * crRhs, y * crRhs);
+}
+
+template <typename T>
+Vector2<T> Vector2<T>::operator*(const float &crRhs)
 {
   return Vector2<T>(x * crRhs, y * crRhs);
 }

@@ -22,10 +22,12 @@ class Sprite : public Drawable
     void movePos(const Vector2<float>& crMoveVector);
     void setPos(const Vector2<float>& crPos);
     void setSize(const Vector2<float>& crSize);
+    void setTexture(const std::shared_ptr<TextureResource>& crpTexture);
     Vector2<float> getSize();
     Vector2<float> getPos();
     void setColor(const lg::Color& crColor);
     Box<float>& getBox();
+    void setLayer(const uint32_t cLayer);
 
   private:
     lg::Color mColor;

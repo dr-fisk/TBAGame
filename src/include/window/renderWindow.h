@@ -8,7 +8,8 @@
 class RenderWindow : public RenderTarget
 {
     public:
-      RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHeight, const char *cpTitle, GLFWwindow *pWindow=NULL);
+      RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHeight, const char *cpTitle,
+                   GLFWwindow *pWindow=nullptr);
       ~RenderWindow() = default;
       bool isOpen();
       uint32_t getWindowWidth();
@@ -28,6 +29,9 @@ class RenderWindow : public RenderTarget
       void disableBlend();
       GLFWwindow *getGlWindow();
       bool pollEvent(Event& rEvent);
+
+      // Make this a RenderWindow Object
+      int8_t createSharedWindow(GLFWwindow *pWindow);
 
     private:
       uint32_t mWdwHeight;
