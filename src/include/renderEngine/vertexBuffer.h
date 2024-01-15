@@ -6,7 +6,8 @@
 #include "utility/net_utility.h"
 #include "glcommon.h"
 
-class VertexBuffer {
+class VertexBuffer
+{
   public:
     VertexBuffer() = default;
     void genVboBuffer(const uint32_t cBuffSize, const GLenum cDrawType);

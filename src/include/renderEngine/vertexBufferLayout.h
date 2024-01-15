@@ -7,13 +7,15 @@
 #include "utility/net_utility.h"
 #include "glcommon.h"
 
-struct VertexBufferElement {
+struct VertexBufferElement 
+{
     uint32_t type;
     uint32_t count;
     bool normalized;
 };
 
-class VertexBufferLayout {
+class VertexBufferLayout
+{
   public:
     VertexBufferLayout() : mStride(0) {}
     ~VertexBufferLayout() = default;

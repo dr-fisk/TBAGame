@@ -4,7 +4,8 @@
 #include "utility/net_utility.h"
 #include "renderEngine/vertexBufferLayout.h"
 
-class VertexArray {
+class VertexArray
+{
   public:
     VertexArray() = default;
     void genVao();

@@ -86,11 +86,12 @@ renderEngineFiles = renderEngine.c \
 										batchBuffer.c \
 										vertexBuffer.c \
 										vertexArray.c \
-										texture.c
+										texture.c \
+										frameBuffer.c
 
 inputFiles = input.c
 
-graphicsFiles =
+graphicsFiles = scrollbar.c
 
 dynLibFiles = png.c
 

@@ -9,6 +9,7 @@
 #include "renderEngine/renderEngine.h"
 #include "window/renderWindow.h"
 #include "lestTtf.h"
+#include "renderEngine/frameBuffer.h"
 
 #define ONE_SEC 1
 
@@ -33,6 +34,8 @@ class Game {
     void initTextureSampler();
     void gameEnd();
     GLFWwindow* wind;
+        // std::shared_ptr<FrameBuffer> mFbo;
+
 };
 
 #endif

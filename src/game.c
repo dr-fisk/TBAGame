@@ -45,7 +45,7 @@ Game::Game()
   /* NOTE: BEFORE ANY GL CALL, THAT IS NOT GLFW but GL, SET ACTIVE MUST BE CALLED OR ELSE OPENGL FAILS */
   mpWindow->setActive();
 
-  //init GL attributes for window
+  // //init GL attributes for window
   mpWindow->initWindow();
   mpWindow->enableBlend();
 
@@ -66,7 +66,8 @@ Game::Game()
   mpBatchBuffer->bindIbo(0);
   mpBatchBuffer->genVboBuffer(0, 300, GL_DYNAMIC_DRAW);
   mpBatchBuffer->genIboBuffer(0, 300, GL_STATIC_DRAW);
-  mpBatchBuffer->initShader(0, "lol");
+  mpBatchBuffer->initShader(0,  "./shaders/shader1.txt");
+  // mpBatchBuffer->initShader(1,  "./shaders/fragShader.txt");
   mpBatchBuffer->bindShader(0);
   initTextureSampler();
   mpBatchBuffer->setVaoAttributes(0, temp);
@@ -74,6 +75,7 @@ Game::Game()
   //temp
   gWindowWidth = 1920;
   gWindowHeight = 1080;
+  // mFbo = std::make_shared<FrameBuffer>();
 
   initMainState();
   /* vbo holds vertex data (cooridnates and RGB color)
@@ -102,6 +104,7 @@ Game::~Game()
     mStates.pop();
   }
 
+  // mFbo.reset();
   mpRenderEngine.reset();
   mpBatchBuffer.reset();
   mpWindow->destroyWindow();
@@ -117,6 +120,7 @@ void Game::gameLoop()
   float smoothDeltaTime = 0.0f;
   int64_t smoothUpdate = 1;
   mFrameTime = std::chrono::steady_clock::now();
+  // mFbo->invalidate(Vector2<uint32_t>(gWindowWidth, gWindowHeight));
   while(!mStates.empty() && mpWindow->isOpen())
   {
     deltaTime = std::chrono::duration<float>(std::chrono::steady_clock::now() - mFrameTime).count();
@@ -130,7 +134,9 @@ void Game::gameLoop()
       mStates.pop();
     }
     
+    
     mStates.top()->update(mpWindow, deltaTime);
+    // mFbo->bind();
     mStates.top()->render(mpWindow);
     gFrames ++;
     mEndTime = std::chrono::steady_clock::now();

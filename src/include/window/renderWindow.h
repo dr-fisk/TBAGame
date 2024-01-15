@@ -1,6 +1,8 @@
 #ifndef RENDERWINDOW_H
 #define RENDERWINDOW_H
 
+#include <memory>
+
 #include "window/renderTarget.h"
 #include "glcommon.h"
 #include "event/event.h"
@@ -17,11 +19,6 @@ class RenderWindow : public RenderTarget
       void clear();
       void display();
       void draw(const uint64_t cCount);
-      void setKeyCallback();
-      bool isKeyPressed(const int cKey);
-      static void keyCallback(GLFWwindow *pWindow, const int32_t cKey, const int32_t cScanCode, const int32_t cAction,
-                              const int32_t cMods);
-      static int32_t getKeyPress();
       void setActive();
       void initWindow();
       void destroyWindow();
@@ -31,16 +28,21 @@ class RenderWindow : public RenderTarget
       bool pollEvent(Event& rEvent);
 
       // Make this a RenderWindow Object
-      int8_t createSharedWindow(GLFWwindow *pWindow);
+      std::shared_ptr<RenderWindow> createSharedWindow();
 
     private:
+      void setCallbacks();
+      void boundCoords(GLfloat *pLeft, GLfloat *pWidth, GLfloat *pTop, GLfloat *pHeight);
+
       uint32_t mWdwHeight;
       uint32_t mWdwWidth;
+      int32_t mWindowId;
       std::string mTitle;
       GLFWwindow *mpWindow;
-      void boundCoords(GLfloat *pLeft, GLfloat *pWidth, GLfloat *pTop, GLfloat *pHeight);
       static bool msIsInitialized;
-      static int mKeyPressed;
+      static bool msCallbacksInitialized;
+      static int32_t msWindowId;
+      static int32_t msActiveWindowId;
 };
 
 #endif

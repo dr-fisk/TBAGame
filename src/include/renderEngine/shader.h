@@ -5,12 +5,14 @@
 
 #include "utility/net_utility.h"
 
-struct ShaderProgSource {
+struct ShaderProgSource
+{
   std::string vertexShader;
   std::string fragmentShader;
 };
 
-class Shader {
+class Shader
+{
   public:
     Shader(){}
     Shader(const std::string& crFilePath);

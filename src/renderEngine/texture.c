@@ -190,6 +190,6 @@ void Texture::unsetCacheUpdate()
 //!
 //! @return None
 Texture::~Texture()
-{
+{ 
   GLCall(glDeleteTextures(1, &mTextureId));
 }

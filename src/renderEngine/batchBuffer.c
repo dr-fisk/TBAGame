@@ -138,16 +138,15 @@ void BatchBuffer::render(const uint32_t cVboId, const uint32_t cIboId, const std
     crpTarget->draw(numVertexes * 6);
   }
 
+  crpTarget->display();
+
   for(auto& texture : mTextureCache)
   {
     texture.second->unsetCacheUpdate();
   }
 
   GLCall(glfwPollEvents());
-
-  // Need to update the below thing cuz this ain't good
-  // mIbo.at(cIboId)->updateIboSubBuffer(0, numVertexes * 6, nullptr);
-}
+  }
 
 //! @brief Init Buffers to default states
 //!
@@ -234,7 +233,7 @@ void BatchBuffer::updateVboSubBuffer(const uint32_t cId, const uint32_t cIndex, 
 //! @return None
 void BatchBuffer::initShader(const uint32_t cId, const std::string& crPath)
 {
-  mShader.at(cId) = std::make_shared<Shader>(MAIN_SHADER);
+  mShader.at(cId) = std::make_shared<Shader>(crPath);
 }
 
 //! @brief Binds Shader

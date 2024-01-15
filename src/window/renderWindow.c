@@ -6,8 +6,10 @@
 #include "input/input.h"
 #include "window/keyboard.h"
 
+bool RenderWindow::msCallbacksInitialized = false;
 bool RenderWindow::msIsInitialized = false;
-int RenderWindow::mKeyPressed = GLFW_KEY_UNKNOWN;
+int32_t RenderWindow::msWindowId = 0;
+int32_t RenderWindow::msActiveWindowId = -1;
 
 //! @brief Initializes opengl window
 //!
@@ -37,7 +39,7 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
   mWdwWidth = cWindowWidth;
   mWdwHeight = cWindowHeight;
   mTitle = cpTitle;
-  mpWindow = glfwCreateWindow(mWdwWidth, mWdwHeight, cpTitle, NULL, pWindow);
+  mpWindow = glfwCreateWindow(mWdwWidth, mWdwHeight, cpTitle, nullptr, pWindow);
 
   if (!mpWindow)
   {
@@ -46,6 +48,9 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
     exit(-1);
   }
 
+
+  mWindowId = msWindowId;
+  msWindowId ++;
   int w, h;
   glfwGetWindowSize(mpWindow, &w, &h);
   std::cout << "Width: " << w << " Height: " << h << std::endl;
@@ -73,6 +78,7 @@ void RenderWindow::disableBlend()
 //! @return None
 void RenderWindow::clear()
 {
+  GLCall(glClearColor(0.3, 0.0, 0.0, 1.0));
   GLCall(glClear(GL_COLOR_BUFFER_BIT));
 }
 
@@ -93,7 +99,7 @@ void RenderWindow::display()
 void RenderWindow::draw(const uint64_t cCount)
 {
   GLCall(glDrawElements(GL_TRIANGLES, cCount, GL_UNSIGNED_INT, nullptr));
-  display();
+  // display();
 }
 
 //! @brief Gets window width
@@ -160,15 +166,22 @@ void RenderWindow::boundCoords(GLfloat *pLeft, GLfloat *pWidth, GLfloat *pTop, G
 //! @return None
 void RenderWindow::setActive()
 {
-  glfwMakeContextCurrent(mpWindow);
+  if(msActiveWindowId != mWindowId)
+  {
+    glfwMakeContextCurrent(mpWindow);
 
-  //Vsync off later make it toggable (limits fps)
-  glfwSwapInterval(0);
-  glewExperimental = GL_TRUE;
-  glewInit();
-  glfwSetCursorPosCallback(mpWindow, lg::Mouse::mousePositionCallback);
-  glfwSetMouseButtonCallback(mpWindow, lg::Mouse::mouseButtonCallback);
-  glfwSetKeyCallback(mpWindow, lg::Keyboard::keyCallback);
+    //Vsync off later make it toggable (limits fps)
+    glfwSwapInterval(0);
+    glewExperimental = GL_TRUE;
+    glewInit();
+    
+    if(!msCallbacksInitialized)
+    {
+      setCallbacks();
+    }
+
+    msActiveWindowId = mWindowId;
+  }
 }
 
 //! @brief Cleans up the render window, must be called as this allows for multiple windows to be used
@@ -196,52 +209,7 @@ GLFWwindow* RenderWindow::getGlWindow()
 void RenderWindow::initWindow()
 {
   GLCall(glClearColor(0.3, 0.0, 0.0, 1.0));
-}
-
-//! @brief Sets KeyCallback for Opengl
-//!
-//! @return None
-void RenderWindow::setKeyCallback()
-{
-  glfwSetKeyCallback(mpWindow, RenderWindow::keyCallback);
-}
-
-//! @brief Returns Key that has been pressed
-//!
-//! @return Key Pressed
-int32_t RenderWindow::getKeyPress()
-{
-  return mKeyPressed;
-}
-
-//! @brief KeyPress callback function when key is pressed
-//!
-//! @param[in] pWindow   Active Window
-//! @param[in] cKey      Key that was pressed
-//! @param[in] cScanCode ScanCode type
-//! @param[in] cAction   Action used
-//! @param[in] cMods     Mod behavior
-//!
-//! @return None
-void RenderWindow::keyCallback(GLFWwindow *pWindow, const int32_t cKey, const int32_t cScanCode, const int32_t cAction,
-                               const int32_t cMods)
-{
-  mKeyPressed = cKey;
-
-  if (mKeyPressed == GLFW_KEY_DOWN)
-  {
-    std::cout << "Yo wtf\n";
-  }
-}
-
-//! @brief Determines if key is pressed
-//!
-//! @param[in] cKey Key Pressed
-//!
-//! @return true if key supplied was pressed false otherwise
-bool RenderWindow::isKeyPressed(const int cKey)
-{
-  return glfwGetKey(mpWindow, cKey) == GLFW_PRESS;
+  // glClear(GL_COLOR_BUFFER_BIT);
 }
 
 //! @brief Polls Event queue
@@ -254,13 +222,24 @@ bool RenderWindow::pollEvent(Event& rEvent)
   return lg::Input::popEvent(rEvent);
 }
 
-int8_t RenderWindow::createSharedWindow(GLFWwindow *pWindow)
+std::shared_ptr<RenderWindow> RenderWindow::createSharedWindow()
 {
-  if(nullptr == mpWindow)
+  if((nullptr == mpWindow) || !msIsInitialized)
   {
-    return -1;
+    return nullptr;
   }
 
-  pWindow = glfwCreateWindow(800, 600, "A shared window", NULL, mpWindow);
-  return 0;
+  // Need params here in function
+  return std::make_shared<RenderWindow>(800, 600, "A shared window", mpWindow);
+}
+
+//! @brief Sets all callbacks used by LestGui
+//!
+//! @return None
+void RenderWindow::setCallbacks()
+{
+  glfwSetCursorPosCallback(mpWindow, lg::Mouse::mousePositionCallback);
+  glfwSetMouseButtonCallback(mpWindow, lg::Mouse::mouseButtonCallback);
+  glfwSetKeyCallback(mpWindow, lg::Keyboard::keyCallback);
+  msCallbacksInitialized = true;
 }

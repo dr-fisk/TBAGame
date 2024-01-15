@@ -11,11 +11,11 @@
 //! @param[in] crPos          Position of Button
 //! @param[in] crSize         Size of Button
 //!
-//! @return None
+//! @return Button Object
 template <typename T>
 Button<T>::Button(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<RenderEngine>& prRenderEngine,
-               std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize,
-               const Vector2<float>& crPos, const Vector2<float>& crSize)
+                  std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize,
+                  const Vector2<float>& crPos, const Vector2<float>& crSize)
 {
   Vector2<float> tempPos(0, 0);
   mBox = std::make_shared<Sprite>(prBatch, tempPos, crSize, lg::Transparent);
@@ -26,6 +26,29 @@ Button<T>::Button(std::shared_ptr<Font>& prFont, const std::string& crText, std:
   mPressedColor = lg::Transparent;
   mState = DEFAULT_STATE;
   setPos(crPos);
+  mCallback = nullptr;
+  mId = -1;
+  mCallbackDisabled = false;
+}
+
+//! @brief Constructs a Button without Text
+//!
+//! @param[in] prRenderEngine Resource Manager
+//! @param[in] prBatch        Batch Buffer Manager
+//! @param[in] crPos          Position of Button
+//! @param[in] crSize         Size of Button
+//!
+//! @return Button Object
+template <typename T>
+Button<T>::Button(std::shared_ptr<RenderEngine>& prRenderEngine, std::shared_ptr<BatchBuffer>& prBatch,
+                  const Vector2<float>& crPos, const Vector2<float>& crSize)
+{
+  mDefaultColor = lg::Transparent;
+  mHoverColor = lg::Transparent;
+  mPressedColor = lg::Transparent;
+  mBox = std::make_shared<Sprite>(prBatch, crPos, crSize, lg::Transparent);
+  mState = DEFAULT_STATE;
+  mBox->setLayer(1);
   mCallback = nullptr;
   mId = -1;
   mCallbackDisabled = false;
@@ -190,9 +213,10 @@ void Button<T>::setPos(const Vector2<float>& crPos, const bool cCheckIfMouseHove
 {
   mBox->setPos(crPos);
   // Vector2<float> textCenter = mText->getPos();
-  Vector2<float> textSize = mText->getSize();
-  Vector2<float> buttonCenter = mBox->getPos();
-  mText->setPos({buttonCenter.x - (textSize.x / 2.0f), buttonCenter.y - (textSize.y / 2.0f)});
+  if (nullptr != mText)
+  {
+    setTextPos();
+  }
 
   if(cCheckIfMouseHovering && isInAABB(lg::Mouse::getMousePosf()))
   {
@@ -221,6 +245,17 @@ void Button<T>::setPos(const Vector2<float>& crPos, const bool cCheckIfMouseHove
   }
 }
 
+//! @brief Sets the position of Text within the center of the box
+//!
+//! @return None
+template <typename T>
+void Button<T>::setTextPos()
+{
+  Vector2<float> textSize = mText->getSize();
+  Vector2<float> buttonCenter = mBox->getPos();
+  mText->setPos({buttonCenter.x - (textSize.x / 2.0f), buttonCenter.y - (textSize.y / 2.0f)});
+}
+
 //! @brief Sets Button Size
 //!
 //! @param[in] crSize Size of Button
@@ -230,6 +265,11 @@ template <typename T>
 void Button<T>::setSize(const Vector2<float>& crSize)
 {
   mBox->setSize(crSize);
+
+  if (nullptr != mText)
+  {
+    setTextPos();
+  }
 }
 
 //! @brief Sets the Default Button Color
@@ -399,7 +439,7 @@ T Button<T>::getValue() const
 //!
 //! @return None 
 template <typename T>
-void Button<T>::enableCallback(const bool cEnable)
+void Button<T>::disableCallback(const bool cEnable)
 {
   mCallbackDisabled = cEnable;
 }

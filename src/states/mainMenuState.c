@@ -27,8 +27,6 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   mButton = std::make_shared<Button<>>(mNewFont, "Test", mpRenderEngine, mpBatchBuffer, 12, Vector2<float>{0, 0}, Vector2<float>{50, 50});
   // mTexture = std::make_shared<TextureResource>(temp.getName(), prRenderEngine, temp.getDimensions(),
   //                                              temp.getInternalFormat());
-    void recolorBorderedShape(const lg::Color& crBorderColor, const lg::Color& crFillColor,
-                              const lg::Color& crOriginalFillColor);
   Image tempImg("../src/SquareWBorder.png");
   tempImg.recolorBorderedShape(lg::Color(135, 135, 135), lg::Color(170, 170, 170), lg::White);
   std::shared_ptr<TextureResource> tempTexture = std::make_shared<TextureResource>(tempImg.getName(), mpRenderEngine, tempImg.getDimensions(), tempImg.getInternalFormat());
@@ -46,15 +44,19 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   mButtons.push_back(std::make_shared<Button<Vector2<int32_t>>>(mNewFont, "Test1", mpRenderEngine, mpBatchBuffer, 12, Vector2<float>{0, 0}, Vector2<float>{50, 50}));
   mButtons.push_back(std::make_shared<Button<Vector2<int32_t>>>(mNewFont, "Test2", mpRenderEngine, mpBatchBuffer, 12, Vector2<float>{0, 0}, Vector2<float>{50, 50}));
   mButtons.push_back(std::make_shared<Button<Vector2<int32_t>>>(mNewFont, "Test3", mpRenderEngine, mpBatchBuffer, 12, Vector2<float>{0, 0}, Vector2<float>{50, 50}));
+  mButtons[0]->setValue(Vector2<int32_t>(0,0));
+  mButtons[1]->setValue(Vector2<int32_t>(10,10));
+  mButtons[2]->setValue(Vector2<int32_t>(200,200));
 
   for(auto& button : mButtons)
   {
     button->setDefaultColor(lg::Grey);
     button->setHoverColor(lg::Green);
     button->setPressedColor(lg::Red);
+    button->onClick(MainMenu::dropdownCallbacK);
   }
 
-  mMenu = std::make_shared<DropDownMenu<Vector2<int32_t>>>(mButtons[2], mButtons, Vector2<float>(700.0f, 700.0f), Vector2<float>{45.0f, 30.0f});
+  mMenu = std::make_shared<DropDownMenu<Vector2<int32_t>>>(2, mButtons, Vector2<float>(700.0f, 700.0f), Vector2<float>{45.0f, 30.0f});
 
   mButton->setDefaultColor(lg::Grey);
   mButton->setHoverColor(lg::Green);
@@ -207,4 +209,9 @@ void MainMenu::buttonCallback(const Button<>& rVal)
     std::cout << "Bruhhh\n";
   }
   std::cout << "Clicked\n";
+}
+
+void MainMenu::dropdownCallbacK(const Button<Vector2<int32_t>>& rVal)
+{
+  std::cout << rVal.getValue();
 }

@@ -7,11 +7,6 @@
 #include "drawable/text.h"
 #include "event/event.h"
 
-struct ButtonValue
-{
-  void* Value;
-};
-
 template <typename T=void *>
 class Button
 {
@@ -20,6 +15,8 @@ class Button
     Button(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<RenderEngine>& prRenderEngine,
            std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize, const Vector2<float>& crPos,
            const Vector2<float>& crSize);
+    Button(std::shared_ptr<RenderEngine>& prRenderEngine, std::shared_ptr<BatchBuffer>& prBatch,
+           const Vector2<float>& crPos, const Vector2<float>& crSize);
     void setDefaultColor(const lg::Color& crColor);
     void setHoverColor(const lg::Color& crColor);
     void setPressedColor(const lg::Color& crColor);
@@ -27,7 +24,7 @@ class Button
     bool clicked(const Event& crEvent);
     void setSize(const Vector2<float>& crSize);
     void onClick(std::function<void(const Button<T>&)> pFunc);
-    void enableCallback(const bool cEnable);
+    void disableCallback(const bool cEnable);
     void setRender(const bool cEnable);
     void setId(const int64_t cId);
     int64_t getId() const;
@@ -64,6 +61,7 @@ class Button
     void mouseMoveUpdate(const Event::MouseMoveEvent& crEvent);
     void mouseButtonUpdate(const Event::MouseButtonEvent& crEvent);
     bool mouseButtonRelease(const Event::MouseButtonEvent& crEvent);
+    void setTextPos();
 };
 
 #include "../../graphics/button.c"

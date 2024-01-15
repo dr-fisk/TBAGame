@@ -2,41 +2,46 @@
 
 //! @brief Creates DropDownMenu from List of Buttons and Active Button
 //!
-//! @param crActive  The Active Button to be displayed when DropDown Menu is hidden
+//! @param crActiveIdx  The Active Button to be displayed when DropDown Menu is hidden
 //! @param crButtons The list of Buttons to display when DropDown Menus is shown Note: Active Button should be in list
 //! @param crPos     The Position of the dropdown menu
 //! @param crSize    The size of Buttons
 //!
 //! @return DropDownMenu Object
 template <typename T>
-DropDownMenu<T>::DropDownMenu(const std::shared_ptr<Button<T>>& crActive,
+DropDownMenu<T>::DropDownMenu(const uint32_t cActiveIdx,
                               const std::vector<std::shared_ptr<Button<T>>>& crButtons,
                               const Vector2<float>& crPos, const Vector2<float>& crSize)
 {
-  mActiveButton = crActive;
+  // Add future throw
+  mActiveButton = crButtons[cActiveIdx];
   mButtons = crButtons;
   mPos = crPos;
   mState = DEFAULT_STATE;
 
   uint32_t id = 0;
+
+  for(auto& button : mButtons)
+  {
+    button->setId(id);
+    id ++;
+  }
+
   mActiveButton->setId(id);
   mActiveButton->setSize(crSize);
   mActiveButton->setPos(crPos);
-  mActiveButton->enableCallback(false);
+  mActiveButton->disableCallback(true);
   Vector2<float> nextPos = Vector2<float>(crPos.x, crPos.y + crSize.y);
 
-  id ++;
   for(auto& button : mButtons)
   {
     if(mActiveButton->getId() != button->getId())
     {
       button->setRender(false);
       button->setSize(crSize);
-      button->setId(id);
       button->setPos(nextPos, false);
-      button->enableCallback(true);
+      button->disableCallback(false);
       nextPos.y = nextPos.y + crSize.y;
-      id++;
     }
   }
 }
@@ -72,7 +77,7 @@ void DropDownMenu<T>::updateDropDown()
     {
       button->setPos(pos, false);
       button->setRender(false);
-      button->enableCallback(true);
+      button->disableCallback(false);
       pos.y += button->getSize().y;
     }
   }
@@ -82,9 +87,9 @@ void DropDownMenu<T>::updateDropDown()
 //!
 //! @param crEvent Clicked Event to handle
 //!
-//! @return None 
+//! @return Optional value, it will be set if a valid Button click has occurred
 template <typename T>
-void DropDownMenu<T>::clickedStateHanlder(const Event& crEvent)
+std::optional<int32_t> DropDownMenu<T>::clickedStateHanlder(const Event& crEvent)
 {
   for(auto& button : mButtons)
   {
@@ -100,21 +105,23 @@ void DropDownMenu<T>::clickedStateHanlder(const Event& crEvent)
       {
         button->setPos(mActiveButton->getPos());
         mActiveButton = button;
-        mActiveButton->enableCallback(false);
+        mActiveButton->disableCallback(true);
         updateDropDown();
-        break;
+        return std::optional<int32_t>(mActiveButton->getId());
       }
     }
   }
+
+  return std::optional<int32_t>();
 }
 
 //! @brief Handles updating Dropdown Menu given an event
 //!
 //! @param crEvent Event to process
 //!
-//! @return True if New Active Item selected false otherwise
+//! @return Optional value, it will be set if a valid Button click has occurred
 template <typename T>
-void DropDownMenu<T>::update(const Event& crEvent)
+std::optional<int32_t> DropDownMenu<T>::update(const Event& crEvent)
 {
   switch(mState)
   {
@@ -122,11 +129,11 @@ void DropDownMenu<T>::update(const Event& crEvent)
       defaultStateHandler(crEvent);
       break;
     case CLICKED_STATE:
-      clickedStateHanlder(crEvent);
-      break;
+      return clickedStateHanlder(crEvent);
     default:
       break;
   }
+  return std::optional<int32_t>();
 }
 
 //! @brief Show/Hide the Dropdown Menu
@@ -144,4 +151,23 @@ void DropDownMenu<T>::showDropDown(const bool cShow)
       button->setRender(cShow);
     }
   }
+}
+
+//! @brief Searches for Button that correlates to the ID
+//! 
+//! @param cId ID of Button
+//!
+//! @return Button if found, nullptr otherwise 
+template <typename T>
+std::shared_ptr<Button<T>> DropDownMenu<T>::getButtonByID(const int32_t cId)
+{
+  for(const auto& button : mButtons)
+  {
+    if(button->getId() == cId)
+    {
+      return button;
+    }
+  }
+
+  return nullptr;
 }
