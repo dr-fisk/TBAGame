@@ -68,6 +68,7 @@ class BatchBuffer
     int32_t mMaxTextureUnits;
 
     void initBuffers();
+    void drawScene(const uint32_t cVboId, const uint32_t cIboId, const std::shared_ptr<RenderTarget> &crpTarget);
 };
 
 #endif

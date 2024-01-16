@@ -202,17 +202,59 @@ bool Button<T>::clicked(const Event& crEvent)
   return false;
 }
 
+//! @brief Moves the Button Position
+//!
+//! @param[in] crMove                The movment vector
+//! @param[in] cCheckIfMouseHovering Flag to check if mouse is in AABB of button after moving pos
+//!
+//! @return None
+template <typename T>
+void Button<T>::movePos(const Vector2<float>& crMove, const bool cCheckIfMouseHovering)
+{
+  mBox->movePos(crMove);
+
+  if (nullptr != mText)
+  {
+    setTextPos();
+  }
+
+  if(cCheckIfMouseHovering && isInAABB(lg::Mouse::getMousePosf()))
+  {
+    mState = HOVER_STATE;
+    if(nullptr != mHoverTexture)
+    {
+      mBox->setTexture(mHoverTexture);
+    }
+    else
+    {
+      mBox->setColor(mHoverColor);
+    }
+  }
+  else
+  {
+    mState = DEFAULT_STATE;
+    
+    if(nullptr != mDefaultTexture)
+    {
+      mBox->setTexture(mDefaultTexture);
+    }
+    else
+    {
+      mBox->setColor(mDefaultColor);
+    }
+  }
+}
+
 //! @brief Sets the Button Position
 //!
-//! @param[in] cLeft Left Position of Button
-//! @param[in] cTop  Top Position of Button
+//! @param[in] crPos The new button Position
+//! @param[in] cCheckIfMouseHovering Flag to check if mouse is in AABB of button after moving pos
 //!
 //! @return None
 template <typename T>
 void Button<T>::setPos(const Vector2<float>& crPos, const bool cCheckIfMouseHovering)
 {
   mBox->setPos(crPos);
-  // Vector2<float> textCenter = mText->getPos();
   if (nullptr != mText)
   {
     setTextPos();
@@ -442,4 +484,10 @@ template <typename T>
 void Button<T>::disableCallback(const bool cEnable)
 {
   mCallbackDisabled = cEnable;
+}
+
+template <typename T>
+bool Button<T>::isHover() const
+{
+  return HOVER_STATE == mState;
 }

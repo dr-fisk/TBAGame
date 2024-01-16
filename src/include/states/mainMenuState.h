@@ -13,6 +13,7 @@
 #include "drawable/sprite.h"
 #include "graphics/button.h"
 #include "graphics/dropdownmenu.h"
+#include "graphics/scrollbar.h"
 #include "renderEngine/frameBuffer.h"
 
 
@@ -35,6 +36,7 @@ class MainMenu : public State
     std::shared_ptr<Sprite> mSprite2;
     std::shared_ptr<Sprite> mSprite3;
     std::shared_ptr<Button<>> mButton;
+    std::shared_ptr<Scrollbar> mScroll;
     std::shared_ptr<DropDownMenu<Vector2<int32_t>>> mMenu;
     std::chrono::time_point<std::chrono::system_clock> mStartTime;
 };

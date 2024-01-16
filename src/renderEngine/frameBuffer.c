@@ -6,7 +6,6 @@
 FrameBuffer::FrameBuffer()
 {
   glGenFramebuffers(1, &mFrameBufferId);
-  std::cout << "Framebuffer how\n";
 }
 
 FrameBuffer::~FrameBuffer()
@@ -27,7 +26,7 @@ void FrameBuffer::unbind() const
 void FrameBuffer::invalidate(const Vector2<uint32_t>& crDimensions)
 {
   bind();
-  mTexture.create(crDimensions.y, crDimensions.x, GL_RGBA8);
+  mTexture.create(crDimensions.y, crDimensions.x, GL_RGB8, GL_RGB);
   // mTexture.bind(31);
   // glBindTexture(GL_TEXTURE_2D, mTexture.getTextureId());
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture.getTextureId(), 0);

@@ -17,8 +17,21 @@ class Scrollbar
     void setDefaultColor(const lg::Color& crColor);
     void setHoverColor(const lg::Color& crColor);
     void setPressedColor(const lg::Color& crColor);
+    void update(const Event& crEvent);
   private:
+    void mousePressEvent(const Event& crEvent);
+    void mouseReleaseEvent(const Event& crEvent);
+    void mouseMoveEvent(const Event& crEvent);
+
+    enum ScrollbarState
+    {
+      DEFAULT_STATE,
+      SCROLL_STATE
+    };
+
     std::shared_ptr<Button<>> mScrollbarButton;
+    float mPrevMousey;
+    ScrollbarState mState;
 };
 
 #endif

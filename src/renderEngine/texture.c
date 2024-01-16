@@ -18,10 +18,12 @@ Texture::Texture()
 //! @param[in] cHeight         Height of Texture
 //! @param[in] cWidth          Width of Texture
 //! @param[in] cInternalFormat Specifies the number of color components in the texture
+//! @param[in] cFormat Specifies the number of color components in the texture
 //!
 //! @return 0 on successful create
 //! @return -1 on failed create 
-int8_t Texture::create(const uint32_t cHeight, const uint32_t cWidth, const int32_t cInternalFormat)
+int8_t Texture::create(const uint32_t cHeight, const uint32_t cWidth, const int32_t cInternalFormat,
+                       const int32_t cFormat)
 {
   std::vector<uint32_t> tempBuffer(cWidth * cHeight, 0);
   GLCall(glBindTexture(GL_TEXTURE_2D, mTextureId));
@@ -29,7 +31,7 @@ int8_t Texture::create(const uint32_t cHeight, const uint32_t cWidth, const int3
   GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
   GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
   GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-  GLCall(glTexImage2D(GL_TEXTURE_2D, 0, cInternalFormat, cWidth, cHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+  GLCall(glTexImage2D(GL_TEXTURE_2D, 0, cInternalFormat, cWidth, cHeight, 0, cFormat, GL_UNSIGNED_BYTE,
          tempBuffer.data()));
   unbind();
 

@@ -64,10 +64,10 @@ namespace VertexUtility
     GLfloat y2 = -1 * (((static_cast<GLfloat>(crPos.y) + static_cast<GLfloat>(crSize.y)) / wHeight) - 1.0f);
 
     // These need to be updated to reflect actual size / maxSize of texture
-    const Vector2<GLfloat> textCoord1(0.0f, 1.0f);
-    const Vector2<GLfloat> textCoord2(1.0f, 1.0f);
-    const Vector2<GLfloat> textCoord3(1.0f, 0.0f);
-    const Vector2<GLfloat> textCoord4(0.0f, 0.0f);
+    const Vector2<GLfloat> textCoord4(0.0f, 1.0f);
+    const Vector2<GLfloat> textCoord3(1.0f, 1.0f);
+    const Vector2<GLfloat> textCoord2(1.0f, 0.0f);
+    const Vector2<GLfloat> textCoord1(0.0f, 0.0f);
 
     
     rVertex.bottomLeft = Vector2<GLfloat>(x1, y2);
@@ -76,15 +76,15 @@ namespace VertexUtility
     rVertex.textureIndex1 = cTextureIdx;
     rVertex.bottomRight = Vector2<GLfloat>(x2, y2);
     rVertex.rgba2 = crColor;
-    rVertex.textCoord2 = textCoord1;
+    rVertex.textCoord2 = textCoord2;
     rVertex.textureIndex2 = cTextureIdx;
     rVertex.topRight = Vector2<GLfloat>(x2, y1);
     rVertex.rgba3 = crColor;
-    rVertex.textCoord3 = textCoord1;
+    rVertex.textCoord3 = textCoord3;
     rVertex.textureIndex3 = cTextureIdx;
     rVertex.topLeft = Vector2<GLfloat>(x1, y1);
     rVertex.rgba4 = crColor;
-    rVertex.textCoord4 = textCoord1;
+    rVertex.textCoord4 = textCoord4;
     rVertex.textureIndex4 = cTextureIdx;
   }
 

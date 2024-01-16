@@ -18,7 +18,7 @@ class RenderKey
     ~RenderKey() = default;
     bool operator<(const RenderKey& rhs) const
     {
-      return (mLayer < rhs.mLayer) || (mLayer == rhs.mLayer && mId < rhs.mId);
+      return (mLayer < rhs.mLayer) ||(mLayer == rhs.mLayer && mId < rhs.mId);
     }
 
     uint64_t getId() const

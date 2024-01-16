@@ -78,8 +78,8 @@ void RenderWindow::disableBlend()
 //! @return None
 void RenderWindow::clear()
 {
-  GLCall(glClearColor(0.3, 0.0, 0.0, 1.0));
-  GLCall(glClear(GL_COLOR_BUFFER_BIT));
+  // GLCall(glClearColor(0.3, 0.0, 0.0, 1.0));
+  GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 }
 
 //! @brief Handles displaying data stored in all buffers
@@ -88,7 +88,7 @@ void RenderWindow::clear()
 void RenderWindow::display()
 {
   GLCall(glfwSwapBuffers(mpWindow));
-  GLCall(glFlush());
+  // GLCall(glFlush());
 }
 
 //! @brief Draws VBO data to window

@@ -60,15 +60,19 @@ Game::Game()
   // Next 2 floats are Texture Coords
   temp.push(TWO_D_COORDS, GL_FLOAT, false);
   temp.push(1, GL_FLOAT, false);
-  mpBatchBuffer = std::make_shared<BatchBuffer>(1, 1, 1, 1);
+  mpBatchBuffer = std::make_shared<BatchBuffer>(1, 1, 1, 2);
   mpBatchBuffer->bindVbo(0);
   mpBatchBuffer->bindVao(0);
   mpBatchBuffer->bindIbo(0);
   mpBatchBuffer->genVboBuffer(0, 300, GL_DYNAMIC_DRAW);
   mpBatchBuffer->genIboBuffer(0, 300, GL_STATIC_DRAW);
   mpBatchBuffer->initShader(0,  "./shaders/shader1.txt");
-  // mpBatchBuffer->initShader(1,  "./shaders/fragShader.txt");
+  mpBatchBuffer->initShader(1,  "./shaders/fragShader.txt");
   mpBatchBuffer->bindShader(0);
+  // auto uni = mpBatchBuffer->getUniform(1, "u_Textures");
+  // int sampler = 0;
+
+  // GLCall(glUniform1iv(uni, 1, &sampler));
   initTextureSampler();
   mpBatchBuffer->setVaoAttributes(0, temp);
   mpRenderEngine = std::make_shared<RenderEngine>();
@@ -121,6 +125,7 @@ void Game::gameLoop()
   int64_t smoothUpdate = 1;
   mFrameTime = std::chrono::steady_clock::now();
   // mFbo->invalidate(Vector2<uint32_t>(gWindowWidth, gWindowHeight));
+  // glViewport(0,0, gWindowWidth, gWindowHeight);
   while(!mStates.empty() && mpWindow->isOpen())
   {
     deltaTime = std::chrono::duration<float>(std::chrono::steady_clock::now() - mFrameTime).count();
@@ -137,6 +142,7 @@ void Game::gameLoop()
     
     mStates.top()->update(mpWindow, deltaTime);
     // mFbo->bind();
+    // glViewport(0,0, gWindowWidth, gWindowHeight);
     mStates.top()->render(mpWindow);
     gFrames ++;
     mEndTime = std::chrono::steady_clock::now();

@@ -15,7 +15,7 @@ class State
     State(const std::stack<std::shared_ptr<State>>& crStates, std::shared_ptr<RenderEngine>& prRenderEngine,
           std::shared_ptr<BatchBuffer>& prBatchBuffer);
     ~State();
-    void render(const std::shared_ptr<RenderTarget>& crpTarget);
+    virtual void render(const std::shared_ptr<RenderTarget>& crpTarget);
     virtual void update(const std::shared_ptr<RenderTarget>& crpTarget, const float cDeltaTime) = 0;
     virtual bool shouldStateExit() = 0;
   protected:

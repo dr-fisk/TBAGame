@@ -21,6 +21,7 @@ class Button
     void setHoverColor(const lg::Color& crColor);
     void setPressedColor(const lg::Color& crColor);
     void setPos(const Vector2<float>& crPos, const bool cCheckIfMouseHovering=true);
+      void movePos(const Vector2<float>& crMove, const bool cCheckIfMouseHovering=true);
     bool clicked(const Event& crEvent);
     void setSize(const Vector2<float>& crSize);
     void onClick(std::function<void(const Button<T>&)> pFunc);
@@ -34,6 +35,7 @@ class Button
     void setHoverTexture(const std::shared_ptr<TextureResource>& crpTexture);
     void setPressedTexture(const std::shared_ptr<TextureResource>& crpTexture);
     void setValue(const T& rValue);
+    bool isHover() const;
     T getValue() const;
     ~Button() = default;
   private:

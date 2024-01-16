@@ -75,19 +75,11 @@ void BatchBuffer::unregisterDrawable(const RenderKey& crRenderKey)
   // std::cout << "Size of quads " << mQuads.size() << std::endl;
 }
 
-//! @brief Updates all Buffer Object items to incorporate any updates made to registered drawables
-//! TODO: Fix this function it is not correct and unfinished
-//!
-//! @param[in] cVboId VBO ID to store vertex data in
-//! @param[in] cIboId IBO ID to store indices data TODO: Determine if necessary, I doubt this is needed
-//!
-//! @return None
-void BatchBuffer::render(const uint32_t cVboId, const uint32_t cIboId, const std::shared_ptr<RenderTarget> &crpTarget)
+void BatchBuffer::drawScene(const uint32_t cVboId, const uint32_t cIboId, const std::shared_ptr<RenderTarget> &crpTarget)
 {
   uint32_t numVertexes = 0;
   uint32_t offset = 0;
   uint32_t currentQuad = 0;
-  crpTarget->clear();
 
   for(auto drawable : mQuads)
   {
@@ -137,6 +129,39 @@ void BatchBuffer::render(const uint32_t cVboId, const uint32_t cIboId, const std
                                         mVertexes.data());
     crpTarget->draw(numVertexes * 6);
   }
+}
+
+//! @brief Updates all Buffer Object items to incorporate any updates made to registered drawables
+//! TODO: Fix this function it is not correct and unfinished
+//!
+//! @param[in] cVboId VBO ID to store vertex data in
+//! @param[in] cIboId IBO ID to store indices data TODO: Determine if necessary, I doubt this is needed
+//!
+//! @return None
+void BatchBuffer::render(const uint32_t cVboId, const uint32_t cIboId, const std::shared_ptr<RenderTarget> &crpTarget)
+{
+  // bindShader(0);
+  crpTarget->clear();
+
+  // glEnable(GL_TEXTURE_2D);
+  // glEnable(GL_DEPTH_TEST);
+  // glActiveTexture(GL_TEXTURE0);
+  // glBindTexture(GL_TEXTURE_2D, 1);
+  // mBoundedTextureIdx++;
+  drawScene(cVboId, cIboId, crpTarget);
+  // GLCall(glFlush());
+  // glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // bindShader(1);
+
+  // glDisable(GL_DEPTH_TEST);
+  //Probably make uniforms for fbos
+  // Vertex temp;
+  // VertexUtility::createVertex(temp, Vector2<float>(0,0), Vector2<float>(gWindowWidth, gWindowHeight), lg::Black);
+  // mVbo.at(cVboId)->updateVboSubBuffer(0,
+  //                                     sizeof(Vertex),
+  //                                     &temp);
+  // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
 
   crpTarget->display();
 

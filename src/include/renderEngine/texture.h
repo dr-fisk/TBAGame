@@ -12,7 +12,8 @@ class Texture
 {
   public:
     Texture();
-    int8_t create(const uint32_t cHeight, const uint32_t cWidth, const int32_t cInternalFormat=GL_RGBA8);
+    int8_t create(const uint32_t cHeight, const uint32_t cWidth, const int32_t cInternalFormat=GL_RGBA8,
+                  const int32_t cFormat=GL_RGBA);
     int8_t loadTexture(void *pBuffer, const uint32_t cHeight, const uint32_t cWidth, const uint32_t cBpp);
     int8_t update(void *pBuffer, const Vector2<uint32_t>& crDimensions, const Vector2<uint32_t>& crOffset,
                   const int32_t cFormat=GL_RGBA, const int32_t cType=GL_UNSIGNED_BYTE);
