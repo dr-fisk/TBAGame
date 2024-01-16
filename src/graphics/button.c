@@ -29,6 +29,7 @@ Button<T>::Button(std::shared_ptr<Font>& prFont, const std::string& crText, std:
   mCallback = nullptr;
   mId = -1;
   mCallbackDisabled = false;
+  mPressedPadding = Vector2<float>(0, 0);
 }
 
 //! @brief Constructs a Button without Text
@@ -52,6 +53,7 @@ Button<T>::Button(std::shared_ptr<RenderEngine>& prRenderEngine, std::shared_ptr
   mCallback = nullptr;
   mId = -1;
   mCallbackDisabled = false;
+  mPressedPadding = Vector2<float>(0, 0);
 }
 
 //! @brief Sets the Callback function to be called when the button is clicked
@@ -78,32 +80,25 @@ void Button<T>::mouseMoveUpdate(const Event::MouseMoveEvent& crEvent)
     case DEFAULT_STATE:
       if(isInAABB({crEvent.x, crEvent.y}))
       {
-        if(nullptr != mHoverTexture)
-        {
-          mBox->setTexture(mHoverTexture);
-        }
-        else
-        {
-          mBox->setColor(mHoverColor);
-        }
         mState = HOVER_STATE;
+        setButtonTexture();
       }
 
       break;
     case HOVER_STATE:
       if(!isInAABB({crEvent.x, crEvent.y}))
       {
-        if(nullptr != mDefaultTexture)
-        {
-          mBox->setTexture(mDefaultTexture);
-        }
-        else
-        {
-          mBox->setColor(mDefaultColor);
-        }
         mState = DEFAULT_STATE;
+        setButtonTexture();
       }
 
+      break;
+    case PRESSED_STATE:
+      if(!isInAABB({crEvent.x, crEvent.y}, mPressedPadding))
+      {
+        mState = DEFAULT_STATE;
+        setButtonTexture();
+      }
       break;
   }
 }
@@ -120,15 +115,9 @@ void Button<T>::mouseButtonUpdate(const Event::MouseButtonEvent& crEvent)
   {
     case HOVER_STATE:
       if(isInAABB({crEvent.x, crEvent.y}))
-      {
-        if(nullptr != mPressedTexture)
-        {
-          mBox->setTexture(mPressedTexture);
-        }
-        else
-        {
-          mBox->setColor(mPressedColor);
-        }
+      { 
+        mState = PRESSED_STATE;
+        setButtonTexture();
       }
 
       break;
@@ -145,22 +134,17 @@ bool Button<T>::mouseButtonRelease(const Event::MouseButtonEvent& crEvent)
 {
   switch(mState)
   {
-    case HOVER_STATE:
+    case PRESSED_STATE:
       if(isInAABB({crEvent.x, crEvent.y}))
       {
+        mState = HOVER_STATE;
+
         if(!mCallbackDisabled && (nullptr != mCallback))
         {
           mCallback(*this);
         }
 
-        if(nullptr != mHoverTexture)
-        {
-          mBox->setTexture(mHoverTexture);
-        }
-        else
-        {
-          mBox->setColor(mHoverColor);
-        }
+        setButtonTexture();
 
         return true;
       }
@@ -218,31 +202,7 @@ void Button<T>::movePos(const Vector2<float>& crMove, const bool cCheckIfMouseHo
     setTextPos();
   }
 
-  if(cCheckIfMouseHovering && isInAABB(lg::Mouse::getMousePosf()))
-  {
-    mState = HOVER_STATE;
-    if(nullptr != mHoverTexture)
-    {
-      mBox->setTexture(mHoverTexture);
-    }
-    else
-    {
-      mBox->setColor(mHoverColor);
-    }
-  }
-  else
-  {
-    mState = DEFAULT_STATE;
-    
-    if(nullptr != mDefaultTexture)
-    {
-      mBox->setTexture(mDefaultTexture);
-    }
-    else
-    {
-      mBox->setColor(mDefaultColor);
-    }
-  }
+  onButtonMoveUpdate(cCheckIfMouseHovering);
 }
 
 //! @brief Sets the Button Position
@@ -255,36 +215,13 @@ template <typename T>
 void Button<T>::setPos(const Vector2<float>& crPos, const bool cCheckIfMouseHovering)
 {
   mBox->setPos(crPos);
+
   if (nullptr != mText)
   {
     setTextPos();
   }
 
-  if(cCheckIfMouseHovering && isInAABB(lg::Mouse::getMousePosf()))
-  {
-    mState = HOVER_STATE;
-    if(nullptr != mHoverTexture)
-    {
-      mBox->setTexture(mHoverTexture);
-    }
-    else
-    {
-      mBox->setColor(mHoverColor);
-    }
-  }
-  else
-  {
-    mState = DEFAULT_STATE;
-    
-    if(nullptr != mDefaultTexture)
-    {
-      mBox->setTexture(mDefaultTexture);
-    }
-    else
-    {
-      mBox->setColor(mDefaultColor);
-    }
-  }
+  onButtonMoveUpdate(cCheckIfMouseHovering);
 }
 
 //! @brief Sets the position of Text within the center of the box
@@ -350,11 +287,29 @@ void Button<T>::setPressedColor(const lg::Color& crColor)
 
 //! @brief Determines if Mouse Position is in AABB of button
 //!
+//! @param[in] crPos Position to check against button AABB
+//!
 //! @return True if Mouse is in AABB false otherwise
 template <typename T>
 bool Button<T>::isInAABB(const Vector2<float>& crPos)
 {
   Box<float> box = mBox->getBox();
+  return box.inLocalBounds(crPos);
+}
+
+//! @brief Determines if Mouse Position is in AABB of button
+//!
+//! @param[in] crPos     Position to check against button AABB
+//! @param[in] crPadding Padding to add to AABB of button
+//!
+//! @return True if Mouse is in AABB false otherwise
+template <typename T>
+bool Button<T>::isInAABB(const Vector2<float>& crPos, const Vector2<float>& crPadding)
+{
+  Box<float> box = mBox->getBox();
+  Vector2<float> size = box.getSize();
+  size += crPadding;
+  box.setSize(size);
   return box.inLocalBounds(crPos);
 }
 
@@ -486,8 +441,112 @@ void Button<T>::disableCallback(const bool cEnable)
   mCallbackDisabled = cEnable;
 }
 
+//! @brief Returns if mouse is hovering over button
+//!
+//! @return true if mouse is hovering false otherwise
 template <typename T>
 bool Button<T>::isHover() const
 {
   return HOVER_STATE == mState;
+}
+
+//! @brief Returns if button is pressed
+//!
+//! @return true if button is pressed false otherwise
+template <typename T>
+bool Button<T>::isPressed() const
+{
+  return PRESSED_STATE == mState;
+}
+
+//! @brief Sets the Pressed padding 
+//!        This means the button will have a larger AABB for the button if the padding is > 0 when in pressed state
+//! 
+//! @param[in] crPadding The padding to set on the button
+//!
+//! @return None 
+template <typename T>
+void Button<T>::setPressedPadding(const Vector2<float>& crPadding)
+{
+  mPressedPadding = crPadding;
+}
+
+//! @brief Sets the correct Color/Texture depending on button state
+//!
+//! @return None 
+template <typename T>
+void Button<T>::setButtonTexture()
+{
+  switch(mState)
+  {
+    case DEFAULT_STATE:
+      if(nullptr != mDefaultTexture)
+      {
+        mBox->setTexture(mDefaultTexture);
+      }
+      else
+      {
+        mBox->setColor(mDefaultColor);
+      }
+      break;
+    case HOVER_STATE:
+      if(nullptr != mHoverTexture)
+      {
+        mBox->setTexture(mHoverTexture);
+      }
+      else
+      {
+        mBox->setColor(mHoverColor);
+      }
+      break;
+    case PRESSED_STATE:
+      if(nullptr != mPressedTexture)
+      {
+        mBox->setTexture(mPressedTexture);
+      }
+      else
+      {
+        mBox->setColor(mPressedColor);
+      }
+      break;
+  }
+}
+
+//! @brief Handles Updating Button State after position is moved
+//!
+//! @param[in] cCheckIfMouseHovering Flag to determine if AABB should be checked after moving
+//!
+//! @return None
+template <typename T>
+void Button<T>::onButtonMoveUpdate(const bool cCheckIfMouseHovering)
+{
+  if(cCheckIfMouseHovering)
+  {
+    switch(mState)
+    {
+      case HOVER_STATE:
+        if(!isInAABB(lg::Mouse::getMousePosf()))
+        {
+          mState = DEFAULT_STATE;
+        }
+        break;
+      case PRESSED_STATE:
+        if(!isInAABB(lg::Mouse::getMousePosf(), mPressedPadding))
+        {
+          mState = DEFAULT_STATE;
+        }
+        break;
+      case DEFAULT_STATE:
+        if(isInAABB(lg::Mouse::getMousePosf()))
+        {
+          mState = HOVER_STATE;
+        }
+    }
+  }
+  else
+  {
+    mState = DEFAULT_STATE;
+  }
+
+  setButtonTexture();
 }

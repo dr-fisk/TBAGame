@@ -17,6 +17,7 @@ class Scrollbar
     void setDefaultColor(const lg::Color& crColor);
     void setHoverColor(const lg::Color& crColor);
     void setPressedColor(const lg::Color& crColor);
+    void setPressedPadding(const Vector2<float>& crPadding);
     void update(const Event& crEvent);
   private:
     void mousePressEvent(const Event& crEvent);

@@ -74,8 +74,8 @@ template <typename T>
 void Box<T>::updatePos()
 {
   const T DIVISOR = 2;
-  this->mPos.x = (mTopLeft.x + this->mSize.x) / DIVISOR;
-  this->mPos.y = (mTopLeft.y + this->mSize.y) / DIVISOR;
+  this->mPos.x = mTopLeft.x + (this->mSize.x / DIVISOR);
+  this->mPos.y = mTopLeft.y + (this->mSize.y / DIVISOR);
 }
 
 template<typename T>

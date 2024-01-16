@@ -79,6 +79,7 @@ std::cout << "Making button4\n";
   mScroll->setDefaultColor(lg::Grey);
   mScroll->setHoverColor(lg::Green);
   mScroll->setPressedColor(lg::Green);
+  mScroll->setPressedPadding(Vector2<float>(50, 50));
 }
 
 void MainMenu::update(const std::shared_ptr<RenderTarget> &crpTarget, const float cDeltaTime)

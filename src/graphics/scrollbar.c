@@ -48,7 +48,7 @@ void Scrollbar::setPressedColor(const lg::Color& crColor)
 
 void Scrollbar::mousePressEvent(const Event& crEvent)
 {
-  if(GLFW_MOUSE_BUTTON_LEFT  == crEvent.MouseButton.Button && mScrollbarButton->isHover())
+  if(GLFW_MOUSE_BUTTON_LEFT  == crEvent.MouseButton.Button && mScrollbarButton->isPressed())
   {
     mPrevMousey = crEvent.MouseButton.y;
     mState = SCROLL_STATE;
@@ -68,8 +68,9 @@ void Scrollbar::mouseMoveEvent(const Event& crEvent)
   switch(mState)
   {
     case SCROLL_STATE:
-      if(!mScrollbarButton->isHover())
+      if(!mScrollbarButton->isPressed())
       {
+        std::cout << "Wtf\n";
         mState = DEFAULT_STATE;
       }
       // Move button by the current mouse y pos - the prev mouse y position then set the prev mouse y position to the
@@ -101,4 +102,9 @@ void Scrollbar::update(const Event& crEvent)
       mouseReleaseEvent(crEvent);
       break;
   }
+}
+
+void Scrollbar::setPressedPadding(const Vector2<float>& crPadding)
+{
+  mScrollbarButton->setPressedPadding(crPadding);
 }

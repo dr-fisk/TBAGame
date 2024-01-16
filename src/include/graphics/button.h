@@ -35,14 +35,17 @@ class Button
     void setHoverTexture(const std::shared_ptr<TextureResource>& crpTexture);
     void setPressedTexture(const std::shared_ptr<TextureResource>& crpTexture);
     void setValue(const T& rValue);
+    void setPressedPadding(const Vector2<float>& crPadding);
     bool isHover() const;
+    bool isPressed() const;
     T getValue() const;
     ~Button() = default;
   private:
     enum ButtonState
     {
       DEFAULT_STATE,
-      HOVER_STATE
+      HOVER_STATE,
+      PRESSED_STATE
     };
     
     std::shared_ptr<Sprite> mBox;
@@ -56,14 +59,18 @@ class Button
     ButtonState mState;
     std::function<void(const Button<T>&)> mCallback;
     bool mCallbackDisabled;
+    Vector2<float> mPressedPadding;
     int64_t mId;
     T mValue;
 
     bool isInAABB(const Vector2<float>& crPos);
+    bool isInAABB(const Vector2<float>& crPos, const Vector2<float>& crPadding);
     void mouseMoveUpdate(const Event::MouseMoveEvent& crEvent);
     void mouseButtonUpdate(const Event::MouseButtonEvent& crEvent);
     bool mouseButtonRelease(const Event::MouseButtonEvent& crEvent);
     void setTextPos();
+    void setButtonTexture();
+    void onButtonMoveUpdate(const bool cCheckIfMouseHovering);
 };
 
 #include "../../graphics/button.c"
