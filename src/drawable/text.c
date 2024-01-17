@@ -1,13 +1,14 @@
+#include <limits>
+
 #include "drawable/text.h"
 #include "utility/vertexUtility.h"
-#include <limits>
+#include "renderer/renderer2D.h"
 
 //! @brief Text Constructor
 //!
 //! @param[in]  prFont         Font Object to be used when rendering Text
 //! @param[in]  crText         String to be rendered
 //! @param[out] prRenderEngine Resource Manager to create Texture Resource
-//! @param[out] prBatch        BatchBuffer to register drawable
 //! @param[in]  cCharSize      Font Size
 //! @param[in]  crPos          Position of Text
 //! @param[in]  cLineWrap      Number of pixels before line of texts wraps under
@@ -15,7 +16,7 @@
 //!
 //! @return Text Object 
 Text::Text(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<RenderEngine>& prRenderEngine,
-           std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize, const Vector2<float>& crPos,
+           const uint8_t cCharSize, const Vector2<float>& crPos,
            const int32_t cLineWrap, const float cLineHeight)
 {
   mpFont = prFont;
@@ -38,7 +39,6 @@ Text::Text(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared
   mTexture = mpFont->getResource(mCharSize);
 
   gridfitText(crPos);
-  registerDrawable(prBatch, mTexture->getTextureId());
 }
 
 //! @brief Updates Text to be rendered
@@ -123,14 +123,10 @@ std::shared_ptr<TextureResource> Text::getResource()
   return mpFont->getResource(mCharSize);
 }
 
-//! @brief Grab all vertexes from Text Object
-//!        Performs all updates needed for rendering
-//!
-//! @param[out] rBatchVertexes Vertex list
-//! @param[out] rVertexIdx     Current index in vertex list
+//! @brief Draws the Text
 //!
 //! @return None
-void Text::getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx)
+void Text::draw()
 {
   if(mNeedUpdate)
   {
@@ -138,15 +134,12 @@ void Text::getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx)
     mNeedUpdate = false;
   }
 
-  for(auto& vertex : mVertexes)
+  if(mRender)
   {
-    if(mTexture->updateTextureIndex())
+    for(auto& vertex : mVertexes)
     {
-      VertexUtility::setVertexTextureIndex(vertex, static_cast<float>(mTexture->getCacheId()));
+      Renderer2D::registerQuad(vertex, mTexture);
     }
-
-    rBatchVertexes[rVertexIdx] = vertex;
-    rVertexIdx ++;
   }
 }
 
@@ -217,8 +210,4 @@ Vector2<float> Text::getPos()
 //! @return None
 Text::~Text()
 {
-  if(0 != mRenderId && nullptr != mTexture)
-  {
-    mpBatch->unregisterDrawable(RenderKey(mRenderId, mTexture->getTextureId(), mLayer));
-  }
 }

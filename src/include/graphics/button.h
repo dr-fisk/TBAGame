@@ -2,21 +2,21 @@
 #define BUTTON_H
 
 #include <string>
+#include <functional>
 
+#include "graphics/graphics.h"
 #include "drawable/sprite.h"
 #include "drawable/text.h"
 #include "event/event.h"
 
 template <typename T=void *>
-class Button
+class Button : public Graphics
 {
   public:
     Button() = default;
     Button(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<RenderEngine>& prRenderEngine,
-           std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize, const Vector2<float>& crPos,
-           const Vector2<float>& crSize);
-    Button(std::shared_ptr<RenderEngine>& prRenderEngine, std::shared_ptr<BatchBuffer>& prBatch,
-           const Vector2<float>& crPos, const Vector2<float>& crSize);
+           const uint8_t cCharSize, const Vector2<float>& crPos, const Vector2<float>& crSize);
+    Button(std::shared_ptr<RenderEngine>& prRenderEngine, const Vector2<float>& crPos, const Vector2<float>& crSize);
     void setDefaultColor(const lg::Color& crColor);
     void setHoverColor(const lg::Color& crColor);
     void setPressedColor(const lg::Color& crColor);
@@ -39,6 +39,7 @@ class Button
     bool isHover() const;
     bool isPressed() const;
     T getValue() const;
+    void draw();
     ~Button() = default;
   private:
     enum ButtonState

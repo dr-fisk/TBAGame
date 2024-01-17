@@ -8,11 +8,11 @@
 #include "window/mouse.h"
 #include "shapes/box.h"
 #include "resource/image.h"
+#include "renderer/renderer2D.h"
 
 MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
-                   std::shared_ptr<RenderEngine>& crpRenderEngine,
-                   std::shared_ptr<BatchBuffer>& crpBatchBuffer) :
-                   State(crStates, crpRenderEngine, crpBatchBuffer)
+                   std::shared_ptr<RenderEngine>& crpRenderEngine) :
+                   State(crStates, crpRenderEngine)
 {
   std::string temp = "Envy Code R.ttf";
   mStartTime = std::chrono::system_clock::now();
@@ -20,16 +20,16 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
 
   mNewFont = std::make_shared<Font>(temp, 5, lg::Black);
   std::cout << "Making text\n";
-  mText = std::make_shared<Text>(mNewFont, "FPS: 0", mpRenderEngine, mpBatchBuffer, 12, Vector2<float>{100.0f, 100.0f});
-  // mSprite = std::make_shared<Sprite>(mpBatchBuffer, Vector2<float>{200.0f, 200.0f}, Vector2<float>{16, 16}, lg::White);
+  mText = std::make_shared<Text>(mNewFont, "FPS: 0", mpRenderEngine, 12, Vector2<float>{100.0f, 100.0f});
+  // mSprite = std::make_shared<Sprite>(Vector2<float>{200.0f, 200.0f}, Vector2<float>{16, 16}, lg::White);
   std::cout << "Making sprite1\n";
-  mSprite = std::make_shared<Sprite>("../src/art.png", mpRenderEngine, mpBatchBuffer, Vector2<float>{200.0f, 200.0f}, Vector2<float>{16, 16});
+  mSprite = std::make_shared<Sprite>("../src/art.png", mpRenderEngine, Vector2<float>{200.0f, 200.0f}, Vector2<float>{16, 16});
 std::cout << "Making sprite2\n";
-  mSprite3 = std::make_shared<Sprite>("../src/heart.png", mpRenderEngine, mpBatchBuffer, Vector2<float>{50.0f, 300.0f}, Vector2<float>{16, 16});
+  mSprite3 = std::make_shared<Sprite>("../src/heart.png", mpRenderEngine, Vector2<float>{50.0f, 300.0f}, Vector2<float>{16, 16});
 std::cout << "Making sprite3\n";
-  mSprite2 = std::make_shared<Sprite>("../src/art.png", mpRenderEngine, mpBatchBuffer, Vector2<float>{600.0f, 600.0f}, Vector2<float>{16, 16});
+  mSprite2 = std::make_shared<Sprite>("../src/art.png", mpRenderEngine, Vector2<float>{600.0f, 600.0f}, Vector2<float>{16, 16});
 std::cout << "Making sprite4\n";
-  mButton = std::make_shared<Button<>>(mNewFont, "Test", mpRenderEngine, mpBatchBuffer, 12, Vector2<float>{0, 0}, Vector2<float>{50, 50});
+  mButton = std::make_shared<Button<>>(mNewFont, "Test", mpRenderEngine, 12, Vector2<float>{0, 0}, Vector2<float>{50, 50});
   Image tempImg("../src/SquareWBorder.png");
   tempImg.recolorBorderedShape(lg::Color(135, 135, 135), lg::Color(170, 170, 170), lg::White);
   std::shared_ptr<TextureResource> tempTexture = std::make_shared<TextureResource>(tempImg.getName(), mpRenderEngine, tempImg.getDimensions(), tempImg.getInternalFormat());
@@ -46,13 +46,13 @@ std::cout << "Making sprite4\n";
 
 std::cout << "Making button2\n";
 
-  mButtons.push_back(std::make_shared<Button<Vector2<int32_t>>>(mNewFont, "Test1", mpRenderEngine, mpBatchBuffer, 12, Vector2<float>{0, 0}, Vector2<float>{50, 50}));
+  mButtons.push_back(std::make_shared<Button<Vector2<int32_t>>>(mNewFont, "Test1", mpRenderEngine, 12, Vector2<float>{0, 0}, Vector2<float>{50, 50}));
 std::cout << "Making button3\n";
 
-  mButtons.push_back(std::make_shared<Button<Vector2<int32_t>>>(mNewFont, "Test2", mpRenderEngine, mpBatchBuffer, 12, Vector2<float>{0, 0}, Vector2<float>{50, 50}));
+  mButtons.push_back(std::make_shared<Button<Vector2<int32_t>>>(mNewFont, "Test2", mpRenderEngine, 12, Vector2<float>{0, 0}, Vector2<float>{50, 50}));
 std::cout << "Making button4\n";
 
-  mButtons.push_back(std::make_shared<Button<Vector2<int32_t>>>(mNewFont, "Test3", mpRenderEngine, mpBatchBuffer, 12, Vector2<float>{0, 0}, Vector2<float>{50, 50}));
+  mButtons.push_back(std::make_shared<Button<Vector2<int32_t>>>(mNewFont, "Test3", mpRenderEngine, 12, Vector2<float>{0, 0}, Vector2<float>{50, 50}));
   mButtons[0]->setValue(Vector2<int32_t>(0,0));
   mButtons[1]->setValue(Vector2<int32_t>(10,10));
   mButtons[2]->setValue(Vector2<int32_t>(200,200));
@@ -75,7 +75,7 @@ std::cout << "Making button4\n";
   mButton->setValue(nullptr);
   mButton->onClick(MainMenu::buttonCallback);
 
-  mScroll = std::make_shared<Scrollbar>(mpRenderEngine, mpBatchBuffer, Vector2<float>(900, 50), Vector2<float>(20, 60));
+  mScroll = std::make_shared<Scrollbar>(mpRenderEngine, Vector2<float>(900, 50), Vector2<float>(20, 60));
   mScroll->setDefaultColor(lg::Grey);
   mScroll->setHoverColor(lg::Green);
   mScroll->setPressedColor(lg::Green);
@@ -158,6 +158,16 @@ void MainMenu::update(const std::shared_ptr<RenderTarget> &crpTarget, const floa
   move *= cDeltaTime;
 
   mSprite->movePos(move);
+
+  Renderer2D::beginScene();
+  mText->draw();
+  mSprite->draw();
+  mSprite2->draw();
+  mSprite3->draw();
+  mButton->draw();
+  mScroll->draw();
+  mMenu->draw();
+  Renderer2D::endScene();
 }
 
 MainMenu::~MainMenu() 

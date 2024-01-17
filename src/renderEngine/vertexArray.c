@@ -6,6 +6,7 @@
 //! @return None
 void VertexArray::genVao()
 {
+  mVertexBufferIndex = 0;
   GLCall(glGenVertexArrays(1, &mVaoId));
 }
 
@@ -38,6 +39,46 @@ void VertexArray::setVaoAttributes(const VertexBufferLayout& crLayout)
 
       offset += element.count * VertexBufferLayout::getElementSize(element.type);
   }
+}
+
+//! @brief Adds VBO to VAO
+//!
+//! @param crpVbo VBO to add
+//!
+//! @return None
+void VertexArray::addVertexBuffer(const std::shared_ptr<VertexBuffer>& crpVbo)
+{
+  const auto& elements = crpVbo->getLayout().getElements();
+  uintptr_t offset = 0;
+
+  bind();
+  crpVbo->bind();
+
+  for(uint32_t i = 0; i < elements.size(); i ++)
+  {
+      const auto& element = elements[i];
+      GLCall(glEnableVertexAttribArray(mVertexBufferIndex));
+
+      GLCall(glVertexAttribPointer(mVertexBufferIndex, element.count, element.type, element.normalized, 
+                                   crpVbo->getLayout().getStride(), (const void *) offset));
+
+      offset += element.count * VertexBufferLayout::getElementSize(element.type);
+      mVertexBufferIndex ++;
+  }
+
+  mVertexBuffers.push_back(crpVbo);
+}
+
+//! @brief Sets the Index Buffer to VAO
+//!
+//! @param crpIbo IBO to set
+//!
+//! @return None
+void VertexArray::setIndexBuffer(const std::shared_ptr<IndexBuffer>& crpIbo)
+{
+  bind();
+  crpIbo->bind();
+  mpIndexBuffer = crpIbo;
 }
 
 //! @brief Attaches VAO so that it is the element that will be drawn Call bind before Drawing each time

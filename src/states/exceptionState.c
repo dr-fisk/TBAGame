@@ -1,11 +1,11 @@
 #include <iostream>
 
 #include "states/exceptionState.h"
+#include "drawable/drawable.h"
 
 ExceptionState::ExceptionState(const std::stack<std::shared_ptr<State>>& crStates,
                                std::shared_ptr<RenderEngine> cpRenderEngine,
-                               std::shared_ptr<BatchBuffer> cpBatchBuffer, 
-                               const std::string& crError) : State(crStates, cpRenderEngine, cpBatchBuffer)
+                               const std::string& crError) : State(crStates, cpRenderEngine)
 {
   mError = crError;
   mpWindow = std::make_shared<RenderWindow>(800, 800, "Exception Encountered");

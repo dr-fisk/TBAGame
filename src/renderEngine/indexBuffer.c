@@ -6,8 +6,47 @@ const uint8_t NUM_INDICES_PER_VERTEX = 6;
 
 //! @brief Creates IndexBuffer as an Element Array Buffer
 //!
+//! @param[in]  cNumIndices Number of Indices to generate
+//! @param[in]  cDrawType   Draw Type of IBO
+//!
+//! @return Index Buffer Object
+IndexBuffer::IndexBuffer(const uint32_t cNumIndices, const GLenum cDrawType)
+{
+  GLCall(glGenBuffers(1, &mIboId));
+  std::vector<uint32_t> temp_indices;
+  temp_indices.reserve(cNumIndices);
+  temp_indices.push_back(0);
+  temp_indices.push_back(1);
+  temp_indices.push_back(2);
+  temp_indices.push_back(2);
+  temp_indices.push_back(3);
+  temp_indices.push_back(0);
+  uint32_t offset = SQUARE_VERTICES2D;
+  uint64_t curr_idx = 0;
+  uint64_t curr_offset = 0;
+
+  /* Squares contain 6 Vertices indexed from 0-5*/
+  for(uint32_t i = 1; i < cNumIndices; i++)
+  {
+    curr_idx = i * 6;
+    curr_offset = offset * i;
+    temp_indices.push_back(temp_indices[0] + curr_offset); 
+    temp_indices.push_back(temp_indices[1] + curr_offset);
+    temp_indices.push_back(temp_indices[2] + curr_offset);
+    temp_indices.push_back(temp_indices[3] + curr_offset);
+    temp_indices.push_back(temp_indices[4] + curr_offset);
+    temp_indices.push_back(temp_indices[5] + curr_offset);
+  }
+
+  bind();
+  GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, temp_indices.size() * sizeof(uint32_t), temp_indices.data(), cDrawType));
+  unbind();
+}
+
+//! @brief Creates IndexBuffer as an Element Array Buffer
+//!
 //! @param[in]  cNumVertexes Number of Index Buffer Objects to generate
-//! @param[in]  cDrawType    Indeces describing VBO
+//! @param[in]  cDrawType    Indices describing VBO
 //!
 //! @return None
 void IndexBuffer::genIboBuffer(const uint32_t cNumVertexes, const GLenum cDrawType)

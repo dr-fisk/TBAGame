@@ -4,6 +4,30 @@
 
 //! @brief Generates a VBO and binds the buffer for the VAO
 //!
+//! @param[in] cBuffSize Buffer Size to allocate memory
+//! @param[in] cDrawType Draw Type to configure VBO for
+//!
+//! @return VertexBufferObject
+VertexBuffer::VertexBuffer(const uint32_t cBuffSize, const GLenum cDrawType)
+{
+  GLCall(glGenBuffers(1, &mVboId));
+  bind();
+  GLCall(glBufferData(GL_ARRAY_BUFFER, cBuffSize, nullptr, cDrawType));
+  unbind();
+}
+
+//! @brief Sets the layout of the VBO
+//!
+//! @param[in] crLayout Layout of VBO
+//!
+//! @return None
+void VertexBuffer::setLayout(const VertexBufferLayout& crLayout)
+{
+  mLayout = crLayout;
+}
+
+//! @brief Generates a VBO and binds the buffer for the VAO
+//!
 //! @param[in] cNumVertexes Number of Vertexes to allocate memory for
 //! @param[in] cDrawType Draw Type to configure VBO for
 //!

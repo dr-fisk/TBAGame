@@ -171,3 +171,15 @@ std::shared_ptr<Button<T>> DropDownMenu<T>::getButtonByID(const int32_t cId)
 
   return nullptr;
 }
+
+//! @brief Draws dropdown Menu
+//!
+//! @return None
+template <typename T>
+void  DropDownMenu<T>::draw()
+{
+  for(const auto& button : mButtons)
+  {
+    button->draw();
+  }
+}

@@ -11,12 +11,10 @@ class Sprite : public Drawable
   public:
     Sprite() = default;
     Sprite(const std::string& crPath, std::shared_ptr<RenderEngine>& prRenderEngine,
-           std::shared_ptr<BatchBuffer>& prBatch, const Vector2<float>& crPos, const Vector2<float>& crSize);
-    Sprite(std::shared_ptr<BatchBuffer>& prBatch, const Vector2<float>& crPos, const Vector2<float>& crSize,
-           const lg::Color& crColor);
+           const Vector2<float>& crPos, const Vector2<float>& crSize);
+    Sprite(const Vector2<float>& crPos, const Vector2<float>& crSize, const lg::Color& crColor);
     ~Sprite();
     std::shared_ptr<TextureResource> getResource();
-    void getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx);
     bool hasResource();
     bool textureBounded();
     void movePos(const Vector2<float>& crMoveVector);
@@ -28,6 +26,7 @@ class Sprite : public Drawable
     void setColor(const lg::Color& crColor);
     Box<float>& getBox();
     void setLayer(const uint32_t cLayer);
+    void draw();
 
   private:
     lg::Color mColor;

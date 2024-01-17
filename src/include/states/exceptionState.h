@@ -8,13 +8,11 @@
 #include "exception.h"
 #include "window/renderWindow.h"
 #include "state.h"
-#include "renderEngine/batchBuffer.h"
 
 class ExceptionState : public State {
   public:
     ExceptionState(const std::stack<std::shared_ptr<State>>& crStates,
-                    std::shared_ptr<RenderEngine> cpRenderEngine, 
-                    std::shared_ptr<BatchBuffer> cpBatchBuffer,
+                    std::shared_ptr<RenderEngine> cpRenderEngine,
                     const std::string& crError);
     ~ExceptionState();
     void update(const std::shared_ptr<RenderTarget>& crpTarget, const float cDeltaTime);
@@ -22,8 +20,6 @@ class ExceptionState : public State {
   private:
     std::shared_ptr<RenderWindow> mpWindow;
     std::string mError;
-    BatchBuffer mTestBB;
-    BatchBuffer mErrorBatch;
 };
 
 #endif

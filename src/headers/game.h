@@ -10,6 +10,7 @@
 #include "window/renderWindow.h"
 #include "lestTtf.h"
 #include "renderEngine/frameBuffer.h"
+#include "renderer/renderer2D.h"
 
 #define ONE_SEC 1
 
@@ -21,7 +22,6 @@ class Game {
   private:
     std::stack<std::shared_ptr<State>> mStates;
     std::shared_ptr<RenderWindow> mpWindow;
-    std::shared_ptr<BatchBuffer> mpBatchBuffer;
     std::shared_ptr<RenderEngine> mpRenderEngine;
     LestTrueType ttf;
     int mGameRuntime;
@@ -31,7 +31,7 @@ class Game {
     int mFps;
 
     void initMainState();
-    void initTextureSampler();
+    // void initTextureSampler();
     void gameEnd();
     GLFWwindow* wind;
         // std::shared_ptr<FrameBuffer> mFbo;

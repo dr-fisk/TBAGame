@@ -16,25 +16,25 @@ uint16_t gFps = 0;
 void Game::initMainState()
 {
   //mStates.push(std::make_shared<ExceptionState>(mStates, "TESTING", mShaders[MAIN_SHADER], mpWindow->getGlWindow(), mpVao));
-  mStates.push(std::make_shared<MainMenu>(mStates, mpRenderEngine, mpBatchBuffer));
+  mStates.push(std::make_shared<MainMenu>(mStates, mpRenderEngine));
 }
 
 //! @brief Initializes Texture Sampler via the max number of Texture Units allowed by hardware
 //!
 //! @return None
-void Game::initTextureSampler()
-{
-  const int32_t NUM_TEXTURE_UNITS = mpBatchBuffer->getMaxTextureUnits();
-  auto uni = mpBatchBuffer->getUniform(0, "u_Textures");
-  int sampler[NUM_TEXTURE_UNITS];
+// void Game::initTextureSampler()
+// {
+//   const int32_t NUM_TEXTURE_UNITS = mpBatchBuffer->getMaxTextureUnits();
+//   auto uni = mpBatchBuffer->getUniform(0, "u_Textures");
+//   int sampler[NUM_TEXTURE_UNITS];
 
-  for(int i = 0; i < NUM_TEXTURE_UNITS; i ++)
-  {
-    sampler[i] = i;
-  }
+//   for(int i = 0; i < NUM_TEXTURE_UNITS; i ++)
+//   {
+//     sampler[i] = i;
+//   }
 
-  GLCall(glUniform1iv(uni, NUM_TEXTURE_UNITS, sampler));
-}
+//   GLCall(glUniform1iv(uni, NUM_TEXTURE_UNITS, sampler));
+// }
 
 //! @brief Default Constructor
 //!
@@ -52,29 +52,30 @@ Game::Game()
   int32_t view[4] = {};
   glGetIntegerv(GL_VIEWPORT, view);
   std::cout << view[0] << " " << view[1] << " " << view[2] << " " << view[3] << std::endl;
-  VertexBufferLayout temp;
-  // First set of Float are quad position
-  temp.push(TWO_D_COORDS, GL_FLOAT, false);
-  // Next 4 bytes are RGBA
-  temp.push(RGBA, GL_UNSIGNED_BYTE, true);
-  // Next 2 floats are Texture Coords
-  temp.push(TWO_D_COORDS, GL_FLOAT, false);
-  temp.push(1, GL_FLOAT, false);
-  mpBatchBuffer = std::make_shared<BatchBuffer>(1, 1, 1, 2);
-  mpBatchBuffer->bindVbo(0);
-  mpBatchBuffer->bindVao(0);
-  mpBatchBuffer->bindIbo(0);
-  mpBatchBuffer->genVboBuffer(0, 300, GL_DYNAMIC_DRAW);
-  mpBatchBuffer->genIboBuffer(0, 300, GL_STATIC_DRAW);
-  mpBatchBuffer->initShader(0,  "./shaders/shader1.txt");
-  mpBatchBuffer->initShader(1,  "./shaders/fragShader.txt");
-  mpBatchBuffer->bindShader(0);
+  // VertexBufferLayout temp;
+  // // First set of Float are quad position
+  // temp.push(TWO_D_COORDS, GL_FLOAT, false);
+  // // Next 4 bytes are RGBA
+  // temp.push(RGBA, GL_UNSIGNED_BYTE, true);
+  // // Next 2 floats are Texture Coords
+  // temp.push(TWO_D_COORDS, GL_FLOAT, false);
+  // temp.push(1, GL_FLOAT, false);
+  Renderer2D::init();
+  // mpBatchBuffer = std::make_shared<BatchBuffer>(1, 1, 1, 2);
+  // mpBatchBuffer->bindVbo(0);
+  // mpBatchBuffer->bindVao(0);
+  // mpBatchBuffer->bindIbo(0);
+  // mpBatchBuffer->genVboBuffer(0, 300, GL_DYNAMIC_DRAW);
+  // mpBatchBuffer->genIboBuffer(0, 300, GL_STATIC_DRAW);
+  // mpBatchBuffer->initShader(0,  "./shaders/shader1.txt");
+  // mpBatchBuffer->initShader(1,  "./shaders/fragShader.txt");
+  // mpBatchBuffer->bindShader(0);
   // auto uni = mpBatchBuffer->getUniform(1, "u_Textures");
   // int sampler = 0;
 
   // GLCall(glUniform1iv(uni, 1, &sampler));
-  initTextureSampler();
-  mpBatchBuffer->setVaoAttributes(0, temp);
+  // initTextureSampler();
+  // mpBatchBuffer->setVaoAttributes(0, temp);
   mpRenderEngine = std::make_shared<RenderEngine>();
   //temp
   gWindowWidth = 1920;
@@ -109,8 +110,8 @@ Game::~Game()
   }
 
   // mFbo.reset();
+  Renderer2D::shutdown();
   mpRenderEngine.reset();
-  mpBatchBuffer.reset();
   mpWindow->destroyWindow();
   glfwTerminate();
 }
@@ -139,11 +140,15 @@ void Game::gameLoop()
       mStates.pop();
     }
     
+      mpWindow->clear();
     
     mStates.top()->update(mpWindow, deltaTime);
     // mFbo->bind();
     // glViewport(0,0, gWindowWidth, gWindowHeight);
     mStates.top()->render(mpWindow);
+    mpWindow->display();
+
+  GLCall(glfwPollEvents());
     gFrames ++;
     mEndTime = std::chrono::steady_clock::now();
     if (std::chrono::duration_cast<std::chrono::seconds>(mEndTime - mStartTime).count() >= 1.0f)

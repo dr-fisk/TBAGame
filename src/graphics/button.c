@@ -1,26 +1,26 @@
 #include "graphics/button.h"
 #include "window/mouse.h"
+#include "renderer/renderer2D.h"
 
 //! @brief Constructs Buton
 //!
 //! @param[in] prFont         Font to use for Text in Button
 //! @param[in] crText         String to set in Button
 //! @param[in] prRenderEngine Resource Manager
-//! @param[in] prBatch        Batch Buffer Manager
 //! @param[in] cCharSize      Character Size for Text
 //! @param[in] crPos          Position of Button
 //! @param[in] crSize         Size of Button
 //!
 //! @return Button Object
 template <typename T>
-Button<T>::Button(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<RenderEngine>& prRenderEngine,
-                  std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize,
-                  const Vector2<float>& crPos, const Vector2<float>& crSize)
+Button<T>::Button(std::shared_ptr<Font>& prFont, const std::string& crText,
+                  std::shared_ptr<RenderEngine>& prRenderEngine, const uint8_t cCharSize, const Vector2<float>& crPos,
+                  const Vector2<float>& crSize)
 {
   Vector2<float> tempPos(0, 0);
-  mBox = std::make_shared<Sprite>(prBatch, tempPos, crSize, lg::Transparent);
+  mBox = std::make_shared<Sprite>(tempPos, crSize, lg::Transparent);
   mBox->setLayer(1);
-  mText = std::make_shared<Text>(prFont, crText, prRenderEngine, prBatch, cCharSize, tempPos);
+  mText = std::make_shared<Text>(prFont, crText, prRenderEngine, cCharSize, tempPos);
   mDefaultColor = lg::Transparent;
   mHoverColor = lg::Transparent;
   mPressedColor = lg::Transparent;
@@ -35,19 +35,18 @@ Button<T>::Button(std::shared_ptr<Font>& prFont, const std::string& crText, std:
 //! @brief Constructs a Button without Text
 //!
 //! @param[in] prRenderEngine Resource Manager
-//! @param[in] prBatch        Batch Buffer Manager
 //! @param[in] crPos          Position of Button
 //! @param[in] crSize         Size of Button
 //!
 //! @return Button Object
 template <typename T>
-Button<T>::Button(std::shared_ptr<RenderEngine>& prRenderEngine, std::shared_ptr<BatchBuffer>& prBatch,
-                  const Vector2<float>& crPos, const Vector2<float>& crSize)
+Button<T>::Button(std::shared_ptr<RenderEngine>& prRenderEngine, const Vector2<float>& crPos,
+                  const Vector2<float>& crSize)
 {
   mDefaultColor = lg::Transparent;
   mHoverColor = lg::Transparent;
   mPressedColor = lg::Transparent;
-  mBox = std::make_shared<Sprite>(prBatch, crPos, crSize, lg::Transparent);
+  mBox = std::make_shared<Sprite>(crPos, crSize, lg::Transparent);
   mState = DEFAULT_STATE;
   mBox->setLayer(1);
   mCallback = nullptr;
@@ -549,4 +548,18 @@ void Button<T>::onButtonMoveUpdate(const bool cCheckIfMouseHovering)
   }
 
   setButtonTexture();
+}
+
+//! @brief Draws Button
+//!
+//! @return None
+template <typename T>
+void Button<T>::draw()
+{
+  mBox->draw();
+
+  if(nullptr != mText)
+  {
+    mText->draw();
+  }
 }

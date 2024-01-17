@@ -20,8 +20,7 @@
 class MainMenu : public State
 {
   public:
-    MainMenu(const std::stack<std::shared_ptr<State>>& crStates, std::shared_ptr<RenderEngine>& crpRenderEngine,
-             std::shared_ptr<BatchBuffer>& crpBatchBuffer);
+    MainMenu(const std::stack<std::shared_ptr<State>>& crStates, std::shared_ptr<RenderEngine>& crpRenderEngine);
     ~MainMenu();
     void update(const std::shared_ptr<RenderTarget>& crpTarget, const float cDeltaTime);
     bool shouldStateExit();

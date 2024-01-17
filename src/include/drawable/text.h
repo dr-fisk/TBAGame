@@ -7,7 +7,6 @@
 #include "resource/font.h"
 #include "drawable.h"
 #include "renderEngine/renderEngine.h"
-#include "renderEngine/batchBuffer.h"
 #include "shapes/box.h"
 
 class Text : public Drawable
@@ -15,12 +14,11 @@ class Text : public Drawable
   public:
     Text() = default;
     Text(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<RenderEngine>& prRenderEngine,
-         std::shared_ptr<BatchBuffer>& prBatch, const uint8_t cCharSize, const Vector2<float>& crPos,
+         const uint8_t cCharSize, const Vector2<float>& crPos,
          const int32_t cLineWrap=-1, const float cLineHeight=1.2f);
     void gridfitText(const Vector2<float>& crTopLeft);
     void updateText(const std::string& crText);
     std::shared_ptr<TextureResource> getResource();
-    void getVertex(std::vector<Vertex>& rBatchVertexes, uint32_t& rVertexIdx);
     bool hasResource();
     bool textureBounded();
     void movePos(const Vector2<float>& crMoveVector);
@@ -28,6 +26,7 @@ class Text : public Drawable
     Vector2<float> getPos();
     std::string getText();
     Vector2<float> getSize();
+    void draw();
     ~Text();
   private:
     std::shared_ptr<Font> mpFont;

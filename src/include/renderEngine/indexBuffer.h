@@ -10,6 +10,7 @@ class IndexBuffer
 {
   public:
     IndexBuffer() = default;
+    IndexBuffer(const uint32_t cNumIndices, const GLenum cDrawType);
     void genIbo();
     ~IndexBuffer();
     void bind() const;

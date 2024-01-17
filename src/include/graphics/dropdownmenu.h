@@ -5,6 +5,7 @@
 #include <vector>
 #include <optional>
 
+#include "graphics/graphics.h"
 #include "graphics/button.h"
 
 //! How to use
@@ -16,7 +17,7 @@
 //!    Button ID. Note that the Active Button will be ID 0 and all elements in Vector will be incremented by 1
 //!    Map accordingly, or use the function to return Button with given ID
 template <typename T=void *>
-class DropDownMenu
+class DropDownMenu : public Graphics
 {
   public:
     DropDownMenu() = default;
@@ -25,6 +26,7 @@ class DropDownMenu
     ~DropDownMenu() = default;
     std::optional<int32_t> update(const Event& crEvent);
     std::shared_ptr<Button<T>> getButtonByID(const int32_t cId);
+    void draw();
   private:
     enum DropDownMenuState
     {

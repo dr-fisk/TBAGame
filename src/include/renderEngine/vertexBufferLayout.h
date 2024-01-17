@@ -18,6 +18,11 @@ class VertexBufferLayout
 {
   public:
     VertexBufferLayout() : mStride(0) {}
+    VertexBufferLayout(std::initializer_list<VertexBufferElement> elements) : mElements(elements),  mStride(0)
+    {
+      calcStride();
+    }
+  
     ~VertexBufferLayout() = default;
 
     //! @brief Pushes new layout to list
@@ -78,6 +83,27 @@ class VertexBufferLayout
     //! @return Stride of VBO 
     inline uint32_t getStride() const {return mStride;}
   private:
+    void calcStride()
+    {
+      for(const auto& elements : mElements)
+      {          
+        switch(elements.type)
+        {
+            case GL_FLOAT:
+            case GL_INT:
+            case GL_UNSIGNED_INT:
+              mStride += sizeof(GLuint) * elements.count;
+              break;
+            case GL_UNSIGNED_BYTE:
+              mStride += sizeof(GLubyte) * elements.count;
+              break;
+            default:
+              std::cout << "Unsupported type in buffer layout." << std::endl;
+              exit(-1);
+        }
+      }
+    }
+
     std::vector<VertexBufferElement> mElements; 
     uint32_t mStride;
 };
