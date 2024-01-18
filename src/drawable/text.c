@@ -16,7 +16,7 @@
 //!
 //! @return Text Object 
 Text::Text(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<RenderEngine>& prRenderEngine,
-           const uint8_t cCharSize, const Vector2<float>& crPos,
+           const uint8_t cCharSize, const glm::vec2& crPos,
            const int32_t cLineWrap, const float cLineHeight)
 {
   mpFont = prFont;
@@ -56,15 +56,15 @@ void Text::updateText(const std::string& crText)
 //! @brief Creates layout of Text
 //!
 //! @return None
-void Text::gridfitText(const Vector2<float>& crTopLeft)
+void Text::gridfitText(const glm::vec2& crTopLeft)
 {
-  Vector2<uint32_t> dim(0,0);
-  Vector2<uint32_t> offset(0,0);
-  Vector2<uint32_t> size(0,0);
+  glm::uvec2 dim(0,0);
+  glm::uvec2 offset(0,0);
+  glm::uvec2 size(0,0);
   float top = crTopLeft.y;
   float left = crTopLeft.x;
-  Vector2<float> pos(0.0f, 0.0f);
-  Vector2<float> textCoord(0.0f, 0.0f);
+  glm::vec2 pos(0.0f, 0.0f);
+  glm::vec2 textCoord(0.0f, 0.0f);
   lg::Color color = lg::Black;
   Vertex tempVert;
   mVertexes.clear();
@@ -164,7 +164,7 @@ bool Text::hasResource()
 //! @param[in] crMoveVector Vector values to move Text
 //!
 //! @return None
-void Text::movePos(const Vector2<float>& crMoveVector)
+void Text::movePos(const glm::vec2& crMoveVector)
 {
   mBox.movePos(crMoveVector);
   mNeedUpdate = true;
@@ -175,7 +175,7 @@ void Text::movePos(const Vector2<float>& crMoveVector)
 //! @param[in] crPos New Text Position
 //!
 //! @return None
-void Text::setPos(const Vector2<float>& crPos)
+void Text::setPos(const glm::vec2& crPos)
 {
   mBox.setTopLeft(crPos);
   mNeedUpdate = true;
@@ -192,7 +192,7 @@ std::string Text::getText()
 //! @brief Gets Size of Text
 //!
 //! @return Size of Text
-Vector2<float> Text::getSize()
+glm::vec2 Text::getSize()
 {
   return mBox.getSize();
 }
@@ -200,7 +200,7 @@ Vector2<float> Text::getSize()
 //! @brief Returns Text Position
 //!
 //! @return Text Position 
-Vector2<float> Text::getPos()
+glm::vec2 Text::getPos()
 {
   return mBox.getPos();
 }

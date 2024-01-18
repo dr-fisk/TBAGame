@@ -2,32 +2,33 @@
 #define BOX_H
 
 #include "shapes/shape.h"
+#include "glm/vec2.hpp"
 
 template <typename T>
 class Box : public Shape<T>
 {
   public:
     Box() = default;
-    Box(const Vector2<T>& crPos, const Vector2<T>& crSize);
+    Box(const T& crPos, const T& crSize);
     ~Box() = default;
-    void setPos(const Vector2<T>& crPos);
-    void setSize(const Vector2<T>& crSize);
-    Vector2<T> getTopLeft();
-    void movePos(const Vector2<T>& crMoveVector);
-    void setBoxTopLeft(const Vector2<T>& crPos, const Vector2<T>& crSize);
-    void setBox(const Vector2<T>& crPos, const Vector2<T>& crSize);
-    void setTopLeft(const Vector2<T>& crPos);
-    bool inLocalBounds(const Vector2<int32_t>& crPos);
-    bool inLocalBounds(const Vector2<float>& crPos);
+    void setPos(const T& crPos);
+    void setSize(const T& crSize);
+    T getTopLeft();
+    void movePos(const T& crMoveVector);
+    void setBoxTopLeft(const T& crPos, const T& crSize);
+    void setBox(const T& crPos, const T& crSize);
+    void setTopLeft(const T& crPos);
+    bool inLocalBounds(const glm::ivec2& crPos);
+    bool inLocalBounds(const glm::vec2& crPos);
   private:
-    Vector2<T> mTopLeft;
+    T mTopLeft;
 
     void updateTopLeft();
     void updatePos();
 };
 
 template <typename T>
-void Box<T>::setBoxTopLeft(const Vector2<T>& crPos, const Vector2<T>& crSize)
+void Box<T>::setBoxTopLeft(const T& crPos, const T& crSize)
 {
   this->mSize = crSize;
   mTopLeft = crPos;
@@ -35,7 +36,7 @@ void Box<T>::setBoxTopLeft(const Vector2<T>& crPos, const Vector2<T>& crSize)
 }
 
 template <typename T>
-void Box<T>::setBox(const Vector2<T>& crPos, const Vector2<T>& crSize)
+void Box<T>::setBox(const T& crPos, const T& crSize)
 {
   this->mSize = crSize;
   this->mPos = crPos;
@@ -43,19 +44,19 @@ void Box<T>::setBox(const Vector2<T>& crPos, const Vector2<T>& crSize)
 }
 
 template <typename T>
-void Box<T>::setTopLeft(const Vector2<T>& crPos)
+void Box<T>::setTopLeft(const T& crPos)
 {
   mTopLeft = crPos;
 }
 
 template <typename T>
-Box<T>::Box(const Vector2<T>& crPos, const Vector2<T>& crSize)
+Box<T>::Box(const T& crPos, const T& crSize)
 {
   updateBoxPos(crPos, crSize);
 }
 
 template <typename T>
-void Box<T>::setPos(const Vector2<T>& crPos)
+void Box<T>::setPos(const T& crPos)
 {
   this->mPos = crPos;
   updateTopLeft();
@@ -64,7 +65,7 @@ void Box<T>::setPos(const Vector2<T>& crPos)
 template <typename T>
 void Box<T>::updateTopLeft()
 {
-  const T DIVISOR = 2;
+  const float DIVISOR = 2.0;
 
   mTopLeft.x = this->mPos.x - (this->mSize.x / DIVISOR);
   mTopLeft.y = this->mPos.y - (this->mSize.y / DIVISOR);
@@ -73,40 +74,40 @@ void Box<T>::updateTopLeft()
 template <typename T>
 void Box<T>::updatePos()
 {
-  const T DIVISOR = 2;
+  const float DIVISOR = 2.0;
   this->mPos.x = mTopLeft.x + (this->mSize.x / DIVISOR);
   this->mPos.y = mTopLeft.y + (this->mSize.y / DIVISOR);
 }
 
 template<typename T>
-void Box<T>::setSize(const Vector2<T>& crSize)
+void Box<T>::setSize(const T& crSize)
 {
   this->mSize = crSize;
   updateTopLeft();
 }
 
 template <typename T>
-Vector2<T> Box<T>::getTopLeft()
+T Box<T>::getTopLeft()
 {
   return mTopLeft;
 }
 
 template <typename T>
-void Box<T>::movePos(const Vector2<T>& crMoveVector)
+void Box<T>::movePos(const T& crMoveVector)
 {
   this->mPos += crMoveVector;
   updateTopLeft();
 }
 
 template <typename T>
-bool Box<T>::inLocalBounds(const Vector2<int32_t>& crPos)
+bool Box<T>::inLocalBounds(const glm::ivec2& crPos)
 {
   return (crPos.x > mTopLeft.x) && (crPos.x < (mTopLeft.x + this->mSize.x)) &&
          (crPos.y > mTopLeft.y) && (crPos.y < (mTopLeft.y + this->mSize.y));
 }
 
 template <typename T>
-bool Box<T>::inLocalBounds(const Vector2<float>& crPos)
+bool Box<T>::inLocalBounds(const glm::vec2& crPos)
 {
   return (crPos.x > mTopLeft.x) && (crPos.x < (mTopLeft.x + this->mSize.x)) &&
          (crPos.y > mTopLeft.y) && (crPos.y < (mTopLeft.y + this->mSize.y));

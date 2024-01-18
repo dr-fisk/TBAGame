@@ -3,18 +3,20 @@
 
 #include "resource/resource.h"
 #include "renderEngine/texture.h"
+#include "glm/vec2.hpp"
 
 class TextureResource : public Resource
 {
   public:
     TextureResource();
     TextureResource(const std::string& crTag, std::shared_ptr<RenderEngine>& prRenderEngine,
-                    const Vector2<uint32_t>& crDimensions, const int32_t cInternalFormat=GL_RGBA8);
-    int8_t update(void *pBuffer, const Vector2<uint32_t>& crDimensions, const Vector2<uint32_t>& crOffset,
+                    const glm::uvec2& crDimensions, const int32_t cInternalFormat=GL_RGBA8,
+                    const int32_t cFormat=GL_RGBA);
+    int8_t update(void *pBuffer, const glm::uvec2& crDimensions, const glm::uvec2& crOffset,
                   const int32_t cFormat=GL_RGBA, const int32_t cType=GL_UNSIGNED_BYTE);
     int8_t bind(int32_t cActiveSlot);
     void unbind();
-    Vector2<uint32_t> getSize();
+    glm::uvec2 getSize();
     uint32_t getTextureId();
     uint8_t getCacheId();
     bool updateTextureIndex();

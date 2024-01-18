@@ -5,6 +5,7 @@
 #include "glcommon.h"
 #include "renderEngine/texture.h"
 #include "resource/textureResource.h"
+#include "glm/vec2.hpp"
 
 enum PrimitiveType
 {
@@ -21,10 +22,10 @@ class Drawable
     virtual std::shared_ptr<TextureResource> getResource() = 0;
     virtual bool hasResource() = 0;
     virtual bool textureBounded() = 0;
-    virtual Vector2<float> getPos() = 0;
-    virtual Vector2<float> getSize() = 0;
-    virtual void movePos(const Vector2<float>& crMoveVector) = 0;
-    virtual void setPos(const Vector2<float>& crPos) = 0;
+    virtual glm::vec2 getPos() = 0;
+    virtual glm::vec2 getSize() = 0;
+    virtual void movePos(const glm::vec2& crMoveVector) = 0;
+    virtual void setPos(const glm::vec2& crPos) = 0;
     void setRenderId(const uint64_t cRenderId);
     uint64_t getRenderId();
     void setRender(const bool cEnable);

@@ -13,7 +13,7 @@ class RenderEngine
     RenderEngine() = default;
     ~RenderEngine() = default;
     Texture* createTexture(const std::string& crTag, const uint32_t cHeight, const uint32_t cWidth,
-                           const int32_t cInternalFormat=GL_RGBA8);
+                           const int32_t cInternalFormat=GL_RGBA8, const int32_t cFormat=GL_RGBA);
     bool textureExists(const std::string& crTag);
     std::string getTag(const uint32_t cId);
     void removeResource(const std::string& crTag);

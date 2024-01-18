@@ -16,14 +16,11 @@ class RenderWindow : public RenderTarget
       bool isOpen();
       uint32_t getWindowWidth();
       uint32_t getWindowHeight();
-      void clear();
       void display();
       void draw(const uint64_t cCount);
       void setActive();
       void initWindow();
       void destroyWindow();
-      void enableBlend();
-      void disableBlend();
       GLFWwindow *getGlWindow();
       bool pollEvent(Event& rEvent);
 
@@ -39,7 +36,6 @@ class RenderWindow : public RenderTarget
       int32_t mWindowId;
       std::string mTitle;
       GLFWwindow *mpWindow;
-      static bool msIsInitialized;
       static bool msCallbacksInitialized;
       static int32_t msWindowId;
       static int32_t msActiveWindowId;

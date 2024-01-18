@@ -7,6 +7,7 @@
 
 #include "graphics/graphics.h"
 #include "graphics/button.h"
+#include "glm/vec2.hpp"
 
 //! How to use
 //! 1. Provide the Active Button, this will be the button that is displayed when there is no drop down menu
@@ -22,7 +23,7 @@ class DropDownMenu : public Graphics
   public:
     DropDownMenu() = default;
     DropDownMenu(const uint32_t cActive, const std::vector<std::shared_ptr<Button<T>>>& crButtons,
-                 const Vector2<float>& crPos, const Vector2<float>& crSize);
+                 const glm::vec2& crPos, const glm::vec2& crSize);
     ~DropDownMenu() = default;
     std::optional<int32_t> update(const Event& crEvent);
     std::shared_ptr<Button<T>> getButtonByID(const int32_t cId);
@@ -37,7 +38,7 @@ class DropDownMenu : public Graphics
     std::shared_ptr<Button<T>> mActiveButton;
     std::vector<std::shared_ptr<Button<T>>> mButtons;
     DropDownMenuState mState;
-    Vector2<float> mPos;
+    glm::vec2 mPos;
 
     void defaultStateHandler(const Event& crEvent);
     std::optional<int32_t> clickedStateHanlder(const Event& crEvent);

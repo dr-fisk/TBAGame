@@ -6,7 +6,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "Vector.h"
 #include "color.h"
 #include "lestTtf.h"
 #include "utility/net_utility.h"
@@ -14,6 +13,7 @@
 #include "renderEngine/texture.h"
 #include "renderEngine/renderEngine.h"
 #include "resource/textureResource.h"
+#include "glm/vec2.hpp"
 
 class Font
 {
@@ -23,7 +23,7 @@ class Font
     ~Font() = default;
     Font(const Font& rhs) = delete;
     std::vector<uint32_t> getData(const uint8_t cCharSize, const char cChar);
-    Vector2<uint32_t> getCharacterDimensions(const uint8_t cCharSize, const char cChar);
+    glm::uvec2 getCharacterDimensions(const uint8_t cCharSize, const char cChar);
     void fillGeneratedPointColor(const char cChar, const uint8_t cCharSize);
     void fillColor(const char cChar, const uint8_t cCharSize);
     void writeGenPoints(const char cChar, const uint8_t cCharSize);
@@ -32,7 +32,7 @@ class Font
     int32_t getYDescent(const char cChar, const uint8_t cCharSize);
     void loadGlyphs(const uint32_t cCharSize, std::shared_ptr<RenderEngine>& prRenderEngine);
     bool hasGlyphsLoaded(const uint8_t cCharSize);
-    Vector2<uint32_t> getOffset(const char cChar, const uint8_t cCharSize);
+    glm::uvec2 getOffset(const char cChar, const uint8_t cCharSize);
     std::shared_ptr<TextureResource> getResource(const uint8_t cCharSize);
     uint16_t getAdvancedWidth();
     int32_t getCapitalHeight();
@@ -42,7 +42,7 @@ class Font
     struct GlyfRawData
     {
       GlyfHeader FontHeader;
-      std::vector<Vector2<float>> GeneratedPoints;
+      std::vector<glm::vec2> GeneratedPoints;
       std::vector<int32_t> Contours;
     };
 
@@ -51,9 +51,9 @@ class Font
       int32_t Ybearing;
       int32_t Ydescent;
       std::vector<uint32_t> Bitmap;
-      Vector2<uint32_t> Dimensions;
-      std::vector<Edges<float>> GenPtsEdges;
-      Vector2<uint32_t> Offset;
+      glm::uvec2 Dimensions;
+      std::vector<Edges<glm::vec2>> GenPtsEdges;
+      glm::uvec2 Offset;
     };
 
     void updateNumberOfContours(const char cChar);

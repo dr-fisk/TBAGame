@@ -38,12 +38,10 @@ void Renderer2D::init()
   if(!sLimitsDefined)
   {
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &sRenderer2DLimits.MaxTextures);
-    std::cout << "Max textures " << sRenderer2DLimits.MaxTextures << std::endl;
     sLimitsDefined = true;
   }
 
   sQuadVao = std::make_shared<VertexArray>();
-  sQuadVao->genVao();
 
   sQuadVbo = std::make_shared<VertexBuffer>(sRenderer2DLimits.MaxQuads * sizeof(Vertex), GL_DYNAMIC_DRAW);
     
@@ -106,9 +104,6 @@ void Renderer2D::registerQuad(const Vertex& crVertex, const std::shared_ptr<Text
       sTextureCache[sBoundedTextureIdx] = crpTexture;
       sTextureCache[sBoundedTextureIdx]->bind(sBoundedTextureIdx);
       sBoundedTextureIdx ++;
-
-      std::cout << "Texture bound: " << crpTexture->getTextureId() << std::endl;
-      std::cout << "Num textures bounded: " << (int) sBoundedTextureIdx << std::endl;
     }
 
     VertexUtility::setVertexTextureIndex(sQuads[sNumQuads], crpTexture->getCacheId());

@@ -9,6 +9,7 @@
 #include "shapes/box.h"
 #include "resource/image.h"
 #include "renderer/renderer2D.h"
+#include "renderer/renderCommand.h"
 
 MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
                    std::shared_ptr<RenderEngine>& crpRenderEngine) :
@@ -16,20 +17,15 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
 {
   std::string temp = "Envy Code R.ttf";
   mStartTime = std::chrono::system_clock::now();
-  std::vector<std::shared_ptr<Button<Vector2<int32_t>>>> mButtons;
+  std::vector<std::shared_ptr<Button<glm::ivec2>>> mButtons;
 
   mNewFont = std::make_shared<Font>(temp, 5, lg::Black);
-  std::cout << "Making text\n";
-  mText = std::make_shared<Text>(mNewFont, "FPS: 0", mpRenderEngine, 12, Vector2<float>{100.0f, 100.0f});
-  // mSprite = std::make_shared<Sprite>(Vector2<float>{200.0f, 200.0f}, Vector2<float>{16, 16}, lg::White);
-  std::cout << "Making sprite1\n";
-  mSprite = std::make_shared<Sprite>("../src/art.png", mpRenderEngine, Vector2<float>{200.0f, 200.0f}, Vector2<float>{16, 16});
-std::cout << "Making sprite2\n";
-  mSprite3 = std::make_shared<Sprite>("../src/heart.png", mpRenderEngine, Vector2<float>{50.0f, 300.0f}, Vector2<float>{16, 16});
-std::cout << "Making sprite3\n";
-  mSprite2 = std::make_shared<Sprite>("../src/art.png", mpRenderEngine, Vector2<float>{600.0f, 600.0f}, Vector2<float>{16, 16});
-std::cout << "Making sprite4\n";
-  mButton = std::make_shared<Button<>>(mNewFont, "Test", mpRenderEngine, 12, Vector2<float>{0, 0}, Vector2<float>{50, 50});
+  mText = std::make_shared<Text>(mNewFont, "FPS: 0", mpRenderEngine, 12, glm::vec2{100.0f, 100.0f});
+  // mSprite = std::make_shared<Sprite>(glm::vec2{200.0f, 200.0f}, glm::vec2{16, 16}, lg::White);
+  mSprite = std::make_shared<Sprite>("../src/art.png", mpRenderEngine, glm::vec2{200.0f, 200.0f}, glm::vec2{16, 16});
+  mSprite3 = std::make_shared<Sprite>("../src/heart.png", mpRenderEngine, glm::vec2{50.0f, 300.0f}, glm::vec2{16, 16});
+  mSprite2 = std::make_shared<Sprite>("../src/art.png", mpRenderEngine, glm::vec2{600.0f, 600.0f}, glm::vec2{16, 16});
+  mButton = std::make_shared<Button<>>(mNewFont, "Test", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50});
   Image tempImg("../src/SquareWBorder.png");
   tempImg.recolorBorderedShape(lg::Color(135, 135, 135), lg::Color(170, 170, 170), lg::White);
   std::shared_ptr<TextureResource> tempTexture = std::make_shared<TextureResource>(tempImg.getName(), mpRenderEngine, tempImg.getDimensions(), tempImg.getInternalFormat());
@@ -43,19 +39,12 @@ std::cout << "Making sprite4\n";
   std::shared_ptr<TextureResource> tempTexture3 = std::make_shared<TextureResource>("Pressed", mpRenderEngine, tempImg.getDimensions(), tempImg.getInternalFormat());
   tempTexture3->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
   mButton->setPressedTexture(tempTexture3);
-
-std::cout << "Making button2\n";
-
-  mButtons.push_back(std::make_shared<Button<Vector2<int32_t>>>(mNewFont, "Test1", mpRenderEngine, 12, Vector2<float>{0, 0}, Vector2<float>{50, 50}));
-std::cout << "Making button3\n";
-
-  mButtons.push_back(std::make_shared<Button<Vector2<int32_t>>>(mNewFont, "Test2", mpRenderEngine, 12, Vector2<float>{0, 0}, Vector2<float>{50, 50}));
-std::cout << "Making button4\n";
-
-  mButtons.push_back(std::make_shared<Button<Vector2<int32_t>>>(mNewFont, "Test3", mpRenderEngine, 12, Vector2<float>{0, 0}, Vector2<float>{50, 50}));
-  mButtons[0]->setValue(Vector2<int32_t>(0,0));
-  mButtons[1]->setValue(Vector2<int32_t>(10,10));
-  mButtons[2]->setValue(Vector2<int32_t>(200,200));
+  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(mNewFont, "Test1", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50}));
+  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(mNewFont, "Test2", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50}));
+  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(mNewFont, "Test3", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50}));
+  mButtons[0]->setValue(glm::ivec2(0,0));
+  mButtons[1]->setValue(glm::ivec2(10,10));
+  mButtons[2]->setValue(glm::ivec2(200,200));
 
   for(auto& button : mButtons)
   {
@@ -65,7 +54,7 @@ std::cout << "Making button4\n";
     button->onClick(MainMenu::dropdownCallbacK);
   }
 
-  mMenu = std::make_shared<DropDownMenu<Vector2<int32_t>>>(2, mButtons, Vector2<float>(700.0f, 700.0f), Vector2<float>{45.0f, 30.0f});
+  mMenu = std::make_shared<DropDownMenu<glm::ivec2>>(2, mButtons, glm::vec2(700.0f, 700.0f), glm::vec2{45.0f, 30.0f});
 
   mButton->setDefaultColor(lg::Grey);
   mButton->setHoverColor(lg::Green);
@@ -75,11 +64,21 @@ std::cout << "Making button4\n";
   mButton->setValue(nullptr);
   mButton->onClick(MainMenu::buttonCallback);
 
-  mScroll = std::make_shared<Scrollbar>(mpRenderEngine, Vector2<float>(900, 50), Vector2<float>(20, 60));
+  mScroll = std::make_shared<Scrollbar>(mpRenderEngine, glm::vec2(900, 50), glm::vec2(20, 60));
   mScroll->setDefaultColor(lg::Grey);
   mScroll->setHoverColor(lg::Green);
   mScroll->setPressedColor(lg::Green);
-  mScroll->setPressedPadding(Vector2<float>(50, 50));
+  mScroll->setPressedPadding(glm::vec2(50, 50));
+
+  mFbo = std::make_shared<FrameBuffer>();
+  mFbo->bind();
+  RenderCommand::enableBlend();
+  RenderCommand::setClearColor(0.3f, 0.0f, 0.0f, 1.0f);
+  mFbo->unbind();
+  mFbo->invalidate(glm::uvec2{gWindowWidth, gWindowHeight}, mpRenderEngine);
+  mView = std::make_shared<Sprite>(glm::vec2{gWindowWidth / 2.0f, gWindowHeight / 2.0f}, glm::vec2{gWindowWidth, gWindowHeight}, lg::White);
+
+  mView->setTexture(mFbo->getTexture(), true);
 }
 
 void MainMenu::update(const std::shared_ptr<RenderTarget> &crpTarget, const float cDeltaTime)
@@ -147,18 +146,20 @@ void MainMenu::update(const std::shared_ptr<RenderTarget> &crpTarget, const floa
 
   float xDir = 300.0f;
   float yDir = 300.0f;
-  static Vector2<float> vel(0.0f, 0.0f);
+  static glm::vec2 vel(0.0f, 0.0f);
 
   vel.x = xDir;
   vel.y = yDir;
 
-  Vector2<float> move(0, 0);
+  glm::vec2 move(0, 0);
   move.x = vel.x * xMove;
   move.y = vel.y * yMove;
   move *= cDeltaTime;
 
   mSprite->movePos(move);
 
+  mFbo->bind();
+  RenderCommand::clear();
   Renderer2D::beginScene();
   mText->draw();
   mSprite->draw();
@@ -167,6 +168,10 @@ void MainMenu::update(const std::shared_ptr<RenderTarget> &crpTarget, const floa
   mButton->draw();
   mScroll->draw();
   mMenu->draw();
+  Renderer2D::endScene();
+  mFbo->unbind();
+  Renderer2D::beginScene();
+  mView->draw();
   Renderer2D::endScene();
 }
 
@@ -188,7 +193,7 @@ void MainMenu::buttonCallback(const Button<>& rVal)
   std::cout << "Clicked\n";
 }
 
-void MainMenu::dropdownCallbacK(const Button<Vector2<int32_t>>& rVal)
+void MainMenu::dropdownCallbacK(const Button<glm::ivec2>& rVal)
 {
-  std::cout << rVal.getValue();
+  std::cout << "(" << rVal.getValue().x << ", " << rVal.getValue().y << ")" << std::endl;
 }

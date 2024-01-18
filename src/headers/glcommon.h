@@ -5,9 +5,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "Vector.h"
 #include "color.h"
 #include "exception.h"
+#include "glm/vec2.hpp"
 
 #define ASSERT(x) if (!(x)) __debugbreak();
 #define GLCall(x) GLClearError();\
@@ -15,21 +15,21 @@
     ASSERT(GLLogCall(#x, __FILE__, __LINE__))
 
 struct Vertex {
-  Vector2<GLfloat> bottomLeft;
+  glm::vec2 bottomLeft;
   lg::Color rgba1;
-  Vector2<GLfloat> textCoord1;
+  glm::vec2 textCoord1;
   GLfloat textureIndex1;
-  Vector2<GLfloat> bottomRight;
+  glm::vec2 bottomRight;
   lg::Color rgba2;
-  Vector2<GLfloat> textCoord2;
+  glm::vec2 textCoord2;
   GLfloat textureIndex2;
-  Vector2<GLfloat> topRight;
+  glm::vec2 topRight;
   lg::Color rgba3;
-  Vector2<GLfloat> textCoord3;
+  glm::vec2 textCoord3;
   GLfloat textureIndex3;
-  Vector2<GLfloat> topLeft;
+  glm::vec2 topLeft;
   lg::Color rgba4;
-  Vector2<GLfloat> textCoord4;
+  glm::vec2 textCoord4;
   GLfloat textureIndex4;
   //update for texture coords and texture index 3 floats
 };

@@ -9,13 +9,11 @@
 class IndexBuffer
 {
   public:
-    IndexBuffer() = default;
+    IndexBuffer() = delete;
     IndexBuffer(const uint32_t cNumIndices, const GLenum cDrawType);
-    void genIbo();
     ~IndexBuffer();
     void bind() const;
     void unbind() const;
-    void genIboBuffer(const uint32_t cVboSizeBytes, const GLenum cDrawType);
     void updateIboSubBuffer(const uint32_t cIndex, const uint32_t cBuffSize, void *pBuffer);
     void updateIndexBuffer(const uint64_t cNumVertexes);
 
@@ -26,7 +24,6 @@ class IndexBuffer
   private:
     uint32_t mIboId;
     uint32_t mCount;
-    std::vector<uint32_t> mBuffer;
     uint32_t mLastDataSize;
 };
 

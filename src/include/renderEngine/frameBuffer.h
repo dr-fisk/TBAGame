@@ -2,9 +2,11 @@
 #define FRAMEBUFFER_H
 
 #include <cstdint>
+#include <memory>
 
-#include "renderEngine/texture.h"
-#include "Vector.h"
+#include "renderEngine/renderEngine.h"
+#include "resource/textureResource.h"
+#include "glm/vec2.hpp"
 
 class FrameBuffer
 {
@@ -14,11 +16,12 @@ class FrameBuffer
     ~FrameBuffer();
     void bind() const;
     void unbind() const;
-    void invalidate(const Vector2<uint32_t>& crDimensions);
+    void invalidate(const glm::uvec2& crDimensions, std::shared_ptr<RenderEngine>& prRenderEngine);
+    std::shared_ptr<TextureResource> getTexture() const;
   private:
     uint32_t mFrameBufferId;
     uint32_t mRenderBufferId;
-    Texture mTexture;
+    std::shared_ptr<TextureResource> mTexture;
 };
 
 #endif

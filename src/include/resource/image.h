@@ -5,8 +5,8 @@
 #include <string>
 
 #include "utility/net_utility.h"
-#include "Vector.h"
 #include "color.h"
+#include "glm/vec2.hpp"
 
 class Image
 {
@@ -14,8 +14,8 @@ class Image
     Image(const std::string& crPath);
     ~Image() = default;
     std::string getName();
-    Vector2<uint32_t> getOffset();
-    Vector2<uint32_t> getDimensions();
+    glm::uvec2 getOffset();
+    glm::uvec2 getDimensions();
     std::vector<uint8_t> getImgData();
     int32_t getFormat();
     int32_t getType();
@@ -25,8 +25,8 @@ class Image
                               const lg::Color& crOriginalFillColor);
   private:
     std::vector<uint8_t> mPixelData;
-    Vector2<uint32_t> mDimensions;
-    Vector2<uint32_t> mOffset;
+    glm::uvec2 mDimensions;
+    glm::uvec2 mOffset;
     int32_t mFormat;
     int32_t mType;
     int32_t mInternalFormat;

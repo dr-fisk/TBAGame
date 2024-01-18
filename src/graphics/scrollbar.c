@@ -8,8 +8,8 @@
 //! @param crSize
 //!
 //! @return None
-Scrollbar::Scrollbar(std::shared_ptr<RenderEngine>& prRenderEngine, const Vector2<float>& crPos,
-                     const Vector2<float>& crSize)
+Scrollbar::Scrollbar(std::shared_ptr<RenderEngine>& prRenderEngine, const glm::vec2& crPos,
+                     const glm::vec2& crSize)
 {
   mScrollbarButton = std::make_shared<Button<>>(prRenderEngine, crPos, crSize);
   mState = DEFAULT_STATE;
@@ -75,7 +75,7 @@ void Scrollbar::mouseMoveEvent(const Event& crEvent)
       // current y position
       else
       {
-        mScrollbarButton->movePos(Vector2<float>(0, crEvent.MousePos.y - mPrevMousey));
+        mScrollbarButton->movePos(glm::vec2(0, crEvent.MousePos.y - mPrevMousey));
         mPrevMousey = crEvent.MousePos.y;
       }
       break;
@@ -102,7 +102,7 @@ void Scrollbar::update(const Event& crEvent)
   }
 }
 
-void Scrollbar::setPressedPadding(const Vector2<float>& crPadding)
+void Scrollbar::setPressedPadding(const glm::vec2& crPadding)
 {
   mScrollbarButton->setPressedPadding(crPadding);
 }

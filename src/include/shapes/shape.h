@@ -1,7 +1,7 @@
 #ifndef SHAPE_H
 #define SHAPE_H
 
-#include "Vector.h"
+#include "glm/vec2.hpp"
 
 template<typename T>
 class Shape
@@ -10,26 +10,26 @@ class Shape
     Shape() = default;
     virtual ~Shape() = default;
 
-    Vector2<T> getSize();
-    Vector2<T> getPos();
-    virtual void setSize(const Vector2<T>& crSize) = 0;
-    virtual void setPos(const Vector2<T>& crPos) = 0;
-    virtual void movePos(const Vector2<T>& crMoveVector) = 0;
-    virtual bool inLocalBounds(const Vector2<int32_t>& crPos) = 0;
-    virtual bool inLocalBounds(const Vector2<float>& crPos) = 0;
+    T getSize();
+    T getPos();
+    virtual void setSize(const T& crSize) = 0;
+    virtual void setPos(const T& crPos) = 0;
+    virtual void movePos(const T& crMoveVector) = 0;
+    virtual bool inLocalBounds(const glm::ivec2& crPos) = 0;
+    virtual bool inLocalBounds(const glm::vec2& crPos) = 0;
   protected:
-    Vector2<T> mSize;
-    Vector2<T> mPos;
+    T mSize;
+    T mPos;
 };
 
 template<typename T>
-Vector2<T> Shape<T>::getSize()
+T Shape<T>::getSize()
 {
   return mSize;
 }
 
 template<typename T>
-Vector2<T> Shape<T>::getPos()
+T Shape<T>::getPos()
 {
   return mPos;
 }

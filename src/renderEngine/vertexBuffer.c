@@ -28,17 +28,6 @@ void VertexBuffer::setLayout(const VertexBufferLayout& crLayout)
 
 //! @brief Generates a VBO and binds the buffer for the VAO
 //!
-//! @param[in] cNumVertexes Number of Vertexes to allocate memory for
-//! @param[in] cDrawType Draw Type to configure VBO for
-//!
-//! @return None
-void VertexBuffer::genVboBuffer(const uint32_t cNumVertexes, const GLenum cDrawType)
-{
-  GLCall(glBufferData(GL_ARRAY_BUFFER, cNumVertexes * sizeof(Vertex), nullptr, cDrawType));
-}
-
-//! @brief Generates a VBO and binds the buffer for the VAO
-//!
 //! @param[in] cIndex    Offset within VBO buffer
 //! @param[in] cBuffSize Size of Data to copy
 //! @param[in] pBuffer   Data to copy
@@ -47,14 +36,6 @@ void VertexBuffer::genVboBuffer(const uint32_t cNumVertexes, const GLenum cDrawT
 void VertexBuffer::updateVboSubBuffer(const uint32_t cIndex, const uint32_t cBuffSize, void *pBuffer)
 {
   GLCall(glBufferSubData(GL_ARRAY_BUFFER, cIndex, cBuffSize, pBuffer));
-}
-
-//! @brief Generates VBO
-//!
-//! @return None
-void VertexBuffer::genVbo()
-{
-  GLCall(glGenBuffers(1, &mVboId));
 }
 
 //! @brief Deletes VertexBuffer

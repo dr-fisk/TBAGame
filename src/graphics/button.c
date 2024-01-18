@@ -14,10 +14,10 @@
 //! @return Button Object
 template <typename T>
 Button<T>::Button(std::shared_ptr<Font>& prFont, const std::string& crText,
-                  std::shared_ptr<RenderEngine>& prRenderEngine, const uint8_t cCharSize, const Vector2<float>& crPos,
-                  const Vector2<float>& crSize)
+                  std::shared_ptr<RenderEngine>& prRenderEngine, const uint8_t cCharSize, const glm::vec2& crPos,
+                  const glm::vec2& crSize)
 {
-  Vector2<float> tempPos(0, 0);
+  glm::vec2 tempPos(0, 0);
   mBox = std::make_shared<Sprite>(tempPos, crSize, lg::Transparent);
   mBox->setLayer(1);
   mText = std::make_shared<Text>(prFont, crText, prRenderEngine, cCharSize, tempPos);
@@ -29,7 +29,7 @@ Button<T>::Button(std::shared_ptr<Font>& prFont, const std::string& crText,
   mCallback = nullptr;
   mId = -1;
   mCallbackDisabled = false;
-  mPressedPadding = Vector2<float>(0, 0);
+  mPressedPadding = glm::vec2(0, 0);
 }
 
 //! @brief Constructs a Button without Text
@@ -40,8 +40,8 @@ Button<T>::Button(std::shared_ptr<Font>& prFont, const std::string& crText,
 //!
 //! @return Button Object
 template <typename T>
-Button<T>::Button(std::shared_ptr<RenderEngine>& prRenderEngine, const Vector2<float>& crPos,
-                  const Vector2<float>& crSize)
+Button<T>::Button(std::shared_ptr<RenderEngine>& prRenderEngine, const glm::vec2& crPos,
+                  const glm::vec2& crSize)
 {
   mDefaultColor = lg::Transparent;
   mHoverColor = lg::Transparent;
@@ -52,7 +52,7 @@ Button<T>::Button(std::shared_ptr<RenderEngine>& prRenderEngine, const Vector2<f
   mCallback = nullptr;
   mId = -1;
   mCallbackDisabled = false;
-  mPressedPadding = Vector2<float>(0, 0);
+  mPressedPadding = glm::vec2(0, 0);
 }
 
 //! @brief Sets the Callback function to be called when the button is clicked
@@ -192,7 +192,7 @@ bool Button<T>::clicked(const Event& crEvent)
 //!
 //! @return None
 template <typename T>
-void Button<T>::movePos(const Vector2<float>& crMove, const bool cCheckIfMouseHovering)
+void Button<T>::movePos(const glm::vec2& crMove, const bool cCheckIfMouseHovering)
 {
   mBox->movePos(crMove);
 
@@ -211,7 +211,7 @@ void Button<T>::movePos(const Vector2<float>& crMove, const bool cCheckIfMouseHo
 //!
 //! @return None
 template <typename T>
-void Button<T>::setPos(const Vector2<float>& crPos, const bool cCheckIfMouseHovering)
+void Button<T>::setPos(const glm::vec2& crPos, const bool cCheckIfMouseHovering)
 {
   mBox->setPos(crPos);
 
@@ -229,8 +229,8 @@ void Button<T>::setPos(const Vector2<float>& crPos, const bool cCheckIfMouseHove
 template <typename T>
 void Button<T>::setTextPos()
 {
-  Vector2<float> textSize = mText->getSize();
-  Vector2<float> buttonCenter = mBox->getPos();
+  glm::vec2 textSize = mText->getSize();
+  glm::vec2 buttonCenter = mBox->getPos();
   mText->setPos({buttonCenter.x - (textSize.x / 2.0f), buttonCenter.y - (textSize.y / 2.0f)});
 }
 
@@ -240,7 +240,7 @@ void Button<T>::setTextPos()
 //!
 //! @return None
 template <typename T>
-void Button<T>::setSize(const Vector2<float>& crSize)
+void Button<T>::setSize(const glm::vec2& crSize)
 {
   mBox->setSize(crSize);
 
@@ -290,9 +290,9 @@ void Button<T>::setPressedColor(const lg::Color& crColor)
 //!
 //! @return True if Mouse is in AABB false otherwise
 template <typename T>
-bool Button<T>::isInAABB(const Vector2<float>& crPos)
+bool Button<T>::isInAABB(const glm::vec2& crPos)
 {
-  Box<float> box = mBox->getBox();
+  Box<glm::vec2> box = mBox->getBox();
   return box.inLocalBounds(crPos);
 }
 
@@ -303,10 +303,10 @@ bool Button<T>::isInAABB(const Vector2<float>& crPos)
 //!
 //! @return True if Mouse is in AABB false otherwise
 template <typename T>
-bool Button<T>::isInAABB(const Vector2<float>& crPos, const Vector2<float>& crPadding)
+bool Button<T>::isInAABB(const glm::vec2& crPos, const glm::vec2& crPadding)
 {
-  Box<float> box = mBox->getBox();
-  Vector2<float> size = box.getSize();
+  Box<glm::vec2> box = mBox->getBox();
+  glm::vec2 size = box.getSize();
   size += crPadding;
   box.setSize(size);
   return box.inLocalBounds(crPos);
@@ -349,7 +349,7 @@ int64_t Button<T>::getId() const
 //!
 //! @return Button Position
 template <typename T>
-Vector2<float> Button<T>::getPos() const
+glm::vec2 Button<T>::getPos() const
 {
   return mBox->getPos();
 }
@@ -358,7 +358,7 @@ Vector2<float> Button<T>::getPos() const
 //!
 //! @return Button Size
 template <typename T>
-Vector2<float> Button<T>::getSize() const
+glm::vec2 Button<T>::getSize() const
 {
   return mBox->getSize();
 }
@@ -465,7 +465,7 @@ bool Button<T>::isPressed() const
 //!
 //! @return None 
 template <typename T>
-void Button<T>::setPressedPadding(const Vector2<float>& crPadding)
+void Button<T>::setPressedPadding(const glm::vec2& crPadding)
 {
   mPressedPadding = crPadding;
 }

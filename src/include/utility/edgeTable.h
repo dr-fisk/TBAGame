@@ -1,12 +1,13 @@
 #ifndef EDGE_TABLE_H
 
-#include "Vector.h"
-#include "common.h"
-#include "utility/plot_utility.h"
-
 #include <cstdint>
 #include <vector>
 #include <fstream>
+
+#include "common.h"
+#include "utility/plot_utility.h"
+#include "glm/vec2.hpp"
+
 struct EdgeTableNode
 {
   float yUpper;
@@ -44,8 +45,8 @@ namespace EdgeTable
     float dx = 0;
     float dy = 0;
     float m = 0;
-    Vector2<T> p1 = {0, 0};
-    Vector2<T> p2 = {0, 0};
+    T p1 = {0, 0};
+    T p2 = {0, 0};
     for (int32_t i = 0; i < crEdges.size(); i ++)
     {
       p1.x = crEdges[i].p1.x;
@@ -100,7 +101,7 @@ namespace EdgeTable
   //!
   //! @return None
   template<typename T>
-  static void scanLineFill(const std::vector<Edges<T>>& crEdges, const Vector2<uint32_t>& crDimensions,
+  static void scanLineFill(const std::vector<Edges<T>>& crEdges, const glm::uvec2& crDimensions,
                            std::vector<uint32_t>& rBitmap, const lg::Color &crColor, const int32_t cMinY, char cha)
   {
     std::vector<EdgeTableNode> edgeTable(crEdges.size());
@@ -108,7 +109,7 @@ namespace EdgeTable
     size_t activeEdgeTableIdx = 0;
     uint32_t numEdges = 0;
     uint32_t edgeTableIdx = 0;
-    Vector2<int32_t> pt = {0,0};
+    glm::ivec2 pt = {0,0};
     float scanlineSubDiv = 5;
     float alphaWeight = 255.0 / scanlineSubDiv;
     float stepPerScanline = 1.0 / scanlineSubDiv;
@@ -174,7 +175,7 @@ namespace EdgeTable
             alpha = lg::Color(rBitmap[crDimensions.x * y + x]).getAlpha();
             tempColor = lg::Color(crColor.getRed(), crColor.getGreen(), crColor.getBlue(), alphaWeight);
             tempColor.addAlpha(alpha);
-            PlotUtility<int32_t>::drawPixelInBitmap(pt, rBitmap, crDimensions.x, tempColor);
+            PlotUtility<glm::ivec2>::drawPixelInBitmap(pt, rBitmap, crDimensions.x, tempColor);
           }
         }
 

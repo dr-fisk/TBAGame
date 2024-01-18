@@ -15,7 +15,7 @@
 #include "graphics/dropdownmenu.h"
 #include "graphics/scrollbar.h"
 #include "renderEngine/frameBuffer.h"
-
+#include "glm/vec2.hpp"
 
 class MainMenu : public State
 {
@@ -27,7 +27,7 @@ class MainMenu : public State
 
   private:
     static void buttonCallback(const Button<>& rVal);
-    static void dropdownCallbacK(const Button<Vector2<int32_t>>& rVal);
+    static void dropdownCallbacK(const Button<glm::ivec2>& rVal);
     LestTrueType ttf;
     std::shared_ptr<Font> mNewFont;
     std::shared_ptr<Text> mText;
@@ -36,8 +36,10 @@ class MainMenu : public State
     std::shared_ptr<Sprite> mSprite3;
     std::shared_ptr<Button<>> mButton;
     std::shared_ptr<Scrollbar> mScroll;
-    std::shared_ptr<DropDownMenu<Vector2<int32_t>>> mMenu;
+    std::shared_ptr<DropDownMenu<glm::ivec2>> mMenu;
     std::chrono::time_point<std::chrono::system_clock> mStartTime;
+    std::shared_ptr<FrameBuffer> mFbo;
+    std::shared_ptr<Sprite> mView;
 };
 
 #endif

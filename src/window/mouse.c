@@ -9,7 +9,7 @@ namespace lg
 {
   namespace Mouse
   {
-    static Vector2<double> gMousePos = Vector2<double>(0, 0);
+    static glm::dvec2 gMousePos = glm::dvec2(0, 0);
 
     //! @brief Callback to receive Mouse Input
     //! @param pWindow Active Window
@@ -55,7 +55,7 @@ namespace lg
     //! @brief Gets the current mouse position
     //!
     //! @return Mouse Position
-    Vector2<int32_t> getMousePosi()
+    glm::ivec2 getMousePosi()
     {
       return {static_cast<int32_t>(gMousePos.x), static_cast<int32_t>(gMousePos.y)};
     }
@@ -63,7 +63,7 @@ namespace lg
     //! @brief Gets the current mouse position
     //!
     //! @return Mouse Position
-    Vector2<float> getMousePosf()
+    glm::vec2 getMousePosf()
     {
       return {static_cast<float>(gMousePos.x), static_cast<float>(gMousePos.y)};
     }

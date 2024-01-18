@@ -4,6 +4,9 @@
 #include "game.h"
 #include "states/mainMenuState.h"
 #include "states/exceptionState.h"
+#include "renderer/renderer2D.h"
+#include "renderer/renderCommand.h"
+#include "glm/vec2.hpp"
 
 GLfloat gWindowWidth = 0;
 GLfloat gWindowHeight = 0;
@@ -19,63 +22,24 @@ void Game::initMainState()
   mStates.push(std::make_shared<MainMenu>(mStates, mpRenderEngine));
 }
 
-//! @brief Initializes Texture Sampler via the max number of Texture Units allowed by hardware
-//!
-//! @return None
-// void Game::initTextureSampler()
-// {
-//   const int32_t NUM_TEXTURE_UNITS = mpBatchBuffer->getMaxTextureUnits();
-//   auto uni = mpBatchBuffer->getUniform(0, "u_Textures");
-//   int sampler[NUM_TEXTURE_UNITS];
-
-//   for(int i = 0; i < NUM_TEXTURE_UNITS; i ++)
-//   {
-//     sampler[i] = i;
-//   }
-
-//   GLCall(glUniform1iv(uni, NUM_TEXTURE_UNITS, sampler));
-// }
-
 //! @brief Default Constructor
 //!
 //! @return Game Object
 Game::Game()
 {
+  RenderCommand::init();
   mpWindow = std::make_shared<RenderWindow>(1920, 1080, "Lest Window");   
   /* NOTE: BEFORE ANY GL CALL, THAT IS NOT GLFW but GL, SET ACTIVE MUST BE CALLED OR ELSE OPENGL FAILS */
   mpWindow->setActive();
 
   // //init GL attributes for window
   mpWindow->initWindow();
-  mpWindow->enableBlend();
+  RenderCommand::enableBlend();
 
   int32_t view[4] = {};
   glGetIntegerv(GL_VIEWPORT, view);
   std::cout << view[0] << " " << view[1] << " " << view[2] << " " << view[3] << std::endl;
-  // VertexBufferLayout temp;
-  // // First set of Float are quad position
-  // temp.push(TWO_D_COORDS, GL_FLOAT, false);
-  // // Next 4 bytes are RGBA
-  // temp.push(RGBA, GL_UNSIGNED_BYTE, true);
-  // // Next 2 floats are Texture Coords
-  // temp.push(TWO_D_COORDS, GL_FLOAT, false);
-  // temp.push(1, GL_FLOAT, false);
   Renderer2D::init();
-  // mpBatchBuffer = std::make_shared<BatchBuffer>(1, 1, 1, 2);
-  // mpBatchBuffer->bindVbo(0);
-  // mpBatchBuffer->bindVao(0);
-  // mpBatchBuffer->bindIbo(0);
-  // mpBatchBuffer->genVboBuffer(0, 300, GL_DYNAMIC_DRAW);
-  // mpBatchBuffer->genIboBuffer(0, 300, GL_STATIC_DRAW);
-  // mpBatchBuffer->initShader(0,  "./shaders/shader1.txt");
-  // mpBatchBuffer->initShader(1,  "./shaders/fragShader.txt");
-  // mpBatchBuffer->bindShader(0);
-  // auto uni = mpBatchBuffer->getUniform(1, "u_Textures");
-  // int sampler = 0;
-
-  // GLCall(glUniform1iv(uni, 1, &sampler));
-  // initTextureSampler();
-  // mpBatchBuffer->setVaoAttributes(0, temp);
   mpRenderEngine = std::make_shared<RenderEngine>();
   //temp
   gWindowWidth = 1920;
@@ -110,8 +74,8 @@ Game::~Game()
   }
 
   // mFbo.reset();
-  Renderer2D::shutdown();
   mpRenderEngine.reset();
+  Renderer2D::shutdown();
   mpWindow->destroyWindow();
   glfwTerminate();
 }
@@ -127,6 +91,7 @@ void Game::gameLoop()
   mFrameTime = std::chrono::steady_clock::now();
   // mFbo->invalidate(Vector2<uint32_t>(gWindowWidth, gWindowHeight));
   // glViewport(0,0, gWindowWidth, gWindowHeight);
+  RenderCommand::setClearColor(0.3f, 0.0f, 0.0f, 1.0f);
   while(!mStates.empty() && mpWindow->isOpen())
   {
     deltaTime = std::chrono::duration<float>(std::chrono::steady_clock::now() - mFrameTime).count();
@@ -140,7 +105,7 @@ void Game::gameLoop()
       mStates.pop();
     }
     
-      mpWindow->clear();
+    // RenderCommand::clear();
     
     mStates.top()->update(mpWindow, deltaTime);
     // mFbo->bind();
@@ -148,7 +113,7 @@ void Game::gameLoop()
     mStates.top()->render(mpWindow);
     mpWindow->display();
 
-  GLCall(glfwPollEvents());
+    RenderCommand::pollEvents();
     gFrames ++;
     mEndTime = std::chrono::steady_clock::now();
     if (std::chrono::duration_cast<std::chrono::seconds>(mEndTime - mStartTime).count() >= 1.0f)

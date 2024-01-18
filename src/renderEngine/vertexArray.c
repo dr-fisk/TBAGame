@@ -1,10 +1,10 @@
 #include "glcommon.h"
 #include "renderEngine/vertexArray.h"
 
-//! @brief Creates a VertexArray
+//! @brief Generates Vertex Array Object
 //!
-//! @return None
-void VertexArray::genVao()
+//! @return Vertex Array Objet
+VertexArray::VertexArray()
 {
   mVertexBufferIndex = 0;
   GLCall(glGenVertexArrays(1, &mVaoId));
@@ -23,7 +23,6 @@ VertexArray::~VertexArray()
 //! @param[in] crLayout The format of the VBO so that the VAO can interpret and render data accordingly
 //!
 //! @return None
-//TODO: make switch a function
 void VertexArray::setVaoAttributes(const VertexBufferLayout& crLayout)
 {
   const auto& elements = crLayout.getElements();

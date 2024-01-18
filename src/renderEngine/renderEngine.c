@@ -4,14 +4,15 @@
 
 //! @brief Wrapper function to create Texture
 //!
-//! @param[in] crTag   Tag associated with texture to avoid creating repeats
-//! @param[in] cHeight Height of Texture
-//! @param[in] cWidth  Width of Texture
+//! @param[in] crTag           Tag associated with texture to avoid creating repeats
+//! @param[in] cHeight         Height of Texture
+//! @param[in] cWidth          Width of Texture
 //! @param[in] cInternalFormat Specifies the number of color components in the texture
+//! @param[in] cFormat         Format of Texture
 //!
 //! @return Texture Object
 Texture* RenderEngine::createTexture(const std::string& crTag, const uint32_t cHeight, const uint32_t cWidth,
-                                     const int32_t cInternalFormat)
+                                     const int32_t cInternalFormat, const int32_t cFormat)
 {
   if(mTextureCache.find(crTag) != mTextureCache.end())
   {
@@ -19,7 +20,7 @@ Texture* RenderEngine::createTexture(const std::string& crTag, const uint32_t cH
     return &mTextureCache[crTag].ResourceType;
   }
 
-  mTextureCache[crTag].ResourceType.create(cHeight, cWidth, cInternalFormat);
+  mTextureCache[crTag].ResourceType.create(cHeight, cWidth, cInternalFormat, cFormat);
   mTextureCache[crTag].Count ++;
   mTextureIdToTag[mTextureCache[crTag].ResourceType.getTextureId()] = crTag;
   return &mTextureCache[crTag].ResourceType;

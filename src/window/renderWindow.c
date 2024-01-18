@@ -7,7 +7,6 @@
 #include "window/keyboard.h"
 
 bool RenderWindow::msCallbacksInitialized = false;
-bool RenderWindow::msIsInitialized = false;
 int32_t RenderWindow::msWindowId = 0;
 int32_t RenderWindow::msActiveWindowId = -1;
 
@@ -21,21 +20,7 @@ int32_t RenderWindow::msActiveWindowId = -1;
 //! @return None
 RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHeight, const char *cpTitle,
                            GLFWwindow *pWindow)
-{
-  if(!msIsInitialized)
-  {
-    if(!glfwInit())
-    {
-      std::cout << "Failed to open window" << std::endl;
-      exit(-1);
-    }
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    msIsInitialized = true;
-  }
- 
+{ 
   mWdwWidth = cWindowWidth;
   mWdwHeight = cWindowHeight;
   mTitle = cpTitle;
@@ -56,39 +41,12 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
   std::cout << "Width: " << w << " Height: " << h << std::endl;
 }
 
-//! @brief Enables blend for Rendering
-//!
-//! @return None
-void RenderWindow::enableBlend()
-{
-  GLCall(glEnable(GL_BLEND));
-  GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-}
-
-//! @brief Disables Blend for Rendering
-//!
-//! @return None
-void RenderWindow::disableBlend()
-{
-  GLCall(glDisable(GL_BLEND));
-}
-
-//! @brief Sets window to background color
-//!
-//! @return None
-void RenderWindow::clear()
-{
-  // GLCall(glClearColor(0.3, 0.0, 0.0, 1.0));
-  GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-}
-
 //! @brief Handles displaying data stored in all buffers
 //!
 //! @return None
 void RenderWindow::display()
 {
   GLCall(glfwSwapBuffers(mpWindow));
-  // GLCall(glFlush());
 }
 
 //! @brief Draws VBO data to window
@@ -99,7 +57,6 @@ void RenderWindow::display()
 void RenderWindow::draw(const uint64_t cCount)
 {
   GLCall(glDrawElements(GL_TRIANGLES, cCount, GL_UNSIGNED_INT, nullptr));
-  // display();
 }
 
 //! @brief Gets window width
@@ -224,7 +181,7 @@ bool RenderWindow::pollEvent(Event& rEvent)
 
 std::shared_ptr<RenderWindow> RenderWindow::createSharedWindow()
 {
-  if((nullptr == mpWindow) || !msIsInitialized)
+  if(nullptr == mpWindow)
   {
     return nullptr;
   }

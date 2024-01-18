@@ -86,11 +86,11 @@ void Font::fillColor(const char cChar, const uint8_t cCharSize)
   uint32_t num_rows = mFont[cCharSize - 1][cChar].Dimensions.y;
   uint32_t num_cols = mFont[cCharSize - 1][cChar].Dimensions.x;
   const uint32_t color_map_size = mFont[cCharSize - 1][cChar].Bitmap.size();
-  Vector2<float> curr_point_coords;
-  Vector2<float> point_above_coords;
-  Vector2<float> point_below_coords;
-  Vector2<float> point_right_coords;
-  Vector2<float> point_left_coords;
+  glm::vec2 curr_point_coords;
+  glm::vec2 point_above_coords;
+  glm::vec2 point_below_coords;
+  glm::vec2 point_right_coords;
+  glm::vec2 point_left_coords;
 
   // Perform dijkstra's algorithm
   while(!visited.empty())
@@ -101,17 +101,17 @@ void Font::fillColor(const char cChar, const uint8_t cCharSize)
     point_above = currPoint - num_cols;
     point_right = currPoint + 1;
     point_left = currPoint - 1;
-    curr_point_coords = Vector2<float>(currPoint % num_cols, currPoint / num_cols);
-    point_above_coords = Vector2<float>(point_above % num_cols, point_above / num_cols);
-    point_below_coords = Vector2<float>(point_below % num_cols, point_below / num_cols);
-    point_right_coords = Vector2<float>(point_right % num_cols, point_right / num_cols);
-    point_left_coords = Vector2<float>(point_left % num_cols, point_left / num_cols);
+    curr_point_coords = glm::vec2(currPoint % num_cols, currPoint / num_cols);
+    point_above_coords = glm::vec2(point_above % num_cols, point_above / num_cols);
+    point_below_coords = glm::vec2(point_below % num_cols, point_below / num_cols);
+    point_right_coords = glm::vec2(point_right % num_cols, point_right / num_cols);
+    point_left_coords = glm::vec2(point_left % num_cols, point_left / num_cols);
 
 
     if(point_below < color_map_size && 
        !(mFontColor == mFont[cCharSize - 1][cChar].Bitmap[point_below]))
     {
-      if(PlotUtility<float>::arePointsTouching(point_below_coords, curr_point_coords))
+      if(PlotUtility<glm::vec2>::arePointsTouching(point_below_coords, curr_point_coords))
       {
         visited.push(point_below);
         mFont[cCharSize - 1][cChar].Bitmap[point_below] = mFontColor.getRgba();
@@ -120,7 +120,7 @@ void Font::fillColor(const char cChar, const uint8_t cCharSize)
 
     if(point_above >= 0 && !(mFontColor == mFont[cCharSize - 1][cChar].Bitmap[point_above]))
     {
-      if(PlotUtility<float>::arePointsTouching(point_above_coords, curr_point_coords))
+      if(PlotUtility<glm::vec2>::arePointsTouching(point_above_coords, curr_point_coords))
       {
         visited.push(point_above);
         mFont[cCharSize - 1][cChar].Bitmap[point_above] = mFontColor.getRgba();
@@ -129,7 +129,7 @@ void Font::fillColor(const char cChar, const uint8_t cCharSize)
 
     if(point_right < color_map_size && !(mFontColor == mFont[cCharSize - 1][cChar].Bitmap[point_right]))
     {
-      if (PlotUtility<float>::arePointsTouching(point_right_coords, curr_point_coords))
+      if (PlotUtility<glm::vec2>::arePointsTouching(point_right_coords, curr_point_coords))
       {
         visited.push(point_right);
         mFont[cCharSize - 1][cChar].Bitmap[point_right] = mFontColor.getRgba();
@@ -138,7 +138,7 @@ void Font::fillColor(const char cChar, const uint8_t cCharSize)
 
     if(point_left >= 0 && !(mFontColor == mFont[cCharSize - 1][cChar].Bitmap[point_left]))
     {
-      if(PlotUtility<float>::arePointsTouching(point_left_coords, curr_point_coords))
+      if(PlotUtility<glm::vec2>::arePointsTouching(point_left_coords, curr_point_coords))
       {
         visited.push(point_left);
         mFont[cCharSize - 1][cChar].Bitmap[point_left] = mFontColor.getRgba();
@@ -159,8 +159,8 @@ void Font::fillGeneratedPointColor(const char cChar, const uint8_t cCharSize)
 {
   const uint32_t num_cols = mFont[cCharSize - 1][cChar].Dimensions.x;
   int i = 0;
-  Vector2<int32_t> p1 = {0, 0};
-  Vector2<int32_t> p2 = {0, 0};
+  glm::ivec2 p1 = {0, 0};
+  glm::ivec2 p2 = {0, 0};
   
   for (const auto &edge : mFont[cCharSize - 1][cChar].GenPtsEdges)
   {
@@ -168,7 +168,7 @@ void Font::fillGeneratedPointColor(const char cChar, const uint8_t cCharSize)
     p1.y = edge.p1.y;
     p2.x = edge.p2.x;
     p2.y = edge.p2.y;
-    PlotUtility<int32_t>::plotLine(p1, p2, mFont[cCharSize - 1][cChar].Bitmap, num_cols, mFontColor);
+    PlotUtility<glm::ivec2>::plotLine(p1, p2, mFont[cCharSize - 1][cChar].Bitmap, num_cols, mFontColor);
   }
 }
 
@@ -251,9 +251,9 @@ void Font::updateNumberOfContours(const char cChar)
 //! @return Number of points generated
 int32_t Font::generateGlyphPoints(const char cChar)
 {
-  Vector2<float> p0 = {0.0, 0.0};
-  Vector2<float> p1 = {0.0, 0.0};
-  Vector2<float> p2 = {0.0, 0.0};
+  glm::vec2 p0 = {0.0, 0.0};
+  glm::vec2 p1 = {0.0, 0.0};
+  glm::vec2 p2 = {0.0, 0.0};
 
   int32_t j = 0;
   uint32_t currIdx = 0;
@@ -265,9 +265,9 @@ int32_t Font::generateGlyphPoints(const char cChar)
   int8_t contourStart = 0;
   int32_t nextIdx = 0;
   int32_t contourLen = 0;
-  Vector2<GLfloat> minCoord = Vector2<GLfloat>(mGlyfData[cChar].FontHeader.xMin,
+  glm::vec2 minCoord = glm::vec2(mGlyfData[cChar].FontHeader.xMin,
                                                mGlyfData[cChar].FontHeader.yMin);
-  Vector2<GLfloat> maxCoord = Vector2<GLfloat>(mGlyfData[cChar].FontHeader.xMax,
+  glm::vec2 maxCoord = glm::vec2(mGlyfData[cChar].FontHeader.xMax,
                                                mGlyfData[cChar].FontHeader.yMax);
   GLfloat yShift = -maxCoord.y;
 
@@ -286,7 +286,7 @@ int32_t Font::generateGlyphPoints(const char cChar)
 
       if(ON_CURVE_POINT & mGlyfData[cChar].FontHeader.flags[j])
       {
-        mGlyfData[cChar].GeneratedPoints[currIdx] = Vector2<float>(xPos, yPos);
+        mGlyfData[cChar].GeneratedPoints[currIdx] = glm::vec2(xPos, yPos);
         currIdx++;
       }
       else
@@ -297,7 +297,7 @@ int32_t Font::generateGlyphPoints(const char cChar)
           contourStartedOff = 1;
           if (ON_CURVE_POINT & mGlyfData[cChar].FontHeader.flags[nextIdx])
           {
-            mGlyfData[cChar].GeneratedPoints[currIdx] = Vector2<float>(
+            mGlyfData[cChar].GeneratedPoints[currIdx] = glm::vec2(
               (mGlyfData[cChar].FontHeader.xCoordinates[nextIdx]) - minCoord.x,
               abs((mGlyfData[cChar].FontHeader.yCoordinates[nextIdx]) + yShift));
             currIdx++;
@@ -317,14 +317,14 @@ int32_t Font::generateGlyphPoints(const char cChar)
         }
 
         p0 = mGlyfData[cChar].GeneratedPoints[currIdx - 1];
-        p1 = Vector2<float>(xPos, yPos);
-        p2 = Vector2<float>((mGlyfData[cChar].FontHeader.xCoordinates[nextIdx]) - minCoord.x,
+        p1 = glm::vec2(xPos, yPos);
+        p2 = glm::vec2((mGlyfData[cChar].FontHeader.xCoordinates[nextIdx]) - minCoord.x,
                               abs((mGlyfData[cChar].FontHeader.yCoordinates[nextIdx]) + yShift)); 
 
         if (!(ON_CURVE_POINT & mGlyfData[cChar].FontHeader.flags[nextIdx]))
         {
           // Get midpoint between p1 and p2
-          p2 = Vector2<float>(p1.x + ((p2.x - p1.x) / 2.0f),
+          p2 = glm::vec2(p1.x + ((p2.x - p1.x) / 2.0f),
                                 p1.y + ((p2.y - p1.y) / 2.0f));
         }
         else
@@ -332,7 +332,7 @@ int32_t Font::generateGlyphPoints(const char cChar)
           j++;
         }
         
-        currIdx += PlotUtility<float>::tessellateQuadBezier(mGlyfData[cChar].GeneratedPoints,
+        currIdx += PlotUtility<glm::vec2>::tessellateQuadBezier(mGlyfData[cChar].GeneratedPoints,
                                                               currIdx, mNumSubDiv, p0, p1, p2);
       }
 
@@ -353,7 +353,7 @@ int32_t Font::generateGlyphPoints(const char cChar)
       p1.x = (mGlyfData[cChar].FontHeader.xCoordinates[contourStartIdx]) - minCoord.x;
       p1.y = abs((mGlyfData[cChar].FontHeader.yCoordinates[contourStartIdx]) + yShift);
       p2 = mGlyfData[cChar].GeneratedPoints[genPtsStartIdx];
-      currIdx += PlotUtility<float>::tessellateQuadBezier(mGlyfData[cChar].GeneratedPoints,
+      currIdx += PlotUtility<glm::vec2>::tessellateQuadBezier(mGlyfData[cChar].GeneratedPoints,
                                                             currIdx, mNumSubDiv, p0, p1, p2);
     }
   }
@@ -401,7 +401,7 @@ std::vector<uint32_t> Font::getData(const uint8_t cCharSize, const char cChar)
 //! @param[in] cChar     Character to get dimensions from
 //!
 //! @return Dimensions of character in Vector2 format
-Vector2<uint32_t> Font::getCharacterDimensions(const uint8_t cCharSize, const char cChar)
+glm::uvec2 Font::getCharacterDimensions(const uint8_t cCharSize, const char cChar)
 {
   return mFont.at(cCharSize - 1).at(cChar).Dimensions;
 }
@@ -409,19 +409,19 @@ Vector2<uint32_t> Font::getCharacterDimensions(const uint8_t cCharSize, const ch
 //! TODO: Remove this is debug code
 void Font::writeGenPoints(const char cChar, const uint8_t cCharSize)
 {
-  std::ofstream fd("GenPoints.txt");
+  // std::ofstream fd("GenPoints.txt");
 
-  fd << "-----------------------------------------------------" << std::endl;
-  fd << "Points for letter: " << cChar << std::endl;
-  fd << "Dimensions: " << mFont[cCharSize - 1][cChar].Dimensions;
-  fd << mGlyfData[cChar].GeneratedPoints.size() << std::endl;
-  int i = 0;
-  for(const auto& pts : mGlyfData[cChar].GeneratedPoints)
-  {
-    fd << i << ": " << pts;
-    i++;
-  }
-  fd << "-----------------------------------------------------" << std::endl;
+  // fd << "-----------------------------------------------------" << std::endl;
+  // fd << "Points for letter: " << cChar << std::endl;
+  // fd << "Dimensions: " << mFont[cCharSize - 1][cChar].Dimensions;
+  // fd << mGlyfData[cChar].GeneratedPoints.size() << std::endl;
+  // int i = 0;
+  // for(const auto& pts : mGlyfData[cChar].GeneratedPoints)
+  // {
+  //   fd << i << ": " << pts;
+  //   i++;
+  // }
+  // fd << "-----------------------------------------------------" << std::endl;
 }
 
 //! @brief Gets Ybearing from character in font size map
@@ -515,7 +515,7 @@ void Font::loadGlyphs(const uint32_t cCharSize, std::shared_ptr<RenderEngine>& p
   char currChar = '\0';
   float scaleY = 0;
   float scaleX = 0;
-  Vector2<uint32_t> offset(0, 0);
+  glm::uvec2 offset(0, 0);
   int8_t size = cCharSize - 1;
   
   for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
@@ -541,7 +541,7 @@ void Font::loadGlyphs(const uint32_t cCharSize, std::shared_ptr<RenderEngine>& p
         (static_cast<float>(mGlyfData[currChar].FontHeader.xMax - mGlyfData[currChar].FontHeader.xMin)) /
         static_cast<float>(mMaxWidth);
 
-        mFont[size][currChar].Dimensions = Vector2<uint32_t>(size * scaleX, size * scaleY);
+        mFont[size][currChar].Dimensions = glm::uvec2(size * scaleX, size * scaleY);
 
         mFont[size][currChar].Ybearing = size - mFont[size][currChar].Dimensions.y;
 
@@ -639,7 +639,7 @@ bool Font::hasGlyphsLoaded(const uint8_t cCharSize)
 //! @param[in] cCharSize Character size to get character offset from specific map
 //!
 //! @return Offset for Texture buffer
-Vector2<uint32_t> Font::getOffset(const char cChar, const uint8_t cCharSize)
+glm::uvec2 Font::getOffset(const char cChar, const uint8_t cCharSize)
 {
   return mFont[cCharSize - 1][cChar].Offset;
 }

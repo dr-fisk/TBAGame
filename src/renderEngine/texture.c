@@ -41,7 +41,7 @@ int8_t Texture::create(const uint32_t cHeight, const uint32_t cWidth, const int3
     return -1;
   }
 
-  mSize = Vector2<uint32_t>(cWidth, cHeight);
+  mSize = glm::uvec2(cWidth, cHeight);
   mBufferGenerated = true;
 
   return 0;
@@ -57,7 +57,7 @@ int8_t Texture::create(const uint32_t cHeight, const uint32_t cWidth, const int3
 //!
 //! @return 0 if data in Texture Buffer updated successfully
 //! @return -1 if data in Texture Buffer updated unsuccessfully
-int8_t Texture::update(void *pBuffer, const Vector2<uint32_t>& crDimensions, const Vector2<uint32_t>& crOffset,
+int8_t Texture::update(void *pBuffer, const glm::uvec2& crDimensions, const glm::uvec2& crOffset,
                        const int32_t cFormat, const int32_t cType)
 {
   if(!mBufferGenerated)
@@ -111,7 +111,7 @@ int8_t Texture::loadTexture(const std::string &crPath)
   GLCall(glBindTexture(GL_TEXTURE_2D, 0));
 
   mBufferGenerated = true;
-  mSize = Vector2<uint32_t>(ihdr.width, ihdr.height);
+  mSize = glm::uvec2(ihdr.width, ihdr.height);
   return 0;
 }
 
@@ -159,7 +159,7 @@ uint32_t Texture::getTextureId()
 //! @brief Gets Size of Texture
 //!
 //! @return Size of Texture in (l x w)
-Vector2<uint32_t> Texture::getSize()
+glm::uvec2 Texture::getSize()
 {
   return mSize;
 }

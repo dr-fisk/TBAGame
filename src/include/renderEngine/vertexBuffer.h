@@ -10,10 +10,8 @@
 class VertexBuffer
 {
   public:
-    VertexBuffer() = default;
+    VertexBuffer() = delete;
     VertexBuffer(const uint32_t cBuffSize, const GLenum cDrawType);
-    void genVboBuffer(const uint32_t cBuffSize, const GLenum cDrawType);
-    void genVbo();
     ~VertexBuffer();
     void bind() const;
     void unbind() const;
@@ -22,7 +20,6 @@ class VertexBuffer
     const VertexBufferLayout getLayout() { return mLayout; }
   private:
     uint32_t mVboId;
-    std::vector<uint8_t> mBuffer;
     uint64_t mLastDataSize;
     VertexBufferLayout mLayout;
 };

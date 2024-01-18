@@ -6,13 +6,13 @@
 
 #include "graphics/graphics.h"
 #include "graphics/button.h"
-#include "Vector.h"
+#include "glm/vec2.hpp"
 
 class Scrollbar : public Graphics
 {
   public:
     Scrollbar() = default;
-    Scrollbar(std::shared_ptr<RenderEngine>& prRenderEngine, const Vector2<float>& crPos, const Vector2<float>& crSize);
+    Scrollbar(std::shared_ptr<RenderEngine>& prRenderEngine, const glm::vec2& crPos, const glm::vec2& crSize);
     ~Scrollbar() = default;
     void setDefaultTexture(const std::shared_ptr<TextureResource>& crpTexture);
     void setHoverTexture(const std::shared_ptr<TextureResource>& crpTexture);
@@ -20,7 +20,7 @@ class Scrollbar : public Graphics
     void setDefaultColor(const lg::Color& crColor);
     void setHoverColor(const lg::Color& crColor);
     void setPressedColor(const lg::Color& crColor);
-    void setPressedPadding(const Vector2<float>& crPadding);
+    void setPressedPadding(const glm::vec2& crPadding);
     void update(const Event& crEvent);
     void draw();
   private:

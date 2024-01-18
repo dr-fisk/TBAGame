@@ -14,13 +14,15 @@ TextureResource::TextureResource() : mpTexture(nullptr)
 //! @param[in] prRenderEngine Render Engine manager
 //! @param[in] crDimensions   Dimensions to create new Texture
 //! @param[in] cInternalFormat Specifies the number of color components in the texture
+//! @param[in] cFormat         Format of Texture
 //!
 //! @return Texture Resource object
 TextureResource::TextureResource(const std::string& crTag, std::shared_ptr<RenderEngine>& prRenderEngine,
-                                 const Vector2<uint32_t>& crDimensions, const int32_t cInternalFormat)
+                                 const glm::uvec2& crDimensions, const int32_t cInternalFormat,
+                                 const int32_t cFormat)
                                  : Resource(crTag, prRenderEngine),
                                    mpTexture(prRenderEngine->createTexture(crTag, crDimensions.y, crDimensions.x,
-                                             cInternalFormat))
+                                             cInternalFormat, cFormat))
 {
 }
 
@@ -34,7 +36,7 @@ TextureResource::TextureResource(const std::string& crTag, std::shared_ptr<Rende
 //!
 //! @return 0 if data in Texture Buffer updated successfully
 //! @return -1 if data in Texture Buffer updated unsuccessfully
-int8_t TextureResource::update(void *pBuffer, const Vector2<uint32_t>& crDimensions, const Vector2<uint32_t>& crOffset,
+int8_t TextureResource::update(void *pBuffer, const glm::uvec2& crDimensions, const glm::uvec2& crOffset,
                                const int32_t cFormat, const int32_t cType)
 {
   if(nullptr == mpTexture)
@@ -93,7 +95,7 @@ uint32_t TextureResource::getTextureId()
 //!
 //! @return (0, 0) if Texture is nullptr
 //! @return Dimensions of Texture otherwise
-Vector2<uint32_t> TextureResource::getSize()
+glm::uvec2 TextureResource::getSize()
 {
   if(nullptr == mpTexture)
   {

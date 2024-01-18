@@ -5,8 +5,8 @@
 #include <string>
 
 #include "utility/net_utility.h"
-#include "Vector.h"
 #include "glcommon.h"
+#include "glm/vec2.hpp"
 
 class Texture
 {
@@ -15,7 +15,7 @@ class Texture
     int8_t create(const uint32_t cHeight, const uint32_t cWidth, const int32_t cInternalFormat=GL_RGBA8,
                   const int32_t cFormat=GL_RGBA);
     int8_t loadTexture(void *pBuffer, const uint32_t cHeight, const uint32_t cWidth, const uint32_t cBpp);
-    int8_t update(void *pBuffer, const Vector2<uint32_t>& crDimensions, const Vector2<uint32_t>& crOffset,
+    int8_t update(void *pBuffer, const glm::uvec2& crDimensions, const glm::uvec2& crOffset,
                   const int32_t cFormat=GL_RGBA, const int32_t cType=GL_UNSIGNED_BYTE);
     int8_t loadTexture(const std::string &crPath);
     void bind(const int32_t cSlot) const;
@@ -25,13 +25,13 @@ class Texture
     bool updateTextureIndex();
     bool isBounded();
     void unsetCacheUpdate();
-    Vector2<uint32_t> getSize();
+    glm::uvec2 getSize();
     ~Texture();
     Texture& operator=(const Texture& rhs) = delete;
     Texture(const Texture& rhs) = delete;
   private:
     uint32_t mTextureId;
-    Vector2<uint32_t> mSize;
+    glm::uvec2 mSize;
     uint32_t mBpp;
     bool mBufferGenerated;
     std::vector<uint8_t> mBuffer;

@@ -11,7 +11,7 @@
 template <typename T>
 DropDownMenu<T>::DropDownMenu(const uint32_t cActiveIdx,
                               const std::vector<std::shared_ptr<Button<T>>>& crButtons,
-                              const Vector2<float>& crPos, const Vector2<float>& crSize)
+                              const glm::vec2& crPos, const glm::vec2& crSize)
 {
   // Add future throw
   mActiveButton = crButtons[cActiveIdx];
@@ -31,7 +31,7 @@ DropDownMenu<T>::DropDownMenu(const uint32_t cActiveIdx,
   mActiveButton->setSize(crSize);
   mActiveButton->setPos(crPos);
   mActiveButton->disableCallback(true);
-  Vector2<float> nextPos = Vector2<float>(crPos.x, crPos.y + crSize.y);
+  glm::vec2 nextPos = glm::vec2(crPos.x, crPos.y + crSize.y);
 
   for(auto& button : mButtons)
   {
@@ -68,7 +68,7 @@ void DropDownMenu<T>::defaultStateHandler(const Event& crEvent)
 template <typename T>
 void DropDownMenu<T>::updateDropDown()
 {
-  Vector2<float> pos = mActiveButton->getPos();
+  glm::vec2 pos = mActiveButton->getPos();
   pos.y += mActiveButton->getSize().y;
 
   for(auto& button : mButtons)

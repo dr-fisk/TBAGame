@@ -15,8 +15,8 @@ Image::Image(const std::string& crPath)
   Png png(crPath);
   mPixelData = png.getImgData();
   ihdr = png.getIhdr();
-  mDimensions = Vector2<uint32_t>(ihdr.width, ihdr.height);
-  mOffset = Vector2<uint32_t>(0, 0);
+  mDimensions = glm::uvec2(ihdr.width, ihdr.height);
+  mOffset = glm::uvec2(0, 0);
 
   mType = GL_UNSIGNED_BYTE;
   mInternalFormat = GL_RGBA8;
@@ -52,7 +52,7 @@ std::string Image::getName()
 //! @brief Gets offset of image
 //!
 //! @return Offset of Image
-Vector2<uint32_t> Image::getOffset()
+glm::uvec2 Image::getOffset()
 {
   return mOffset;
 }
@@ -60,7 +60,7 @@ Vector2<uint32_t> Image::getOffset()
 //! @brief Gets Dimensions of image
 //!
 //! @return Dimensions of Image
-Vector2<uint32_t> Image::getDimensions()
+glm::uvec2 Image::getDimensions()
 {
   return mDimensions;
 }

@@ -11,8 +11,7 @@
 class VertexArray
 {
   public:
-    VertexArray() = default;
-    void genVao();
+    VertexArray();
     ~VertexArray();
     void setVaoAttributes(const VertexBufferLayout& crLayout);
     void bind() const;

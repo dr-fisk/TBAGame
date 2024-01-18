@@ -14,7 +14,7 @@
 //!
 //! @return Sprite Object 
 Sprite::Sprite(const std::string& crPath, std::shared_ptr<RenderEngine>& prRenderEngine,
-               const Vector2<float>& crPos, const Vector2<float>& crSize)
+               const glm::vec2& crPos, const glm::vec2& crSize)
 {
   Image temp(crPath);
   mTexture = std::make_shared<TextureResource>(temp.getName(), prRenderEngine, temp.getDimensions(),
@@ -22,7 +22,7 @@ Sprite::Sprite(const std::string& crPath, std::shared_ptr<RenderEngine>& prRende
   mLayer = 0;
   mColor = lg::Transparent;
   mBox.setBox(crPos, crSize);
-  Vector2<int> temp2;
+  glm::ivec2 temp2;
   temp2.x = round(mBox.getTopLeft().x);
   temp2.y = round(mBox.getTopLeft().y);
   mTexture->update(temp.getImgData().data(), temp.getDimensions(), temp.getOffset(), temp.getFormat(), temp.getType());
@@ -39,12 +39,12 @@ Sprite::Sprite(const std::string& crPath, std::shared_ptr<RenderEngine>& prRende
 //! @param[in]  crColor        Color of Sprite
 //!
 //! @return Sprite Object 
-Sprite::Sprite(const Vector2<float>& crPos, const Vector2<float>& crSize, const lg::Color& crColor)
+Sprite::Sprite(const glm::vec2& crPos, const glm::vec2& crSize, const lg::Color& crColor)
 {
   mColor = crColor;
-  Vector2<float> offset(0.0f, 0.0f);
+  glm::vec2 offset(0.0f, 0.0f);
   mBox.setBox(crPos, crSize);
-  Vector2<int> temp;
+  glm::ivec2 temp;
   temp.x = round(mBox.getTopLeft().x);
   temp.y = round(mBox.getTopLeft().y);
   VertexUtility::createVertex(mVertex, temp, mBox.getSize(), mColor, -1.0f);
@@ -66,7 +66,7 @@ void Sprite::draw()
 {
   if(mNeedUpdate)
   {
-    Vector2<int> temp;
+    glm::ivec2 temp;
     temp.x = round(mBox.getTopLeft().x);
     temp.y = round(mBox.getTopLeft().y);
     VertexUtility::updateVertex(mVertex, mBox.getTopLeft(), mBox.getSize(), mColor);
@@ -110,7 +110,7 @@ void Sprite::setColor(const lg::Color& crColor)
 //! @brief Returns position of Sprite
 //!
 //! @return Sprite Position
-Vector2<float> Sprite::getPos()
+glm::vec2 Sprite::getPos()
 {
   return mBox.getPos();
 }
@@ -120,7 +120,7 @@ Vector2<float> Sprite::getPos()
 //! @param[in] crMoveVector Vector to add to Sprite
 //!
 //! @return None
-void Sprite::movePos(const Vector2<float>& crMoveVector)
+void Sprite::movePos(const glm::vec2& crMoveVector)
 {
   mBox.movePos(crMoveVector);
   mNeedUpdate = true;
@@ -132,7 +132,7 @@ void Sprite::movePos(const Vector2<float>& crMoveVector)
 //! @param[in] crPos New Sprite Position
 //!
 //! @return None
-void Sprite::setPos(const Vector2<float>& crPos)
+void Sprite::setPos(const glm::vec2& crPos)
 {
   mBox.setPos(crPos);
   mNeedUpdate = true;
@@ -143,7 +143,7 @@ void Sprite::setPos(const Vector2<float>& crPos)
 //! @param[in] crSize New Sprite Size
 //!
 //! @return None
-void Sprite::setSize(const Vector2<float>& crSize)
+void Sprite::setSize(const glm::vec2& crSize)
 {
   mBox.setSize(crSize);
   mNeedUpdate = true;
@@ -152,7 +152,7 @@ void Sprite::setSize(const Vector2<float>& crSize)
 //! @brief Gets the Box corresponding to Sprite
 //!
 //! @return Box of Sprite 
-Box<float>& Sprite::getBox()
+Box<glm::vec2>& Sprite::getBox()
 {
   return mBox;
 }
@@ -160,7 +160,7 @@ Box<float>& Sprite::getBox()
 //! @brief Gets the Size of Sprite
 //!
 //! @return Size of Sprite
-Vector2<float> Sprite::getSize()
+glm::vec2 Sprite::getSize()
 {
   return mBox.getSize();
 }
@@ -176,15 +176,16 @@ Sprite::~Sprite()
 //! @brief Sets Texture for Sprite
 //!
 //! @param[in] crpTexture Texture to set on Sprite
+//! @param[in] cInvert    Inverts texture coordinates
 //!
 //! @return None 
-void Sprite::setTexture(const std::shared_ptr<TextureResource>& crpTexture)
+void Sprite::setTexture(const std::shared_ptr<TextureResource>& crpTexture, const bool cInvert)
 {
-  Vector2<float> offset(0, 0); // Update offset
+  glm::vec2 offset(0, 0); // Update offset
 
   mTexture = crpTexture;
   VertexUtility::updateTextureCoordinates(mVertex, mTexture->getSize(), offset,
-                                          mTexture->getSize());
+                                          mTexture->getSize(), cInvert);
 }
 
 //! @brief Setst the Layer for the Sprite
