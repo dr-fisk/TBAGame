@@ -24,9 +24,9 @@ class Game {
     std::shared_ptr<RenderEngine> mpRenderEngine;
     LestTrueType ttf;
     int mGameRuntime;
-    std::chrono::time_point<std::chrono::steady_clock> mStartTime;
-    std::chrono::time_point<std::chrono::steady_clock> mFrameTime;
-    std::chrono::time_point<std::chrono::steady_clock> mEndTime;
+    std::chrono::time_point<std::chrono::high_resolution_clock> mStartTime;
+    std::chrono::time_point<std::chrono::high_resolution_clock> mFrameTime;
+    std::chrono::time_point<std::chrono::high_resolution_clock> mEndTime;
     int mFps;
 
     void initMainState();

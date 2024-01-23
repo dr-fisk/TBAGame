@@ -16,11 +16,13 @@
 #include "graphics/scrollbar.h"
 #include "renderEngine/frameBuffer.h"
 #include "glm/vec2.hpp"
+#include "renderer/camera.h"
 
 class MainMenu : public State
 {
   public:
-    MainMenu(const std::stack<std::shared_ptr<State>>& crStates, std::shared_ptr<RenderEngine>& crpRenderEngine);
+    MainMenu(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<RenderTarget>& crpWindow,
+             const std::shared_ptr<RenderEngine>& crpRenderEngine);
     ~MainMenu();
     void update(const std::shared_ptr<RenderTarget>& crpTarget, const float cDeltaTime);
     bool shouldStateExit();
@@ -40,6 +42,7 @@ class MainMenu : public State
     std::chrono::time_point<std::chrono::system_clock> mStartTime;
     std::shared_ptr<FrameBuffer> mFbo;
     std::shared_ptr<Sprite> mView;
+    OrthCamera mCam;
 };
 
 #endif

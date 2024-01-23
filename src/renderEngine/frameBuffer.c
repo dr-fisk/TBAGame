@@ -25,7 +25,7 @@ FrameBuffer::~FrameBuffer()
 void FrameBuffer::bind() const
 {
   glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
-  glViewport(0, 0, gWindowWidth, gWindowHeight);
+  glViewport(0, 0, gView.WindowWidth, gView.WindowHeight);
 }
 
 //! @brief Unbinds the Frame Buffer Object

@@ -1,8 +1,10 @@
 #include <iostream>
 
+#define GLM_FORCE_CTOR_INIT
 #include "glcommon.h"
 #include "renderer/renderer2D.h"
-#include "utility/vertexUtility.h"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/string_cast.hpp"
 
 const uint8_t TWO_D_COORDS = 2;
 const uint8_t TRIANGLE_VERTICES2D = 3;
@@ -20,6 +22,14 @@ struct RendererLimits
   int32_t MaxTextures;
 };
 
+enum VertexPositions
+{
+  BOTTOM_LEFT,
+  BOTTOM_RIGHT,
+  TOP_RIGHT,
+  TOP_LEFT
+};
+
 static std::shared_ptr<VertexArray> sQuadVao;
 static std::shared_ptr<VertexBuffer> sQuadVbo;
 static std::shared_ptr<Shader> sQuadShader;
@@ -28,7 +38,11 @@ static int8_t sBoundedTextureIdx;
 static RendererLimits sRenderer2DLimits;
 static bool sLimitsDefined = false;
 static std::vector<Vertex> sQuads;
-static uint32_t sNumQuads;
+static uint32_t sNumVerts;
+static uint32_t sNumQuadCount;
+static glm::mat4 sViewProjection;
+static glm::vec4 sQuadVertexes[sNumQuadVerts];
+static glm::vec2 TextCoords[sNumQuadVerts];
 
 //! @brief Initializes the Renderer2D Engine
 //!
@@ -43,14 +57,14 @@ void Renderer2D::init()
 
   sQuadVao = std::make_shared<VertexArray>();
 
-  sQuadVbo = std::make_shared<VertexBuffer>(sRenderer2DLimits.MaxQuads * sizeof(Vertex), GL_DYNAMIC_DRAW);
+  sQuadVbo = std::make_shared<VertexBuffer>(sRenderer2DLimits.MaxVertices * sizeof(Vertex), GL_DYNAMIC_DRAW);
     
   // First set of Float are quad position
   // First set of Float are quad position
   // Next 2 floats are Texture Coords
   // Next float is Texture Index
   sQuadVbo->setLayout({
-    {GL_FLOAT, TWO_D_COORDS, false},
+    {GL_FLOAT, TWO_D_COORDS, true},
     {GL_UNSIGNED_BYTE, RGBA, true},
     {GL_FLOAT, TWO_D_COORDS, false},
     {GL_FLOAT, 1, false}
@@ -68,6 +82,19 @@ void Renderer2D::init()
   auto uni = sQuadShader->getUniform("u_Textures");
   int sampler[sRenderer2DLimits.MaxTextures];
 
+  std::cout << glGetString(GL_VENDOR) << std::endl;
+  std::cout << glGetString(GL_RENDERER) << std::endl;
+  std::cout << glGetString(GL_VERSION) << std::endl;
+  sQuadVertexes[TOP_LEFT] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+  sQuadVertexes[TOP_RIGHT] = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+  sQuadVertexes[BOTTOM_RIGHT] = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
+  sQuadVertexes[BOTTOM_LEFT] = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+
+  TextCoords[BOTTOM_LEFT] = glm::vec2(0.0f, 0.0f);
+  TextCoords[BOTTOM_RIGHT] = glm::vec2(1.0f, 0.0f);
+  TextCoords[TOP_RIGHT] = glm::vec2(1.0f, 1.0f);
+  TextCoords[TOP_LEFT] = glm::vec2(0.0f, 1.0f);
+
   for(int i = 0; i < sRenderer2DLimits.MaxTextures; i ++)
   {
     sampler[i] = i;
@@ -76,40 +103,79 @@ void Renderer2D::init()
   GLCall(glUniform1iv(uni, sRenderer2DLimits.MaxTextures, sampler));
   sBoundedTextureIdx = 0;
 
-  sQuads.resize(sRenderer2DLimits.MaxQuads);
-  sNumQuads = 0;
+  sQuads.resize(sRenderer2DLimits.MaxVertices);
+  sNumVerts = 0;
   sBoundedTextureIdx = 0;
+  sNumQuadCount = 0;
 }
 
-void Renderer2D::beginScene()
+void Renderer2D::beginScene(const OrthCamera& crCamera)
 {
   // TODO add camera stuff to have views
   initBatch();
+  sViewProjection = crCamera.getViewProjectionMatrix();
 }
 
-void Renderer2D::registerQuad(const Vertex& crVertex, const std::shared_ptr<TextureResource>& crpTexture)
+void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
+                              std::array<Vertex, sNumQuadVerts>& rVertexes,
+                              const lg::Color& crColor)
 {
-  if(sNumQuads >= sRenderer2DLimits.MaxQuads || sBoundedTextureIdx == sRenderer2DLimits.MaxTextures)
+  if(sNumVerts >= sRenderer2DLimits.MaxVertices)
   {
     nextBatch();
   }
 
-  sQuads[sNumQuads] = crVertex;
+  glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(crPos, 0.0f)) * /*rotation*/ glm::scale(glm::mat4(1.0f),
+                                       {crSize.x, crSize.y, 1.0f});
 
-  if(nullptr != crpTexture)
+  for(int i = 0; i < sNumQuadVerts; i ++)
   {
-    if(!crpTexture->isBounded())
-    {
-      // Update this code
-      sTextureCache[sBoundedTextureIdx] = crpTexture;
-      sTextureCache[sBoundedTextureIdx]->bind(sBoundedTextureIdx);
-      sBoundedTextureIdx ++;
-    }
-
-    VertexUtility::setVertexTextureIndex(sQuads[sNumQuads], crpTexture->getCacheId());
+    sQuads[sNumVerts].Pos = sViewProjection * transform * sQuadVertexes[i];
+    sQuads[sNumVerts].Rgba = crColor;
+    sQuads[sNumVerts].TextCoord = TextCoords[i];
+    sQuads[sNumVerts].TextureIndex = -1;
+    rVertexes[sNumVerts] = sQuads[sNumVerts];
+    sNumVerts ++;
   }
 
-  sNumQuads++;
+  sNumQuadCount ++;
+}
+
+void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
+                              std::array<Vertex, sNumQuadVerts>& rVertexes,
+                              const std::shared_ptr<TextureResource>& crpTexture)
+{
+  if(sNumVerts >= sRenderer2DLimits.MaxVertices || sBoundedTextureIdx == sRenderer2DLimits.MaxTextures)
+  {
+    nextBatch();
+  }
+// rotation  glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3{0.0, 0.0, 1.0}) *
+  glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(crPos, 0.0f)) * glm::scale(glm::mat4(1.0f),
+                                       {crSize.x, crSize.y, 1.0f});
+
+  if(!crpTexture->isBounded())
+  {
+    // Update this code
+    sTextureCache[sBoundedTextureIdx] = crpTexture;
+    sTextureCache[sBoundedTextureIdx]->bind(sBoundedTextureIdx);
+    sBoundedTextureIdx ++;
+  }
+
+  // Setting default color to purple, so if something bad happens when rendering it's in your face
+  for(int i = 0; i < sNumQuadVerts; i ++)
+  {
+    sQuads[sNumVerts].Pos = sViewProjection * transform * sQuadVertexes[i];
+    sQuads[sNumVerts].Rgba = lg::Purple;
+    sQuads[sNumVerts].TextCoord = rVertexes[i].TextCoord;
+    sQuads[sNumVerts].TextureIndex = crpTexture->getCacheId();
+    rVertexes[i].Pos = sQuads[sNumVerts].Pos;
+    rVertexes[i].Rgba = sQuads[sNumVerts].Rgba;
+    rVertexes[i].TextureIndex = sQuads[sNumVerts].TextureIndex;
+
+    sNumVerts ++;
+  }
+
+  sNumQuadCount ++;
 }
 
 void Renderer2D::endScene()
@@ -119,7 +185,8 @@ void Renderer2D::endScene()
 
 void Renderer2D::initBatch()
 {
-  sNumQuads = 0;
+  sNumVerts = 0;
+  sNumQuadCount = 0;
 
   if(sBoundedTextureIdx == sRenderer2DLimits.MaxTextures)
   {
@@ -141,8 +208,8 @@ void Renderer2D::nextBatch()
 void Renderer2D::flush()
 {
   // Draw stuff
-  sQuadVbo->updateVboSubBuffer(0, sNumQuads * sizeof(Vertex), sQuads.data());
-  GLCall(glDrawElements(GL_TRIANGLES, sNumQuads * 6, GL_UNSIGNED_INT, nullptr));
+  sQuadVbo->updateVboSubBuffer(0, sNumVerts * sizeof(Vertex), sQuads.data());
+  GLCall(glDrawElements(GL_TRIANGLES, sNumQuadCount * 6, GL_UNSIGNED_INT, nullptr));
 }
 
 void Renderer2D::shutdown()

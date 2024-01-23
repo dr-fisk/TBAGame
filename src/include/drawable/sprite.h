@@ -1,6 +1,9 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
+#include <array>
+
+#define GLM_FORCE_CTOR_INIT
 #include "glcommon.h"
 #include "drawable/drawable.h"
 #include "resource/textureResource.h"
@@ -28,12 +31,15 @@ class Sprite : public Drawable
     Box<glm::vec2>& getBox();
     void setLayer(const uint32_t cLayer);
     void draw();
+    Box<glm::vec2> getGlobalBounds(const OrthCamera& crCamera);
 
   private:
+    void updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize);
+
     lg::Color mColor;
     std::shared_ptr<TextureResource> mTexture;
-    Vertex mVertex;
     Box<glm::vec2> mBox;
+    std::array<Vertex, sNumQuadVerts> mVertexes;
 };
 
 #endif

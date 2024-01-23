@@ -1,8 +1,8 @@
 #include <limits>
 
 #include "drawable/text.h"
-#include "utility/vertexUtility.h"
 #include "renderer/renderer2D.h"
+#include "glm/gtc/matrix_transform.hpp"
 
 //! @brief Text Constructor
 //!
@@ -67,9 +67,10 @@ void Text::gridfitText(const glm::vec2& crTopLeft)
   glm::vec2 textCoord(0.0f, 0.0f);
   lg::Color color = lg::Black;
   Vertex tempVert;
-  mVertexes.clear();
-  mVertexes.reserve(mText.size());
-
+  mTextVertexes.clear();
+  mTextVertexes.reserve(mText.size());
+  size = mTexture->getSize();
+  TextVertexData tempTextVert;
   for(size_t i = 0; i < mText.size(); i ++)
   {
     // Update for more dynamic behavior
@@ -102,13 +103,10 @@ void Text::gridfitText(const glm::vec2& crTopLeft)
     textCoord.y = dim.y;
     color = lg::Black;
     offset = mpFont->getOffset(mText[i], mCharSize);
-    size = mTexture->getSize();
-    VertexUtility::updateVertex(tempVert, pos, dim, color);
-    VertexUtility::setVertexTextureIndex(tempVert, static_cast<float>(mTexture->getCacheId()));
-    VertexUtility::updateTextureCoordinates(tempVert, textCoord, offset, size);
-
-    mVertexes.push_back(tempVert);
-
+    tempTextVert.Pos = pos;
+    tempTextVert.Size = dim;
+    updateTextureCoordinates(offset, dim, tempTextVert.Vertexes);
+    mTextVertexes.push_back(tempTextVert);
     left += dim.x;
   }
 
@@ -136,9 +134,9 @@ void Text::draw()
 
   if(mRender)
   {
-    for(auto& vertex : mVertexes)
+    for(auto& vertex : mTextVertexes)
     {
-      Renderer2D::registerQuad(vertex, mTexture);
+      Renderer2D::registerQuad(vertex.Pos, vertex.Size, vertex.Vertexes, mTexture);
     }
   }
 }
@@ -210,4 +208,40 @@ glm::vec2 Text::getPos()
 //! @return None
 Text::~Text()
 {
+}
+
+//! @brief  Updates texture coordinates for Text
+//!
+//! @param[in]  crOffset         Offset of Texture within Texture resource 
+//! @param[in]  crTextureSize    Total Texture Size
+//! @param[out] rTextCoords      The Text Coords Array to update
+//!
+//! @return None 
+void Text::updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize,
+                                    std::array<Vertex, sNumQuadVerts>& rVertexes)
+{
+  const float xMax = static_cast<float>(crTextureSize.x + crOffset.x) / static_cast<float>(mTexture->getSize().x);
+  const float yMax = static_cast<float>(crTextureSize.y + crOffset.y) / static_cast<float>(mTexture->getSize().y);
+  const float xMin = static_cast<float>(crOffset.x) / static_cast<float>(mTexture->getSize().x);
+  const float yMin = static_cast<float>(crOffset.y) / static_cast<float>(mTexture->getSize().y);
+
+  rVertexes[3].TextCoord = glm::vec2(xMin, yMin);
+  rVertexes[2].TextCoord = glm::vec2(xMax, yMin);
+  rVertexes[1].TextCoord = glm::vec2(xMax, yMax);
+  rVertexes[0].TextCoord = glm::vec2(xMin, yMax);
+}
+
+//! @brief 
+//! @param crCamera 
+//! @return 
+Box<glm::vec2> Text::getGlobalBounds(const OrthCamera& crCamera)
+{
+  const glm::vec4 TOP_LEFT = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+  const glm::vec4 BOTTOM_RIGHT = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
+  glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(mBox.getTopLeft(), 0.0f)) * glm::scale(glm::mat4(1.0f),
+                                      {mBox.getSize().x, mBox.getSize().y, 1.0f});
+  glm::vec2 topLeft = crCamera.getViewProjectionMatrix() * transform * TOP_LEFT;
+  glm::vec2 size = crCamera.getViewProjectionMatrix() * transform * BOTTOM_RIGHT;
+  size = abs(size - topLeft);
+  return Box<glm::vec2>::createBoxTopLeft(topLeft, size);
 }

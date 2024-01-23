@@ -1,9 +1,13 @@
 #ifndef MOUSE_H
 #define MOUSE_H
 
+#include <memory>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "glm/vec2.hpp"
+#include "window/renderTarget.h"
+#include "renderer/camera.h"
 
 namespace lg
 {
@@ -14,6 +18,8 @@ namespace lg
 
     glm::ivec2 getMousePosi();
     glm::vec2 getMousePosf();
+    glm::vec2 getMousePosf(const OrthCamera& crCamera);
+    glm::vec2 getMousePosf(const std::shared_ptr<RenderTarget>& crpTarget);
   }
 }
 

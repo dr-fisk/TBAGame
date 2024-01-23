@@ -13,6 +13,7 @@ Image::Image(const std::string& crPath)
 {
   Png::IHDR ihdr;
   Png png(crPath);
+  png.reverseImg();
   mPixelData = png.getImgData();
   ihdr = png.getIhdr();
   mDimensions = glm::uvec2(ihdr.width, ihdr.height);

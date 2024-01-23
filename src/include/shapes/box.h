@@ -20,6 +20,8 @@ class Box : public Shape<T>
     void setTopLeft(const T& crPos);
     bool inLocalBounds(const glm::ivec2& crPos);
     bool inLocalBounds(const glm::vec2& crPos);
+
+    static Box<T> createBoxTopLeft(const T& crPos, const T& crSize);
   private:
     T mTopLeft;
 
@@ -28,9 +30,17 @@ class Box : public Shape<T>
 };
 
 template <typename T>
+Box<T> Box<T>::createBoxTopLeft(const T& crPos, const T& crSize)
+{
+  Box<T> box;
+  box.setBoxTopLeft(crPos, crSize);
+  return box;
+}
+
+template <typename T>
 void Box<T>::setBoxTopLeft(const T& crPos, const T& crSize)
 {
-  this->mSize = crSize;
+  this->mSize = abs(crSize);
   mTopLeft = crPos;
   updatePos();
 }
@@ -38,7 +48,7 @@ void Box<T>::setBoxTopLeft(const T& crPos, const T& crSize)
 template <typename T>
 void Box<T>::setBox(const T& crPos, const T& crSize)
 {
-  this->mSize = crSize;
+  this->mSize = abs(crSize);
   this->mPos = crPos;
   updateTopLeft();
 }
@@ -47,12 +57,15 @@ template <typename T>
 void Box<T>::setTopLeft(const T& crPos)
 {
   mTopLeft = crPos;
+  updatePos();
 }
 
 template <typename T>
 Box<T>::Box(const T& crPos, const T& crSize)
 {
-  updateBoxPos(crPos, crSize);
+  this->mSize = abs(crSize);
+  this->mPos = crPos;
+  updateTopLeft();
 }
 
 template <typename T>
@@ -75,6 +88,7 @@ template <typename T>
 void Box<T>::updatePos()
 {
   const float DIVISOR = 2.0;
+
   this->mPos.x = mTopLeft.x + (this->mSize.x / DIVISOR);
   this->mPos.y = mTopLeft.y + (this->mSize.y / DIVISOR);
 }
@@ -82,7 +96,7 @@ void Box<T>::updatePos()
 template<typename T>
 void Box<T>::setSize(const T& crSize)
 {
-  this->mSize = crSize;
+  this->mSize = abs(crSize);
   updateTopLeft();
 }
 

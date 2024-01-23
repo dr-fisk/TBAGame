@@ -12,8 +12,9 @@
 class ExceptionState : public State {
   public:
     ExceptionState(const std::stack<std::shared_ptr<State>>& crStates,
-                    std::shared_ptr<RenderEngine> cpRenderEngine,
-                    const std::string& crError);
+                   const std::shared_ptr<RenderTarget>& crpWindow,
+                   const std::shared_ptr<RenderEngine> crpRenderEngine,
+                   const std::string& crError);
     ~ExceptionState();
     void update(const std::shared_ptr<RenderTarget>& crpTarget, const float cDeltaTime);
     bool shouldStateExit();

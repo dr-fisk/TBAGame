@@ -39,6 +39,7 @@ class DropDownMenu : public Graphics
     std::vector<std::shared_ptr<Button<T>>> mButtons;
     DropDownMenuState mState;
     glm::vec2 mPos;
+    glm::vec2 mSize;
 
     void defaultStateHandler(const Event& crEvent);
     std::optional<int32_t> clickedStateHanlder(const Event& crEvent);

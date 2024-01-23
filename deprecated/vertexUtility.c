@@ -10,10 +10,10 @@ namespace VertexUtility
   //! @return None
   void setVertexTextureIndex(Vertex& rData, const float cTextureIndex)
   {
-    rData.textureIndex1 = cTextureIndex;
-    rData.textureIndex2 = cTextureIndex;
-    rData.textureIndex3 = cTextureIndex;
-    rData.textureIndex4 = cTextureIndex;
+    rData.TextureIndex = cTextureIndex;
+    // rData.textureIndex2 = cTextureIndex;
+    // rData.textureIndex3 = cTextureIndex;
+    // rData.textureIndex4 = cTextureIndex;
   }
 
   //! @brief Sets the color for Vertex
@@ -24,9 +24,9 @@ namespace VertexUtility
   //! @return None
   void setVertexColor(Vertex& rVertex, const lg::Color& crColor)
   {
-  rVertex.rgba1 = crColor;
-  rVertex.rgba2 = crColor;
-  rVertex.rgba3 = crColor;
-  rVertex.rgba4 = crColor;
+  rVertex.Rgba = crColor;
+  // rVertex.rgba2 = crColor;
+  // rVertex.rgba3 = crColor;
+  // rVertex.rgba4 = crColor;
   }
 };

@@ -6,6 +6,8 @@
 #include "renderEngine/texture.h"
 #include "resource/textureResource.h"
 #include "glm/vec2.hpp"
+#include "renderer/camera.h"
+#include "shapes/box.h"
 
 enum PrimitiveType
 {
@@ -30,6 +32,7 @@ class Drawable
     uint64_t getRenderId();
     void setRender(const bool cEnable);
     bool getRender();
+    virtual Box<glm::vec2> getGlobalBounds(const OrthCamera& crCamera) = 0;
     virtual void draw() = 0;
   protected:
     uint64_t mRenderId;

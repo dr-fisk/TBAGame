@@ -23,6 +23,7 @@ class RenderWindow : public RenderTarget
       void destroyWindow();
       GLFWwindow *getGlWindow();
       bool pollEvent(Event& rEvent);
+      const glm::uvec2& getWindowSize();
 
       // Make this a RenderWindow Object
       std::shared_ptr<RenderWindow> createSharedWindow();
@@ -31,8 +32,7 @@ class RenderWindow : public RenderTarget
       void setCallbacks();
       void boundCoords(GLfloat *pLeft, GLfloat *pWidth, GLfloat *pTop, GLfloat *pHeight);
 
-      uint32_t mWdwHeight;
-      uint32_t mWdwWidth;
+      glm::uvec2 mWindowSize;
       int32_t mWindowId;
       std::string mTitle;
       GLFWwindow *mpWindow;

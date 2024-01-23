@@ -8,8 +8,7 @@
 #include "renderer/renderCommand.h"
 #include "glm/vec2.hpp"
 
-GLfloat gWindowWidth = 0;
-GLfloat gWindowHeight = 0;
+WindowView gView;
 uint16_t gFrames = 0;
 uint16_t gFps = 0;
 
@@ -19,7 +18,7 @@ uint16_t gFps = 0;
 void Game::initMainState()
 {
   //mStates.push(std::make_shared<ExceptionState>(mStates, "TESTING", mShaders[MAIN_SHADER], mpWindow->getGlWindow(), mpVao));
-  mStates.push(std::make_shared<MainMenu>(mStates, mpRenderEngine));
+  mStates.push(std::make_shared<MainMenu>(mStates, mpWindow, mpRenderEngine));
 }
 
 //! @brief Default Constructor
@@ -38,12 +37,14 @@ Game::Game()
 
   int32_t view[4] = {};
   glGetIntegerv(GL_VIEWPORT, view);
+  gView.x = view[0];
+  gView.y = view[1];
+  gView.WindowWidth = view[2];
+  gView.WindowHeight = view[3];
   std::cout << view[0] << " " << view[1] << " " << view[2] << " " << view[3] << std::endl;
   Renderer2D::init();
   mpRenderEngine = std::make_shared<RenderEngine>();
-  //temp
-  gWindowWidth = 1920;
-  gWindowHeight = 1080;
+
   // mFbo = std::make_shared<FrameBuffer>();
 
   initMainState();
@@ -59,7 +60,7 @@ Game::Game()
       std::cout << e.what();
     }  */
   mGameRuntime = time(nullptr);
-  mStartTime = std::chrono::steady_clock::now();
+  mStartTime = std::chrono::high_resolution_clock::now();
 
 }
 
@@ -88,14 +89,14 @@ void Game::gameLoop()
   float deltaTime = 0.0f;
   float smoothDeltaTime = 0.0f;
   int64_t smoothUpdate = 1;
-  mFrameTime = std::chrono::steady_clock::now();
+  mFrameTime = std::chrono::high_resolution_clock::now();
   // mFbo->invalidate(Vector2<uint32_t>(gWindowWidth, gWindowHeight));
   // glViewport(0,0, gWindowWidth, gWindowHeight);
   RenderCommand::setClearColor(0.3f, 0.0f, 0.0f, 1.0f);
   while(!mStates.empty() && mpWindow->isOpen())
   {
-    deltaTime = std::chrono::duration<float>(std::chrono::steady_clock::now() - mFrameTime).count();
-    mFrameTime = std::chrono::steady_clock::now();
+    deltaTime = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - mFrameTime).count();
+    mFrameTime = std::chrono::high_resolution_clock::now();
     smoothDeltaTime -= smoothDeltaTime / static_cast<float>(smoothUpdate);
     smoothDeltaTime += deltaTime / static_cast<float>(smoothUpdate);
     // std::cout << smoothDeltaTime << std::endl;
@@ -115,13 +116,13 @@ void Game::gameLoop()
 
     RenderCommand::pollEvents();
     gFrames ++;
-    mEndTime = std::chrono::steady_clock::now();
+    mEndTime = std::chrono::high_resolution_clock::now();
     if (std::chrono::duration_cast<std::chrono::seconds>(mEndTime - mStartTime).count() >= 1.0f)
     {
       gFps = gFrames / std::chrono::duration_cast<std::chrono::seconds>(mEndTime - mStartTime).count();
       // std::cout << "FPS: " <<  << std::endl;
       gFrames = 0;
-      mStartTime = std::chrono::steady_clock::now();
+      mStartTime = std::chrono::high_resolution_clock::now();
     }
 
     // std::cout << "Delta: " << deltaTime << std::endl;

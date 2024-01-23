@@ -5,6 +5,7 @@
 #include "window/mouse.h"
 #include "input/input.h"
 #include "window/keyboard.h"
+#include "window/window.h"
 
 bool RenderWindow::msCallbacksInitialized = false;
 int32_t RenderWindow::msWindowId = 0;
@@ -21,10 +22,9 @@ int32_t RenderWindow::msActiveWindowId = -1;
 RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHeight, const char *cpTitle,
                            GLFWwindow *pWindow)
 { 
-  mWdwWidth = cWindowWidth;
-  mWdwHeight = cWindowHeight;
+  mWindowSize = glm::uvec2(cWindowWidth, cWindowHeight);
   mTitle = cpTitle;
-  mpWindow = glfwCreateWindow(mWdwWidth, mWdwHeight, cpTitle, nullptr, pWindow);
+  mpWindow = glfwCreateWindow(mWindowSize.x, mWindowSize.y, cpTitle, nullptr, pWindow);
 
   if (!mpWindow)
   {
@@ -64,7 +64,7 @@ void RenderWindow::draw(const uint64_t cCount)
 //! @return Window width
 uint32_t RenderWindow::getWindowWidth()
 {
-    return mWdwWidth;
+    return mWindowSize.x;
 }
 
 //! @brief Gets window height
@@ -72,7 +72,15 @@ uint32_t RenderWindow::getWindowWidth()
 //! @return Window height
 uint32_t RenderWindow::getWindowHeight()
 {
-  return mWdwHeight;
+  return mWindowSize.y;
+}
+
+//! @brief  Gets the Window Size
+//!
+//! @return Window Size in Vector format
+const glm::uvec2& RenderWindow::getWindowSize()
+{
+  return mWindowSize;
 }
 
 //! @brief Checks whether window has been closed
@@ -198,5 +206,6 @@ void RenderWindow::setCallbacks()
   glfwSetCursorPosCallback(mpWindow, lg::Mouse::mousePositionCallback);
   glfwSetMouseButtonCallback(mpWindow, lg::Mouse::mouseButtonCallback);
   glfwSetKeyCallback(mpWindow, lg::Keyboard::keyCallback);
+  glfwSetWindowSizeCallback(mpWindow, lg::Window::windowResizeCallback);
   msCallbacksInitialized = true;
 }

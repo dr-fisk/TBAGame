@@ -27,13 +27,22 @@ class Event
       float y;
     };
 
+    struct WindowResizeEvent
+    {
+      float x;
+      float y;
+      float Width;
+      float Height;
+    };
+
     enum EventType
     {
       MouseButtonPress,
       MouseButtonRelease,
       MouseMove,
       KeyPress,
-      KeyRelease
+      KeyRelease,
+      WindowResize
     };
 
     EventType Type;
@@ -43,6 +52,7 @@ class Event
       MouseButtonEvent MouseButton;
       KeyEvent Key;
       MouseMoveEvent MousePos;
+      WindowResizeEvent WindowView;
     };
 };
 

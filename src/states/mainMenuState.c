@@ -10,10 +10,13 @@
 #include "resource/image.h"
 #include "renderer/renderer2D.h"
 #include "renderer/renderCommand.h"
+#include "glm/ext.hpp"
+#include "glm/gtx/string_cast.hpp"
 
 MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
-                   std::shared_ptr<RenderEngine>& crpRenderEngine) :
-                   State(crStates, crpRenderEngine)
+                   const std::shared_ptr<RenderTarget>& crpWindow,
+                   const std::shared_ptr<RenderEngine>& crpRenderEngine) :
+                   State(crStates, crpWindow, crpRenderEngine)
 {
   std::string temp = "Envy Code R.ttf";
   mStartTime = std::chrono::system_clock::now();
@@ -70,15 +73,20 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   mScroll->setPressedColor(lg::Green);
   mScroll->setPressedPadding(glm::vec2(50, 50));
 
-  mFbo = std::make_shared<FrameBuffer>();
-  mFbo->bind();
-  RenderCommand::enableBlend();
-  RenderCommand::setClearColor(0.3f, 0.0f, 0.0f, 1.0f);
-  mFbo->unbind();
-  mFbo->invalidate(glm::uvec2{gWindowWidth, gWindowHeight}, mpRenderEngine);
-  mView = std::make_shared<Sprite>(glm::vec2{gWindowWidth / 2.0f, gWindowHeight / 2.0f}, glm::vec2{gWindowWidth, gWindowHeight}, lg::White);
+  // mFbo = std::make_shared<FrameBuffer>();
+  // mFbo->bind();
+  // RenderCommand::enableBlend();
+  // RenderCommand::setClearColor(0.3f, 0.0f, 0.0f, 1.0f);
+  // mFbo->unbind();
+  // mFbo->invalidate(glm::uvec2{gWindowWidth, gWindowHeight}, mpRenderEngine);
+  // mView = std::make_shared<Sprite>(glm::vec2{gWindowWidth / 2.0f, gWindowHeight / 2.0f}, glm::vec2{gWindowWidth, gWindowHeight}, lg::White);
 
-  mView->setTexture(mFbo->getTexture(), true);
+  // mView->setTexture(mFbo->getTexture(), true);
+  mCam = OrthCamera(0, 1920, 1080, 0);
+  Box<glm::vec2> testBox = mSprite->getGlobalBounds(mCam);
+
+  std::cout << "Pos: " << glm::to_string(testBox.getTopLeft()) << " Size: " << glm::to_string(testBox.getSize()) << std::endl;
+  // mCam.setPosition({0.0f, 0.0f, 0.0f});
 }
 
 void MainMenu::update(const std::shared_ptr<RenderTarget> &crpTarget, const float cDeltaTime)
@@ -151,17 +159,17 @@ void MainMenu::update(const std::shared_ptr<RenderTarget> &crpTarget, const floa
   vel.x = xDir;
   vel.y = yDir;
 
-  glm::vec2 move(0, 0);
+  glm::vec2 move(0.0f, 0.0f);
   move.x = vel.x * xMove;
   move.y = vel.y * yMove;
   move *= cDeltaTime;
 
   mSprite->movePos(move);
-
-  mFbo->bind();
+  // std::cout << "Move: " << glm::to_string(move) << " DT " << cDeltaTime << std::endl;
+  // mFbo->bind();
   RenderCommand::clear();
-  Renderer2D::beginScene();
-  mText->draw();
+  Renderer2D::beginScene(mCam);
+  // mText->draw();
   mSprite->draw();
   mSprite2->draw();
   mSprite3->draw();
@@ -169,10 +177,11 @@ void MainMenu::update(const std::shared_ptr<RenderTarget> &crpTarget, const floa
   mScroll->draw();
   mMenu->draw();
   Renderer2D::endScene();
-  mFbo->unbind();
-  Renderer2D::beginScene();
-  mView->draw();
-  Renderer2D::endScene();
+  // mFbo->unbind();
+  // Renderer2D::beginScene();
+  // mView->draw();
+  // Renderer2D::endScene();
+  std::cout << glm::to_string(lg::Mouse::getMousePosf(mpWindow)) << std::endl;
 }
 
 MainMenu::~MainMenu() 

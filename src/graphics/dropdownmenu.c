@@ -44,6 +44,10 @@ DropDownMenu<T>::DropDownMenu(const uint32_t cActiveIdx,
       nextPos.y = nextPos.y + crSize.y;
     }
   }
+
+  // Size of entire dropdown menu when active
+  mSize.x = abs(crSize.x);
+  mSize.y = abs(nextPos.y - mPos.y);
 }
 
 //! @brief Handles the Default State of the Dropdown Menu checking for when the Active Button gets clicked

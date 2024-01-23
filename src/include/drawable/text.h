@@ -2,13 +2,16 @@
 #define TEXT_H
 
 #include <string>
+#include <array>
 
+#define GLM_FORCE_CTOR_INIT
 #include "utility/net_utility.h"
 #include "resource/font.h"
 #include "drawable.h"
 #include "renderEngine/renderEngine.h"
 #include "shapes/box.h"
 #include "glm/vec2.hpp"
+#include "renderer/camera.h"
 
 class Text : public Drawable
 {
@@ -29,10 +32,20 @@ class Text : public Drawable
     glm::vec2 getSize();
     void draw();
     ~Text();
+    void updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize, 
+                                  std::array<Vertex, sNumQuadVerts>& rVertexes);
+    Box<glm::vec2> getGlobalBounds(const OrthCamera& crCamera);
   private:
+    struct TextVertexData
+    {
+      glm::vec2 Pos;
+      glm::vec2 Size;
+      std::array<Vertex, sNumQuadVerts> Vertexes;
+    };
+  
     std::shared_ptr<Font> mpFont;
     std::string mText;
-    std::vector<Vertex> mVertexes;
+    std::vector<TextVertexData> mTextVertexes;
     Box<glm::vec2> mBox;
     int32_t mLineWrap;
     int32_t mLineSpace;

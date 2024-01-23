@@ -1,9 +1,12 @@
 #include <map>
 #include <iostream>
 
+#define GLM_FORCE_CTOR_INIT
 #include "window/mouse.h"
 #include "event/event.h"
 #include "input/input.h"
+#include "glm/mat4x4.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 namespace lg
 {
@@ -12,9 +15,12 @@ namespace lg
     static glm::dvec2 gMousePos = glm::dvec2(0, 0);
 
     //! @brief Callback to receive Mouse Input
-    //! @param pWindow Active Window
-    //! @param cX      X position of mouse
-    //! @param cY      Y position of mouse
+    //!
+    //! @param[in] pWindow Active Window
+    //! @param[in] cX      X position of mouse
+    //! @param[in] cY      Y position of mouse
+    //!
+    //! @return None
     void mousePositionCallback(GLFWwindow *pWindow, const double cX, const double cY)
     {
       gMousePos.x = cX;
@@ -66,6 +72,33 @@ namespace lg
     glm::vec2 getMousePosf()
     {
       return {static_cast<float>(gMousePos.x), static_cast<float>(gMousePos.y)};
+    }
+
+    glm::vec2 getMousePosf(const OrthCamera& crCamera)
+    {
+        const glm::vec4 TOP_LEFT = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(gMousePos.x, gMousePos.y, 0.0f)) *
+                              glm::scale(glm::mat4(1.0f), {1.0f, 1.0f, 1.0f});
+        return crCamera.getViewProjectionMatrix() * transform * TOP_LEFT;
+    }
+
+    glm::vec2 getMousePosf(const std::shared_ptr<RenderTarget>& crpTarget)
+    {
+      const glm::vec4 TOP_LEFT = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+      const glm::uvec2 WINDOW_SIZE = crpTarget->getWindowSize();
+      glm::mat4 projectionMatrix = glm::ortho(0.0f, static_cast<float>(WINDOW_SIZE.x),
+                                              static_cast<float>(WINDOW_SIZE.y),
+                                              0.0f, -1.0f, 1.0f);
+      glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+      glm::mat4 viewMatrix = glm::inverse(transform);
+      glm::mat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
+
+      transform = glm::translate(glm::mat4(1.0f), glm::vec3(gMousePos.x, gMousePos.y, 0.0f)) *
+                                 glm::scale(glm::mat4(1.0f), {1.0f, 1.0f, 1.0f});
+
+      auto test = viewProjectionMatrix * transform * TOP_LEFT;
+      glm::vec2 temp = glm::vec2((test.x + 1) * (1920.0f / 2.0f), ((test.y * (-1)) + 1 ) * (1080 / 2.0f));
+      return temp;
     }
   }
 }

@@ -70,7 +70,8 @@ guiFiles   = gui.c
 windowFiles = renderWindow.c \
               renderTarget.c \
 							mouse.c \
-							keyboard.c
+							keyboard.c \
+							window.c
 
 resourceFiles = image.c \
                 font.c \
@@ -89,7 +90,8 @@ renderEngineFiles = renderEngine.c \
 										texture.c \
 										frameBuffer.c
 
-rendererFiles = renderer2D.c
+rendererFiles = renderer2D.c \
+                camera.c
 
 inputFiles = input.c
 
@@ -97,9 +99,7 @@ graphicsFiles = scrollbar.c
 
 dynLibFiles = png.c
 
-utilityFiles = edgeTable.c \
-							 vertexUtility.c
-
+utilityFiles = edgeTable.c
 objs := $(patsubst %.exe, %.o, $(programs))
 
 ifeq (lin64, $(TARGET))

@@ -14,32 +14,30 @@
     x;\
     ASSERT(GLLogCall(#x, __FILE__, __LINE__))
 
-struct Vertex {
-  glm::vec2 bottomLeft;
-  lg::Color rgba1;
-  glm::vec2 textCoord1;
-  GLfloat textureIndex1;
-  glm::vec2 bottomRight;
-  lg::Color rgba2;
-  glm::vec2 textCoord2;
-  GLfloat textureIndex2;
-  glm::vec2 topRight;
-  lg::Color rgba3;
-  glm::vec2 textCoord3;
-  GLfloat textureIndex3;
-  glm::vec2 topLeft;
-  lg::Color rgba4;
-  glm::vec2 textCoord4;
-  GLfloat textureIndex4;
-  //update for texture coords and texture index 3 floats
+struct Vertex
+{
+  glm::vec2 Pos;
+  lg::Color Rgba;
+  glm::vec2 TextCoord;
+  float TextureIndex;
 };
+
+static const uint8_t sNumQuadVerts = 4;
 
 extern void GLClearError();
 
 extern bool GLLogCall(const char* function, const char *file, int line);
 
-extern GLfloat gWindowWidth;
-extern GLfloat gWindowHeight;
+struct WindowView
+{
+  float WindowWidth;
+  float WindowHeight;
+  float x;
+  float y;
+};
+
+extern WindowView gView;
+
 //Temp stuff
 extern uint16_t gFrames;
 extern uint16_t gFps;

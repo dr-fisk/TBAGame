@@ -4,8 +4,9 @@
 #include "drawable/drawable.h"
 
 ExceptionState::ExceptionState(const std::stack<std::shared_ptr<State>>& crStates,
-                               std::shared_ptr<RenderEngine> cpRenderEngine,
-                               const std::string& crError) : State(crStates, cpRenderEngine)
+                               const std::shared_ptr<RenderTarget>& crpWindow,
+                               const std::shared_ptr<RenderEngine> crpRenderEngine,
+                               const std::string& crError) : State(crStates, crpWindow, crpRenderEngine)
 {
   mError = crError;
   mpWindow = std::make_shared<RenderWindow>(800, 800, "Exception Encountered");
