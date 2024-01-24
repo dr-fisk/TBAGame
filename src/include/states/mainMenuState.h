@@ -42,7 +42,7 @@ class MainMenu : public State
     std::chrono::time_point<std::chrono::system_clock> mStartTime;
     std::shared_ptr<FrameBuffer> mFbo;
     std::shared_ptr<Sprite> mView;
-    OrthCamera mCam;
+    std::shared_ptr<OrthCamera> mCam;
 };
 
 #endif

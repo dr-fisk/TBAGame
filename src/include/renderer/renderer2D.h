@@ -15,13 +15,15 @@ class Renderer2D
 {
   public:
     static void init();
-    static void beginScene(const OrthCamera& crCamera);
+    static void beginScene(const std::shared_ptr<OrthCamera>& crpCamera);
     static void registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
                              std::array<Vertex, sNumQuadVerts>& rVertexes,
-                             const std::shared_ptr<TextureResource>& crpTexture);
+                             const std::shared_ptr<TextureResource>& crpTexture,
+                             const bool cGeometryNeedUpdate);
     static void registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
                              std::array<Vertex, sNumQuadVerts>& rVertexes,
-                             const lg::Color& crColor);
+                             const lg::Color& crColor,
+                             const bool cGeometryNeedUpdate);
     static void endScene();
     static void shutdown();
     static void flush();

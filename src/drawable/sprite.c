@@ -63,26 +63,19 @@ std::shared_ptr<TextureResource> Sprite::getResource()
 //! @return None
 void Sprite::draw()
 {
-  if(mNeedUpdate)
-  {
-    // glm::ivec2 temp;
-    // temp.x = round(mBox.getTopLeft().x);
-    // temp.y = round(mBox.getTopLeft().y);
-    // mBox.setTopLeft(temp);
-    mNeedUpdate = false;
-  }
-
   if(mRender)
   {
     // TODO: Update offset for sprites
     if(nullptr != mTexture)
     {
-      Renderer2D::registerQuad(mBox.getTopLeft(), mBox.getSize(), mVertexes, mTexture);
+      Renderer2D::registerQuad(mBox.getTopLeft(), mBox.getSize(), mVertexes, mTexture, mGeometryNeedUpdate);
     }
     else
     {
-      Renderer2D::registerQuad(mBox.getTopLeft(), mBox.getSize(), mVertexes, mColor);
+      Renderer2D::registerQuad(mBox.getTopLeft(), mBox.getSize(), mVertexes, mColor, mGeometryNeedUpdate);
     }
+
+    mGeometryNeedUpdate = false;
   }
 }
 
@@ -111,7 +104,7 @@ bool Sprite::textureBounded()
 void Sprite::setColor(const lg::Color& crColor)
 {
   mColor = crColor;
-  mNeedUpdate = true;
+  mGeometryNeedUpdate = true;
 }
 
 //! @brief Returns position of Sprite
@@ -134,7 +127,7 @@ void Sprite::movePos(const glm::vec2& crMoveVector)
   // temp.x = round(mBox.getTopLeft().x);
   // temp.y = round(mBox.getTopLeft().y);
   // mBox.setTopLeft(temp);
-  mNeedUpdate = true;
+  mGeometryNeedUpdate = true;
 }
 
 //! @brief Sets the Sprite Positition
@@ -150,7 +143,7 @@ void Sprite::setPos(const glm::vec2& crPos)
   // temp.x = round(mBox.getTopLeft().x);
   // temp.y = round(mBox.getTopLeft().y);
   // mBox.setTopLeft(temp);
-  mNeedUpdate = true;
+  mGeometryNeedUpdate = true;
 }
 
 //! @brief Sets Size of Sprite
@@ -161,7 +154,7 @@ void Sprite::setPos(const glm::vec2& crPos)
 void Sprite::setSize(const glm::vec2& crSize)
 {
   mBox.setSize(crSize);
-  mNeedUpdate = true;
+  mGeometryNeedUpdate = true;
 }
 
 //! @brief Gets the Box corresponding to Sprite

@@ -50,7 +50,8 @@ void Text::updateText(const std::string& crText)
 {
   mText.clear();
   mText = crText;
-  mNeedUpdate = true;
+  gridfitText(mBox.getTopLeft());
+  mGeometryNeedUpdate = true;
 }
 
 //! @brief Creates layout of Text
@@ -126,18 +127,14 @@ std::shared_ptr<TextureResource> Text::getResource()
 //! @return None
 void Text::draw()
 {
-  if(mNeedUpdate)
-  {
-    gridfitText(mBox.getTopLeft());
-    mNeedUpdate = false;
-  }
-
   if(mRender)
   {
     for(auto& vertex : mTextVertexes)
     {
-      Renderer2D::registerQuad(vertex.Pos, vertex.Size, vertex.Vertexes, mTexture);
+      Renderer2D::registerQuad(vertex.Pos, vertex.Size, vertex.Vertexes, mTexture, mGeometryNeedUpdate);
     }
+
+    mGeometryNeedUpdate = false;
   }
 }
 
@@ -165,7 +162,8 @@ bool Text::hasResource()
 void Text::movePos(const glm::vec2& crMoveVector)
 {
   mBox.movePos(crMoveVector);
-  mNeedUpdate = true;
+  gridfitText(mBox.getTopLeft());
+  mGeometryNeedUpdate = true;
 }
 
 //! @brief Sets Text Position
@@ -176,7 +174,8 @@ void Text::movePos(const glm::vec2& crMoveVector)
 void Text::setPos(const glm::vec2& crPos)
 {
   mBox.setTopLeft(crPos);
-  mNeedUpdate = true;
+  gridfitText(mBox.getTopLeft());
+  mGeometryNeedUpdate = true;
 }
 
 //! @brief Grabs Text String

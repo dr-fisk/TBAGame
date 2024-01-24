@@ -43,6 +43,7 @@ static uint32_t sNumQuadCount;
 static glm::mat4 sViewProjection;
 static glm::vec4 sQuadVertexes[sNumQuadVerts];
 static glm::vec2 TextCoords[sNumQuadVerts];
+static std::shared_ptr<OrthCamera> sCameraView;
 
 //! @brief Initializes the Renderer2D Engine
 //!
@@ -109,49 +110,64 @@ void Renderer2D::init()
   sNumQuadCount = 0;
 }
 
-void Renderer2D::beginScene(const OrthCamera& crCamera)
+void Renderer2D::beginScene(const std::shared_ptr<OrthCamera>& crpCamera)
 {
   // TODO add camera stuff to have views
   initBatch();
-  sViewProjection = crCamera.getViewProjectionMatrix();
+  sViewProjection = crpCamera->getViewProjectionMatrix();
+  sCameraView = crpCamera;
 }
 
 void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
                               std::array<Vertex, sNumQuadVerts>& rVertexes,
-                              const lg::Color& crColor)
+                              const lg::Color& crColor,
+                              const bool cGeometryNeedUpdate)
 {
   if(sNumVerts >= sRenderer2DLimits.MaxVertices)
   {
     nextBatch();
   }
 
-  glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(crPos, 0.0f)) * /*rotation*/ glm::scale(glm::mat4(1.0f),
-                                       {crSize.x, crSize.y, 1.0f});
-
-  for(int i = 0; i < sNumQuadVerts; i ++)
+  if(sCameraView->geometryNeedUpdate() || cGeometryNeedUpdate)
   {
-    sQuads[sNumVerts].Pos = sViewProjection * transform * sQuadVertexes[i];
-    sQuads[sNumVerts].Rgba = crColor;
-    sQuads[sNumVerts].TextCoord = TextCoords[i];
-    sQuads[sNumVerts].TextureIndex = -1;
-    rVertexes[sNumVerts] = sQuads[sNumVerts];
-    sNumVerts ++;
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(crPos, 0.0f)) * /*rotation*/ glm::scale(glm::mat4(1.0f),
+                                       {crSize.x, crSize.y, 1.0f});
+    // Setting default color to purple, so if something bad happens when rendering it's in your face
+    for(int i = 0; i < sNumQuadVerts; i ++)
+    {
+      sQuads[sNumVerts].Pos = sViewProjection * transform * sQuadVertexes[i];
+      sQuads[sNumVerts].Rgba = crColor;
+      sQuads[sNumVerts].TextCoord = TextCoords[i];
+      sQuads[sNumVerts].TextureIndex = -1;
+      rVertexes[i] = sQuads[sNumVerts];
+
+      sNumVerts ++;
+    }
   }
+  else
+  {
+    for(int i = 0; i < sNumQuadVerts; i ++)
+    {
+      rVertexes[i].TextureIndex = -1;
+      sQuads[sNumVerts] = rVertexes[i];
+
+      sNumVerts ++;
+    }
+  }
+
 
   sNumQuadCount ++;
 }
 
 void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
                               std::array<Vertex, sNumQuadVerts>& rVertexes,
-                              const std::shared_ptr<TextureResource>& crpTexture)
+                              const std::shared_ptr<TextureResource>& crpTexture,
+                              const bool cGeometryNeedUpdate)
 {
   if(sNumVerts >= sRenderer2DLimits.MaxVertices || sBoundedTextureIdx == sRenderer2DLimits.MaxTextures)
   {
     nextBatch();
   }
-// rotation  glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3{0.0, 0.0, 1.0}) *
-  glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(crPos, 0.0f)) * glm::scale(glm::mat4(1.0f),
-                                       {crSize.x, crSize.y, 1.0f});
 
   if(!crpTexture->isBounded())
   {
@@ -161,18 +177,33 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
     sBoundedTextureIdx ++;
   }
 
-  // Setting default color to purple, so if something bad happens when rendering it's in your face
-  for(int i = 0; i < sNumQuadVerts; i ++)
+  if(sCameraView->geometryNeedUpdate() || cGeometryNeedUpdate)
   {
-    sQuads[sNumVerts].Pos = sViewProjection * transform * sQuadVertexes[i];
-    sQuads[sNumVerts].Rgba = lg::Purple;
-    sQuads[sNumVerts].TextCoord = rVertexes[i].TextCoord;
-    sQuads[sNumVerts].TextureIndex = crpTexture->getCacheId();
-    rVertexes[i].Pos = sQuads[sNumVerts].Pos;
-    rVertexes[i].Rgba = sQuads[sNumVerts].Rgba;
-    rVertexes[i].TextureIndex = sQuads[sNumVerts].TextureIndex;
+    // rotation  glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3{0.0, 0.0, 1.0}) *
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(crPos, 0.0f)) * glm::scale(glm::mat4(1.0f),
+                                        {crSize.x, crSize.y, 1.0f});
 
-    sNumVerts ++;
+    // Setting default color to purple, so if something bad happens when rendering it's in your face
+    for(int i = 0; i < sNumQuadVerts; i ++)
+    {
+      sQuads[sNumVerts].Pos = sViewProjection * transform * sQuadVertexes[i];
+      sQuads[sNumVerts].Rgba = lg::Purple;
+      sQuads[sNumVerts].TextCoord = rVertexes[i].TextCoord;
+      sQuads[sNumVerts].TextureIndex = crpTexture->getCacheId();
+      rVertexes[i] = sQuads[sNumVerts];
+
+      sNumVerts ++;
+    }
+  }
+  else
+  {
+    for(int i = 0; i < sNumQuadVerts; i ++)
+    {
+      rVertexes[i].TextureIndex = crpTexture->getCacheId();
+      sQuads[sNumVerts] = rVertexes[i];
+
+      sNumVerts ++;
+    }
   }
 
   sNumQuadCount ++;
@@ -181,6 +212,7 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
 void Renderer2D::endScene()
 {
   flush();
+  sCameraView->unsetUpdateFlag();
 }
 
 void Renderer2D::initBatch()

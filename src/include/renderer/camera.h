@@ -21,6 +21,8 @@ class OrthCamera
     const glm::mat4& getProjectionMatrix() const { return mProjectionMatrix; }
     const glm::mat4& getViewMatrix() const { return mViewMatrix; }
     const glm::mat4& getViewProjectionMatrix() const { return mViewProjectionMatrix; }
+    void unsetUpdateFlag() {  mUpdateGeometry = false; }
+    bool geometryNeedUpdate() const { return mUpdateGeometry; }
   private:
     void updateViewMatrix();
   
@@ -30,6 +32,7 @@ class OrthCamera
 
     glm::vec3 mPosition;
     float mRotation;
+    bool mUpdateGeometry;
 };
 
 #endif

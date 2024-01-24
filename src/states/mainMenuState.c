@@ -82,8 +82,8 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   // mView = std::make_shared<Sprite>(glm::vec2{gWindowWidth / 2.0f, gWindowHeight / 2.0f}, glm::vec2{gWindowWidth, gWindowHeight}, lg::White);
 
   // mView->setTexture(mFbo->getTexture(), true);
-  mCam = OrthCamera(0, 1920, 1080, 0);
-  Box<glm::vec2> testBox = mSprite->getGlobalBounds(mCam);
+  mCam = std::make_shared<OrthCamera>(0, 1920, 1080, 0);
+  Box<glm::vec2> testBox = mSprite->getGlobalBounds(*mCam);
 
   std::cout << "Pos: " << glm::to_string(testBox.getTopLeft()) << " Size: " << glm::to_string(testBox.getSize()) << std::endl;
   // mCam.setPosition({0.0f, 0.0f, 0.0f});
@@ -169,7 +169,7 @@ void MainMenu::update(const std::shared_ptr<RenderTarget> &crpTarget, const floa
   // mFbo->bind();
   RenderCommand::clear();
   Renderer2D::beginScene(mCam);
-  // mText->draw();
+  mText->draw();
   mSprite->draw();
   mSprite2->draw();
   mSprite3->draw();
@@ -181,7 +181,7 @@ void MainMenu::update(const std::shared_ptr<RenderTarget> &crpTarget, const floa
   // Renderer2D::beginScene();
   // mView->draw();
   // Renderer2D::endScene();
-  std::cout << glm::to_string(lg::Mouse::getMousePosf(mpWindow)) << std::endl;
+  // std::cout << glm::to_string(lg::Mouse::getMousePosf(mpWindow)) << std::endl;
 }
 
 MainMenu::~MainMenu() 

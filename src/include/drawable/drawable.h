@@ -19,7 +19,7 @@ enum PrimitiveType
 class Drawable
 {
   public:
-    Drawable(){ mRenderId = 0; mRender = false; mNeedUpdate = false; mRender = true; }
+    Drawable(){ mRenderId = 0; mRender = false; mGeometryNeedUpdate = false; mRender = true; }
     virtual ~Drawable() = default;
     virtual std::shared_ptr<TextureResource> getResource() = 0;
     virtual bool hasResource() = 0;
@@ -36,7 +36,7 @@ class Drawable
     virtual void draw() = 0;
   protected:
     uint64_t mRenderId;
-    bool mNeedUpdate;
+    bool mGeometryNeedUpdate;
     bool mRender;
     uint32_t mLayer;
 };

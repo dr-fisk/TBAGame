@@ -9,6 +9,7 @@ OrthCamera::OrthCamera(const float cLeft, const float cRight, const float cBotto
   mViewProjectionMatrix = mProjectionMatrix * mViewMatrix;
   mPosition = glm::vec3(0.0f, 0.0f, 0.0f);
   mRotation = 0.0f;
+  mUpdateGeometry = true;
 }
 
 void OrthCamera::setProjection(const float cLeft, const float cRight, const float cBottom, const float cTop)
@@ -24,4 +25,5 @@ void OrthCamera::updateViewMatrix()
   mViewMatrix = glm::inverse(transform);
   // Order matters for different Graphic Libraries
   mViewProjectionMatrix = mProjectionMatrix * mViewMatrix;
+  mUpdateGeometry;
 }
