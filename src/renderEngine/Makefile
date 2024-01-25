@@ -10,7 +10,7 @@ CFLAGS = -g -std=c++17 -MMD -I$(INCLPATH) -I$(SRCINCLPATH) -I$(LIBPATH) -I$(HEAD
 RENDERENGINEDEPS := $(patsubst %.o, %.d, $(renderEngine))
 -include $(RENDERENGINEDEPS)
 
-%.o: %.c
+%.o: %.cpp
 	@echo "MAKE $<"
 	$(Q)$(CC) $(CFLAGS) $< $(LDFLAGS) -c
 

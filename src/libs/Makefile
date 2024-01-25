@@ -1,14 +1,14 @@
 all : $(dynamicLibsDLL)
 
 LIBPATH = ../../lib
-INCLPATH = ../../include
+INCLPATH = ../include
 HEADERS= ../headers
 EXEC= ../../objs-wind64
 
 CFLAGS = -g -std=c++17 -MMD -I$(INCLPATH) -I$(LIBPATH) -I$(HEADERS)
--include $(dynLibFiles:.c=.d)
+-include $(dynLibFiles:.cpp=.d)
 
-%.o : %.c
+%.o : %.cpp
 	@echo "MAKE $<"
 	$(Q)$(CC) $(CFLAGS) $< $(SOLDFLAGS) -fPIC -c
 

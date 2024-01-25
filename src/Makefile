@@ -42,7 +42,7 @@ else
 CFLAGS = -O2
 endif
 
-CFLAGS  += -std=c++17 -Wall -Wextra -MMD -MD -static-libgcc -static-libstdc++ -I$(INCLPATH) -I$(SRCINCLPATH) -I$(HEADERS) -I$(LESTTTFPATH)
+CFLAGS  += -std=c++17 -Wall -Wextra -MMD -MD -I$(INCLPATH) -I$(SRCINCLPATH) -I$(HEADERS) -I$(LESTTTFPATH)
 
 LDFLAGS = -L$(DYNLIBSPATH) -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -static-libgcc -static-libstdc++ -llestpng -llestttf
 SOLDFLAGS = -L$(LIBPATH) -lzlib1 -lws2_32 -shared -static-libgcc -static-libstdc++
@@ -58,48 +58,48 @@ MAKEFLAGS += -rR --no-print-directory
 
 all : $(programs)
 
-linkFiles  = common.c \
-             game.c
+linkFiles  = common.cpp \
+             game.cpp
 
-stateFiles = state.c \
-             mainMenuState.c \
-             exceptionState.c
+stateFiles = state.cpp \
+             mainMenuState.cpp \
+             exceptionState.cpp
 
-guiFiles   = gui.c
+guiFiles   = gui.cpp
 
-windowFiles = renderWindow.c \
-              renderTarget.c \
-							mouse.c \
-							keyboard.c \
-							window.c
+windowFiles = renderWindow.cpp \
+              renderTarget.cpp \
+							mouse.cpp \
+							keyboard.cpp \
+							window.cpp
 
-resourceFiles = image.c \
-                font.c \
-								resource.c \
-								textureResource.c
+resourceFiles = image.cpp \
+                font.cpp \
+								resource.cpp \
+								textureResource.cpp
 
-drawableFiles = drawable.c \
-								text.c \
-								sprite.c
+drawableFiles = drawable.cpp \
+								text.cpp \
+								sprite.cpp
 
-renderEngineFiles = renderEngine.c \
-										indexBuffer.c \
-										shader.c \
-										vertexBuffer.c \
-										vertexArray.c \
-										texture.c \
-										frameBuffer.c
+renderEngineFiles = renderEngine.cpp \
+										indexBuffer.cpp \
+										shader.cpp \
+										vertexBuffer.cpp \
+										vertexArray.cpp \
+										texture.cpp \
+										frameBuffer.cpp
 
-rendererFiles = renderer2D.c \
-                camera.c
+rendererFiles = renderer2D.cpp \
+                camera.cpp
 
-inputFiles = input.c
+inputFiles = input.cpp
 
-graphicsFiles = scrollbar.c
+graphicsFiles = scrollbar.cpp
 
-dynLibFiles = png.c
+dynLibFiles = png.cpp
 
-utilityFiles = edgeTable.c
+utilityFiles = edgeTable.cpp
 objs := $(patsubst %.exe, %.o, $(programs))
 
 ifeq (lin64, $(TARGET))
@@ -108,41 +108,41 @@ else ifeq (win64, $(TARGET))
   objs := $(patsubst %.exe, %.o, $(programs))
 endif
 
-objs += $(patsubst %.c, %.o, $(linkFiles))
+objs += $(patsubst %.cpp, %.o, $(linkFiles))
 
-states = $(patsubst %.c, %.o, $(stateFiles))
+states = $(patsubst %.cpp, %.o, $(stateFiles))
 stateObjs = $(addprefix $(STATEPATH)/, $(states))
 
-window = $(patsubst %.c, %.o, $(windowFiles))
+window = $(patsubst %.cpp, %.o, $(windowFiles))
 windowObjs = $(addprefix $(WINDOWPATH)/, $(window))
 
-resources = $(patsubst %.c, %.o, $(resourceFiles))
+resources = $(patsubst %.cpp, %.o, $(resourceFiles))
 resourceObjs = $(addprefix $(RESOURCEPATH)/, $(resources))
 
-drawables = $(patsubst %.c, %.o, $(drawableFiles))
+drawables = $(patsubst %.cpp, %.o, $(drawableFiles))
 drawableObjs = $(addprefix $(DRAWABLESPATH)/, $(drawables))
 
-renderEngine = $(patsubst %.c, %.o, $(renderEngineFiles))
+renderEngine = $(patsubst %.cpp, %.o, $(renderEngineFiles))
 renderEngineObjs = $(addprefix $(RENDERENGINEPATH)/, $(renderEngine))
 
-renderer = $(patsubst %.c, %.o, $(rendererFiles))
+renderer = $(patsubst %.cpp, %.o, $(rendererFiles))
 rendererObjs = $(addprefix $(RENDERERPATH)/, $(renderer))
 
-graphics = $(patsubst %.c, %.o, $(graphicsFiles))
+graphics = $(patsubst %.cpp, %.o, $(graphicsFiles))
 graphicsObjs = $(addprefix $(GRAPHICSPATH)/, $(graphics))
 
-inputs = $(patsubst %.c, %.o, $(inputFiles))
+inputs = $(patsubst %.cpp, %.o, $(inputFiles))
 inputObjs = $(addprefix $(INPUTPATH)/, $(inputs))
 
 dynLibPrefix = lest
 
-dynamicLibs = $(patsubst %.c, %.dll, $(dynLibFiles))
+dynamicLibs = $(patsubst %.cpp, %.dll, $(dynLibFiles))
 dynamicLibsDLL = $(addprefix $(dynLibPrefix), $(dynamicLibs))
 dynamicLibDLLObjs = $(addprefix $(DYNLIBSPATH)/, $(dynamicLibsDLL))
-dynamicLibObjs = $(patsubst %.c, %.o, $(dynLibFiles))
+dynamicLibObjs = $(patsubst %.cpp, %.o, $(dynLibFiles))
 dynamicLibObjsPath = $(addprefix $(DYNLIBSPATH)/, $(dynamicLibObjs))
 
-utilities = $(patsubst %.c, %.o, $(utilityFiles))
+utilities = $(patsubst %.cpp, %.o, $(utilityFiles))
 utilitiesObjs = $(addprefix $(UTILITYPATH)/, $(utilities))
 
 deps := $(patsubst %.o, %.d, $(objs))
@@ -253,7 +253,7 @@ main.o: main.cxx
 	@echo "MAKE $<"
 	$(Q)$(CC) $(CFLAGS) $< $(LDFLAGS) -c
 
-%.o: %.c
+%.o: %.cpp
 	@echo "MAKE $<"
 	$(Q)$(CC) $(CFLAGS) $< $(LDFLAGS) -c 
 
