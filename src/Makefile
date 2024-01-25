@@ -23,7 +23,9 @@ RESOURCEPATH = ./resource
 GUIPATH = ./gui
 DRAWABLESPATH = ./drawable
 RENDERENGINEPATH = ./renderEngine
+RENDERERPATH = ./renderer
 GRAPHICSPATH = ./graphics
+INPUTPATH = ./input
 SRC = ./src
 SHADERSPATH = ./shaders
 FONTSPATH = ./fonts
@@ -40,7 +42,7 @@ else
 CFLAGS = -O2
 endif
 
-CFLAGS  += -std=c++17 -Wall -Wextra -MMD -MD -static-libgcc -static-libstdc++ -I$(INCLPATH) -I$(SRCINCLPATH) -I$(HEADERS) -I$(LESTTTFPATH)
+CFLAGS  += -std=c++17 -Wall -Wextra -MMD -MD -I$(INCLPATH) -I$(SRCINCLPATH) -I$(HEADERS) -I$(LESTTTFPATH)
 
 LDFLAGS = -L$(DYNLIBSPATH) -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -static-libgcc -static-libstdc++ -llestpng -llestttf
 SOLDFLAGS = -L$(LIBPATH) -lzlib1 -lws2_32 -shared -static-libgcc -static-libstdc++
@@ -56,44 +58,48 @@ MAKEFLAGS += -rR --no-print-directory
 
 all : $(programs)
 
-linkFiles  = common.c \
-             game.c
+linkFiles  = common.cpp \
+             game.cpp
 
-stateFiles = state.c \
-             mainMenuState.c \
-             exceptionState.c
+stateFiles = state.cpp \
+             mainMenuState.cpp \
+             exceptionState.cpp
 
-guiFiles   = gui.c
+guiFiles   = gui.cpp
 
-windowFiles = renderWindow.c \
-              renderTarget.c \
-							mouse.c
+windowFiles = renderWindow.cpp \
+              renderTarget.cpp \
+							mouse.cpp \
+							keyboard.cpp \
+							window.cpp
 
-resourceFiles = image.c \
-                font.c \
-								resource.c \
-								textureResource.c
+resourceFiles = image.cpp \
+                font.cpp \
+								resource.cpp \
+								textureResource.cpp
 
-drawableFiles = drawable.c \
-                rectangle.c \
-								text.c \
-								sprite.c
+drawableFiles = drawable.cpp \
+								text.cpp \
+								sprite.cpp
 
-renderEngineFiles = renderEngine.c \
-										indexBuffer.c \
-										shader.c \
-										batchBuffer.c \
-										vertexBuffer.c \
-										vertexArray.c \
-										texture.c
+renderEngineFiles = renderEngine.cpp \
+										indexBuffer.cpp \
+										shader.cpp \
+										vertexBuffer.cpp \
+										vertexArray.cpp \
+										texture.cpp \
+										frameBuffer.cpp
 
-graphicsFiles = button.c
+rendererFiles = renderer2D.cpp \
+                camera.cpp
 
-dynLibFiles = png.c
+inputFiles = input.cpp
 
-utilityFiles = edgeTable.c \
-							 vertexUtility.c
+graphicsFiles = scrollbar.cpp
 
+dynLibFiles = png.cpp
+
+utilityFiles = edgeTable.cpp
 objs := $(patsubst %.exe, %.o, $(programs))
 
 ifeq (lin64, $(TARGET))
@@ -102,38 +108,41 @@ else ifeq (win64, $(TARGET))
   objs := $(patsubst %.exe, %.o, $(programs))
 endif
 
-objs += $(patsubst %.c, %.o, $(linkFiles))
+objs += $(patsubst %.cpp, %.o, $(linkFiles))
 
-states = $(patsubst %.c, %.o, $(stateFiles))
+states = $(patsubst %.cpp, %.o, $(stateFiles))
 stateObjs = $(addprefix $(STATEPATH)/, $(states))
 
-GUI = $(patsubst %.c, %.o, $(guiFiles))
-guiObjs = $(addprefix $(GUIPATH)/, $(GUI))
-
-window = $(patsubst %.c, %.o, $(windowFiles))
+window = $(patsubst %.cpp, %.o, $(windowFiles))
 windowObjs = $(addprefix $(WINDOWPATH)/, $(window))
 
-resources = $(patsubst %.c, %.o, $(resourceFiles))
+resources = $(patsubst %.cpp, %.o, $(resourceFiles))
 resourceObjs = $(addprefix $(RESOURCEPATH)/, $(resources))
 
-drawables = $(patsubst %.c, %.o, $(drawableFiles))
+drawables = $(patsubst %.cpp, %.o, $(drawableFiles))
 drawableObjs = $(addprefix $(DRAWABLESPATH)/, $(drawables))
 
-renderEngine = $(patsubst %.c, %.o, $(renderEngineFiles))
+renderEngine = $(patsubst %.cpp, %.o, $(renderEngineFiles))
 renderEngineObjs = $(addprefix $(RENDERENGINEPATH)/, $(renderEngine))
 
-graphics = $(patsubst %.c, %.o, $(graphicsFiles))
+renderer = $(patsubst %.cpp, %.o, $(rendererFiles))
+rendererObjs = $(addprefix $(RENDERERPATH)/, $(renderer))
+
+graphics = $(patsubst %.cpp, %.o, $(graphicsFiles))
 graphicsObjs = $(addprefix $(GRAPHICSPATH)/, $(graphics))
+
+inputs = $(patsubst %.cpp, %.o, $(inputFiles))
+inputObjs = $(addprefix $(INPUTPATH)/, $(inputs))
 
 dynLibPrefix = lest
 
-dynamicLibs = $(patsubst %.c, %.dll, $(dynLibFiles))
+dynamicLibs = $(patsubst %.cpp, %.dll, $(dynLibFiles))
 dynamicLibsDLL = $(addprefix $(dynLibPrefix), $(dynamicLibs))
 dynamicLibDLLObjs = $(addprefix $(DYNLIBSPATH)/, $(dynamicLibsDLL))
-dynamicLibObjs = $(patsubst %.c, %.o, $(dynLibFiles))
+dynamicLibObjs = $(patsubst %.cpp, %.o, $(dynLibFiles))
 dynamicLibObjsPath = $(addprefix $(DYNLIBSPATH)/, $(dynamicLibObjs))
 
-utilities = $(patsubst %.c, %.o, $(utilityFiles))
+utilities = $(patsubst %.cpp, %.o, $(utilityFiles))
 utilitiesObjs = $(addprefix $(UTILITYPATH)/, $(utilities))
 
 deps := $(patsubst %.o, %.d, $(objs))
@@ -159,10 +168,6 @@ $(STATEPATH): $(WINDOWPATH)
 	@echo "MAKE	States"
 	$(Q)$(MAKE)  V=$(V) D=$(D) -C $(STATEPATH)
 
-$(GUIPATH):
-	@echo "MAKE	Gui"
-	$(Q)$(MAKE) V=$(V) D=$(D) -C $(GUIPATH)
-
 $(DRAWABLESPATH):
 	@echo "MAKE	Drawables"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(DRAWABLESPATH)
@@ -174,6 +179,10 @@ $(WINDOWPATH):
 $(RENDERENGINEPATH):
 	@echo "MAKE	Render Engine"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(RENDERENGINEPATH)
+
+$(RENDERERPATH):
+	@echo "MAKE	Renderer"
+	$(Q)$(MAKE) V=$(V) D=$(D) -C $(RENDERERPATH)
 
 $(RESOURCEPATH):
 	@echo "MAKE	Resource"
@@ -187,6 +196,10 @@ $(UTILITYPATH):
 	@echo "MAKE	Utilities"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(UTILITYPATH)
 
+$(INPUTPATH):
+	@echo "MAKE	Inputs"
+	$(Q)$(MAKE) V=$(V) D=$(D) -C $(INPUTPATH)
+
 shader:
 		@echo "Copying Shaders"
 		$(Q)cp -r $(SHADERSPATH) $(PATHTOEXEC)
@@ -195,9 +208,11 @@ font:
 		@echo "Copying Fonts"
 		$(Q)cp -r $(FONTSPATH) $(PATHTOEXEC)
 
-%.exe: $(objs) $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RENDERENGINEPATH) $(RESOURCEPATH) $(GRAPHICSPATH) $(UTILITYPATH)
+%.exe: $(objs) $(DYNLIBSPATH) $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RENDERENGINEPATH) $(RENDERERPATH) \
+       $(RESOURCEPATH) $(GRAPHICSPATH) $(UTILITYPATH) $(INPUTPATH)
 	@echo "MAKE $@"
-	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(guiObjs) $(windowObjs) $(drawableObjs) $(utilitiesObjs) $(renderEngineObjs) $(resourceObjs) $(graphicsObjs) $(LDFLAGS)
+	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(windowObjs) $(drawableObjs) $(utilitiesObjs) $(renderEngineObjs) \
+	$(rendererObjs) $(resourceObjs) $(graphicsObjs) $(inputObjs) $(LDFLAGS)
 	@echo "Checking DIR"
 	$(Q)if [ ! -d $(PATHTOEXEC) ]; then \
 		echo "Creating Win DIR"; \
@@ -216,9 +231,9 @@ font:
 	@echo "Transferring .exe"
 	$(Q)cp $@ $(PATHTOEXEC)
 
-%.out: $(objs) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(UTILITYPATH)
+%.out: $(objs) $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(UTILITYPATH)
 	@echo "MAKE $@"
-	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(guiObjs) $(windowObjs) $(drawableObjs) $(utilitiesObjs) $(LDFLAGS)
+	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(windowObjs) $(drawableObjs) $(utilitiesObjs) $(LDFLAGS)
 	@echo "Checking DIR"
 	$(Q)if [ ! -d $(PATHTOEXECLINUX) ]; then \
 		echo "Creating Lin DIR"; \
@@ -238,22 +253,13 @@ main.o: main.cxx
 	@echo "MAKE $<"
 	$(Q)$(CC) $(CFLAGS) $< $(LDFLAGS) -c
 
-%.o: %.c
+%.o: %.cpp
 	@echo "MAKE $<"
 	$(Q)$(CC) $(CFLAGS) $< $(LDFLAGS) -c 
 
 clean_state:
 	@echo "Clean States"
 	@for item in ${stateObjs}; do \
-	if [ -f $${item} ]; then \
-	echo "Rm $${item}"; \
-	rm $${item}; \
-	fi \
-	done
-
-clean_gui:
-	@echo "Clean GUI"
-	@for item in ${guiObjs}; do \
 	if [ -f $${item} ]; then \
 	echo "Rm $${item}"; \
 	rm $${item}; \
@@ -305,6 +311,16 @@ clean_renderengine:
 	fi \
 	done
 
+clean_renderer:
+	@echo "Clean Renderer"
+	@for item in ${rendererObjs}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done
+
+
 clean_graphics:
 	@echo "Clean Graphics"
 	@for item in ${graphicsObjs}; do \
@@ -332,6 +348,15 @@ clean_utilities:
 	fi \
 	done
 
+clean_input:
+	@echo "Clean Inputs"
+	@for item in ${inputObjs}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done
+
 clean_dep:
 	@echo "Clean Dependencies"
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(UTILITYPATH)
@@ -339,8 +364,10 @@ clean_dep:
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(WINDOWPATH)
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(DRAWABLESPATH)
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(RENDERENGINEPATH)
+	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(RENDERERPATH)
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(GRAPHICSPATH)
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(RESOURCEPATH)
+	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(INPUTPATH)
 
 clean_exe:
 	@echo "Clean Executable"
@@ -349,8 +376,8 @@ clean_exe:
 		rm $(programs); \
 	fi
 
-clean: clean_state clean_gui clean_window clean_drawable clean_lib clean_main clean_dep clean_exe clean_utilities\
-       clean_renderengine clean_graphics clean_resource
+clean: clean_state clean_window clean_drawable clean_lib clean_main clean_dep clean_exe clean_utilities \
+       clean_renderengine clean_renderer clean_graphics clean_resource clean_input
 	@echo "Checking win DIR"
 	$(Q)if [ -d $(PATHTOEXEC) ]; then \
 		echo "RM Win DIR"; \
@@ -363,5 +390,8 @@ help:
 	@echo "make TARGET=[lin64, win64]"
 	@echo "Makefile will be expanded in the future"
 
-.PRECIOUS: %.o $(STATEPATH)/%.o $(GUIPATH)/%.o $(WINDOWPATH)/%.o $(RESOURCEPATH)/%.o $(DRAWABLESPATH)/%.o $(RENDERENGINEPATH)/%.o $(GRAPHICSPATH)/%.o $(DYNLIBSPATH)/%.so $(DYNLIBSPATH)/%.o $(DYNLIBSPATH)/%.dll $(UTILITYPATH)/%.o
-.PHONY: $(DYNLIBSPATH) $(STATEPATH) $(GUIPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RESOURCEPATH) $(UTILITYPATH) $(RENDERENGINEPATH) $(GRAPHICSPATH)
+.PRECIOUS: %.o $(STATEPATH)/%.o $(WINDOWPATH)/%.o $(RESOURCEPATH)/%.o $(DRAWABLESPATH)/%.o $(RENDERENGINEPATH)/%.o \
+           $(GRAPHICSPATH)/%.o $(DYNLIBSPATH)/%.so $(DYNLIBSPATH)/%.o $(DYNLIBSPATH)/%.dll $(UTILITYPATH)/%.o \
+					 $(INPUTPATH)/%.o $(RENDERERPATH)/%.o
+.PHONY: $(DYNLIBSPATH) $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RESOURCEPATH) $(UTILITYPATH) $(RENDERENGINEPATH) \
+        $(GRAPHICSPATH) $(INPUTPATH) $(RENDERERPATH)

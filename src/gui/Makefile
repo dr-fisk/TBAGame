@@ -6,6 +6,6 @@ HEADERS= ../headers
 
 CFLAGS = -g -std=c++17 -MMD -I$(INCLPATH) -I$(LIBPATH) -I$(HEADERS)
 
-%.o: %.c
+%.o: %.cpp
 	@echo "MAKE $<"
 	$(Q)$(CC) $(CFLAGS) $< $(LDFLAGS) -c

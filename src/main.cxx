@@ -1,4 +1,4 @@
-#include "game.h"
+#include "game.hpp"
 
 /* Function:    main
    Description: Starts application and calls main loop
