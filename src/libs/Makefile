@@ -10,11 +10,7 @@ CFLAGS = -g -std=c++17 -MMD -I$(INCLPATH) -I$(LIBPATH) -I$(HEADERS)
 
 %.o : %.cpp
 	@echo "MAKE $<"
-	$(Q)$(CC) $(CFLAGS) $< $(SOLDFLAGS) -fPIC -c
-
-%.so: $(dynamicLibObjs)
-	@echo "MAKE $<"
-	$(Q)$(CC) $(CFLAGS) $< $(SOLDFLAGS) -shared -o $@
+	$(Q)$(CC) $(CFLAGS) $< -c
 
 %.dll: $(dynamicLibObjs)
 	@echo "MAKE $@"

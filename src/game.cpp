@@ -129,12 +129,16 @@ void Game::gameLoop()
     }
     
     // RenderCommand::clear();
-    
+    mStates.top()->update(mpWindow, deltaTime);
+
     while(smoothDeltaTime >= FIXED_TIMESTEP)
     {
-      mStates.top()->update(mpWindow, FIXED_TIMESTEP);
+      mStates.top()->fixedUpdate(mpWindow, FIXED_TIMESTEP);
       smoothDeltaTime -= FIXED_TIMESTEP;
     }
+
+    // Need another delta time here
+    mStates.top()->lateUpdate(mpWindow, FIXED_TIMESTEP);
 
     // mFbo->bind();
     // glViewport(0,0, gWindowWidth, gWindowHeight);

@@ -66,7 +66,7 @@ void Renderer2D::init()
   // Next 2 floats are Texture Coords
   // Next float is Texture Index
   sQuadVbo->setLayout({
-    {GL_FLOAT, TWO_D_COORDS, true},
+    {GL_FLOAT, TWO_D_COORDS, false},
     {GL_UNSIGNED_BYTE, RGBA, true},
     {GL_FLOAT, TWO_D_COORDS, false},
     {GL_FLOAT, 1, false}
@@ -131,7 +131,8 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
 
   if(sCameraView->geometryNeedUpdate() || cGeometryNeedUpdate)
   {
-    glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(round(crPos), 0.0f)) * /*rotation*/ glm::scale(glm::mat4(1.0f),
+    // Apparently rounding crPos here may potentially cause stutters during movement, float values can cause rasterization issues so it's a trade off
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(crPos, 0.0f)) * /*rotation*/ glm::scale(glm::mat4(1.0f),
                                        {crSize.x, crSize.y, 1.0f});
     // Setting default color to purple, so if something bad happens when rendering it's in your face
     for(int i = 0; i < sNumQuadVerts; i ++)
@@ -160,65 +161,10 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
   sNumQuadCount ++;
 }
 
-void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crPrevPos, const glm::vec2& crSize,
-                              std::array<Vertex, sNumQuadVerts>& rVertexes,
-                              const std::shared_ptr<TextureResource>& crpTexture,
-                              const bool cGeometryNeedUpdate,
-                              const double cDeltaTime)
-{
-  if(sNumVerts >= sRenderer2DLimits.MaxVertices || sBoundedTextureIdx == sRenderer2DLimits.MaxTextures)
-  {
-    nextBatch();
-  }
-
-  if(!crpTexture->isBounded())
-  {
-    // Update this code
-    sTextureCache[sBoundedTextureIdx] = crpTexture;
-    sTextureCache[sBoundedTextureIdx]->bind(sBoundedTextureIdx);
-    sBoundedTextureIdx ++;
-  }
-
-  if(sCameraView->geometryNeedUpdate() || cGeometryNeedUpdate)
-  {
-    // currentState * alpha + 
-    //         previousState * ( 1.0 - alpha );
-
-    glm::vec2 temp = lg::Math::lerp(crPrevPos, crPos, (float)cDeltaTime);
-    // rotation  glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3{0.0, 0.0, 1.0}) *
-    glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(round(temp), 0.0f)) * glm::scale(glm::mat4(1.0f),
-                                        {crSize.x, crSize.y, 1.0f});
-
-    // Setting default color to purple, so if something bad happens when rendering it's in your face
-    for(int i = 0; i < sNumQuadVerts; i ++)
-    {
-      sQuads[sNumVerts].Pos = sViewProjection * transform * sQuadVertexes[i];
-      sQuads[sNumVerts].Rgba = lg::Purple;
-      sQuads[sNumVerts].TextCoord = rVertexes[i].TextCoord;
-      sQuads[sNumVerts].TextureIndex = crpTexture->getCacheId();
-      rVertexes[i] = sQuads[sNumVerts];
-
-      sNumVerts ++;
-    }
-  }
-  else
-  {
-    for(int i = 0; i < sNumQuadVerts; i ++)
-    {
-      rVertexes[i].TextureIndex = crpTexture->getCacheId();
-      sQuads[sNumVerts] = rVertexes[i];
-
-      sNumVerts ++;
-    }
-  }
-
-  sNumQuadCount ++;
-}
-
 void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
                               std::array<Vertex, sNumQuadVerts>& rVertexes,
                               const std::shared_ptr<TextureResource>& crpTexture,
-                              const bool cGeometryNeedUpdate)
+                              bool cGeometryNeedUpdate)
 {
   if(sNumVerts >= sRenderer2DLimits.MaxVertices || sBoundedTextureIdx == sRenderer2DLimits.MaxTextures)
   {
@@ -236,13 +182,14 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
   if(sCameraView->geometryNeedUpdate() || cGeometryNeedUpdate)
   {
     // rotation  glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3{0.0, 0.0, 1.0}) *
-    glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(round(crPos), 0.0f)) * glm::scale(glm::mat4(1.0f),
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(crPos, 0.0f)) * glm::scale(glm::mat4(1.0f),
                                         {crSize.x, crSize.y, 1.0f});
 
     // Setting default color to purple, so if something bad happens when rendering it's in your face
     for(int i = 0; i < sNumQuadVerts; i ++)
     {
       sQuads[sNumVerts].Pos = sViewProjection * transform * sQuadVertexes[i];
+      if(TOP_LEFT == i)
       sQuads[sNumVerts].Rgba = lg::Purple;
       sQuads[sNumVerts].TextCoord = rVertexes[i].TextCoord;
       sQuads[sNumVerts].TextureIndex = crpTexture->getCacheId();

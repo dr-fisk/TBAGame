@@ -31,7 +31,6 @@ class Sprite : public Drawable
     Box<glm::vec2>& getBox();
     void setLayer(const uint32_t cLayer);
     void draw();
-    void draw2(glm::vec2 prevpos, const double cDeltaTime);
     Box<glm::vec2> getGlobalBounds(const OrthCamera& crCamera);
 
   private:

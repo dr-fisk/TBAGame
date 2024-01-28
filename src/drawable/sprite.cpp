@@ -73,24 +73,6 @@ void Sprite::draw()
   }
 }
 
-void Sprite::draw2(glm::vec2 prevpos, const double cDeltaTime)
-{
-  if(mRender)
-  {
-    // TODO: Update offset for sprites
-    if(nullptr != mTexture)
-    {
-      Renderer2D::registerQuad(mBox.getTopLeft(), prevpos, mBox.getSize(), mVertexes, mTexture, mGeometryNeedUpdate, cDeltaTime);
-    }
-    else
-    {
-      Renderer2D::registerQuad(mBox.getTopLeft(), mBox.getSize(), mVertexes, mColor, mGeometryNeedUpdate);
-    }
-
-    mGeometryNeedUpdate = false;
-  }
-}
-
 //! @brief Returns if Sprite has a Texture
 //!
 //! @return true if Sprite has a Texture false otherwise

@@ -8,8 +8,9 @@ namespace lg
     void windowResizeCallback(GLFWwindow *pWindow, const int32_t cWidth, const int32_t cHeight)
     {
       Event tempEvent;
+      tempEvent.Type = Event::WindowResize;
       int32_t view[4] = {};
-      glGetIntegerv(GL_VIEWPORT, view);
+      glGetIntegerv(GL_VIEWPORT, view);      
 
       gView.x = view[0];
       gView.y = view[1];

@@ -27,6 +27,16 @@ void State::render(const std::shared_ptr<RenderTarget>& crpTarget, const double 
   std::cout << "Parent render\n";
 }
 
+void State::update(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime)
+{
+
+}
+
+void State::lateUpdate(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime)
+{
+
+}
+
 //! @brief Default Destructor
 //!
 //! @return None

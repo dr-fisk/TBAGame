@@ -27,11 +27,6 @@ class Renderer2D
     static void endScene();
     static void shutdown();
     static void flush();
-    static void registerQuad(const glm::vec2& crPos, const glm::vec2& crPrevPos, const glm::vec2& crSize,
-                              std::array<Vertex, sNumQuadVerts>& rVertexes,
-                              const std::shared_ptr<TextureResource>& crpTexture,
-                              const bool cGeometryNeedUpdate,
-                              const double cDeltaTime);
   private:
     static void initBatch();
     static void nextBatch();
