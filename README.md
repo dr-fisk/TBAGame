@@ -12,15 +12,6 @@
   <li>On the terminal run make</li>
   <li>That's it! If there are no issues with the code, this should build every file automatically</li>
 </ol>
-<h1>TODO</h1>
-<p>There is lots to do but here is a quick run down of what is needed.</p>
-<ol>
-  <li>Create different shaders</li>
-  <li>Create a caching system for shaders</li>
-  <li>Create a font renderer (Crucial)</li>
-  <li>Create abstraction for event polling (ie. Mouse clicks etc)</li>
-  <li>Creating the GUI library</li>
-</ol>
 <h1>How to use graphics library</h1>
 <p>There is a lot to really learn from OpenGL, so this will be a quick rundown.</p>
 <p>Vertex Buffer Object or VBO: This is a big blob of memory that contains our data for a shape. For example when creating a square a VBO would contain <x,y,z> coordinartes and an RGB value for each square within the VBO</p>
