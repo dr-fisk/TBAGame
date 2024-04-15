@@ -3,8 +3,8 @@
 
 #include <vector>
 #include <memory>
+#include <cstdint>
 
-#include "utility/net_utility.hpp"
 #include "renderEngine/vertexBuffer.hpp"
 #include "renderEngine/indexBuffer.hpp"
 

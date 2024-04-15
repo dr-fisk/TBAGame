@@ -11,8 +11,7 @@
 class State
 {
   public:
-    State(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<RenderTarget>& crpWindow,
-          const std::shared_ptr<RenderEngine>& crpRenderEngine);
+    State(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<RenderEngine>& crpRenderEngine);
     ~State();
     virtual void render(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);
     virtual void update(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);

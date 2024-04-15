@@ -14,9 +14,8 @@
 #include "glm/gtx/string_cast.hpp"
 #include "math/lestMath.hpp"
 MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
-                   const std::shared_ptr<RenderTarget>& crpWindow,
                    const std::shared_ptr<RenderEngine>& crpRenderEngine) :
-                   State(crStates, crpWindow, crpRenderEngine)
+                   State(crStates, crpRenderEngine)
 {
   std::string temp = "Envy Code R.ttf";
   mStartTime = std::chrono::system_clock::now();

@@ -95,7 +95,8 @@ rendererFiles = renderer2D.cpp \
 
 inputFiles = input.cpp
 
-graphicsFiles = scrollbar.cpp
+graphicsFiles = scrollbar.cpp \
+								textbox.cpp
 
 dynLibFiles = png.cpp
 

@@ -12,7 +12,6 @@
 class ExceptionState : public State {
   public:
     ExceptionState(const std::stack<std::shared_ptr<State>>& crStates,
-                   const std::shared_ptr<RenderTarget>& crpWindow,
                    const std::shared_ptr<RenderEngine> crpRenderEngine,
                    const std::string& crError);
     ~ExceptionState();

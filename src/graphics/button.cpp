@@ -563,3 +563,15 @@ void Button<T>::draw()
     mText->draw();
   }
 }
+
+template <typename T>
+void Button<T>::setText(const std::string& rText)
+{
+  mText->updateText(rText);
+}
+
+template <typename T>
+std::string Button<T>::getText() const
+{
+  return mText->getText();
+}

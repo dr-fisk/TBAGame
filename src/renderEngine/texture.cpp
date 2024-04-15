@@ -1,5 +1,7 @@
+#include <iostream>
+
 #include "renderEngine/texture.hpp"
-#include "png.hpp"
+#include "glcommon.hpp"
 
 //! @brief Default Constructor
 //!
@@ -70,48 +72,6 @@ int8_t Texture::update(void *pBuffer, const glm::uvec2& crDimensions, const glm:
   GLCall(glTexSubImage2D(GL_TEXTURE_2D, 0, crOffset.x, crOffset.y, crDimensions.x, crDimensions.y, cFormat,
                          cType, pBuffer));
   GLCall(glBindTexture(GL_TEXTURE_2D, 0));
-  return 0;
-}
-
-//! @brief Loads Texture from file
-//!
-//! @param[in] crPath Path to file to load
-//!
-//! @return 0 on successful load
-//! @return -1 on failed load 
-int8_t Texture::loadTexture(const std::string &crPath)
-{
-  GLCall(glBindTexture(GL_TEXTURE_2D, mTextureId));
-  GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-  GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-  GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-  GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-  GLCall(glBindTexture(GL_TEXTURE_2D, 0));
-  Png::IHDR ihdr;
-  Png png(crPath);
-  // png.reverseImg();
-  mBuffer = png.getImgData();
-  ihdr = png.getIhdr();
-
-  mBpp = ihdr.bitDepth;
-
-  auto internalFormat = GL_RGBA8;
-  auto format = GL_RGBA;
-
-  if (Png::ColorType::RGBTRIP == ihdr.colorType)
-  {
-    internalFormat = GL_RGB8;
-    format = GL_RGB;
-  }
-
-
-  GLCall(glBindTexture(GL_TEXTURE_2D, mTextureId));
-  GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, ihdr.width, ihdr.height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-         mBuffer.data()));
-  GLCall(glBindTexture(GL_TEXTURE_2D, 0));
-
-  mBufferGenerated = true;
-  mSize = glm::uvec2(ihdr.width, ihdr.height);
   return 0;
 }
 

@@ -2,9 +2,8 @@
 #define VERTEXBUFFER_HPP
 
 #include <vector>
+#include <cstdint>
 
-#include "utility/net_utility.hpp"
-#include "glcommon.hpp"
 #include "renderEngine/vertexBufferLayout.hpp"
 
 class VertexBuffer

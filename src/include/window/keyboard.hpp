@@ -1,7 +1,10 @@
 #ifndef KEYBOARD_HPP
 #define KEYBOARD_HPP
 
-#include "glcommon.hpp"
+#include <cstdint>
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 namespace lg
 {

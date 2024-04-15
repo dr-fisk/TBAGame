@@ -1,5 +1,10 @@
 #include <iostream>
 
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include "glcommon.hpp"
 #include "renderEngine/indexBuffer.hpp"
 
 

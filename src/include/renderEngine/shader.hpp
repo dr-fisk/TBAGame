@@ -2,8 +2,7 @@
 #define SHADER_HPP
 
 #include <string>
-
-#include "utility/net_utility.hpp"
+#include <cstdint>
 
 struct ShaderProgSource
 {

@@ -5,7 +5,6 @@
 #include <string>
 
 #include "renderEngine/texture.hpp"
-#include "glcommon.hpp"
 
 class RenderEngine
 {

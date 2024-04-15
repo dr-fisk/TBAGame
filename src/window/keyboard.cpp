@@ -1,6 +1,8 @@
 #include "window/keyboard.hpp"
 #include "input/input.hpp"
 
+#include <cstdint>
+
 namespace lg
 {
   namespace Keyboard

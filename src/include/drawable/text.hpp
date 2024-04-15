@@ -3,9 +3,10 @@
 
 #include <string>
 #include <array>
+#include <cstdint>
 
 #define GLM_FORCE_CTOR_INIT
-#include "utility/net_utility.hpp"
+#include "vertex.hpp"
 #include "resource/font.hpp"
 #include "drawable.hpp"
 #include "renderEngine/renderEngine.hpp"
@@ -27,14 +28,17 @@ class Text : public Drawable
     bool textureBounded();
     void movePos(const glm::vec2& crMoveVector);
     void setPos(const glm::vec2& crPos);
-    glm::vec2 getPos();
-    std::string getText();
-    glm::vec2 getSize();
+    void setFont(std::shared_ptr<Font>& prFont);
+    void setFontSize(const uint8_t cCharSize, std::shared_ptr<RenderEngine>& prRenderEngine);
+    void setLineWrap(const bool cEnable);
+    glm::vec2 getPos() const;
+    std::string getText() const;
+    glm::vec2 getSize() const;
     void draw();
     ~Text();
     void updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize, 
                                   std::array<Vertex, sNumQuadVerts>& rVertexes);
-    Box<glm::vec2> getGlobalBounds(const OrthCamera& crCamera);
+    Box<glm::vec2> getGlobalBounds(const OrthCamera& crCamera) const;
   private:
     struct TextVertexData
     {
@@ -47,8 +51,8 @@ class Text : public Drawable
     std::string mText;
     std::vector<TextVertexData> mTextVertexes;
     Box<glm::vec2> mBox;
-    int32_t mLineWrap;
-    int32_t mLineSpace;
+    int32_t mLineWrap = -1;
+    int32_t mLineSpace = 1.2f;
     uint8_t mCharSize;
     uint16_t mAdvancedWidth;
     int32_t mCapHeight;

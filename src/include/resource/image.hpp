@@ -3,8 +3,8 @@
 
 #include <vector>
 #include <string>
+#include <cstdint>
 
-#include "utility/net_utility.hpp"
 #include "color.hpp"
 #include "glm/vec2.hpp"
 

@@ -5,6 +5,8 @@ namespace lg
 {
   namespace Window
   {
+    WindowView gView;
+
     void windowResizeCallback(GLFWwindow *pWindow, const int32_t cWidth, const int32_t cHeight)
     {
       Event tempEvent;
@@ -22,6 +24,11 @@ namespace lg
       tempEvent.WindowView.Width = gView.WindowWidth;
       tempEvent.WindowView.Height = gView.WindowHeight;
       lg::Input::pushEvent(tempEvent);
+    }
+  
+    const WindowView& getView()
+    {
+      return gView;
     }
   }
 }

@@ -1,6 +1,7 @@
 #include <iostream>
 
 #define GLM_FORCE_CTOR_INIT
+#include "vertex.hpp"
 #include "glcommon.hpp"
 #include "renderer/renderer2D.hpp"
 #include "glm/gtc/matrix_transform.hpp"

@@ -21,7 +21,7 @@ template <typename T=void *>
 class DropDownMenu : public Graphics
 {
   public:
-    DropDownMenu() = default;
+    DropDownMenu() = delete;
     DropDownMenu(const uint32_t cActive, const std::vector<std::shared_ptr<Button<T>>>& crButtons,
                  const glm::vec2& crPos, const glm::vec2& crSize);
     ~DropDownMenu() = default;
