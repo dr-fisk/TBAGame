@@ -1,5 +1,7 @@
 #include <iostream>
-
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include "renderEngine/vertexBuffer.hpp"
 
 //! @brief Generates a VBO and binds the buffer for the VAO

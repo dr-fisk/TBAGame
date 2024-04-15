@@ -2,9 +2,7 @@
 #define INDEXBUFFER_HPP
 
 #include <vector>
-
-#include "glcommon.hpp"
-#include "utility/net_utility.hpp"
+#include <cstdint>
 
 class IndexBuffer
 {

@@ -12,11 +12,10 @@
 class ExceptionState : public State {
   public:
     ExceptionState(const std::stack<std::shared_ptr<State>>& crStates,
-                   const std::shared_ptr<RenderTarget>& crpWindow,
                    const std::shared_ptr<RenderEngine> crpRenderEngine,
                    const std::string& crError);
     ~ExceptionState();
-    void update(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);
+    void fixedUpdate(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);
     bool shouldStateExit();
   private:
     std::shared_ptr<RenderWindow> mpWindow;

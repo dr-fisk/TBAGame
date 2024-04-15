@@ -13,18 +13,18 @@ class Box : public Shape<T>
     ~Box() = default;
     void setPos(const T& crPos);
     void setSize(const T& crSize);
-    T getTopLeft();
+    T getTopLeft() const;
     void movePos(const T& crMoveVector);
     void setBoxTopLeft(const T& crPos, const T& crSize);
     void setBox(const T& crPos, const T& crSize);
     void setTopLeft(const T& crPos);
-    bool inLocalBounds(const glm::ivec2& crPos);
-    bool inLocalBounds(const glm::vec2& crPos);
+    bool inLocalBounds(const glm::ivec2& crPos) const;
+    bool inLocalBounds(const glm::vec2& crPos) const;
 
     static Box<T> createBoxTopLeft(const T& crPos, const T& crSize);
   private:
     void updatePos(const T& crPos);
-    T calcTopLeft();
+    T calcTopLeft() const;
 };
 
 template <typename T>
@@ -84,7 +84,7 @@ void Box<T>::setSize(const T& crSize)
 }
 
 template <typename T>
-T Box<T>::getTopLeft()
+T Box<T>::getTopLeft() const
 {
   return calcTopLeft();
 }
@@ -96,7 +96,7 @@ void Box<T>::movePos(const T& crMoveVector)
 }
 
 template <typename T>
-bool Box<T>::inLocalBounds(const glm::ivec2& crPos)
+bool Box<T>::inLocalBounds(const glm::ivec2& crPos) const
 {
   T topLeft = calcTopLeft();
 
@@ -105,7 +105,7 @@ bool Box<T>::inLocalBounds(const glm::ivec2& crPos)
 }
 
 template <typename T>
-bool Box<T>::inLocalBounds(const glm::vec2& crPos)
+bool Box<T>::inLocalBounds(const glm::vec2& crPos) const
 {
   T topLeft = calcTopLeft();
 
@@ -114,7 +114,7 @@ bool Box<T>::inLocalBounds(const glm::vec2& crPos)
 }
 
 template <typename T>
-T Box<T>::calcTopLeft()
+T Box<T>::calcTopLeft() const
 {
   const float DIVISOR = 2.0;
 

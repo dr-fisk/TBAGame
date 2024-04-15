@@ -1,5 +1,8 @@
 #include <iostream>
 
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include "renderEngine/frameBuffer.hpp"
 #include "glcommon.hpp"
 
@@ -25,7 +28,7 @@ FrameBuffer::~FrameBuffer()
 void FrameBuffer::bind() const
 {
   glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferId);
-  glViewport(0, 0, gView.WindowWidth, gView.WindowHeight);
+  // glViewport(0, 0, gView.WindowWidth, gView.WindowHeight);
 }
 
 //! @brief Unbinds the Frame Buffer Object

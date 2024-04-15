@@ -173,7 +173,7 @@ void Png::rgbBitDepth8(const std::vector<uint8_t> &crRgbData)
   uint32_t currByte = 0;
   uint32_t leftBound = 0;
   int32_t upperBound = 0;
-  mImgData.resize(mIhdr.width * mIhdr.height * rgbSize);
+  mImgData.reserve(mIhdr.width * mIhdr.height * rgbSize);
 
  for (int i = 0; i < (int) crRgbData.size();)
  {
@@ -231,12 +231,12 @@ void Png::rgbBitDepth8(const std::vector<uint8_t> &crRgbData)
           break;
       }
 
-      mImgData[currByte] = ((crRgbData[i] + filterPix.Red) % mod);
-      mImgData[currByte + 1] = ((crRgbData[i + 1] + filterPix.Green) % mod);
-      mImgData[currByte + 2] = ((crRgbData[i + 2] + filterPix.Blue) % mod);
+      mImgData.push_back((crRgbData[i] + filterPix.Red) % mod);
+      mImgData.push_back((crRgbData[i + 1] + filterPix.Green) % mod);
+      mImgData.push_back((crRgbData[i + 2] + filterPix.Blue) % mod);
 
       if (mIhdr.colorType == RGBTRIPA)
-        mImgData[currByte + 3] = (crRgbData[i + 3] + filterPix.Alpha);
+        mImgData.push_back(crRgbData[i + 3] + filterPix.Alpha);
  
       i += rgbSize;
       currByte += rgbSize;
@@ -343,7 +343,7 @@ void Png::readPng() {
   uint32_t chunkLength;
   uint32_t crc;
   std::vector<uint8_t> chunkType(5);
-  std::vector<uint8_t> signature(9);
+  std::vector<uint8_t> signature(pngSignature.size());
   std::vector<uint8_t> idatBuffer;
 
 // TODO: Move check

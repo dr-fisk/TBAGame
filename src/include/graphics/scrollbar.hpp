@@ -11,7 +11,7 @@
 class Scrollbar : public Graphics
 {
   public:
-    Scrollbar() = default;
+    Scrollbar() = delete;
     Scrollbar(std::shared_ptr<RenderEngine>& prRenderEngine, const glm::vec2& crPos, const glm::vec2& crSize);
     ~Scrollbar() = default;
     void setDefaultTexture(const std::shared_ptr<TextureResource>& crpTexture);

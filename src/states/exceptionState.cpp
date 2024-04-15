@@ -4,9 +4,8 @@
 #include "drawable/drawable.hpp"
 
 ExceptionState::ExceptionState(const std::stack<std::shared_ptr<State>>& crStates,
-                               const std::shared_ptr<RenderTarget>& crpWindow,
                                const std::shared_ptr<RenderEngine> crpRenderEngine,
-                               const std::string& crError) : State(crStates, crpWindow, crpRenderEngine)
+                               const std::string& crError) : State(crStates, crpRenderEngine)
 {
   mError = crError;
   mpWindow = std::make_shared<RenderWindow>(800, 800, "Exception Encountered");
@@ -23,7 +22,7 @@ bool ExceptionState::shouldStateExit()
   return !mpWindow->isOpen();
 }
 
-void ExceptionState::update(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime)
+void ExceptionState::fixedUpdate(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime)
 {
 }
 

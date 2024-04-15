@@ -44,13 +44,13 @@ endif
 
 CFLAGS  += -std=c++17 -Wall -Wextra -MMD -MD -I$(INCLPATH) -I$(SRCINCLPATH) -I$(HEADERS) -I$(LESTTTFPATH)
 
-LDFLAGS = -L$(DYNLIBSPATH) -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -static-libgcc -static-libstdc++ -llestpng -llestttf
+LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -static-libgcc -static-libstdc++ -llestpng -llestttf
 SOLDFLAGS = -L$(LIBPATH) -lzlib1 -lws2_32 -shared -static-libgcc -static-libstdc++
 
 ifeq (lin64, $(TARGET))
   LDFLAGS = -L$(LIBPATH) -lglfw3dll -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lz
 else ifeq (win64, $(TARGET))
-  LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -L$(DYNLIBSPATH) -llestpng -static-libgcc -static-libstdc++ -llestttf
+  LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -llestpng -static-libgcc -static-libstdc++ -llestttf
 endif
 
 
@@ -95,7 +95,8 @@ rendererFiles = renderer2D.cpp \
 
 inputFiles = input.cpp
 
-graphicsFiles = scrollbar.cpp
+graphicsFiles = scrollbar.cpp \
+								textbox.cpp
 
 dynLibFiles = png.cpp
 
@@ -160,10 +161,6 @@ endif
 
 export
 
-$(DYNLIBSPATH):
-	@echo "MAKE	Dynamic Libraries"
-	$(Q)$(MAKE)  V=$(V) D=$(D) -C $(DYNLIBSPATH)
-
 $(STATEPATH): $(WINDOWPATH)
 	@echo "MAKE	States"
 	$(Q)$(MAKE)  V=$(V) D=$(D) -C $(STATEPATH)
@@ -208,7 +205,7 @@ font:
 		@echo "Copying Fonts"
 		$(Q)cp -r $(FONTSPATH) $(PATHTOEXEC)
 
-%.exe: $(objs) $(DYNLIBSPATH) $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RENDERENGINEPATH) $(RENDERERPATH) \
+%.exe: $(objs) $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RENDERENGINEPATH) $(RENDERERPATH) \
        $(RESOURCEPATH) $(GRAPHICSPATH) $(UTILITYPATH) $(INPUTPATH)
 	@echo "MAKE $@"
 	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(windowObjs) $(drawableObjs) $(utilitiesObjs) $(renderEngineObjs) \
@@ -222,11 +219,28 @@ font:
 		cp $(LIBPATH)/glew32.dll $(PATHTOEXEC); \
 		cp $(LIBPATH)/zlib1.dll $(PATHTOEXEC); \
 		echo "Adding custom dll"; \
-		cp $(DYNLIBSPATH)/lestpng.dll $(PATHTOEXEC); \
+		cp $(LIBPATH)/lestpng.dll $(PATHTOEXEC); \
 		cp $(LIBPATH)/lestttf.dll $(PATHTOEXEC); \
 		cp $(FONTPATH)/Envy\ Code\ R.ttf $(PATHTOEXEC); \
 		cp -r $(SHADERSPATH) $(PATHTOEXEC); \
 		cp -r $(FONTSPATH) $(PATHTOEXEC); \
+	else \
+		echo "Checking dynamic libraries exist"; \
+		if [ ! -f $(PATHTOEXEC)/lestpng.dll ]; then \
+			cp $(LIBPATH)/lestpng.dll $(PATHTOEXEC)/lestpng.dll; \
+		fi; \
+		if [ ! -f $(PATHTOEXEC)/lestttf.dll ]; then \
+			cp $(LIBPATH)/lestttf.dll $(PATHTOEXEC)/lestttf.dll; \
+		fi; \
+		if [ ! -f $(PATHTOEXEC)/glfw3.dll ]; then \
+			cp $(LIBPATH)/glfw3.dll $(PATHTOEXEC)/glfw3.dll; \
+		fi; \
+		if [ ! -f $(PATHTOEXEC)/glew32.dll ]; then \
+			cp $(LIBPATH)/glew32.dll $(PATHTOEXEC)/glew32.dll; \
+		fi; \
+		if [ ! -f $(PATHTOEXEC)/zlib1.dll ]; then \
+			cp $(LIBPATH)/zlib1.dll $(PATHTOEXEC)/zlib1.dll; \
+		fi; \
 	fi
 	@echo "Transferring .exe"
 	$(Q)cp $@ $(PATHTOEXEC)
@@ -287,6 +301,12 @@ clean_drawable:
 clean_lib:
 	@echo "Clean Libraries"
 	@for item in ${dynamicLibDLLObjs}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done
+	@for item in ${dynamicLibObjsPath}; do \
 	if [ -f $${item} ]; then \
 	echo "Rm $${item}"; \
 	rm $${item}; \
@@ -391,7 +411,6 @@ help:
 	@echo "Makefile will be expanded in the future"
 
 .PRECIOUS: %.o $(STATEPATH)/%.o $(WINDOWPATH)/%.o $(RESOURCEPATH)/%.o $(DRAWABLESPATH)/%.o $(RENDERENGINEPATH)/%.o \
-           $(GRAPHICSPATH)/%.o $(DYNLIBSPATH)/%.so $(DYNLIBSPATH)/%.o $(DYNLIBSPATH)/%.dll $(UTILITYPATH)/%.o \
-					 $(INPUTPATH)/%.o $(RENDERERPATH)/%.o
-.PHONY: $(DYNLIBSPATH) $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RESOURCEPATH) $(UTILITYPATH) $(RENDERENGINEPATH) \
+           $(GRAPHICSPATH)/%.o $(DYNLIBSPATH)/%.so $(UTILITYPATH)/%.o $(INPUTPATH)/%.o $(RENDERERPATH)/%.o
+.PHONY: $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RESOURCEPATH) $(UTILITYPATH) $(RENDERENGINEPATH) \
         $(GRAPHICSPATH) $(INPUTPATH) $(RENDERERPATH)

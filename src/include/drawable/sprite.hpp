@@ -4,7 +4,7 @@
 #include <array>
 
 #define GLM_FORCE_CTOR_INIT
-#include "glcommon.hpp"
+#include "vertex.hpp"
 #include "drawable/drawable.hpp"
 #include "resource/textureResource.hpp"
 #include "shapes/box.hpp"
@@ -25,14 +25,13 @@ class Sprite : public Drawable
     void setPos(const glm::vec2& crPos);
     void setSize(const glm::vec2& crSize);
     void setTexture(const std::shared_ptr<TextureResource>& crpTexture, const bool cInvert=false);
-    glm::vec2 getSize();
-    glm::vec2 getPos();
+    glm::vec2 getSize() const;
+    glm::vec2 getPos() const;
     void setColor(const lg::Color& crColor);
-    Box<glm::vec2>& getBox();
+    const Box<glm::vec2>& getBox() const;
     void setLayer(const uint32_t cLayer);
     void draw();
-    void draw2(glm::vec2 prevpos, const double cDeltaTime);
-    Box<glm::vec2> getGlobalBounds(const OrthCamera& crCamera);
+    Box<glm::vec2> getGlobalBounds(const OrthCamera& crCamera) const;
 
   private:
     void updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize);

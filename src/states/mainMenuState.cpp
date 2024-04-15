@@ -14,9 +14,8 @@
 #include "glm/gtx/string_cast.hpp"
 #include "math/lestMath.hpp"
 MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
-                   const std::shared_ptr<RenderTarget>& crpWindow,
                    const std::shared_ptr<RenderEngine>& crpRenderEngine) :
-                   State(crStates, crpWindow, crpRenderEngine)
+                   State(crStates, crpRenderEngine)
 {
   std::string temp = "Envy Code R.ttf";
   mStartTime = std::chrono::system_clock::now();
@@ -86,11 +85,12 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   Box<glm::vec2> testBox = mSprite->getGlobalBounds(*mCam);
 
   std::cout << "Pos: " << glm::to_string(testBox.getTopLeft()) << " Size: " << glm::to_string(testBox.getSize()) << std::endl;
+  std::cout << sizeof(glm::vec2) << std::endl;
   // mCam.setPosition({0.0f, 0.0f, 0.0f});
   curr_pos = mSprite->getPos();
 }
 
-void MainMenu::update(const std::shared_ptr<RenderTarget> &crpTarget, const double cDeltaTime)
+void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const double cDeltaTime)
 {
   // std::string temp = "FPS: " + std::to_string(gFps);
   // mText->updateText(temp);
@@ -102,9 +102,9 @@ void MainMenu::update(const std::shared_ptr<RenderTarget> &crpTarget, const doub
   // std::cout << glm::to_string(sprite_pos) << std::endl;
   while(crpTarget->pollEvent(tempEvent))
   {
-    // mButton->clicked(tempEvent);
-    // mMenu->update(tempEvent);
-    // mScroll->update(tempEvent);
+    mButton->clicked(tempEvent);
+    mMenu->update(tempEvent);
+    mScroll->update(tempEvent);
 
     switch(tempEvent.Type)
     {
@@ -150,6 +150,18 @@ void MainMenu::update(const std::shared_ptr<RenderTarget> &crpTarget, const doub
           default:
             break;
         }
+        break;
+      }
+      case Event::WindowResize:
+      {
+        // Viewport needs to be updated on window resize if you want viewport to be same as windowsize
+        mCam->setProjection(tempEvent.WindowView.x, tempEvent.WindowView.Width, tempEvent.WindowView.Height, tempEvent.WindowView.y);
+        glViewport(tempEvent.WindowView.x, tempEvent.WindowView.y, tempEvent.WindowView.Width, tempEvent.WindowView.Height);
+        // int view[4];
+        // glGetIntegerv(GL_VIEWPORT, view);
+        // std::cout << "View: (" << tempEvent.WindowView.x << ", " << tempEvent.WindowView.y << ") " << "(" << tempEvent.WindowView.Width << ", " << tempEvent.WindowView.Height << ")\n";
+        // std::cout << "View: (" << view[0] << ", " << view[1] << ") " << "(" << view[2] << ", " << view[3] << ")\n";
+        break;
       }
       default:
         break;
@@ -186,7 +198,7 @@ void MainMenu::update(const std::shared_ptr<RenderTarget> &crpTarget, const doub
   // Renderer2D::beginScene();
   // mView->draw();
   // Renderer2D::endScene();
-  // std::cout << glm::to_string(mSprite->getPos()) << std::endl;
+  // std::cout << glm::to_string(lg::Mouse::getMousePosf()) << std::endl;
 }
 
 void MainMenu::render(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime)
@@ -200,11 +212,11 @@ void MainMenu::render(const std::shared_ptr<RenderTarget>& crpTarget, const doub
   Renderer2D::beginScene(mCam);
   // mText->draw();
   mSprite->draw();
-  // mSprite2->draw();
-  // mSprite3->draw();
-  // mButton->draw();
-  // mScroll->draw();
-  // mMenu->draw();
+  mSprite2->draw();
+  mSprite3->draw();
+  mButton->draw();
+  mScroll->draw();
+  mMenu->draw();
   Renderer2D::endScene();
 }
 

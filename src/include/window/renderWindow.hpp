@@ -3,6 +3,9 @@
 
 #include <memory>
 
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include "window/renderTarget.hpp"
 #include "glcommon.hpp"
 #include "event/event.hpp"

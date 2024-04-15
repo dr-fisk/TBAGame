@@ -73,24 +73,6 @@ void Sprite::draw()
   }
 }
 
-void Sprite::draw2(glm::vec2 prevpos, const double cDeltaTime)
-{
-  if(mRender)
-  {
-    // TODO: Update offset for sprites
-    if(nullptr != mTexture)
-    {
-      Renderer2D::registerQuad(mBox.getTopLeft(), prevpos, mBox.getSize(), mVertexes, mTexture, mGeometryNeedUpdate, cDeltaTime);
-    }
-    else
-    {
-      Renderer2D::registerQuad(mBox.getTopLeft(), mBox.getSize(), mVertexes, mColor, mGeometryNeedUpdate);
-    }
-
-    mGeometryNeedUpdate = false;
-  }
-}
-
 //! @brief Returns if Sprite has a Texture
 //!
 //! @return true if Sprite has a Texture false otherwise
@@ -122,7 +104,7 @@ void Sprite::setColor(const lg::Color& crColor)
 //! @brief Returns position of Sprite
 //!
 //! @return Sprite Position
-glm::vec2 Sprite::getPos()
+glm::vec2 Sprite::getPos() const
 {
   return mBox.getPos();
 }
@@ -164,7 +146,7 @@ void Sprite::setSize(const glm::vec2& crSize)
 //! @brief Gets the Box corresponding to Sprite
 //!
 //! @return Box of Sprite 
-Box<glm::vec2>& Sprite::getBox()
+const Box<glm::vec2>& Sprite::getBox() const
 {
   return mBox;
 }
@@ -172,7 +154,7 @@ Box<glm::vec2>& Sprite::getBox()
 //! @brief Gets the Size of Sprite
 //!
 //! @return Size of Sprite
-glm::vec2 Sprite::getSize()
+glm::vec2 Sprite::getSize() const
 {
   return mBox.getSize();
 }
@@ -235,7 +217,7 @@ void Sprite::updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2
 //! @brief 
 //! @param crCamera 
 //! @return 
-Box<glm::vec2> Sprite::getGlobalBounds(const OrthCamera& crCamera)
+Box<glm::vec2> Sprite::getGlobalBounds(const OrthCamera& crCamera) const
 {
   const glm::vec4 TOP_LEFT = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
   const glm::vec4 BOTTOM_RIGHT = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);

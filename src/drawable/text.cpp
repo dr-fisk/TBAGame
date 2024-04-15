@@ -50,7 +50,6 @@ void Text::updateText(const std::string& crText)
 {
   mText.clear();
   mText = crText;
-  gridfitText(mBox.getTopLeft());
   mGeometryNeedUpdate = true;
 }
 
@@ -72,6 +71,7 @@ void Text::gridfitText(const glm::vec2& crTopLeft)
   mTextVertexes.reserve(mText.size());
   size = mTexture->getSize();
   TextVertexData tempTextVert;
+
   for(size_t i = 0; i < mText.size(); i ++)
   {
     // Update for more dynamic behavior
@@ -129,6 +129,11 @@ void Text::draw()
 {
   if(mRender)
   {
+    if(mGeometryNeedUpdate)
+    {
+      gridfitText(mBox.getTopLeft());
+    }
+    
     for(auto& vertex : mTextVertexes)
     {
       Renderer2D::registerQuad(vertex.Pos, vertex.Size, vertex.Vertexes, mTexture, mGeometryNeedUpdate);
@@ -162,7 +167,6 @@ bool Text::hasResource()
 void Text::movePos(const glm::vec2& crMoveVector)
 {
   mBox.movePos(crMoveVector);
-  gridfitText(mBox.getTopLeft());
   mGeometryNeedUpdate = true;
 }
 
@@ -174,14 +178,13 @@ void Text::movePos(const glm::vec2& crMoveVector)
 void Text::setPos(const glm::vec2& crPos)
 {
   mBox.setTopLeft(crPos);
-  gridfitText(mBox.getTopLeft());
   mGeometryNeedUpdate = true;
 }
 
 //! @brief Grabs Text String
 //!
 //! @return Text
-std::string Text::getText()
+std::string Text::getText() const
 {
   return mText;
 }
@@ -189,7 +192,7 @@ std::string Text::getText()
 //! @brief Gets Size of Text
 //!
 //! @return Size of Text
-glm::vec2 Text::getSize()
+glm::vec2 Text::getSize() const
 {
   return mBox.getSize();
 }
@@ -197,7 +200,7 @@ glm::vec2 Text::getSize()
 //! @brief Returns Text Position
 //!
 //! @return Text Position 
-glm::vec2 Text::getPos()
+glm::vec2 Text::getPos() const
 {
   return mBox.getPos();
 }
@@ -233,7 +236,7 @@ void Text::updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& 
 //! @brief 
 //! @param crCamera 
 //! @return 
-Box<glm::vec2> Text::getGlobalBounds(const OrthCamera& crCamera)
+Box<glm::vec2> Text::getGlobalBounds(const OrthCamera& crCamera) const
 {
   const glm::vec4 TOP_LEFT = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
   const glm::vec4 BOTTOM_RIGHT = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
@@ -243,4 +246,35 @@ Box<glm::vec2> Text::getGlobalBounds(const OrthCamera& crCamera)
   glm::vec2 size = crCamera.getViewProjectionMatrix() * transform * BOTTOM_RIGHT;
   size = abs(size - topLeft);
   return Box<glm::vec2>::createBoxTopLeft(topLeft, size);
+}
+
+void Text::setFont(std::shared_ptr<Font>& prFont)
+{
+  mpFont = prFont;
+}
+
+void Text::setFontSize(const uint8_t cCharSize, std::shared_ptr<RenderEngine>& prRenderEngine)
+{
+  if(mpFont)
+  {    
+    mCharSize = cCharSize;
+
+    if(!mpFont->hasGlyphsLoaded(mCharSize))
+    {
+      mpFont->loadGlyphs(mCharSize, prRenderEngine);
+    }
+
+    mCapHeight = mpFont->getCapitalHeight();
+    mAdvancedWidth = (static_cast<float>(mpFont->getAdvancedWidth()) / static_cast<float>(mpFont->getCapitalHeight()))
+                    * (mCharSize - 1);
+    mTexture = mpFont->getResource(mCharSize);
+
+    mGeometryNeedUpdate = true;
+  }
+}
+
+void Text::setLineWrap(const bool cEnable)
+{
+  mLineWrap = cEnable;
+  mGeometryNeedUpdate = true;
 }

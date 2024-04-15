@@ -44,6 +44,11 @@ class RenderCommand
     {
       GLCall(glDisable(GL_BLEND));
     }
+
+    static void setViewport(const uint32_t cX, const uint32_t cY, const uint32_t cWidth, const uint32_t cHeight)
+    {
+      GLCall(glViewport(cX, cY, cWidth, cHeight));
+    }
   private:
 };
 

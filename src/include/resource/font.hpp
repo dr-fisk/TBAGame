@@ -3,12 +3,10 @@
 
 #include <vector>
 #include <memory>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include <cstdint>
 
 #include "color.hpp"
 #include "lestTtf.h"
-#include "utility/net_utility.hpp"
 #include "utility/plot_utility.hpp"
 #include "renderEngine/texture.hpp"
 #include "renderEngine/renderEngine.hpp"

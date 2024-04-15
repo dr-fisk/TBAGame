@@ -7,8 +7,9 @@
 #include "renderer/renderer2D.hpp"
 #include "renderer/renderCommand.hpp"
 #include "glm/vec2.hpp"
+#include "window/window.hpp"
 
-WindowView gView;
+lg::Window::WindowView gView;
 uint16_t gFrames = 0;
 uint16_t gFps = 0;
 
@@ -18,7 +19,7 @@ uint16_t gFps = 0;
 void Game::initMainState()
 {
   //mStates.push(std::make_shared<ExceptionState>(mStates, "TESTING", mShaders[MAIN_SHADER], mpWindow->getGlWindow(), mpVao));
-  mStates.push(std::make_shared<MainMenu>(mStates, mpWindow, mpRenderEngine));
+  mStates.push(std::make_shared<MainMenu>(mStates, mpRenderEngine));
 }
 
 //! @brief Default Constructor
@@ -93,6 +94,8 @@ void Game::gameLoop()
   const double FIXED_TIMESTEP = 1.0f/50.0f;
   std::cout << FIXED_TIMESTEP << std::endl;
   // mFrameTime = std::chrono::high_resolution_clock::now();
+  // std::shared_ptr<RenderWindow> test_window;
+  // test_window = mpWindow->createSharedWindow();
 
   RenderCommand::setClearColor(0.3f, 0.0f, 0.0f, 1.0f);
   while(!mStates.empty() && mpWindow->isOpen())
@@ -129,12 +132,16 @@ void Game::gameLoop()
     }
     
     // RenderCommand::clear();
-    
+    mStates.top()->update(mpWindow, deltaTime);
+
     while(smoothDeltaTime >= FIXED_TIMESTEP)
     {
-      mStates.top()->update(mpWindow, FIXED_TIMESTEP);
+      mStates.top()->fixedUpdate(mpWindow, FIXED_TIMESTEP);
       smoothDeltaTime -= FIXED_TIMESTEP;
     }
+
+    // Need another delta time here
+    mStates.top()->lateUpdate(mpWindow, FIXED_TIMESTEP);
 
     // mFbo->bind();
     // glViewport(0,0, gWindowWidth, gWindowHeight);
@@ -146,6 +153,8 @@ void Game::gameLoop()
     mpWindow->display();
 
     RenderCommand::pollEvents();
+    // mStates.top()->render(test_window, smoothDeltaTime / FIXED_TIMESTEP);
+    // test_window->display();
     gFrames ++;
     // std::cout << "Delta: " << deltaTime << std::endl;
   }

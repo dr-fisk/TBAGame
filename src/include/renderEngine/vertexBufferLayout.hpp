@@ -3,8 +3,11 @@
 
 #include <iostream>
 #include <vector>
+#include <cstdint>
 
-#include "utility/net_utility.hpp"
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include "glcommon.hpp"
 
 struct VertexBufferElement 

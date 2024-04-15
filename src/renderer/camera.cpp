@@ -15,7 +15,8 @@ OrthCamera::OrthCamera(const float cLeft, const float cRight, const float cBotto
 void OrthCamera::setProjection(const float cLeft, const float cRight, const float cBottom, const float cTop)
 {
   mProjectionMatrix = glm::ortho(cLeft, cRight, cBottom, cTop, -1.0f, 1.0f);
-  updateViewMatrix();
+  mViewProjectionMatrix = mProjectionMatrix * mViewMatrix;
+  mUpdateGeometry = true;
 }
 
 void OrthCamera::updateViewMatrix()
@@ -25,5 +26,5 @@ void OrthCamera::updateViewMatrix()
   mViewMatrix = glm::inverse(transform);
   // Order matters for different Graphic Libraries
   mViewProjectionMatrix = mProjectionMatrix * mViewMatrix;
-  mUpdateGeometry;
+  mUpdateGeometry = true;
 }

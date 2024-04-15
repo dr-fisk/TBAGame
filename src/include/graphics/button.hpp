@@ -14,7 +14,7 @@ template <typename T=void *>
 class Button : public Graphics
 {
   public:
-    Button() = default;
+    Button() = delete;
     Button(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<RenderEngine>& prRenderEngine,
            const uint8_t cCharSize, const glm::vec2& crPos, const glm::vec2& crSize);
     Button(std::shared_ptr<RenderEngine>& prRenderEngine, const glm::vec2& crPos, const glm::vec2& crSize);
@@ -22,7 +22,7 @@ class Button : public Graphics
     void setHoverColor(const lg::Color& crColor);
     void setPressedColor(const lg::Color& crColor);
     void setPos(const glm::vec2& crPos, const bool cCheckIfMouseHovering=true);
-      void movePos(const glm::vec2& crMove, const bool cCheckIfMouseHovering=true);
+    void movePos(const glm::vec2& crMove, const bool cCheckIfMouseHovering=true);
     bool clicked(const Event& crEvent);
     void setSize(const glm::vec2& crSize);
     void onClick(std::function<void(const Button<T>&)> pFunc);
@@ -39,6 +39,8 @@ class Button : public Graphics
     void setPressedPadding(const glm::vec2& crPadding);
     bool isHover() const;
     bool isPressed() const;
+    void setText(const std::string& rText);
+    std::string getText() const;
     T getValue() const;
     void draw();
     ~Button() = default;
