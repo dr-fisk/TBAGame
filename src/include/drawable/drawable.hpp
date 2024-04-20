@@ -22,7 +22,6 @@ class Drawable
     virtual ~Drawable() = default;
     virtual std::shared_ptr<TextureResource> getResource() = 0;
     virtual bool hasResource() = 0;
-    virtual bool textureBounded() = 0;
     virtual glm::vec2 getPos() const = 0;
     virtual glm::vec2 getSize() const = 0;
     virtual void movePos(const glm::vec2& crMoveVector) = 0;

@@ -26,6 +26,7 @@ Sprite::Sprite(const std::string& crPath, std::shared_ptr<RenderEngine>& prRende
   mPrevPos = crPos;
   mTexture->update(temp.getImgData().data(), temp.getDimensions(), temp.getOffset(), temp.getFormat(), temp.getType());
   updateTextureCoordinates(glm::vec2(0.0f, 0.0f), mTexture->getSize());
+  mGeometryNeedUpdate = true;
 }
 
 //! @brief Sprite Constructor
@@ -42,6 +43,7 @@ Sprite::Sprite(const glm::vec2& crPos, const glm::vec2& crSize, const lg::Color&
   glm::vec2 offset(0.0f, 0.0f);
   mBox.setBox(crPos, crSize);
   mPrevPos = crPos;
+  mGeometryNeedUpdate = true;
 }
 
 //! @brief Get Texture Resource for Drawable
@@ -79,14 +81,6 @@ void Sprite::draw()
 bool Sprite::hasResource()
 {
   return (nullptr != mTexture);
-}
-
-//! @brief Returns if Texture is bounded
-//!
-//! @return true if Texture is bounded false otherwise
-bool Sprite::textureBounded()
-{
-  return mTexture->isBounded();
 }
 
 //! @brief Sets Color of Sprite
@@ -181,6 +175,7 @@ void Sprite::setTexture(const std::shared_ptr<TextureResource>& crpTexture, cons
   mTexture = crpTexture;
 
   updateTextureCoordinates(offset, mTexture->getSize());
+  mGeometryNeedUpdate = true;
 }
 
 //! @brief Setst the Layer for the Sprite

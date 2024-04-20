@@ -19,15 +19,12 @@ class Texture
     int8_t update(void *pBuffer, const glm::uvec2& crDimensions, const glm::uvec2& crOffset,
                   const int32_t cFormat=GL_RGBA, const int32_t cType=GL_UNSIGNED_BYTE);
     void bind(const int32_t cSlot) const;
-    void unbind();
-    uint32_t getTextureId();
-    uint8_t getCacheId();
-    bool updateTextureIndex();
-    bool isBounded();
-    void unsetCacheUpdate();
-    glm::uvec2 getSize();
+    void unbind() const;
+    uint32_t getTextureId() const;
+    glm::uvec2 getSize() const;
     ~Texture();
     Texture& operator=(const Texture& rhs) = delete;
+    bool operator==(const Texture& rhs) const;
     Texture(const Texture& rhs) = delete;
   private:
     uint32_t mTextureId;
@@ -35,9 +32,6 @@ class Texture
     uint32_t mBpp;
     bool mBufferGenerated;
     std::vector<uint8_t> mBuffer;
-    mutable int8_t mCacheId;
-    mutable bool mCacheUpdated;
-    mutable bool mIsBounded;
 };
 
 #endif

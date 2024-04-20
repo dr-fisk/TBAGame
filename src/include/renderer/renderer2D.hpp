@@ -10,6 +10,7 @@
 #include "renderEngine/shader.hpp"
 #include "resource/textureResource.hpp"
 #include "renderer/camera.hpp"
+#include "vertex.hpp"
 
 class Renderer2D
 {
@@ -25,11 +26,12 @@ class Renderer2D
                              const lg::Color& crColor,
                              const bool cGeometryNeedUpdate);
     static void endScene();
-    static void shutdown();
     static void flush();
+    static void nextBatch();
+    static void registerContext(GLFWwindow* pOriginalContext, GLFWwindow* pNewContext);
+    static void unregisterContext(GLFWwindow* pContext);
   private:
     static void initBatch();
-    static void nextBatch();
 };
 
 #endif

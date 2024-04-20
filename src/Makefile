@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-CC = x86_64-w64-mingw32-g++
+CC = x86_64-w64-mingw32-g++-posix
 programs = main.exe
 
 ifeq (lin64, $(TARGET))
@@ -44,13 +44,13 @@ endif
 
 CFLAGS  += -std=c++17 -Wall -Wextra -MMD -MD -I$(INCLPATH) -I$(SRCINCLPATH) -I$(HEADERS) -I$(LESTTTFPATH)
 
-LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -static-libgcc -static-libstdc++ -llestpng -llestttf
+LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -pthread -llestpng -llestttf -static-libgcc -static-libstdc++
 SOLDFLAGS = -L$(LIBPATH) -lzlib1 -lws2_32 -shared -static-libgcc -static-libstdc++
 
 ifeq (lin64, $(TARGET))
   LDFLAGS = -L$(LIBPATH) -lglfw3dll -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lz
 else ifeq (win64, $(TARGET))
-  LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -llestpng -static-libgcc -static-libstdc++ -llestttf
+  LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -llestpng -pthread -static-libgcc -static-libstdc++ -llestttf
 endif
 
 
@@ -218,6 +218,7 @@ font:
 		cp $(LIBPATH)/glfw3.dll $(PATHTOEXEC); \
 		cp $(LIBPATH)/glew32.dll $(PATHTOEXEC); \
 		cp $(LIBPATH)/zlib1.dll $(PATHTOEXEC); \
+		cp $(LIBPATH)/libwinpthread-1.dll $(PATHTOEXEC); \
 		echo "Adding custom dll"; \
 		cp $(LIBPATH)/lestpng.dll $(PATHTOEXEC); \
 		cp $(LIBPATH)/lestttf.dll $(PATHTOEXEC); \
@@ -240,6 +241,9 @@ font:
 		fi; \
 		if [ ! -f $(PATHTOEXEC)/zlib1.dll ]; then \
 			cp $(LIBPATH)/zlib1.dll $(PATHTOEXEC)/zlib1.dll; \
+		fi; \
+		if [ ! -f $(PATHTOEXEC)/libwinpthread-1.dll ]; then \
+			cp $(LIBPATH)/libwinpthread-1.dll $(PATHTOEXEC)/libwinpthread-1.dll; \
 		fi; \
 	fi
 	@echo "Transferring .exe"

@@ -55,7 +55,7 @@ int8_t TextureResource::update(void *pBuffer, const glm::uvec2& crDimensions, co
 //!
 //! @return 0 if Texture in binded
 //! @return -1 if Texture not binded
-int8_t TextureResource::bind(int32_t cActiveSlot)
+int8_t TextureResource::bind(int32_t cActiveSlot) const
 {
   if(nullptr == mpTexture)
   {
@@ -70,23 +70,15 @@ int8_t TextureResource::bind(int32_t cActiveSlot)
 //! @brief Unbinds Texture Resource
 //!
 //! @return None
-void TextureResource::unbind()
+void TextureResource::unbind() const
 {
   mpTexture->unbind();
-}
-
-//! @brief Gets Cache ID of Texture
-//!
-//! @return Cache ID
-uint8_t TextureResource::getCacheId()
-{
-  return mpTexture->getCacheId();
 }
 
 //! @brief Gets Texture ID associated with Texture Resource
 //!
 //! @return Texture ID
-uint32_t TextureResource::getTextureId()
+uint32_t TextureResource::getTextureId() const
 {
   return mpTexture->getTextureId();
 }
@@ -95,7 +87,7 @@ uint32_t TextureResource::getTextureId()
 //!
 //! @return (0, 0) if Texture is nullptr
 //! @return Dimensions of Texture otherwise
-glm::uvec2 TextureResource::getSize()
+glm::uvec2 TextureResource::getSize() const
 {
   if(nullptr == mpTexture)
   {
@@ -105,37 +97,18 @@ glm::uvec2 TextureResource::getSize()
   return mpTexture->getSize();
 }
 
-//! @brief Determine if TextureIndex needs updating
-//!
-//! @return true if cache ID was updated false otherwise
-bool TextureResource::updateTextureIndex()
-{
-  return mpTexture->updateTextureIndex();
-}
-
-//! @brief Check if Texture is bounded
-//!
-//! @return true if Texture is bounded false otherwise
-bool TextureResource::isBounded()
-{
-  return mpTexture->isBounded();
-}
-
-//! @brief Unset CacheUpdated flag
-//!
-//! @return None
-void TextureResource::unsetCacheUpdate()
-{
-  mpTexture->unsetCacheUpdate();
-}
-
 //! @brief Destructs and removes itself from Resource Manager
 //!
 //! @return None
 TextureResource::~TextureResource()
 {
-  if(mTag.empty())
+  if(!mTag.empty())
   {
     mpRenderEngine->removeResource(mTag);
   }
+}
+
+bool TextureResource::operator==(const TextureResource& rhs) const
+{
+  return mpTexture->getTextureId() == rhs.getTextureId();
 }

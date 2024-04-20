@@ -1,5 +1,8 @@
 // Update to chrono
 #include <ctime>
+#include <future>
+#include <atomic>
+#include <mutex>
 
 #include "game.hpp"
 #include "states/mainMenuState.hpp"
@@ -27,10 +30,9 @@ void Game::initMainState()
 //! @return Game Object
 Game::Game()
 {
-  RenderCommand::init();
   mpWindow = std::make_shared<RenderWindow>(1920, 1080, "Lest Window");   
   /* NOTE: BEFORE ANY GL CALL, THAT IS NOT GLFW but GL, SET ACTIVE MUST BE CALLED OR ELSE OPENGL FAILS */
-  mpWindow->setActive();
+  // mpWindow->setActive();
 
   // //init GL attributes for window
   mpWindow->initWindow();
@@ -43,7 +45,6 @@ Game::Game()
   gView.WindowWidth = view[2];
   gView.WindowHeight = view[3];
   std::cout << view[0] << " " << view[1] << " " << view[2] << " " << view[3] << std::endl;
-  Renderer2D::init();
   mpRenderEngine = std::make_shared<RenderEngine>();
 
   // mFbo = std::make_shared<FrameBuffer>();
@@ -77,15 +78,36 @@ Game::~Game()
 
   // mFbo.reset();
   mpRenderEngine.reset();
-  Renderer2D::shutdown();
   mpWindow->destroyWindow();
   glfwTerminate();
+}
+
+std::shared_ptr<RenderWindow> test_window;
+std::shared_ptr<RenderWindow> test_window2;
+
+// Plan is to create a scene graph class and allow scene graphs to be copyable
+void spawnedWindowThread(std::stack<std::shared_ptr<State>>& State, std::shared_ptr<RenderWindow>& window)
+{
+  window->setActive();
+  RenderCommand::setClearColor(0.3f, 0.0f, 0.0f, 1.0f);
+  RenderCommand::enableBlend();
+  while(!State.empty() && window->isOpen())
+  {
+      State.top()->render(window, 0);
+      window->display();
+  }
+  
+  std::cout << "Window closing" << std::endl;
+  window->destroyWindow();
+  std::cout << "Window closing" << std::endl;
+  window.reset();
+  std::cout << "thread done" << std::endl;
 }
 
 //! @brief Runs gameloop until window has been closed or states popped
 //!
 //! @return None
-void Game::gameLoop()
+void Game::runGame()
 {
   double deltaTime = 0;
   double smoothDeltaTime = 0;
@@ -94,9 +116,10 @@ void Game::gameLoop()
   const double FIXED_TIMESTEP = 1.0f/50.0f;
   std::cout << FIXED_TIMESTEP << std::endl;
   // mFrameTime = std::chrono::high_resolution_clock::now();
-  // std::shared_ptr<RenderWindow> test_window;
-  // test_window = mpWindow->createSharedWindow();
-
+  test_window = mpWindow->createSharedWindow();
+  std::future<void> test = std::async(std::launch::async, &spawnedWindowThread, std::ref(mStates), std::ref(test_window));
+  test_window2 = mpWindow->createSharedWindow();
+  std::future<void> test2 = std::async(std::launch::async, &spawnedWindowThread, std::ref(mStates), std::ref(test_window2));
   RenderCommand::setClearColor(0.3f, 0.0f, 0.0f, 1.0f);
   while(!mStates.empty() && mpWindow->isOpen())
   {
@@ -149,12 +172,12 @@ void Game::gameLoop()
     {
       std::cout << smoothDeltaTime / FIXED_TIMESTEP << std::endl;
     }
+
     mStates.top()->render(mpWindow, smoothDeltaTime / FIXED_TIMESTEP);
     mpWindow->display();
 
     RenderCommand::pollEvents();
-    // mStates.top()->render(test_window, smoothDeltaTime / FIXED_TIMESTEP);
-    // test_window->display();
+
     gFrames ++;
     // std::cout << "Delta: " << deltaTime << std::endl;
   }

@@ -6,9 +6,8 @@
    Returns:     None 
  */
 int main() {
-  Game game = Game();
-
-  game.gameLoop();
+  Game game;
+  game.runGame();
 
   return 0;
 }

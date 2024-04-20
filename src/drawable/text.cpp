@@ -36,9 +36,10 @@ Text::Text(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared
   mAdvancedWidth = (static_cast<float>(mpFont->getAdvancedWidth()) / static_cast<float>(mpFont->getCapitalHeight())) 
                    * (mCharSize - 1);
   mLineSpace = std::ceil(cLineHeight * mCharSize);
-  mTexture = mpFont->getResource(mCharSize);
+  mpTexture = mpFont->getResource(mCharSize);
 
   gridfitText(crPos);
+  mGeometryNeedUpdate = false;
 }
 
 //! @brief Updates Text to be rendered
@@ -69,7 +70,7 @@ void Text::gridfitText(const glm::vec2& crTopLeft)
   Vertex tempVert;
   mTextVertexes.clear();
   mTextVertexes.reserve(mText.size());
-  size = mTexture->getSize();
+  size = mpTexture->getSize();
   TextVertexData tempTextVert;
 
   for(size_t i = 0; i < mText.size(); i ++)
@@ -136,19 +137,11 @@ void Text::draw()
     
     for(auto& vertex : mTextVertexes)
     {
-      Renderer2D::registerQuad(vertex.Pos, vertex.Size, vertex.Vertexes, mTexture, mGeometryNeedUpdate);
+      Renderer2D::registerQuad(vertex.Pos, vertex.Size, vertex.Vertexes, mpTexture, mGeometryNeedUpdate);
     }
 
     mGeometryNeedUpdate = false;
   }
-}
-
-//! @brief Check if Text Texture Resource is Bounded
-//!
-//! @return true if Texture is bounded false otherwise
-bool Text::textureBounded()
-{
-  return mTexture->isBounded();
 }
 
 //! @brief Check if Text has a resource
@@ -156,7 +149,7 @@ bool Text::textureBounded()
 //! @return true if Text has resource false otherwise
 bool Text::hasResource()
 {
-  return nullptr != mTexture;
+  return nullptr != mpTexture;
 }
 
 //! @brief Moves Position by adding x and y values
@@ -222,10 +215,10 @@ Text::~Text()
 void Text::updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize,
                                     std::array<Vertex, sNumQuadVerts>& rVertexes)
 {
-  const float xMax = static_cast<float>(crTextureSize.x + crOffset.x) / static_cast<float>(mTexture->getSize().x);
-  const float yMax = static_cast<float>(crTextureSize.y + crOffset.y) / static_cast<float>(mTexture->getSize().y);
-  const float xMin = static_cast<float>(crOffset.x) / static_cast<float>(mTexture->getSize().x);
-  const float yMin = static_cast<float>(crOffset.y) / static_cast<float>(mTexture->getSize().y);
+  const float xMax = static_cast<float>(crTextureSize.x + crOffset.x) / static_cast<float>(mpTexture->getSize().x);
+  const float yMax = static_cast<float>(crTextureSize.y + crOffset.y) / static_cast<float>(mpTexture->getSize().y);
+  const float xMin = static_cast<float>(crOffset.x) / static_cast<float>(mpTexture->getSize().x);
+  const float yMin = static_cast<float>(crOffset.y) / static_cast<float>(mpTexture->getSize().y);
 
   rVertexes[3].TextCoord = glm::vec2(xMin, yMin);
   rVertexes[2].TextCoord = glm::vec2(xMax, yMin);
@@ -267,7 +260,7 @@ void Text::setFontSize(const uint8_t cCharSize, std::shared_ptr<RenderEngine>& p
     mCapHeight = mpFont->getCapitalHeight();
     mAdvancedWidth = (static_cast<float>(mpFont->getAdvancedWidth()) / static_cast<float>(mpFont->getCapitalHeight()))
                     * (mCharSize - 1);
-    mTexture = mpFont->getResource(mCharSize);
+    mpTexture = mpFont->getResource(mCharSize);
 
     mGeometryNeedUpdate = true;
   }
