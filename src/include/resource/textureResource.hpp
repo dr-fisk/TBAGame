@@ -14,14 +14,11 @@ class TextureResource : public Resource
                     const int32_t cFormat=GL_RGBA);
     int8_t update(void *pBuffer, const glm::uvec2& crDimensions, const glm::uvec2& crOffset,
                   const int32_t cFormat=GL_RGBA, const int32_t cType=GL_UNSIGNED_BYTE);
-    int8_t bind(int32_t cActiveSlot);
-    void unbind();
-    glm::uvec2 getSize();
-    uint32_t getTextureId();
-    uint8_t getCacheId();
-    bool updateTextureIndex();
-    bool isBounded();
-    void unsetCacheUpdate();
+    int8_t bind(int32_t cActiveSlot) const;
+    void unbind() const;
+    glm::uvec2 getSize() const;
+    uint32_t getTextureId() const;
+    bool operator==(const TextureResource& rhs) const;
     ~TextureResource();
   private:
     Texture* mpTexture;

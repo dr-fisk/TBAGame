@@ -25,7 +25,6 @@ class Text : public Drawable
     void updateText(const std::string& crText);
     std::shared_ptr<TextureResource> getResource();
     bool hasResource();
-    bool textureBounded();
     void movePos(const glm::vec2& crMoveVector);
     void setPos(const glm::vec2& crPos);
     void setFont(std::shared_ptr<Font>& prFont);
@@ -56,7 +55,7 @@ class Text : public Drawable
     uint8_t mCharSize;
     uint16_t mAdvancedWidth;
     int32_t mCapHeight;
-    std::shared_ptr<TextureResource> mTexture;
+    std::shared_ptr<TextureResource> mpTexture;
 };
 
 #endif

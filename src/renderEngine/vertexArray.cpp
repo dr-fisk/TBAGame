@@ -99,3 +99,13 @@ void VertexArray::unbind() const
 {
   GLCall(glBindVertexArray(0));
 }
+
+std::shared_ptr<IndexBuffer> VertexArray::getIndexBuffer() const
+{
+  return mpIndexBuffer;
+}
+
+const std::vector<std::shared_ptr<VertexBuffer>>& VertexArray::getVertexBuffers() const
+{
+  return mVertexBuffers;
+}

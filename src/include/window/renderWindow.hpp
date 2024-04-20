@@ -7,7 +7,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "window/renderTarget.hpp"
-#include "glcommon.hpp"
 #include "event/event.hpp"
 
 class RenderWindow : public RenderTarget
@@ -42,6 +41,7 @@ class RenderWindow : public RenderTarget
       static bool msCallbacksInitialized;
       static int32_t msWindowId;
       static int32_t msActiveWindowId;
+      static bool msFirstInit;
 };
 
 #endif

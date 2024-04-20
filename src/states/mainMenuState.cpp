@@ -199,14 +199,15 @@ void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const
   // mView->draw();
   // Renderer2D::endScene();
   // std::cout << glm::to_string(lg::Mouse::getMousePosf()) << std::endl;
+  glm::vec2 temp =lg::Math::lerp(sprite_pos, curr_pos, (float)cDeltaTime / (0.02f));
+  mSprite->setPos(temp);
 }
 
 void MainMenu::render(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime)
 {
   // std::cout << glm::to_string(lg::Math::lerp(sprite_pos, mSprite->getPos(), (float)cDeltaTime)) << std::endl;
   // std::cout << cDeltaTime << std::endl;
-  glm::vec2 temp =lg::Math::lerp(sprite_pos, curr_pos, (float)cDeltaTime);
-  mSprite->setPos(temp);
+
   // sprite_pos = mSprite->getPos();
   RenderCommand::clear();
   Renderer2D::beginScene(mCam);

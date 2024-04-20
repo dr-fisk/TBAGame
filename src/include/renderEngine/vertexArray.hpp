@@ -18,6 +18,8 @@ class VertexArray
     void unbind() const;
     void addVertexBuffer(const std::shared_ptr<VertexBuffer>& crpVbo);
     void setIndexBuffer(const std::shared_ptr<IndexBuffer>& crpIbo);
+    std::shared_ptr<IndexBuffer> getIndexBuffer() const;
+    const std::vector<std::shared_ptr<VertexBuffer>>& getVertexBuffers() const;
   private:
     uint32_t mVaoId;
 

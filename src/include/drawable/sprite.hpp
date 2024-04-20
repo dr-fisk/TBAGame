@@ -20,7 +20,6 @@ class Sprite : public Drawable
     ~Sprite();
     std::shared_ptr<TextureResource> getResource();
     bool hasResource();
-    bool textureBounded();
     void movePos(const glm::vec2& crMoveVector);
     void setPos(const glm::vec2& crPos);
     void setSize(const glm::vec2& crSize);

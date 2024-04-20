@@ -10,9 +10,6 @@ Texture::Texture()
 {
   GLCall(glCreateTextures(GL_TEXTURE_2D, 1, &mTextureId));
   mBufferGenerated = false;
-
-  mCacheId = -1;
-  mIsBounded = false;
 }
 
 //! @brief Creates Texture Buffer
@@ -85,33 +82,20 @@ void Texture::bind(const int32_t cSlot) const
   //Can select different textures 0-31 depending on platform
   GLCall(glActiveTexture(GL_TEXTURE0 + cSlot));
   GLCall(glBindTexture(GL_TEXTURE_2D, mTextureId));
-  mCacheId = static_cast<int8_t>(cSlot);
-  mCacheUpdated = true;
-  mIsBounded = true;
 }
 
 //! @brief Unbinds Texture Resource
 //!
 //! @return None
-void Texture::unbind()
+void Texture::unbind() const
 {
   GLCall(glBindTexture(GL_TEXTURE_2D, 0));
-  mCacheId = -1;
-  mIsBounded = false;
-}
-
-//! @brief Check if Texture is bounded
-//!
-//! @return true if Texture is bounded false otherwise
-bool Texture::isBounded()
-{
-  return mIsBounded;
 }
 
 //! @brief Gets Texture ID associated with Texture Resource
 //!
 //! @return Texture ID
-uint32_t Texture::getTextureId()
+uint32_t Texture::getTextureId() const
 {
   return mTextureId;
 }
@@ -119,33 +103,14 @@ uint32_t Texture::getTextureId()
 //! @brief Gets Size of Texture
 //!
 //! @return Size of Texture in (l x w)
-glm::uvec2 Texture::getSize()
+glm::uvec2 Texture::getSize() const
 {
   return mSize;
 }
 
-//! @brief Gets Cache ID of Texture
-//!
-//! @return Cache ID
-uint8_t Texture::getCacheId()
+bool Texture::operator==(const Texture& rhs) const
 {
-  return mCacheId;
-}
-
-//! @brief Determine if TextureIndex needs updating
-//!
-//! @return true if cache ID was updated false otherwise
-bool Texture::updateTextureIndex()
-{
-  return mCacheUpdated;
-}
-
-//! @brief Unset CacheUpdated flag
-//!
-//! @return None
-void Texture::unsetCacheUpdate()
-{
-  mCacheUpdated = false;
+  return mTextureId == rhs.getTextureId();
 }
 
 //! @brief Destructs Texture Object

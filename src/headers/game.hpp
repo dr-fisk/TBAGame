@@ -17,7 +17,7 @@ class Game {
   public:
     Game();
     ~Game();
-    void gameLoop();
+    void runGame();
   private:
     std::stack<std::shared_ptr<State>> mStates;
     std::shared_ptr<RenderWindow> mpWindow;

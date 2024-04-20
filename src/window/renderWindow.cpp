@@ -6,10 +6,13 @@
 #include "input/input.hpp"
 #include "window/keyboard.hpp"
 #include "window/window.hpp"
+#include "renderer/renderer2D.hpp"
+#include "renderer/renderCommand.hpp"
 
 bool RenderWindow::msCallbacksInitialized = false;
 int32_t RenderWindow::msWindowId = 0;
 int32_t RenderWindow::msActiveWindowId = -1;
+bool RenderWindow::msFirstInit = true;
 
 //! @brief Initializes opengl window
 //!
@@ -22,6 +25,12 @@ int32_t RenderWindow::msActiveWindowId = -1;
 RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHeight, const char *cpTitle,
                            GLFWwindow *pWindow)
 { 
+
+  if(msFirstInit)
+  {
+    RenderCommand::init();
+  }
+
   mWindowSize = glm::uvec2(cWindowWidth, cWindowHeight);
   mTitle = cpTitle;
   mpWindow = glfwCreateWindow(mWindowSize.x, mWindowSize.y, cpTitle, nullptr, pWindow);
@@ -33,9 +42,19 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
     exit(-1);
   }
 
-
   mWindowId = msWindowId;
   msWindowId ++;
+
+  setActive();
+  
+  if(msFirstInit)
+  {
+    Renderer2D::init();
+    msFirstInit = false;
+  }
+
+  Renderer2D::registerContext(pWindow, mpWindow);
+  
   int w, h;
   glfwGetWindowSize(mpWindow, &w, &h);
   std::cout << "Width: " << w << " Height: " << h << std::endl;
@@ -157,6 +176,7 @@ void RenderWindow::destroyWindow()
   /* Due to shader, IB, VAO, and VBO being smart pointers,
      reset needs to be called to delete opengl data before
      terminating window  */
+  Renderer2D::unregisterContext(mpWindow);
   glfwDestroyWindow(mpWindow);
 }
 
@@ -194,8 +214,10 @@ std::shared_ptr<RenderWindow> RenderWindow::createSharedWindow()
     return nullptr;
   }
 
+  std::shared_ptr<RenderWindow> window = std::make_shared<RenderWindow>(800, 600, "A shared window", mpWindow);
+  setActive();
   // Need params here in function
-  return std::make_shared<RenderWindow>(800, 600, "A shared window", mpWindow);
+  return window;
 }
 
 //! @brief Sets all callbacks used by LestGui
