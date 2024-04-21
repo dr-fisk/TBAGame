@@ -30,7 +30,7 @@ namespace lg
       tempEvent.Type = Event::MouseMove;
       tempEvent.MousePos.x = cX;
       tempEvent.MousePos.y = cY;
-      lg::Input::pushEvent(tempEvent);
+      lg::Input::pushEvent(tempEvent, pWindow);
     }
 
     void mouseButtonCallback(GLFWwindow *pWindow, const int32_t cButton, const int32_t cAction, const int32_t cMods)
@@ -55,7 +55,7 @@ namespace lg
           break;
       }
 
-      lg::Input::pushEvent(tempEvent);
+      lg::Input::pushEvent(tempEvent, pWindow);
     }
 
     //! @brief Gets the current mouse position

@@ -88,6 +88,8 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   std::cout << sizeof(glm::vec2) << std::endl;
   // mCam.setPosition({0.0f, 0.0f, 0.0f});
   curr_pos = mSprite->getPos();
+  xMove = 0.0f;
+  yMove = 0.0f;
 }
 
 void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const double cDeltaTime)
@@ -96,8 +98,6 @@ void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const
   // mText->updateText(temp);
 
   Event tempEvent;
-  static float xMove = 0.0f;
-  static float yMove = 0.0f;
   sprite_pos = mSprite->getPos();
   // std::cout << glm::to_string(sprite_pos) << std::endl;
   while(crpTarget->pollEvent(tempEvent))

@@ -1,14 +1,15 @@
 SHELL := /bin/bash
 
 CC = x86_64-w64-mingw32-g++-posix
-programs = main.exe
+programs = lestgame.exe
+entrypoint = main.cxx
 
 ifeq (lin64, $(TARGET))
   CC = g++
   programs = main.out
 else ifeq (win64, $(TARGET))
   CC = x86_64-w64-mingw32-g++
-  programs = main.exe
+  programs = lestgame.exe
 endif
 
 LIBPATH = ../lib
@@ -101,13 +102,7 @@ graphicsFiles = scrollbar.cpp \
 dynLibFiles = png.cpp
 
 utilityFiles = edgeTable.cpp
-objs := $(patsubst %.exe, %.o, $(programs))
-
-ifeq (lin64, $(TARGET))
-  objs := $(patsubst %.out, %.o, $(programs))
-else ifeq (win64, $(TARGET))
-  objs := $(patsubst %.exe, %.o, $(programs))
-endif
+objs := $(patsubst %.cxx, %.o, $(entrypoint))
 
 objs += $(patsubst %.cpp, %.o, $(linkFiles))
 
@@ -205,7 +200,7 @@ font:
 		@echo "Copying Fonts"
 		$(Q)cp -r $(FONTSPATH) $(PATHTOEXEC)
 
-%.exe: $(objs) $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RENDERENGINEPATH) $(RENDERERPATH) \
+$(programs): $(objs) $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RENDERENGINEPATH) $(RENDERERPATH) \
        $(RESOURCEPATH) $(GRAPHICSPATH) $(UTILITYPATH) $(INPUTPATH)
 	@echo "MAKE $@"
 	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(windowObjs) $(drawableObjs) $(utilitiesObjs) $(renderEngineObjs) \

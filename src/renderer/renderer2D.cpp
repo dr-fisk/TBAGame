@@ -15,7 +15,6 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/string_cast.hpp"
 #include "math/lestMath.hpp"
-#include "renderer/contextResourceManager.hpp"
 
 static const uint8_t TWO_D_COORDS = 2;
 static const uint8_t TRIANGLE_VERTICES2D = 3;
@@ -69,7 +68,6 @@ void initNewContext(GLFWwindow* pContext)
 {
   sSharedMutex.lock();
   RenderData* renderData = &sContextMap[pContext];
-  sSharedMutex.unlock();
   renderData->QuadVao = std::make_shared<VertexArray>();
 
   renderData->QuadVbo = std::make_shared<VertexBuffer>(sMaxVertices * sizeof(Vertex), GL_DYNAMIC_DRAW);
@@ -95,7 +93,7 @@ void initNewContext(GLFWwindow* pContext)
   renderData->QuadShader->bind();
   auto uni = renderData->QuadShader->getUniform("u_Textures");
   int sampler[sMaxTextures];
-  std::cout << "Num text: " << sMaxTextures<< std::endl;
+
   for(int i = 0; i < sMaxTextures; i ++)
   {
     sampler[i] = i;
@@ -107,7 +105,7 @@ void initNewContext(GLFWwindow* pContext)
   renderData->TextureCache.resize(sMaxTextures);
   renderData->TextureCacheIndex = 0;
   renderData->VboMutex = std::make_shared<std::mutex>();
-  // sSharedMutex.unlock();
+  sSharedMutex.unlock();
 }
 
 void initSharedContext(GLFWwindow* pOriginalContext, GLFWwindow* pNewContext)
@@ -115,7 +113,6 @@ void initSharedContext(GLFWwindow* pOriginalContext, GLFWwindow* pNewContext)
   sSharedMutex.lock();
   RenderData* renderData = &sContextMap[pNewContext];
   RenderData* originalData = &sContextMap[pOriginalContext];
-  // sSharedMutex.unlock();
   renderData->QuadVao = std::make_shared<VertexArray>();
   renderData->QuadVbo = originalData->QuadVbo;
   renderData->QuadVao->addVertexBuffer(renderData->QuadVbo);
@@ -125,15 +122,6 @@ void initSharedContext(GLFWwindow* pOriginalContext, GLFWwindow* pNewContext)
 
   renderData->QuadShader->bind();
   renderData->VboMutex = originalData->VboMutex;
-  // auto uni = sContextMap[pContext].QuadShader->getUniform("u_Textures");
-  // int sampler[sMaxTextures];
-  // std::cout << "Num text: " << sMaxTextures<< std::endl;
-  // for(int i = 0; i < sMaxTextures; i ++)
-  // {
-  //   sampler[i] = i;
-  // }
-
-  // GLCall(glUniform1iv(uni, sMaxTextures, sampler));
   renderData->NumVerts = 0;
   renderData->NumQuadCount = 0;
   renderData->TextureCache.resize(sMaxTextures);
@@ -182,11 +170,10 @@ void Renderer2D::beginScene(const std::shared_ptr<OrthCamera>& crpCamera)
   initBatch();
   GLFWwindow* context = glfwGetCurrentContext();
   sSharedMutex.lock_shared();
-  RenderData* renderData = &sContextMap[context];
-  sSharedMutex.unlock_shared();
+  RenderData* renderData = &sContextMap.at(context);
   renderData->ViewProjection = crpCamera->getViewProjectionMatrix();
   renderData->CameraView = crpCamera;
-  // sSharedMutex.unlock_shared();
+  sSharedMutex.unlock_shared();
 }
 
 void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
@@ -196,8 +183,7 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
 {
   GLFWwindow* context = glfwGetCurrentContext();
   sSharedMutex.lock_shared();
-  RenderData* renderData = &sContextMap[context];
-  sSharedMutex.unlock_shared();
+  RenderData* renderData = &sContextMap.at(context);
 
   if(renderData->NumVerts >= sMaxVertices)
   {
@@ -233,7 +219,7 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
   }
 
   renderData->NumQuadCount ++;
-  // sSharedMutex.unlock_shared();
+  sSharedMutex.unlock_shared();
 }
 
 void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
@@ -243,8 +229,7 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
 {
   GLFWwindow* context = glfwGetCurrentContext();
   sSharedMutex.lock_shared();
-  RenderData* renderData = &sContextMap[context];
-  sSharedMutex.unlock_shared();
+  RenderData* renderData = &sContextMap.at(context);
 
   if(renderData->NumVerts >= sMaxVertices || renderData->TextureCacheIndex == sMaxTextures)
   {
@@ -299,17 +284,15 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
   }
 
   renderData->NumQuadCount ++;
-  // sSharedMutex.unlock_shared();
+  sSharedMutex.unlock_shared();
 }
 
 void Renderer2D::endScene()
 {
   GLFWwindow* context = glfwGetCurrentContext();
-  // shouldRender = false;
-  // nextBatch();
   flush();
   sSharedMutex.lock_shared();
-  sContextMap[context].CameraView->unsetUpdateFlag();
+  sContextMap.at(context).CameraView->unsetUpdateFlag();
   sSharedMutex.unlock_shared();
 }
 
@@ -318,10 +301,9 @@ void Renderer2D::initBatch()
   GLFWwindow* context = glfwGetCurrentContext();
   sSharedMutex.lock_shared();
   RenderData* renderData = &sContextMap[context];
-  sSharedMutex.unlock_shared();
   renderData->NumVerts = 0;
   renderData->NumQuadCount = 0;
-  // sSharedMutex.unlock_shared();
+  sSharedMutex.unlock_shared();
 }
 
 void Renderer2D::nextBatch()
@@ -334,9 +316,7 @@ void Renderer2D::flush()
 {
   GLFWwindow* context = glfwGetCurrentContext();
   sSharedMutex.lock_shared();
-  RenderData* renderData = &sContextMap[context];
-  sSharedMutex.unlock_shared();
-  renderData->VboMutex->lock();
+  RenderData* renderData = &sContextMap.at(context);
 
   for(size_t i = 0; i < renderData->TextureCacheIndex; i++)
   {
@@ -346,12 +326,13 @@ void Renderer2D::flush()
       renderData->TextureCache[i].Bounded = true;
     }
   }
+
+  renderData->VboMutex->lock();
   // Draw stuff
   renderData->QuadVbo->updateVboSubBuffer(0, renderData->NumVerts * sizeof(Vertex), renderData->Quads);
-  // ContextMap[ContextHash(glfwGetCurrentContext())]->bind();
   GLCall(glDrawElements(GL_TRIANGLES, renderData->NumQuadCount * 6, GL_UNSIGNED_INT, nullptr));
   renderData->VboMutex->unlock();
-  // sSharedMutex.unlock_shared();
+  sSharedMutex.unlock_shared();
 }
 
 void Renderer2D::unregisterContext(GLFWwindow* pContext)

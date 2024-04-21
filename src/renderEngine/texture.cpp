@@ -117,6 +117,6 @@ bool Texture::operator==(const Texture& rhs) const
 //!
 //! @return None
 Texture::~Texture()
-{ 
+{
   GLCall(glDeleteTextures(1, &mTextureId));
 }

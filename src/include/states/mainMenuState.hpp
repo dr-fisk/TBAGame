@@ -45,6 +45,8 @@ class MainMenu : public State
     std::shared_ptr<OrthCamera> mCam;
     glm::vec2 sprite_pos;
     glm::vec2 curr_pos;
+    float xMove;
+    float yMove;
 };
 
 #endif

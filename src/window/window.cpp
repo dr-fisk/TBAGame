@@ -23,7 +23,7 @@ namespace lg
       tempEvent.WindowView.y = gView.y;
       tempEvent.WindowView.Width = gView.WindowWidth;
       tempEvent.WindowView.Height = gView.WindowHeight;
-      lg::Input::pushEvent(tempEvent);
+      lg::Input::pushEvent(tempEvent, pWindow);
     }
   
     const WindowView& getView()
