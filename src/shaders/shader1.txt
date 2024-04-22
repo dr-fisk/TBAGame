@@ -4,16 +4,19 @@ layout (location = 0) in vec4 aPos;
 layout (location = 1) in vec4 aCol;
 layout (location = 2) in vec2 aTextCoords;
 layout (location = 3) in float aTextIndex;
+layout (location = 4) in float aOverrideColor;
 
 out vec4 v_Col;
 out vec2 v_TextCoords;
 out float v_TextIndex;
+out float v_OverrideColor;
 
 void main()
 {
    v_Col = aCol;
    v_TextCoords = aTextCoords;
    v_TextIndex = aTextIndex;
+   v_OverrideColor = aOverrideColor;
    gl_Position = aPos;
 };
 
@@ -24,6 +27,7 @@ out vec4 FragColor;
 in vec4 v_Col;
 in vec2 v_TextCoords;
 in float v_TextIndex;
+in float v_OverrideColor;
 uniform sampler2D u_Textures[32];
 
 void main()
@@ -36,6 +40,14 @@ void main()
    }
    else
    {
-      FragColor = texture(u_Textures[index], v_TextCoords);
+      int override = int(v_OverrideColor);
+
+      temp_color = texture(u_Textures[index], v_TextCoords);
+      
+      
+      if(override > 0)
+      {
+        FragColor = v_Col * temp_color;
+      }
    }
 };

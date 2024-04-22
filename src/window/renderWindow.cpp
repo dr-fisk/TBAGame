@@ -55,7 +55,6 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
   glfwSetWindowUserPointer(mpWindow, this);
   int w, h;
   glfwGetWindowSize(mpWindow, &w, &h);
-  std::cout << "Width: " << w << " Height: " << h << std::endl;
 }
 
 //! @brief Handles displaying data stored in all buffers

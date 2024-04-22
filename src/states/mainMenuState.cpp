@@ -21,13 +21,15 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   mStartTime = std::chrono::system_clock::now();
   std::vector<std::shared_ptr<Button<glm::ivec2>>> mButtons;
 
-  mNewFont = std::make_shared<Font>(temp, 5, lg::Black);
+  mNewFont = std::make_shared<Font>(temp, 5);
   mText = std::make_shared<Text>(mNewFont, "FPS: 0", mpRenderEngine, 12, glm::vec2{100.0f, 100.0f});
+  mText->setColor(lg::Red);
   // mSprite = std::make_shared<Sprite>(glm::vec2{200.0f, 200.0f}, glm::vec2{16, 16}, lg::White);
   mSprite = std::make_shared<Sprite>("../src/art.png", mpRenderEngine, glm::vec2{200.0f, 200.0f}, glm::vec2{16, 16});
   mSprite3 = std::make_shared<Sprite>("../src/heart.png", mpRenderEngine, glm::vec2{50.0f, 300.0f}, glm::vec2{16, 16});
   mSprite2 = std::make_shared<Sprite>("../src/art.png", mpRenderEngine, glm::vec2{600.0f, 600.0f}, glm::vec2{16, 16});
   mButton = std::make_shared<Button<>>(mNewFont, "Test", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50});
+  mButton->setTextColor(lg::Red);
   Image tempImg("../src/SquareWBorder.png");
   tempImg.recolorBorderedShape(lg::Color(135, 135, 135), lg::Color(170, 170, 170), lg::White);
   std::shared_ptr<TextureResource> tempTexture = std::make_shared<TextureResource>(tempImg.getName(), mpRenderEngine, tempImg.getDimensions(), tempImg.getInternalFormat());
@@ -42,11 +44,14 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   tempTexture3->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
   mButton->setPressedTexture(tempTexture3);
   mButtons.push_back(std::make_shared<Button<glm::ivec2>>(mNewFont, "Test1", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50}));
-  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(mNewFont, "Test2", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50}));
+  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(mNewFont, "Iris", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50}));
   mButtons.push_back(std::make_shared<Button<glm::ivec2>>(mNewFont, "Test3", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50}));
   mButtons[0]->setValue(glm::ivec2(0,0));
   mButtons[1]->setValue(glm::ivec2(10,10));
   mButtons[2]->setValue(glm::ivec2(200,200));
+  mButtons[0]->setTextColor(lg::Blue);
+  mButtons[1]->setTextColor(lg::Pink);
+  mButtons[2]->setTextColor(lg::Black);
 
   for(auto& button : mButtons)
   {
@@ -83,9 +88,6 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   // mView->setTexture(mFbo->getTexture(), true);
   mCam = std::make_shared<OrthCamera>(0, 1920, 1080, 0);
   Box<glm::vec2> testBox = mSprite->getGlobalBounds(*mCam);
-
-  std::cout << "Pos: " << glm::to_string(testBox.getTopLeft()) << " Size: " << glm::to_string(testBox.getSize()) << std::endl;
-  std::cout << sizeof(glm::vec2) << std::endl;
   // mCam.setPosition({0.0f, 0.0f, 0.0f});
   curr_pos = mSprite->getPos();
   xMove = 0.0f;

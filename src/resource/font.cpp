@@ -15,13 +15,11 @@ static const int32_t ASCII_CHAR_END = 126;
 //!
 //! @param[in] crTtfPath     Path to ttf File
 //! @param[in] cNumOfSubDivs Number of subdivisions for bezier curve generation
-//! @param[in] cColor        Color of Font
 //!
 //! @return Font Object
-Font::Font(const std::string& crTtfPath, const uint32_t cNumOfSubDivs, const lg::Color cColor)
+Font::Font(const std::string& crTtfPath, const uint32_t cNumOfSubDivs)
 {
   mNumSubDiv = cNumOfSubDivs;
-  mFontColor = cColor;
 
   const char EXTENSION[] = ".ttf";
   int32_t temp2 = -1;
@@ -61,7 +59,7 @@ Font::Font(const std::string& crTtfPath, const uint32_t cNumOfSubDivs, const lg:
 void Font::scanLineFill(const char cChar, const uint8_t cCharSize)
 {
   EdgeTable::scanLineFill(mFont[cCharSize - 1][cChar].GenPtsEdges, mFont[cCharSize - 1][cChar].Dimensions,
-                          mFont[cCharSize - 1][cChar].Bitmap, mFontColor, 0, cChar);
+                          mFont[cCharSize - 1][cChar].Bitmap, lg::White, 0, cChar);
 }
 
 //! @brief Fills polygon with a Seed Fill TODO: Add seed coordinate
@@ -78,7 +76,7 @@ void Font::fillColor(const char cChar, const uint8_t cCharSize)
   int32_t currPoint = -1;
   int32_t startingPoint = 0; 
   visited.push(startingPoint);
-  mFont[cCharSize - 1][cChar].Bitmap[startingPoint] = mFontColor.getRgba();
+  mFont[cCharSize - 1][cChar].Bitmap[startingPoint] = lg::White.getRgba();
   int32_t point_below = 0;
   int32_t point_above = 0;
   int32_t point_right = 0;
@@ -109,39 +107,39 @@ void Font::fillColor(const char cChar, const uint8_t cCharSize)
 
 
     if(point_below < color_map_size && 
-       !(mFontColor == mFont[cCharSize - 1][cChar].Bitmap[point_below]))
+       !(lg::White == mFont[cCharSize - 1][cChar].Bitmap[point_below]))
     {
       if(PlotUtility<glm::vec2>::arePointsTouching(point_below_coords, curr_point_coords))
       {
         visited.push(point_below);
-        mFont[cCharSize - 1][cChar].Bitmap[point_below] = mFontColor.getRgba();
+        mFont[cCharSize - 1][cChar].Bitmap[point_below] = lg::White.getRgba();
       }
     }
 
-    if(point_above >= 0 && !(mFontColor == mFont[cCharSize - 1][cChar].Bitmap[point_above]))
+    if(point_above >= 0 && !(lg::White == mFont[cCharSize - 1][cChar].Bitmap[point_above]))
     {
       if(PlotUtility<glm::vec2>::arePointsTouching(point_above_coords, curr_point_coords))
       {
         visited.push(point_above);
-        mFont[cCharSize - 1][cChar].Bitmap[point_above] = mFontColor.getRgba();
+        mFont[cCharSize - 1][cChar].Bitmap[point_above] = lg::White.getRgba();
       }
     }
 
-    if(point_right < color_map_size && !(mFontColor == mFont[cCharSize - 1][cChar].Bitmap[point_right]))
+    if(point_right < color_map_size && !(lg::White == mFont[cCharSize - 1][cChar].Bitmap[point_right]))
     {
       if (PlotUtility<glm::vec2>::arePointsTouching(point_right_coords, curr_point_coords))
       {
         visited.push(point_right);
-        mFont[cCharSize - 1][cChar].Bitmap[point_right] = mFontColor.getRgba();
+        mFont[cCharSize - 1][cChar].Bitmap[point_right] = lg::White.getRgba();
       }
     }
 
-    if(point_left >= 0 && !(mFontColor == mFont[cCharSize - 1][cChar].Bitmap[point_left]))
+    if(point_left >= 0 && !(lg::White == mFont[cCharSize - 1][cChar].Bitmap[point_left]))
     {
       if(PlotUtility<glm::vec2>::arePointsTouching(point_left_coords, curr_point_coords))
       {
         visited.push(point_left);
-        mFont[cCharSize - 1][cChar].Bitmap[point_left] = mFontColor.getRgba();
+        mFont[cCharSize - 1][cChar].Bitmap[point_left] = lg::White.getRgba();
       }
     }
   }
@@ -168,7 +166,7 @@ void Font::fillGeneratedPointColor(const char cChar, const uint8_t cCharSize)
     p1.y = edge.p1.y;
     p2.x = edge.p2.x;
     p2.y = edge.p2.y;
-    PlotUtility<glm::ivec2>::plotLine(p1, p2, mFont[cCharSize - 1][cChar].Bitmap, num_cols, mFontColor);
+    PlotUtility<glm::ivec2>::plotLine(p1, p2, mFont[cCharSize - 1][cChar].Bitmap, num_cols, lg::White);
   }
 }
 

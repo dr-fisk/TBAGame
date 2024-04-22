@@ -9,7 +9,8 @@ struct Vertex
   glm::vec2 Pos;
   lg::Color Rgba;
   glm::vec2 TextCoord;
-  float TextureIndex;
+  float TextureIndex{-1.0f};
+  float OverrideSampleColor{-1.0f};
 };
 
 static const uint8_t sNumQuadVerts = 4;

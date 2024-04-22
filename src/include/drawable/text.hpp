@@ -30,15 +30,20 @@ class Text : public Drawable
     void setFont(std::shared_ptr<Font>& prFont);
     void setFontSize(const uint8_t cCharSize, std::shared_ptr<RenderEngine>& prRenderEngine);
     void setLineWrap(const bool cEnable);
+    void insertText(const std::string& crText, const size_t cIndex);
+    void appendText(const std::string& crText);
+    void setColor(const lg::Color &crColor);
+    size_t getNumChars() const;
     glm::vec2 getPos() const;
     std::string getText() const;
     glm::vec2 getSize() const;
     void draw();
     ~Text();
-    void updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize, 
-                                  std::array<Vertex, sNumQuadVerts>& rVertexes);
     Box<glm::vec2> getGlobalBounds(const OrthCamera& crCamera) const;
   private:
+      void updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize, 
+                                  std::array<Vertex, sNumQuadVerts>& rVertexes);
+      void updateQuadColor(std::array<Vertex, sNumQuadVerts>& rVertexes);
     struct TextVertexData
     {
       glm::vec2 Pos;
@@ -52,10 +57,11 @@ class Text : public Drawable
     Box<glm::vec2> mBox;
     int32_t mLineWrap = -1;
     int32_t mLineSpace = 1.2f;
-    uint8_t mCharSize;
+    uint8_t mCharSize = 12;
     uint16_t mAdvancedWidth;
     int32_t mCapHeight;
     std::shared_ptr<TextureResource> mpTexture;
+    lg::Color mColor = lg::Black;
 };
 
 #endif

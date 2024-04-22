@@ -80,6 +80,7 @@ void initNewContext(GLFWwindow* pContext)
     {GL_FLOAT, TWO_D_COORDS, false},
     {GL_UNSIGNED_BYTE, RGBA, true},
     {GL_FLOAT, TWO_D_COORDS, false},
+    {GL_FLOAT, 1, false},
     {GL_FLOAT, 1, false}
   });
 
@@ -264,9 +265,10 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
     for(int i = 0; i < sNumQuadVerts; i ++)
     {
       renderData->Quads[renderData->NumVerts].Pos = renderData->ViewProjection * transform * sQuadVertexes[i];
-      renderData->Quads[renderData->NumVerts].Rgba = lg::Purple;
       renderData->Quads[renderData->NumVerts].TextCoord = rVertexes[i].TextCoord;
       renderData->Quads[renderData->NumVerts].TextureIndex = textureIndex;
+      renderData->Quads[renderData->NumVerts].OverrideSampleColor = rVertexes[i].OverrideSampleColor;
+      renderData->Quads[renderData->NumVerts].Rgba = rVertexes[i].Rgba;
       rVertexes[i] = renderData->Quads[renderData->NumVerts];
 
       renderData->NumVerts ++;
@@ -294,6 +296,7 @@ void Renderer2D::endScene()
   sSharedMutex.lock_shared();
   sContextMap.at(context).CameraView->unsetUpdateFlag();
   sSharedMutex.unlock_shared();
+  glfwSwapBuffers(context);
 }
 
 void Renderer2D::initBatch()

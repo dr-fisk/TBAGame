@@ -40,6 +40,7 @@ class Button : public Graphics
     bool isHover() const;
     bool isPressed() const;
     void setText(const std::string& rText);
+    void setTextColor(const lg::Color &crColor);
     std::string getText() const;
     T getValue() const;
     void draw();

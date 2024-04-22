@@ -17,7 +17,7 @@ class Font
 {
   public:
     Font() = default;
-    Font(const std::string& crTtfPath, const uint32_t cNumSubDivs=1, const lg::Color cColor=lg::Black);
+    Font(const std::string& crTtfPath, const uint32_t cNumSubDivs=1);
     ~Font() = default;
     Font(const Font& rhs) = delete;
     std::vector<uint32_t> getData(const uint8_t cCharSize, const char cChar);
@@ -69,7 +69,6 @@ class Font
     std::map<uint8_t, FontTable> mFont;
     std::map<uint8_t, std::shared_ptr<TextureResource>> mTextures;
     uint32_t mNumSubDiv;
-    lg::Color mFontColor;
     int32_t mCapHeight;
     int32_t mMaxWidth;
     int32_t mMaxHeight;

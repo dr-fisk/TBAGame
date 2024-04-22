@@ -45,7 +45,6 @@ Game::Game()
   gView.y = view[1];
   gView.WindowWidth = view[2];
   gView.WindowHeight = view[3];
-  std::cout << view[0] << " " << view[1] << " " << view[2] << " " << view[3] << std::endl;
   mpRenderEngine = std::make_shared<RenderEngine>();
 
   // mFbo = std::make_shared<FrameBuffer>();
@@ -83,61 +82,60 @@ Game::~Game()
   glfwTerminate();
 }
 
-std::mutex queueMutex;
+// std::mutex queueMutex;
 
-struct CtxData
-{
-  std::shared_ptr<RenderWindow> CtxWindow;
-  std::stack<std::shared_ptr<State>> CtxStates;
-  std::future<void> CtxFuture;
-};
+// struct CtxData
+// {
+//   std::shared_ptr<RenderWindow> CtxWindow;
+//   std::stack<std::shared_ptr<State>> CtxStates;
+//   std::future<void> CtxFuture;
+// };
 
-std::queue<uint32_t> ZombieWindows;
-std::unordered_map<uint32_t, CtxData> CtxMap;
+// std::queue<uint32_t> ZombieWindows;
+// std::unordered_map<uint32_t, CtxData> CtxMap;
 
 // Plan is to create a scene graph class and allow scene graphs to be copyable
-void spawnedWindowThread(std::stack<std::shared_ptr<State>>& rState, std::shared_ptr<RenderWindow>& rWindow,
-                         const uint32_t cId)
-{
-  std::shared_ptr<RenderWindow> wdw = rWindow;
-  double deltaTime = 0;
-  double smoothDeltaTime = 0;
-  double currentTime = 0;
-  double endFrameTime = 0;
-  const double FIXED_TIMESTEP = 1.0f/50.0f;
-  wdw->setActive();
-  RenderCommand::setClearColor(0.3f, 0.0f, 0.0f, 1.0f);
-  RenderCommand::enableBlend();
+// void spawnedWindowThread(std::stack<std::shared_ptr<State>>& rState, std::shared_ptr<RenderWindow>& rWindow,
+//                          const uint32_t cId)
+// {
+//   std::shared_ptr<RenderWindow> wdw = rWindow;
+//   double deltaTime = 0;
+//   double smoothDeltaTime = 0;
+//   double currentTime = 0;
+//   double endFrameTime = 0;
+//   const double FIXED_TIMESTEP = 1.0f/50.0f;
+//   wdw->setActive();
+//   RenderCommand::setClearColor(0.3f, 0.0f, 0.0f, 1.0f);
+//   RenderCommand::enableBlend();
 
-  while(!rState.empty() && wdw->isOpen())
-  {
-    endFrameTime = glfwGetTime();
-    // std::chrono::duration<float>(mEndTime - mFrameTime).count();
-    deltaTime = endFrameTime - currentTime;
-    if (deltaTime > 0.25f)
-    {
-      deltaTime = 0.25;
-    }
-    currentTime = endFrameTime;
-    // mFrameTime = mEndTime;
-    smoothDeltaTime += deltaTime;
+//   while(!rState.empty() && wdw->isOpen())
+//   {
+//     endFrameTime = glfwGetTime();
+//     // std::chrono::duration<float>(mEndTime - mFrameTime).count();
+//     deltaTime = endFrameTime - currentTime;
+//     if (deltaTime > 0.25f)
+//     {
+//       deltaTime = 0.25;
+//     }
+//     currentTime = endFrameTime;
+//     // mFrameTime = mEndTime;
+//     smoothDeltaTime += deltaTime;
 
-    while(smoothDeltaTime >= FIXED_TIMESTEP)
-    {
-      rState.top()->fixedUpdate(wdw, FIXED_TIMESTEP);
-      smoothDeltaTime -= FIXED_TIMESTEP;
-    }
+//     while(smoothDeltaTime >= FIXED_TIMESTEP)
+//     {
+//       rState.top()->fixedUpdate(wdw, FIXED_TIMESTEP);
+//       smoothDeltaTime -= FIXED_TIMESTEP;
+//     }
 
-    rState.top()->render(wdw, 0);
-    wdw->display();
-  }
+//     rState.top()->render(wdw, 0);
+//     wdw->display();
+//   }
   
-  queueMutex.lock();
-  ZombieWindows.push(cId);
-  rState.pop();
-  std::cout << "Done with wdw" << std::endl;
-  queueMutex.unlock();
-}
+//   queueMutex.lock();
+//   ZombieWindows.push(cId);
+//   rState.pop();
+//   queueMutex.unlock();
+// }
 
 //! @brief Runs gameloop until window has been closed or states popped
 //!
@@ -149,41 +147,40 @@ void Game::runGame()
   double currentTime = 0;
   double endFrameTime = 0;
   const double FIXED_TIMESTEP = 1.0f/50.0f;
-  std::cout << FIXED_TIMESTEP << std::endl;
-  // mFrameTime = std::chrono::high_resolution_clock::now();
 
-  uint32_t cId = 0;
-  CtxMap[cId] = {
-    mpWindow->createSharedWindow(), 
-    std::stack<std::shared_ptr<State>>(), 
-    std::future<void>()
-    };
+  // uint32_t cId = 0;
+
+  // Definitely can be it's own function later
+  // CtxMap[cId] = {
+  //   mpWindow->createSharedWindow(), 
+  //   std::stack<std::shared_ptr<State>>(), 
+  //   std::future<void>()
+  //   };
   
-  CtxMap[cId].CtxStates.push(std::make_shared<MainMenu>(CtxMap[cId].CtxStates, mpRenderEngine));
+  // CtxMap[cId].CtxStates.push(std::make_shared<MainMenu>(CtxMap[cId].CtxStates, mpRenderEngine));
 
-  CtxMap[cId].CtxFuture = std::async(std::launch::async, &spawnedWindowThread,
-    std::ref(CtxMap[cId].CtxStates),
-    std::ref(CtxMap[cId].CtxWindow),
-    cId);
+  // CtxMap[cId].CtxFuture = std::async(std::launch::async, &spawnedWindowThread,
+  //   std::ref(CtxMap[cId].CtxStates),
+  //   std::ref(CtxMap[cId].CtxWindow),
+  //   cId);
 
-  cId ++;
-  CtxMap[cId] = {
-    mpWindow->createSharedWindow(), 
-    std::stack<std::shared_ptr<State>>(), 
-    std::future<void>()
-    };
+  // cId ++;
+
+  // CtxMap[cId] = {
+  //   mpWindow->createSharedWindow(), 
+  //   std::stack<std::shared_ptr<State>>(), 
+  //   std::future<void>()
+  //   };
   
-  CtxMap[cId].CtxStates.push(std::make_shared<MainMenu>(CtxMap[cId].CtxStates, mpRenderEngine));
+  // CtxMap[cId].CtxStates.push(std::make_shared<MainMenu>(CtxMap[cId].CtxStates, mpRenderEngine));
 
-  CtxMap[cId].CtxFuture = std::async(std::launch::async, &spawnedWindowThread,
-    std::ref(CtxMap[cId].CtxStates),
-    std::ref(CtxMap[cId].CtxWindow),
-    cId);
-  cId ++;
-  // wd1.reset();
-  // wd2.reset();
-  // testwd3 = mpWindow->createSharedWindow();
-  // std::future<void> ft3 = std::async(std::launch::async, &spawnedWindowThread, std::ref(state3), std::ref(testwd3));
+  // CtxMap[cId].CtxFuture = std::async(std::launch::async, &spawnedWindowThread,
+  //   std::ref(CtxMap[cId].CtxStates),
+  //   std::ref(CtxMap[cId].CtxWindow),
+  //   cId);
+  
+  // cId ++;
+
   RenderCommand::setClearColor(0.3f, 0.0f, 0.0f, 1.0f);
   while(!mStates.empty() && mpWindow->isOpen())
   {
@@ -206,19 +203,11 @@ void Game::runGame()
       mStartTime = currentTime;
     }
 
-    // std::cout << smoothDeltaTime << std::endl;
-    // if(decimalCmp(deltaTime, 0.0d))
-    // {
-      // std::cout << deltaTime << std::endl;
-    // }
-
-
     if (mStates.top()->shouldStateExit())
     {
       mStates.pop();
     }
     
-    // RenderCommand::clear();
     mStates.top()->update(mpWindow, deltaTime);
 
     while(smoothDeltaTime >= FIXED_TIMESTEP)
@@ -231,45 +220,22 @@ void Game::runGame()
     mStates.top()->lateUpdate(mpWindow, FIXED_TIMESTEP);
 
     mStates.top()->render(mpWindow, smoothDeltaTime / FIXED_TIMESTEP);
-    mpWindow->display();
+    // mpWindow->display();
 
     RenderCommand::pollEvents();
 
-    queueMutex.lock();
-    while(!ZombieWindows.empty())
-    {
-      CtxMap.at(ZombieWindows.front()).CtxWindow->setActive();
-      CtxMap.erase(ZombieWindows.front());
-      ZombieWindows.pop();
-      mpWindow->setActive();
-    }
-    queueMutex.unlock();
-    // if(count > 0)
+    // queueMutex.lock();
+    
+    // while(!ZombieWindows.empty())
     // {
-    //   if(std::future_status::ready == ft1.wait_for(std::chrono::seconds(0) ))
-    //   {
-    //     count --;
-    //     testwd1->destroyWindow();
-    //   }
-    //   else if (std::future_status::ready == ft2.wait_for(std::chrono::seconds(0) ))
-    //   {
-    //     count --;
-    //     testwd2->destroyWindow();
-    //   }
+    //   CtxMap.at(ZombieWindows.front()).CtxWindow->setActive();
+    //   CtxMap.erase(ZombieWindows.front());
+    //   ZombieWindows.pop();
+    //   mpWindow->setActive();
     // }
-//     for(std::unordered_map<int8_t, CtxThread>::iterator ctx = contexts.begin(); ctx != contexts.end();)
-//     {
-//       if( !ctx->second.Ctx->isOpen() && std::future_status::ready == ctx->second.Return.wait_for(std::chrono::seconds(0)))
-//       {
-//         ctx->second.Ctx->destroyWindow();
 
-//         ctx = contexts.erase(ctx);
-//       }
-//       else
-//       {
-// ctx ++;
-//       }
-    // }
+    // queueMutex.unlock();
+
     gFrames ++;
     // std::cout << "Delta: " << deltaTime << std::endl;
   }

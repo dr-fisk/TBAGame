@@ -108,6 +108,8 @@ void Text::gridfitText(const glm::vec2& crTopLeft)
     tempTextVert.Pos = pos;
     tempTextVert.Size = dim;
     updateTextureCoordinates(offset, dim, tempTextVert.Vertexes);
+    updateQuadColor(tempTextVert.Vertexes);
+
     mTextVertexes.push_back(tempTextVert);
     left += dim.x;
   }
@@ -270,4 +272,39 @@ void Text::setLineWrap(const bool cEnable)
 {
   mLineWrap = cEnable;
   mGeometryNeedUpdate = true;
+}
+
+void Text::insertText(const std::string& crText, const size_t cIndex)
+{
+  mText.insert(cIndex, crText);
+  mGeometryNeedUpdate = true;
+}
+
+void Text::appendText(const std::string& crText)
+{
+  mText += crText;
+  mGeometryNeedUpdate = true;
+}
+
+size_t Text::getNumChars() const
+{
+  return mText.size();
+}
+
+void Text::setColor(const lg::Color &crColor)
+{
+  mColor = crColor;
+  mGeometryNeedUpdate = true;
+}
+
+void Text::updateQuadColor(std::array<Vertex, sNumQuadVerts>& rVertexes)
+{
+  rVertexes[3].OverrideSampleColor = 1.0f;
+  rVertexes[2].OverrideSampleColor = 1.0f;
+  rVertexes[1].OverrideSampleColor = 1.0f;
+  rVertexes[0].OverrideSampleColor = 1.0f;
+  rVertexes[3].Rgba = mColor;
+  rVertexes[2].Rgba = mColor;
+  rVertexes[1].Rgba = mColor;
+  rVertexes[0].Rgba = mColor;
 }

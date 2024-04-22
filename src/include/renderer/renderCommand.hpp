@@ -10,7 +10,7 @@ class RenderCommand
     {
       if(!glfwInit())
       {
-        std::cout << "Failed to open window" << std::endl;
+        std::cout << "Failed to init glfw." << std::endl;
         exit(-1);
       }
 

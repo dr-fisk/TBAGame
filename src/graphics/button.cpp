@@ -575,3 +575,9 @@ std::string Button<T>::getText() const
 {
   return mText->getText();
 }
+
+template <typename T>
+void Button<T>::setTextColor(const lg::Color &crColor)
+{
+  mText->setColor(crColor);
+}
