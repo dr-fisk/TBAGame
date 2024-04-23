@@ -2,47 +2,52 @@
 
 #include "graphics/scrollbar.hpp"
 
-//! @brief 
-//! @param prRenderEngine 
-//! @param crPos 
-//! @param crSize
-//!
-//! @return None
-Scrollbar::Scrollbar(std::shared_ptr<RenderEngine>& prRenderEngine, const glm::vec2& crPos,
-                     const glm::vec2& crSize)
+Scrollbar::Scrollbar(const Box<glm::vec2>& crBox)
 {
-  mScrollbarButton = std::make_shared<Button<>>(prRenderEngine, crPos, crSize);
+  mScrollbarButton = std::make_shared<Button<>>(crBox);
   mState = DEFAULT_STATE;
 }
 
-void Scrollbar::setDefaultTexture(const std::shared_ptr<TextureResource>& crpTexture)
+Scrollbar& Scrollbar::setDefaultTexture(const std::shared_ptr<Texture2D>& crpTexture)
 {
   mScrollbarButton->setDefaultTexture(crpTexture);
+  return *this;
 }
 
-void Scrollbar::setHoverTexture(const std::shared_ptr<TextureResource>& crpTexture)
+Scrollbar& Scrollbar::setHoverTexture(const std::shared_ptr<Texture2D>& crpTexture)
 {
   mScrollbarButton->setHoverTexture(crpTexture);
+  return *this;
 }
 
-void Scrollbar::setPressedTexture(const std::shared_ptr<TextureResource>& crpTexture)
+Scrollbar& Scrollbar::setPressedTexture(const std::shared_ptr<Texture2D>& crpTexture)
 {
   mScrollbarButton->setPressedTexture(crpTexture);
+  return *this;
 }
 
-void Scrollbar::setDefaultColor(const lg::Color& crColor)
+Scrollbar& Scrollbar::setDefaultColor(const lg::Color& crColor)
 {
   mScrollbarButton->setDefaultColor(crColor);
+  return *this;
 }
 
-void Scrollbar::setHoverColor(const lg::Color& crColor)
+Scrollbar& Scrollbar::setHoverColor(const lg::Color& crColor)
 {
   mScrollbarButton->setHoverColor(crColor);
+  return *this;
 }
 
-void Scrollbar::setPressedColor(const lg::Color& crColor)
+Scrollbar& Scrollbar::setPressedColor(const lg::Color& crColor)
 {
   mScrollbarButton->setPressedColor(crColor);
+  return *this;
+}
+
+Scrollbar& Scrollbar::setButton(std::shared_ptr<Button<>>& crpButton)
+{
+  mScrollbarButton = crpButton;
+  return *this;
 }
 
 void Scrollbar::mousePressEvent(const Event& crEvent)
@@ -102,9 +107,10 @@ void Scrollbar::update(const Event& crEvent)
   }
 }
 
-void Scrollbar::setPressedPadding(const glm::vec2& crPadding)
+Scrollbar& Scrollbar::setPressedPadding(const glm::vec2& crPadding)
 {
   mScrollbarButton->setPressedPadding(crPadding);
+  return *this;
 }
 
 void Scrollbar::draw()

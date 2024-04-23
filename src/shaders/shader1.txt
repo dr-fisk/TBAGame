@@ -42,12 +42,11 @@ void main()
    {
       int override = int(v_OverrideColor);
 
-      temp_color = texture(u_Textures[index], v_TextCoords);
-      
+      FragColor = texture(u_Textures[index], v_TextCoords);
       
       if(override > 0)
       {
-        FragColor = v_Col * temp_color;
+        FragColor = v_Col * FragColor;
       }
    }
 };

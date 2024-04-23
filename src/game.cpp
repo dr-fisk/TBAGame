@@ -23,7 +23,7 @@ uint16_t gFps = 0;
 void Game::initMainState()
 {
   //mStates.push(std::make_shared<ExceptionState>(mStates, "TESTING", mShaders[MAIN_SHADER], mpWindow->getGlWindow(), mpVao));
-  mStates.push(std::make_shared<MainMenu>(mStates, mpRenderEngine));
+  mStates.push(std::make_shared<MainMenu>(mStates, mpResourceMngr));
 }
 
 //! @brief Default Constructor
@@ -45,7 +45,7 @@ Game::Game()
   gView.y = view[1];
   gView.WindowWidth = view[2];
   gView.WindowHeight = view[3];
-  mpRenderEngine = std::make_shared<RenderEngine>();
+  mpResourceMngr = std::make_shared<ResourceManager>();
 
   // mFbo = std::make_shared<FrameBuffer>();
 
@@ -77,7 +77,7 @@ Game::~Game()
   }
 
   // mFbo.reset();
-  mpRenderEngine.reset();
+  mpResourceMngr.reset();
   mpWindow.reset();
   glfwTerminate();
 }
@@ -157,7 +157,7 @@ void Game::runGame()
   //   std::future<void>()
   //   };
   
-  // CtxMap[cId].CtxStates.push(std::make_shared<MainMenu>(CtxMap[cId].CtxStates, mpRenderEngine));
+  // CtxMap[cId].CtxStates.push(std::make_shared<MainMenu>(CtxMap[cId].CtxStates, mpResourceMngr));
 
   // CtxMap[cId].CtxFuture = std::async(std::launch::async, &spawnedWindowThread,
   //   std::ref(CtxMap[cId].CtxStates),
@@ -172,7 +172,7 @@ void Game::runGame()
   //   std::future<void>()
   //   };
   
-  // CtxMap[cId].CtxStates.push(std::make_shared<MainMenu>(CtxMap[cId].CtxStates, mpRenderEngine));
+  // CtxMap[cId].CtxStates.push(std::make_shared<MainMenu>(CtxMap[cId].CtxStates, mpResourceMngr));
 
   // CtxMap[cId].CtxFuture = std::async(std::launch::async, &spawnedWindowThread,
   //   std::ref(CtxMap[cId].CtxStates),

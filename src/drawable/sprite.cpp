@@ -8,50 +8,38 @@
 
 //! @brief Sprite Constructor
 //!
-//! @param[in]  crPath         Path of image
-//! @param[out] prRenderEngine Resource Manager to create Texture Resource
-//! @param[in]  crPos          Position of Sprite
-//! @param[in]  crSize         Size of Sprite
+//! @param[in] crTexture Texture of Sprite
+//! @param[in] crBox     Dimensions of Sprite
 //!
-//! @return Sprite Object 
-Sprite::Sprite(const std::string& crPath, std::shared_ptr<RenderEngine>& prRenderEngine,
-               const glm::vec2& crPos, const glm::vec2& crSize)
+//! @return Sprite Object
+Sprite::Sprite(const Texture2D& crTexture, const Box<glm::vec2>& crBox) : mpTexture(&crTexture)
 {
-  Image temp(crPath);
-  mTexture = std::make_shared<TextureResource>(temp.getName(), prRenderEngine, temp.getDimensions(),
-                                               temp.getInternalFormat());
-  mLayer = 0;
-  mColor = lg::Transparent;
-  mBox.setBox(crPos, crSize);
-  mPrevPos = crPos;
-  mTexture->update(temp.getImgData().data(), temp.getDimensions(), temp.getOffset(), temp.getFormat(), temp.getType());
-  updateTextureCoordinates(glm::vec2(0.0f, 0.0f), mTexture->getSize());
+  mBox = crBox;
+  mPrevPos = mBox.getPos();
+  updateTextureCoordinates(glm::vec2(0.0f, 0.0f), crTexture.getSize());
   mGeometryNeedUpdate = true;
 }
 
 //! @brief Sprite Constructor
-//!        Use this constructor if you do not want a Texture on Sprite
 //!
-//! @param[in]  crPos          Position of Sprite
-//! @param[in]  crSize         Size of Sprite
-//! @param[in]  crColor        Color of Sprite
+//! @param[in] crColor   Color of Sprite
+//! @param[in] crBox     Dimensions of Sprite
 //!
-//! @return Sprite Object 
-Sprite::Sprite(const glm::vec2& crPos, const glm::vec2& crSize, const lg::Color& crColor)
+//! @return Sprite Object
+Sprite::Sprite(const lg::Color& crColor, const Box<glm::vec2>& crBox) : mpTexture(nullptr)
 {
+  mBox = crBox;
+  mPrevPos = mBox.getPos();
   mColor = crColor;
-  glm::vec2 offset(0.0f, 0.0f);
-  mBox.setBox(crPos, crSize);
-  mPrevPos = crPos;
   mGeometryNeedUpdate = true;
 }
 
-//! @brief Get Texture Resource for Drawable
+//! @brief Get Texture for Drawable
 //!
-//! @return Texture Resource
-std::shared_ptr<TextureResource> Sprite::getResource()
+//! @return Texture
+const Texture2D& Sprite::getTexture() const
 {
-  return mTexture;
+  return *mpTexture;
 }
 
 //! @brief Draws the Sprite
@@ -62,9 +50,9 @@ void Sprite::draw()
   if(mRender)
   {
     // TODO: Update offset for sprites
-    if(nullptr != mTexture)
+    if(nullptr != mpTexture)
     {
-      Renderer2D::registerQuad(mBox.getTopLeft(), mBox.getSize(), mVertexes, mTexture, mGeometryNeedUpdate);
+      Renderer2D::registerQuad(mBox.getTopLeft(), mBox.getSize(), mVertexes, mpTexture, mGeometryNeedUpdate);
     }
     else
     {
@@ -80,7 +68,7 @@ void Sprite::draw()
 //! @return true if Sprite has a Texture false otherwise
 bool Sprite::hasResource()
 {
-  return (nullptr != mTexture);
+  return (nullptr != mpTexture);
 }
 
 //! @brief Sets Color of Sprite
@@ -89,10 +77,11 @@ bool Sprite::hasResource()
 //! @param[in] crColor Color to set Sprite
 //!
 //! @return None
-void Sprite::setColor(const lg::Color& crColor)
+Sprite& Sprite::setColor(const lg::Color& crColor)
 {
   mColor = crColor;
   mGeometryNeedUpdate = true;
+  return *this;
 }
 
 //! @brief Returns position of Sprite
@@ -120,10 +109,11 @@ void Sprite::movePos(const glm::vec2& crMoveVector)
 //! @param[in] crPos New Sprite Position
 //!
 //! @return None
-void Sprite::setPos(const glm::vec2& crPos)
+Sprite& Sprite::setPos(const glm::vec2& crPos)
 {
   mBox.setPos(crPos);
   mGeometryNeedUpdate = true;
+  return *this;
 }
 
 //! @brief Sets Size of Sprite
@@ -131,10 +121,11 @@ void Sprite::setPos(const glm::vec2& crPos)
 //! @param[in] crSize New Sprite Size
 //!
 //! @return None
-void Sprite::setSize(const glm::vec2& crSize)
+Sprite& Sprite::setSize(const glm::vec2& crSize)
 {
   mBox.setSize(crSize);
   mGeometryNeedUpdate = true;
+  return *this;
 }
 
 //! @brief Gets the Box corresponding to Sprite
@@ -168,7 +159,7 @@ Sprite::~Sprite()
 //! @param[in] cInvert    Inverts texture coordinates
 //!
 //! @return None 
-void Sprite::setTexture(const std::shared_ptr<TextureResource>& crpTexture, const bool cInvert)
+Sprite& Sprite::setTexture(const std::shared_ptr<TextureResource>& crpTexture, const bool cInvert)
 {
   glm::vec2 offset(0, 0); // Update offset
 
@@ -176,6 +167,32 @@ void Sprite::setTexture(const std::shared_ptr<TextureResource>& crpTexture, cons
 
   updateTextureCoordinates(offset, mTexture->getSize());
   mGeometryNeedUpdate = true;
+  return *this;
+}
+
+//! @brief Sets Texture for Sprite
+//! TODO: Add the size of the texture to set
+//!
+//! @param[in] crTexture  Texture to set on Sprite
+//! @param[in] cInvert    Inverts texture coordinates
+//!
+//! @return None 
+Sprite& Sprite::setTexture(const Texture2D& crTexture, const bool cInvert)
+{
+  glm::vec2 offset(0, 0); // Update offset
+
+  mpTexture = &crTexture;
+
+  updateTextureCoordinates(offset, mpTexture->getSize());
+  mGeometryNeedUpdate = true;
+  return *this;
+}
+
+Sprite& Sprite::setBox(const Box<glm::vec2>& crBox)
+{
+  mBox = crBox;
+  mGeometryNeedUpdate = true;
+  return *this;
 }
 
 //! @brief Setst the Layer for the Sprite
@@ -198,10 +215,10 @@ void Sprite::setLayer(const uint32_t cLayer)
 //! @return None 
 void Sprite::updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize)
 {
-    const float xMax = static_cast<float>(crTextureSize.x + crOffset.x) / static_cast<float>(mTexture->getSize().x);
-    const float yMax = static_cast<float>(crTextureSize.y + crOffset.y) / static_cast<float>(mTexture->getSize().y);
-    const float xMin = static_cast<float>(crOffset.x) / static_cast<float>(mTexture->getSize().x);
-    const float yMin = static_cast<float>(crOffset.y) / static_cast<float>(mTexture->getSize().y);
+    const float xMax = static_cast<float>(crTextureSize.x + crOffset.x) / static_cast<float>(mpTexture->getSize().x);
+    const float yMax = static_cast<float>(crTextureSize.y + crOffset.y) / static_cast<float>(mpTexture->getSize().y);
+    const float xMin = static_cast<float>(crOffset.x) / static_cast<float>(mpTexture->getSize().x);
+    const float yMin = static_cast<float>(crOffset.y) / static_cast<float>(mpTexture->getSize().y);
 
     mVertexes[0].TextCoord = glm::vec2(xMin, yMin);
     mVertexes[1].TextCoord = glm::vec2(xMax, yMin);

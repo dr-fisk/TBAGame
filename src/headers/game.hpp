@@ -6,7 +6,7 @@
 // #include <chrono>
 
 #include "states/state.hpp"
-#include "renderEngine/renderEngine.hpp"
+#include "renderEngine/resourceManager.hpp"
 #include "window/renderWindow.hpp"
 #include "lestTtf.h"
 #include "renderEngine/frameBuffer.hpp"
@@ -21,7 +21,7 @@ class Game {
   private:
     std::stack<std::shared_ptr<State>> mStates;
     std::shared_ptr<RenderWindow> mpWindow;
-    std::shared_ptr<RenderEngine> mpRenderEngine;
+    std::shared_ptr<ResourceManager> mpResourceMngr;
     LestTrueType ttf;
     int mGameRuntime;
     // std::chrono::time_point<std::chrono::high_resolution_clock> mStartTime;

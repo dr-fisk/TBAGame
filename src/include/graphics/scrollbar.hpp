@@ -12,15 +12,16 @@ class Scrollbar : public Graphics
 {
   public:
     Scrollbar() = delete;
-    Scrollbar(std::shared_ptr<RenderEngine>& prRenderEngine, const glm::vec2& crPos, const glm::vec2& crSize);
+    Scrollbar(const Box<glm::vec2>& crBox);
     ~Scrollbar() = default;
-    void setDefaultTexture(const std::shared_ptr<TextureResource>& crpTexture);
-    void setHoverTexture(const std::shared_ptr<TextureResource>& crpTexture);
-    void setPressedTexture(const std::shared_ptr<TextureResource>& crpTexture);
-    void setDefaultColor(const lg::Color& crColor);
-    void setHoverColor(const lg::Color& crColor);
-    void setPressedColor(const lg::Color& crColor);
-    void setPressedPadding(const glm::vec2& crPadding);
+    Scrollbar& setDefaultTexture(const std::shared_ptr<Texture2D>& crpTexture);
+    Scrollbar& setHoverTexture(const std::shared_ptr<Texture2D>& crpTexture);
+    Scrollbar& setPressedTexture(const std::shared_ptr<Texture2D>& crpTexture);
+    Scrollbar& setDefaultColor(const lg::Color& crColor);
+    Scrollbar& setHoverColor(const lg::Color& crColor);
+    Scrollbar& setPressedColor(const lg::Color& crColor);
+    Scrollbar& setPressedPadding(const glm::vec2& crPadding);
+    Scrollbar& setButton(std::shared_ptr<Button<>>& crpButton);
     void update(const Event& crEvent);
     void draw();
   private:

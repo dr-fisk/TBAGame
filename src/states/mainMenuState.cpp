@@ -14,44 +14,66 @@
 #include "glm/gtx/string_cast.hpp"
 #include "math/lestMath.hpp"
 MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
-                   const std::shared_ptr<RenderEngine>& crpRenderEngine) :
-                   State(crStates, crpRenderEngine)
+                   const std::shared_ptr<ResourceManager>& crpResourceMngr) :
+                   State(crStates, crpResourceMngr)
 {
   std::string temp = "Envy Code R.ttf";
   mStartTime = std::chrono::system_clock::now();
   std::vector<std::shared_ptr<Button<glm::ivec2>>> mButtons;
 
-  mNewFont = std::make_shared<Font>(temp, 5);
-  mText = std::make_shared<Text>(mNewFont, "FPS: 0", mpRenderEngine, 12, glm::vec2{100.0f, 100.0f});
-  mText->setColor(lg::Red);
-  // mSprite = std::make_shared<Sprite>(glm::vec2{200.0f, 200.0f}, glm::vec2{16, 16}, lg::White);
-  mSprite = std::make_shared<Sprite>("../src/art.png", mpRenderEngine, glm::vec2{200.0f, 200.0f}, glm::vec2{16, 16});
-  mSprite3 = std::make_shared<Sprite>("../src/heart.png", mpRenderEngine, glm::vec2{50.0f, 300.0f}, glm::vec2{16, 16});
-  mSprite2 = std::make_shared<Sprite>("../src/art.png", mpRenderEngine, glm::vec2{600.0f, 600.0f}, glm::vec2{16, 16});
-  mButton = std::make_shared<Button<>>(mNewFont, "Test", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50});
-  mButton->setTextColor(lg::Red);
+  mNewFont.loadFromFile(temp, 5);
+  std::cout << "Font loaded\n";
+  mText = std::make_shared<Text>(mNewFont, "FPS: 0", 12);
+  mText->setPos({200.0f, 50.0f});
+  mText->setColor(lg::Blue);
+  std::cout << "Text Done\n";
+  Image temp_img("../src/art.png");
+  spriteTexture.create(temp_img.getDimensions().y, temp_img.getDimensions().x, temp_img.getInternalFormat());
+  spriteTexture.update(temp_img.getImgData().data(), temp_img.getDimensions(), temp_img.getOffset(), temp_img.getFormat(), temp_img.getType());
+  mSprite = std::make_shared<Sprite>(spriteTexture, Box(glm::vec2{200.0f, 200.0f}, glm::vec2{16, 16}));
+  Image temp_img2("../src/heart.png");
+  sprite2Texture.create(temp_img2.getDimensions().y, temp_img2.getDimensions().x, temp_img2.getInternalFormat());
+  sprite2Texture.update(temp_img2.getImgData().data(), temp_img2.getDimensions(), temp_img2.getOffset(), temp_img2.getFormat(), temp_img2.getType());
+  mSprite3 = std::make_shared<Sprite>(sprite2Texture, Box(glm::vec2{50.0f, 300.0f}, glm::vec2{16, 16}));
+  mSprite2 = std::make_shared<Sprite>(spriteTexture, Box(glm::vec2{600.0f, 600.0f}, glm::vec2{16, 16}));
   Image tempImg("../src/SquareWBorder.png");
+  std::shared_ptr<Texture2D> tempTexture = std::make_shared<Texture2D>();
+  std::shared_ptr<Texture2D> tempTexture2 = std::make_shared<Texture2D>();
+  std::shared_ptr<Texture2D> tempTexture3 = std::make_shared<Texture2D>();
   tempImg.recolorBorderedShape(lg::Color(135, 135, 135), lg::Color(170, 170, 170), lg::White);
-  std::shared_ptr<TextureResource> tempTexture = std::make_shared<TextureResource>(tempImg.getName(), mpRenderEngine, tempImg.getDimensions(), tempImg.getInternalFormat());
+  tempTexture->create(tempImg.getDimensions().y, tempImg.getDimensions().x, tempImg.getInternalFormat());
   tempTexture->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
-  mButton->setDefaultTexture(tempTexture);
   tempImg.recolorBorderedShape(lg::Color(210, 210, 210), lg::Color(170, 170, 170), lg::Color(170, 170, 170));
-  std::shared_ptr<TextureResource> tempTexture2 = std::make_shared<TextureResource>("Hover", mpRenderEngine, tempImg.getDimensions(), tempImg.getInternalFormat());
+  tempTexture2->create(tempImg.getDimensions().y, tempImg.getDimensions().x, tempImg.getInternalFormat());
   tempTexture2->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
-  mButton->setHoverTexture(tempTexture2);
   tempImg.recolorBorderedShape(lg::Color(230, 230, 230), lg::Color(230, 230, 230), lg::Color(170, 170, 170));
-  std::shared_ptr<TextureResource> tempTexture3 = std::make_shared<TextureResource>("Pressed", mpRenderEngine, tempImg.getDimensions(), tempImg.getInternalFormat());
+  tempTexture3->create(tempImg.getDimensions().y, tempImg.getDimensions().x, tempImg.getInternalFormat());
   tempTexture3->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
-  mButton->setPressedTexture(tempTexture3);
-  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(mNewFont, "Test1", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50}));
-  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(mNewFont, "Iris", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50}));
-  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(mNewFont, "Test3", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50}));
+
+  // This can change to doing the same thing text does for editing colors
+  mButton = std::make_shared<Button<>>(Box(glm::vec2{0, 0}, glm::vec2{200, 50}));
+  Text text = Text(mNewFont, "Iris will be my wife.", 12);
+  mButton->setText(text)
+           .setTextColor(lg::Red)
+           .setDefaultTexture(tempTexture)
+           .setHoverTexture(tempTexture2)
+           .setPressedTexture(tempTexture3);
+
+  text.setString("Test1")
+      .setColor(lg::Black); 
+  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(Box(glm::vec2{0, 0}, glm::vec2{50, 50})));
+  mButtons[mButtons.size() - 1]->setText(text);
+  text.setString("Iris")
+      .setColor(lg::Pink);
+  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(Box(glm::vec2{0, 0}, glm::vec2{50, 50})));
+  mButtons[mButtons.size() - 1]->setText(text);
+  text.setString("Test3")
+      .setColor(lg::Green);
+  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(Box(glm::vec2{0, 0}, glm::vec2{50, 50})));
+  mButtons[mButtons.size() - 1]->setText(text);
   mButtons[0]->setValue(glm::ivec2(0,0));
   mButtons[1]->setValue(glm::ivec2(10,10));
   mButtons[2]->setValue(glm::ivec2(200,200));
-  mButtons[0]->setTextColor(lg::Blue);
-  mButtons[1]->setTextColor(lg::Pink);
-  mButtons[2]->setTextColor(lg::Black);
 
   for(auto& button : mButtons)
   {
@@ -63,26 +85,22 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
 
   mMenu = std::make_shared<DropDownMenu<glm::ivec2>>(2, mButtons, glm::vec2(700.0f, 700.0f), glm::vec2{45.0f, 30.0f});
 
-  mButton->setDefaultColor(lg::Grey);
-  mButton->setHoverColor(lg::Green);
-  mButton->setPressedColor(lg::Red);
-  mButton->setSize({40.0f, 30.0f});
   mButton->setPos({250.0f, 250.0f});
   mButton->setValue(nullptr);
   mButton->onClick(MainMenu::buttonCallback);
 
-  mScroll = std::make_shared<Scrollbar>(mpRenderEngine, glm::vec2(900, 50), glm::vec2(20, 60));
-  mScroll->setDefaultColor(lg::Grey);
-  mScroll->setHoverColor(lg::Green);
-  mScroll->setPressedColor(lg::Green);
-  mScroll->setPressedPadding(glm::vec2(50, 50));
+  mScroll = std::make_shared<Scrollbar>(Box(glm::vec2(900, 50), glm::vec2(20, 60)));
+  mScroll->setDefaultColor(lg::Grey)
+          .setHoverColor(lg::Green)
+          .setPressedColor(lg::Green)
+          .setPressedPadding(glm::vec2(50, 50));
 
   // mFbo = std::make_shared<FrameBuffer>();
   // mFbo->bind();
   // RenderCommand::enableBlend();
   // RenderCommand::setClearColor(0.3f, 0.0f, 0.0f, 1.0f);
   // mFbo->unbind();
-  // mFbo->invalidate(glm::uvec2{gWindowWidth, gWindowHeight}, mpRenderEngine);
+  // mFbo->invalidate(glm::uvec2{gWindowWidth, gWindowHeight}, mpResourceMngr);
   // mView = std::make_shared<Sprite>(glm::vec2{gWindowWidth / 2.0f, gWindowHeight / 2.0f}, glm::vec2{gWindowWidth, gWindowHeight}, lg::White);
 
   // mView->setTexture(mFbo->getTexture(), true);
@@ -92,6 +110,7 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   curr_pos = mSprite->getPos();
   xMove = 0.0f;
   yMove = 0.0f;
+  std::cout << "State contructed\n";
 }
 
 void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const double cDeltaTime)
@@ -213,7 +232,7 @@ void MainMenu::render(const std::shared_ptr<RenderTarget>& crpTarget, const doub
   // sprite_pos = mSprite->getPos();
   RenderCommand::clear();
   Renderer2D::beginScene(mCam);
-  // mText->draw();
+  mText->draw();
   mSprite->draw();
   mSprite2->draw();
   mSprite3->draw();

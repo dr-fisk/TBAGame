@@ -12,7 +12,7 @@
 class ExceptionState : public State {
   public:
     ExceptionState(const std::stack<std::shared_ptr<State>>& crStates,
-                   const std::shared_ptr<RenderEngine> crpRenderEngine,
+                   const std::shared_ptr<ResourceManager> crpResourceMngr,
                    const std::string& crError);
     ~ExceptionState();
     void fixedUpdate(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);

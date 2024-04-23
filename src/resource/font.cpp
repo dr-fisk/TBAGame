@@ -17,7 +17,7 @@ static const int32_t ASCII_CHAR_END = 126;
 //! @param[in] cNumOfSubDivs Number of subdivisions for bezier curve generation
 //!
 //! @return Font Object
-Font::Font(const std::string& crTtfPath, const uint32_t cNumOfSubDivs)
+void Font::loadFromFile(const std::string& crTtfPath, const uint32_t cNumOfSubDivs)
 {
   mNumSubDiv = cNumOfSubDivs;
 
@@ -56,7 +56,7 @@ Font::Font(const std::string& crTtfPath, const uint32_t cNumOfSubDivs)
 //! @param[in] cCharSize Font Size to generate glyph
 //!
 //! @return None
-void Font::scanLineFill(const char cChar, const uint8_t cCharSize)
+void Font::scanLineFill(const char cChar, const uint8_t cCharSize) const
 {
   EdgeTable::scanLineFill(mFont[cCharSize - 1][cChar].GenPtsEdges, mFont[cCharSize - 1][cChar].Dimensions,
                           mFont[cCharSize - 1][cChar].Bitmap, lg::White, 0, cChar);
@@ -365,7 +365,7 @@ int32_t Font::generateGlyphPoints(const char cChar)
 //! @param[in] cCharSize Size of character to generate edges for
 //!
 //! @return None
-void Font::generateEdges(const char cChar, const uint8_t cCharSize)
+void Font::generateEdges(const char cChar, const uint8_t cCharSize) const
 {
   int32_t j = 0;
   int32_t edgeIdx = 0;
@@ -388,7 +388,7 @@ void Font::generateEdges(const char cChar, const uint8_t cCharSize)
 //! @param[in] cChar     Character to grab bitmap from
 //!
 //! @return Bitmap data
-std::vector<uint32_t> Font::getData(const uint8_t cCharSize, const char cChar)
+std::vector<uint32_t> Font::getData(const uint8_t cCharSize, const char cChar) const
 {
     return mFont.at(cCharSize - 1).at(cChar).Bitmap;
 }
@@ -399,7 +399,7 @@ std::vector<uint32_t> Font::getData(const uint8_t cCharSize, const char cChar)
 //! @param[in] cChar     Character to get dimensions from
 //!
 //! @return Dimensions of character in Vector2 format
-glm::uvec2 Font::getCharacterDimensions(const uint8_t cCharSize, const char cChar)
+glm::uvec2 Font::getCharacterDimensions(const uint8_t cCharSize, const char cChar) const
 {
   return mFont.at(cCharSize - 1).at(cChar).Dimensions;
 }
@@ -428,9 +428,9 @@ void Font::writeGenPoints(const char cChar, const uint8_t cCharSize)
 //! @param[in] cCharSize Character size to grab Ybearing from
 //!
 //! @return Ybearing
-int32_t Font::getYBearing(const char cChar, const uint8_t cCharSize)
+int32_t Font::getYBearing(const char cChar, const uint8_t cCharSize) const
 {
-  return mFont[cCharSize - 1].at(cChar).Ybearing;
+  return mFont.at(cCharSize - 1).at(cChar).Ybearing;
 }
 
 //! @brief Gets Ydescent from character in font size map
@@ -439,9 +439,9 @@ int32_t Font::getYBearing(const char cChar, const uint8_t cCharSize)
 //! @param[in] cCharSize Character size to grab Ydescent from
 //!
 //! @return Ydescent
-int32_t Font::getYDescent(const char cChar, const uint8_t cCharSize)
+int32_t Font::getYDescent(const char cChar, const uint8_t cCharSize) const
 {
-  return mFont[cCharSize - 1].at(cChar).Ydescent;
+  return mFont.at(cCharSize - 1).at(cChar).Ydescent;
 }
 
 
@@ -496,11 +496,11 @@ void Font::generateGlyfData(const char cChar)
 
 //! @brief Loads glyph data for given character size
 //!
-//! @param[in] cCharSize     Size of character to load Glyphs
-//! @param[in] pRenderEngine Resource Manager
+//! @param[in] cCharSize      Size of character to load Glyphs
+//! @param[in] prResourceMngr Resource Manager
 //!
 //! @return None
-void Font::loadGlyphs(const uint32_t cCharSize, std::shared_ptr<RenderEngine>& prRenderEngine)
+void Font::loadGlyphs(const uint32_t cCharSize) const
 {
   // Don't remake font size if it exists in map, return early
   if(mFont.find(cCharSize - 1) != mFont.end())
@@ -567,15 +567,18 @@ void Font::loadGlyphs(const uint32_t cCharSize, std::shared_ptr<RenderEngine>& p
     }
   }
 
-  mTextures.try_emplace(size, std::make_shared<TextureResource>(mFontFamily + std::to_string(cCharSize), prRenderEngine,
-                        offset));
+  std::cout <<"text start\n";
 
+  mTextures[size].create(offset.y, offset.x);
+
+  std::cout <<"text genned\n";
   for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
   {
     currChar = static_cast<char>(i);
-    mTextures[size]->update(mFont[size][currChar].Bitmap.data(), mFont[size][currChar].Dimensions,
+    mTextures[size].update(mFont[size][currChar].Bitmap.data(), mFont[size][currChar].Dimensions,
                                  mFont[size][currChar].Offset);
   }
+  std::cout <<"text doned\n";
 }
 
 //! @brief Updates edges scaled down to cCharSize
@@ -584,7 +587,7 @@ void Font::loadGlyphs(const uint32_t cCharSize, std::shared_ptr<RenderEngine>& p
 //! @param[in] cCharSize Size to scale down edges
 //!
 //! @return None
-void Font::updateEdges(const char cChar, const uint8_t cCharSize)
+void Font::updateEdges(const char cChar, const uint8_t cCharSize) const
 {
   float scaleY = 0;
   float scaleX = 0;
@@ -625,7 +628,7 @@ GlyfHeader Font::getCharGlyfHeader(const char cChar, const LestTrueType& crTtf)
 //!
 //! @return true if glyphs are loaded
 //! @return false if glyphs are not loaded
-bool Font::hasGlyphsLoaded(const uint8_t cCharSize)
+bool Font::hasGlyphsLoaded(const uint8_t cCharSize) const
 {
   return mFont.find(cCharSize - 1) != mFont.end();
 }
@@ -637,17 +640,17 @@ bool Font::hasGlyphsLoaded(const uint8_t cCharSize)
 //! @param[in] cCharSize Character size to get character offset from specific map
 //!
 //! @return Offset for Texture buffer
-glm::uvec2 Font::getOffset(const char cChar, const uint8_t cCharSize)
+glm::uvec2 Font::getOffset(const char cChar, const uint8_t cCharSize) const
 {
-  return mFont[cCharSize - 1][cChar].Offset;
+  return mFont.at(cCharSize - 1).at(cChar).Offset;
 }
 
-//! @brief Get Resource from Texture map of character size
+//! @brief Get Texture from Texture map of character size
 //!
 //! @param[in] cCharSize Character size to get resource from specific map
 //!
-//! @return Texture Resource
-std::shared_ptr<TextureResource> Font::getResource(const uint8_t cCharSize)
+//! @return Texture
+const Texture2D& Font::getTexture(const uint8_t cCharSize) const
 {
   return mTextures.at(cCharSize - 1);
 }
@@ -655,7 +658,7 @@ std::shared_ptr<TextureResource> Font::getResource(const uint8_t cCharSize)
 //! @brief Returns the Advanced Width value
 //!
 //! @return Advanced Width
-uint16_t Font::getAdvancedWidth()
+uint16_t Font::getAdvancedWidth() const
 {
   return mAdvancedWidth;
 }
@@ -663,7 +666,7 @@ uint16_t Font::getAdvancedWidth()
 //! @brief Gets Capital Height
 //!
 //! @return Capital Height
-int32_t Font::getCapitalHeight()
+int32_t Font::getCapitalHeight() const
 {
   return mCapHeight;
 }
@@ -671,7 +674,7 @@ int32_t Font::getCapitalHeight()
 //! @brief Gets Max Height
 //!
 //! @return Max Height
-int32_t Font::getMaxHeight()
+int32_t Font::getMaxHeight() const
 {
   return mMaxHeight;
 }
@@ -679,7 +682,7 @@ int32_t Font::getMaxHeight()
 //! @brief Gets Max Width
 //!
 //! @return Max Width
-int32_t Font::getMaxWidth()
+int32_t Font::getMaxWidth() const
 {
   return mMaxWidth;
 }

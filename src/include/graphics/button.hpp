@@ -15,33 +15,32 @@ class Button : public Graphics
 {
   public:
     Button() = delete;
-    Button(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<RenderEngine>& prRenderEngine,
-           const uint8_t cCharSize, const glm::vec2& crPos, const glm::vec2& crSize);
-    Button(std::shared_ptr<RenderEngine>& prRenderEngine, const glm::vec2& crPos, const glm::vec2& crSize);
-    void setDefaultColor(const lg::Color& crColor);
-    void setHoverColor(const lg::Color& crColor);
-    void setPressedColor(const lg::Color& crColor);
-    void setPos(const glm::vec2& crPos, const bool cCheckIfMouseHovering=true);
+    Button(const Box<glm::vec2>& crBox);
+    Button& setDefaultColor(const lg::Color& crColor);
+    Button& setHoverColor(const lg::Color& crColor);
+    Button& setPressedColor(const lg::Color& crColor);
+    Button& setPos(const glm::vec2& crPos, const bool cCheckIfMouseHovering=true);
     void movePos(const glm::vec2& crMove, const bool cCheckIfMouseHovering=true);
     bool clicked(const Event& crEvent);
-    void setSize(const glm::vec2& crSize);
+    Button& setSize(const glm::vec2& crSize);
     void onClick(std::function<void(const Button<T>&)> pFunc);
     void disableCallback(const bool cEnable);
-    void setRender(const bool cEnable);
-    void setId(const int64_t cId);
+    Button& setRender(const bool cEnable);
+    Button& setId(const int64_t cId);
     int64_t getId() const;
     glm::vec2 getPos() const;
     glm::vec2 getSize() const;
-    void setDefaultTexture(const std::shared_ptr<TextureResource>& crpTexture);
-    void setHoverTexture(const std::shared_ptr<TextureResource>& crpTexture);
-    void setPressedTexture(const std::shared_ptr<TextureResource>& crpTexture);
-    void setValue(const T& rValue);
-    void setPressedPadding(const glm::vec2& crPadding);
+    Button& setDefaultTexture(const std::shared_ptr<Texture2D>& crpTexture);
+    Button& setHoverTexture(const std::shared_ptr<Texture2D>& crpTexture);
+    Button& setPressedTexture(const std::shared_ptr<Texture2D>& crpTexture);
+    Button& setValue(const T& rValue);
+    Button& setPressedPadding(const glm::vec2& crPadding);
     bool isHover() const;
     bool isPressed() const;
-    void setText(const std::string& rText);
-    void setTextColor(const lg::Color &crColor);
-    std::string getText() const;
+    Button& setText(const Text& crText);
+    Button& setString(const std::string& crString);
+    Button& setTextColor(const lg::Color &crColor);
+    std::string& getString();
     T getValue() const;
     void draw();
     ~Button() = default;
@@ -53,11 +52,11 @@ class Button : public Graphics
       PRESSED_STATE
     };
     
-    std::shared_ptr<Sprite> mBox;
-    std::shared_ptr<Text> mText;
-    std::shared_ptr<TextureResource> mDefaultTexture;
-    std::shared_ptr<TextureResource> mHoverTexture;
-    std::shared_ptr<TextureResource> mPressedTexture;
+    Sprite mBox;
+    Text mText;
+    std::shared_ptr<Texture2D> mDefaultTexture;
+    std::shared_ptr<Texture2D> mHoverTexture;
+    std::shared_ptr<Texture2D> mPressedTexture;
     lg::Color mDefaultColor;
     lg::Color mHoverColor;
     lg::Color mPressedColor;

@@ -19,11 +19,11 @@ class Renderer2D
     static void beginScene(const std::shared_ptr<OrthCamera>& crpCamera);
     static void registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
                              std::array<Vertex, sNumQuadVerts>& rVertexes,
-                             const std::shared_ptr<TextureResource>& crpTexture,
+                             const lg::Color& crColor,
                              const bool cGeometryNeedUpdate);
     static void registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
                              std::array<Vertex, sNumQuadVerts>& rVertexes,
-                             const lg::Color& crColor,
+                             const Texture2D* &crpTexture,
                              const bool cGeometryNeedUpdate);
     static void endScene();
     static void flush();

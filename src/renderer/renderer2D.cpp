@@ -38,7 +38,7 @@ enum VertexPositions
 
 struct TextureCacheData
 {
-  std::shared_ptr<TextureResource> TexturePtr;
+  const Texture2D* TexturePtr;
   bool Bounded;
 };
 
@@ -224,9 +224,9 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
 }
 
 void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
-                              std::array<Vertex, sNumQuadVerts>& rVertexes,
-                              const std::shared_ptr<TextureResource>& crpTexture,
-                              bool cGeometryNeedUpdate)
+                          std::array<Vertex, sNumQuadVerts>& rVertexes,
+                          const Texture2D* &crpTexture,
+                          const bool cGeometryNeedUpdate)
 {
   GLFWwindow* context = glfwGetCurrentContext();
   sSharedMutex.lock_shared();

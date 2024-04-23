@@ -42,13 +42,13 @@ void FrameBuffer::unbind() const
 //! @brief Invalidates the current FrameBuffer Object
 //!
 //! @param[in] crDimensions   Dimensions to set the Frame Buffer Object Color attachment
-//! @param[in] prRenderEngine The render engine to get a texture resource from
+//! @param[in] prResourceMngr The render engine to get a texture resource from
 //!
 //! @return None 
-void FrameBuffer::invalidate(const glm::uvec2& crDimensions, std::shared_ptr<RenderEngine>& prRenderEngine)
+void FrameBuffer::invalidate(const glm::uvec2& crDimensions, std::shared_ptr<ResourceManager>& prResourceMngr)
 {
   bind();
-  mTexture = std::make_shared<TextureResource>("FBO1", prRenderEngine, crDimensions, GL_RGB8, GL_RGB);
+  mTexture = std::make_shared<TextureResource>("FBO1", prResourceMngr, crDimensions, GL_RGB8, GL_RGB);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture->getTextureId(), 0);
   std::cout << "Texture binded: " << mTexture->getTextureId() << std::endl;
 

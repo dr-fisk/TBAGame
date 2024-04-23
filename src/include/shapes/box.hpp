@@ -20,6 +20,7 @@ class Box : public Shape<T>
     void setTopLeft(const T& crPos);
     bool inLocalBounds(const glm::ivec2& crPos) const;
     bool inLocalBounds(const glm::vec2& crPos) const;
+    void operator=(const Box<T>& rhs);
 
     static Box<T> createBoxTopLeft(const T& crPos, const T& crSize);
   private:
@@ -119,6 +120,13 @@ T Box<T>::calcTopLeft() const
   const float DIVISOR = 2.0;
 
   return T(this->mPos.x - (this->mSize.x / DIVISOR), this->mPos.y - (this->mSize.y / DIVISOR));
+}
+
+template <typename T>
+void Box<T>::operator=(const Box<T>& rhs)
+{
+  this->mSize = rhs.mSize;
+  this->mPos = rhs.mPos;
 }
 
 #endif

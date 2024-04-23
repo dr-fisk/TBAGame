@@ -83,12 +83,12 @@ drawableFiles = drawable.cpp \
 								text.cpp \
 								sprite.cpp
 
-renderEngineFiles = renderEngine.cpp \
+renderEngineFiles = resourceManager.cpp \
 										indexBuffer.cpp \
 										shader.cpp \
 										vertexBuffer.cpp \
 										vertexArray.cpp \
-										texture.cpp \
+										texture2D.cpp \
 										frameBuffer.cpp
 
 rendererFiles = renderer2D.cpp \
@@ -96,8 +96,7 @@ rendererFiles = renderer2D.cpp \
 
 inputFiles = input.cpp
 
-graphicsFiles = scrollbar.cpp \
-								textbox.cpp
+graphicsFiles = scrollbar.cpp
 
 dynLibFiles = png.cpp
 

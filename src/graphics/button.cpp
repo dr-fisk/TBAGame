@@ -2,56 +2,22 @@
 #include "window/mouse.hpp"
 #include "renderer/renderer2D.hpp"
 
-//! @brief Constructs Buton
+//! @brief Button constructor
 //!
-//! @param[in] prFont         Font to use for Text in Button
-//! @param[in] crText         String to set in Button
-//! @param[in] prRenderEngine Resource Manager
-//! @param[in] cCharSize      Character Size for Text
-//! @param[in] crPos          Position of Button
-//! @param[in] crSize         Size of Button
+//! @param[in] crBox Dimensions of Button
 //!
-//! @return Button Object
+//! @return Button Object 
 template <typename T>
-Button<T>::Button(std::shared_ptr<Font>& prFont, const std::string& crText,
-                  std::shared_ptr<RenderEngine>& prRenderEngine, const uint8_t cCharSize, const glm::vec2& crPos,
-                  const glm::vec2& crSize)
-{
-  glm::vec2 tempPos(0, 0);
-  mBox = std::make_shared<Sprite>(tempPos, crSize, lg::Transparent);
-  mBox->setLayer(1);
-  mText = std::make_shared<Text>(prFont, crText, prRenderEngine, cCharSize, tempPos);
-  mDefaultColor = lg::Transparent;
-  mHoverColor = lg::Transparent;
-  mPressedColor = lg::Transparent;
-  mState = DEFAULT_STATE;
-  setPos(crPos);
-  mCallback = nullptr;
-  mId = -1;
-  mCallbackDisabled = false;
-  mPressedPadding = glm::vec2(0, 0);
-}
-
-//! @brief Constructs a Button without Text
-//!
-//! @param[in] prRenderEngine Resource Manager
-//! @param[in] crPos          Position of Button
-//! @param[in] crSize         Size of Button
-//!
-//! @return Button Object
-template <typename T>
-Button<T>::Button(std::shared_ptr<RenderEngine>& prRenderEngine, const glm::vec2& crPos,
-                  const glm::vec2& crSize)
+Button<T>::Button(const Box<glm::vec2>& crBox)
 {
   mDefaultColor = lg::Transparent;
   mHoverColor = lg::Transparent;
   mPressedColor = lg::Transparent;
-  mBox = std::make_shared<Sprite>(crPos, crSize, lg::Transparent);
   mState = DEFAULT_STATE;
-  mBox->setLayer(1);
+  mBox.setBox(crBox);
+  mCallbackDisabled = false;
   mCallback = nullptr;
   mId = -1;
-  mCallbackDisabled = false;
   mPressedPadding = glm::vec2(0, 0);
 }
 
@@ -194,9 +160,9 @@ bool Button<T>::clicked(const Event& crEvent)
 template <typename T>
 void Button<T>::movePos(const glm::vec2& crMove, const bool cCheckIfMouseHovering)
 {
-  mBox->movePos(crMove);
+  mBox.movePos(crMove);
 
-  if (nullptr != mText)
+  if (0 != mText.getLength())
   {
     setTextPos();
   }
@@ -211,16 +177,17 @@ void Button<T>::movePos(const glm::vec2& crMove, const bool cCheckIfMouseHoverin
 //!
 //! @return None
 template <typename T>
-void Button<T>::setPos(const glm::vec2& crPos, const bool cCheckIfMouseHovering)
+Button<T>& Button<T>::setPos(const glm::vec2& crPos, const bool cCheckIfMouseHovering)
 {
-  mBox->setPos(crPos);
+  mBox.setPos(crPos);
 
-  if (nullptr != mText)
+  if (0 != mText.getLength())
   {
     setTextPos();
   }
 
   onButtonMoveUpdate(cCheckIfMouseHovering);
+  return *this;
 }
 
 //! @brief Sets the position of Text within the center of the box
@@ -229,9 +196,9 @@ void Button<T>::setPos(const glm::vec2& crPos, const bool cCheckIfMouseHovering)
 template <typename T>
 void Button<T>::setTextPos()
 {
-  glm::vec2 textSize = mText->getSize();
-  glm::vec2 buttonCenter = mBox->getPos();
-  mText->setPos({buttonCenter.x - (textSize.x / 2.0f), buttonCenter.y - (textSize.y / 2.0f)});
+  glm::vec2 textSize = mText.getSize();
+  glm::vec2 buttonCenter = mBox.getPos();
+  mText.setPos({buttonCenter.x - (textSize.x / 2.0f), buttonCenter.y - (textSize.y / 2.0f)});
 }
 
 //! @brief Sets Button Size
@@ -240,14 +207,16 @@ void Button<T>::setTextPos()
 //!
 //! @return None
 template <typename T>
-void Button<T>::setSize(const glm::vec2& crSize)
+Button<T>& Button<T>::setSize(const glm::vec2& crSize)
 {
-  mBox->setSize(crSize);
+  mBox.setSize(crSize);
 
-  if (nullptr != mText)
+  if (0 != mText.getLength())
   {
     setTextPos();
   }
+
+  return *this;
 }
 
 //! @brief Sets the Default Button Color
@@ -256,10 +225,11 @@ void Button<T>::setSize(const glm::vec2& crSize)
 //!
 //! @return None
 template <typename T>
-void Button<T>::setDefaultColor(const lg::Color& crColor)
+Button<T>& Button<T>::setDefaultColor(const lg::Color& crColor)
 {
   mDefaultColor = crColor;
-  mBox->setColor(crColor);
+  mBox.setColor(crColor);
+  return *this;
 }
 
 //! @brief Sets the Button Hover Color
@@ -268,9 +238,10 @@ void Button<T>::setDefaultColor(const lg::Color& crColor)
 //!
 //! @return None
 template <typename T>
-void Button<T>::setHoverColor(const lg::Color& crColor)
+Button<T>& Button<T>::setHoverColor(const lg::Color& crColor)
 {
   mHoverColor = crColor;
+  return *this;
 }
 
 //! @brief Sets the Button Pressed Color
@@ -279,9 +250,10 @@ void Button<T>::setHoverColor(const lg::Color& crColor)
 //!
 //! @return None
 template <typename T>
-void Button<T>::setPressedColor(const lg::Color& crColor)
+Button<T>& Button<T>::setPressedColor(const lg::Color& crColor)
 {
   mPressedColor = crColor;
+  return *this;
 }
 
 //! @brief Determines if Mouse Position is in AABB of button
@@ -292,7 +264,7 @@ void Button<T>::setPressedColor(const lg::Color& crColor)
 template <typename T>
 bool Button<T>::isInAABB(const glm::vec2& crPos)
 {
-  Box<glm::vec2> box = mBox->getBox();
+  Box<glm::vec2> box = mBox.getBox();
   return box.inLocalBounds(crPos);
 }
 
@@ -305,7 +277,7 @@ bool Button<T>::isInAABB(const glm::vec2& crPos)
 template <typename T>
 bool Button<T>::isInAABB(const glm::vec2& crPos, const glm::vec2& crPadding)
 {
-  Box<glm::vec2> box = mBox->getBox();
+  Box<glm::vec2> box = mBox.getBox();
   glm::vec2 size = box.getSize();
   size += crPadding;
   box.setSize(size);
@@ -318,10 +290,11 @@ bool Button<T>::isInAABB(const glm::vec2& crPos, const glm::vec2& crPadding)
 //!
 //! @return None
 template <typename T>
-void Button<T>::setRender(const bool cEnable)
+Button<T>& Button<T>::setRender(const bool cEnable)
 {
-  mBox->setRender(cEnable);
-  mText->setRender(cEnable);
+  mBox.setRender(cEnable);
+  mText.setRender(cEnable);
+  return *this;
 }
 
 //! @brief Sets the ID of Button
@@ -331,9 +304,10 @@ void Button<T>::setRender(const bool cEnable)
 //!
 //! @return None
 template <typename T>
-void Button<T>::setId(const int64_t cId)
+Button<T>& Button<T>::setId(const int64_t cId)
 {
   mId = cId;
+  return *this;
 }
 
 //! @brief Returns current ID of Button
@@ -351,7 +325,7 @@ int64_t Button<T>::getId() const
 template <typename T>
 glm::vec2 Button<T>::getPos() const
 {
-  return mBox->getPos();
+  return mBox.getPos();
 }
 
 //! @brief Gets Button Size
@@ -360,7 +334,7 @@ glm::vec2 Button<T>::getPos() const
 template <typename T>
 glm::vec2 Button<T>::getSize() const
 {
-  return mBox->getSize();
+  return mBox.getSize();
 }
 
 //! @brief Sets the Default Texture for Button to reference
@@ -370,14 +344,16 @@ glm::vec2 Button<T>::getSize() const
 //!
 //! @return None
 template <typename T>
-void Button<T>::setDefaultTexture(const std::shared_ptr<TextureResource>& crpTexture)
+Button<T>& Button<T>::setDefaultTexture(const std::shared_ptr<Texture2D>& crpTexture)
 {
   mDefaultTexture = crpTexture;
 
   if(DEFAULT_STATE == mState)
   {
-    mBox->setTexture(mDefaultTexture);
+    mBox.setTexture(*mDefaultTexture);
   }
+
+  return *this;
 }
 
 //! @brief Sets the Hover Texture for Button to reference
@@ -387,14 +363,16 @@ void Button<T>::setDefaultTexture(const std::shared_ptr<TextureResource>& crpTex
 //!
 //! @return None
 template <typename T>
-void Button<T>::setHoverTexture(const std::shared_ptr<TextureResource>& crpTexture)
+Button<T>& Button<T>::setHoverTexture(const std::shared_ptr<Texture2D>& crpTexture)
 {
   mHoverTexture = crpTexture;
 
   if(HOVER_STATE == mState)
   {
-    mBox->setTexture(mHoverTexture);
+    mBox.setTexture(*mHoverTexture);
   }
+
+  return *this;
 }
 
 //! @brief Sets the Pressed Texture for Button to reference
@@ -404,9 +382,10 @@ void Button<T>::setHoverTexture(const std::shared_ptr<TextureResource>& crpTextu
 //!
 //! @return None
 template <typename T>
-void Button<T>::setPressedTexture(const std::shared_ptr<TextureResource>& crpTexture)
+Button<T>& Button<T>::setPressedTexture(const std::shared_ptr<Texture2D>& crpTexture)
 {
   mPressedTexture = crpTexture;
+  return *this;
 }
 
 //! @brief Sets a value to store in the Button
@@ -415,9 +394,10 @@ void Button<T>::setPressedTexture(const std::shared_ptr<TextureResource>& crpTex
 //!
 //! @return None 
 template <typename T>
-void Button<T>::setValue(const T& rValue)
+Button<T>& Button<T>::setValue(const T& rValue)
 {
   mValue = rValue;
+  return *this;
 }
 
 //! @brief Gets the value stored in the Button
@@ -465,9 +445,10 @@ bool Button<T>::isPressed() const
 //!
 //! @return None 
 template <typename T>
-void Button<T>::setPressedPadding(const glm::vec2& crPadding)
+Button<T>& Button<T>::setPressedPadding(const glm::vec2& crPadding)
 {
   mPressedPadding = crPadding;
+  return *this;
 }
 
 //! @brief Sets the correct Color/Texture depending on button state
@@ -481,31 +462,31 @@ void Button<T>::setButtonTexture()
     case DEFAULT_STATE:
       if(nullptr != mDefaultTexture)
       {
-        mBox->setTexture(mDefaultTexture);
+        mBox.setTexture(*mDefaultTexture);
       }
       else
       {
-        mBox->setColor(mDefaultColor);
+        mBox.setColor(mDefaultColor);
       }
       break;
     case HOVER_STATE:
       if(nullptr != mHoverTexture)
       {
-        mBox->setTexture(mHoverTexture);
+        mBox.setTexture(*mHoverTexture);
       }
       else
       {
-        mBox->setColor(mHoverColor);
+        mBox.setColor(mHoverColor);
       }
       break;
     case PRESSED_STATE:
       if(nullptr != mPressedTexture)
       {
-        mBox->setTexture(mPressedTexture);
+        mBox.setTexture(*mPressedTexture);
       }
       else
       {
-        mBox->setColor(mPressedColor);
+        mBox.setColor(mPressedColor);
       }
       break;
   }
@@ -556,28 +537,38 @@ void Button<T>::onButtonMoveUpdate(const bool cCheckIfMouseHovering)
 template <typename T>
 void Button<T>::draw()
 {
-  mBox->draw();
+  mBox.draw();
 
-  if(nullptr != mText)
+  if(0 != mText.getLength())
   {
-    mText->draw();
+    mText.draw();
   }
 }
 
 template <typename T>
-void Button<T>::setText(const std::string& rText)
+Button<T>& Button<T>::setText(const Text& crText)
 {
-  mText->updateText(rText);
+  mText = crText;
+  setTextPos();
+  return *this;
 }
 
 template <typename T>
-std::string Button<T>::getText() const
+Button<T>& Button<T>::setString(const std::string& crString)
 {
-  return mText->getText();
+  mText.setString(crString);
+  return *this;
 }
 
 template <typename T>
-void Button<T>::setTextColor(const lg::Color &crColor)
+std::string& Button<T>::getString()
 {
-  mText->setColor(crColor);
+  return mText.getString();
+}
+
+template <typename T>
+Button<T>& Button<T>::setTextColor(const lg::Color &crColor)
+{
+  mText.setColor(crColor);
+  return *this;
 }

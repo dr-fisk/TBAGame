@@ -8,50 +8,78 @@
 //!
 //! @param[in]  prFont         Font Object to be used when rendering Text
 //! @param[in]  crText         String to be rendered
-//! @param[out] prRenderEngine Resource Manager to create Texture Resource
+//! @param[out] prResourceMngr Resource Manager to create Texture Resource
 //! @param[in]  cCharSize      Font Size
 //! @param[in]  crPos          Position of Text
 //! @param[in]  cLineWrap      Number of pixels before line of texts wraps under
 //! @param[in]  cLineHeight    Height of Line multiplier
 //!
 //! @return Text Object 
-Text::Text(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<RenderEngine>& prRenderEngine,
-           const uint8_t cCharSize, const glm::vec2& crPos,
-           const int32_t cLineWrap, const float cLineHeight)
-{
-  mpFont = prFont;
-  mText = crText;
-  mLayer = std::numeric_limits<uint32_t>::max();
+// Text::Text(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<ResourceManager>& prResourceMngr,
+//            const uint8_t cCharSize, const glm::vec2& crPos,
+//            const int32_t cLineWrap, const float cLineHeight)
+// {
+//   mpFont = prFont;
+//   mText = crText;
+//   mLayer = std::numeric_limits<uint32_t>::max();
 
-  // mBox.setPos({cLeft, cTop});
-  mLineWrap = cLineWrap;
+//   // mBox.setPos({cLeft, cTop});
+//   mLineWrap = cLineWrap;
+//   mCharSize = cCharSize;
+
+//   if(!mpFont->hasGlyphsLoaded(mCharSize))
+//   {
+//     mpFont->loadGlyphs(mCharSize, prResourceMngr);
+//   }
+
+//   mCapHeight = mpFont->getCapitalHeight();
+//   mAdvancedWidth = (static_cast<float>(mpFont->getAdvancedWidth()) / static_cast<float>(mpFont->getCapitalHeight())) 
+//                    * (mCharSize - 1);
+//   mLineSpace = std::ceil(cLineHeight * mCharSize);
+//   mpTexture = &mpFont->getTexture(mCharSize);
+
+//   gridfitText(crPos);
+//   mGeometryNeedUpdate = false;
+// }
+
+//! @brief Text Constructor
+//!
+//! @param[in]  crFont         Font Object to be used when rendering Text
+//! @param[in]  crText         String to be rendered
+//! @param[in]  cCharSize      Font Size
+//!
+//! @return Text Object 
+Text::Text(const Font& crFont, const std::string& crText, const uint8_t cCharSize)
+{
+  mpFont = &crFont;
+  mText = crText;
   mCharSize = cCharSize;
 
   if(!mpFont->hasGlyphsLoaded(mCharSize))
   {
-    mpFont->loadGlyphs(mCharSize, prRenderEngine);
+    mpFont->loadGlyphs(mCharSize);
   }
 
   mCapHeight = mpFont->getCapitalHeight();
   mAdvancedWidth = (static_cast<float>(mpFont->getAdvancedWidth()) / static_cast<float>(mpFont->getCapitalHeight())) 
                    * (mCharSize - 1);
-  mLineSpace = std::ceil(cLineHeight * mCharSize);
-  mpTexture = mpFont->getResource(mCharSize);
-
-  gridfitText(crPos);
+  mLineSpace = std::ceil(1.2f * mCharSize);
+  mpTexture = &mpFont->getTexture(mCharSize);
+  gridfitText(mBox.getTopLeft());
   mGeometryNeedUpdate = false;
 }
 
 //! @brief Updates Text to be rendered
 //!
-//! @param[in] crText Text to be rendered
+//! @param[in] crString Text to be rendered
 //!
 //! @return None
-void Text::updateText(const std::string& crText)
+Text& Text::setString(const std::string& crString)
 {
   mText.clear();
-  mText = crText;
+  mText = crString;
   mGeometryNeedUpdate = true;
+  return *this;
 }
 
 //! @brief Creates layout of Text
@@ -117,12 +145,12 @@ void Text::gridfitText(const glm::vec2& crTopLeft)
   mBox.setBoxTopLeft(crTopLeft, {left - crTopLeft.x, (top + mCharSize) - crTopLeft.y});
 }
 
-//! @brief Get Texture Resource for Drawable
+//! @brief Get Texture for Drawable
 //!
-//! @return Texture Resource
-std::shared_ptr<TextureResource> Text::getResource()
+//! @return Texture
+const Texture2D& Text::getTexture() const
 {
-  return mpFont->getResource(mCharSize);
+  return *mpTexture;
 }
 
 //! @brief Draws the Text
@@ -170,16 +198,17 @@ void Text::movePos(const glm::vec2& crMoveVector)
 //! @param[in] crPos New Text Position
 //!
 //! @return None
-void Text::setPos(const glm::vec2& crPos)
+Text& Text::setPos(const glm::vec2& crPos)
 {
   mBox.setTopLeft(crPos);
   mGeometryNeedUpdate = true;
+  return *this;
 }
 
 //! @brief Grabs Text String
 //!
 //! @return Text
-std::string Text::getText() const
+std::string& Text::getString()
 {
   return mText;
 }
@@ -243,12 +272,13 @@ Box<glm::vec2> Text::getGlobalBounds(const OrthCamera& crCamera) const
   return Box<glm::vec2>::createBoxTopLeft(topLeft, size);
 }
 
-void Text::setFont(std::shared_ptr<Font>& prFont)
+Text& Text::setFont(const Font& crFont)
 {
-  mpFont = prFont;
+  mpFont = &crFont;
+  return *this;
 }
 
-void Text::setFontSize(const uint8_t cCharSize, std::shared_ptr<RenderEngine>& prRenderEngine)
+Text& Text::setFontSize(const uint8_t cCharSize, std::shared_ptr<ResourceManager>& prResourceMngr)
 {
   if(mpFont)
   {    
@@ -256,45 +286,49 @@ void Text::setFontSize(const uint8_t cCharSize, std::shared_ptr<RenderEngine>& p
 
     if(!mpFont->hasGlyphsLoaded(mCharSize))
     {
-      mpFont->loadGlyphs(mCharSize, prRenderEngine);
+      mpFont->loadGlyphs(mCharSize);
     }
 
     mCapHeight = mpFont->getCapitalHeight();
     mAdvancedWidth = (static_cast<float>(mpFont->getAdvancedWidth()) / static_cast<float>(mpFont->getCapitalHeight()))
                     * (mCharSize - 1);
-    mpTexture = mpFont->getResource(mCharSize);
+    mpTexture = &mpFont->getTexture(mCharSize);
 
     mGeometryNeedUpdate = true;
   }
+
+  return *this;
 }
 
-void Text::setLineWrap(const bool cEnable)
+Text& Text::setLineWrap(const bool cEnable)
 {
   mLineWrap = cEnable;
   mGeometryNeedUpdate = true;
+  return *this;
 }
 
-void Text::insertText(const std::string& crText, const size_t cIndex)
+void Text::insertString(const std::string& crString, const size_t cIndex)
 {
-  mText.insert(cIndex, crText);
+  mText.insert(cIndex, crString);
   mGeometryNeedUpdate = true;
 }
 
-void Text::appendText(const std::string& crText)
+void Text::appendString(const std::string& crString)
 {
-  mText += crText;
+  mText += crString;
   mGeometryNeedUpdate = true;
 }
 
-size_t Text::getNumChars() const
+size_t Text::getLength() const
 {
   return mText.size();
 }
 
-void Text::setColor(const lg::Color &crColor)
+Text& Text::setColor(const lg::Color &crColor)
 {
   mColor = crColor;
   mGeometryNeedUpdate = true;
+  return *this;
 }
 
 void Text::updateQuadColor(std::array<Vertex, sNumQuadVerts>& rVertexes)

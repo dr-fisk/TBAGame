@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <memory>
 
-#include "renderEngine/renderEngine.hpp"
+#include "renderEngine/resourceManager.hpp"
 #include "resource/textureResource.hpp"
 #include "glm/vec2.hpp"
 
@@ -16,7 +16,7 @@ class FrameBuffer
     ~FrameBuffer();
     void bind() const;
     void unbind() const;
-    void invalidate(const glm::uvec2& crDimensions, std::shared_ptr<RenderEngine>& prRenderEngine);
+    void invalidate(const glm::uvec2& crDimensions, std::shared_ptr<ResourceManager>& prResourceMngr);
     std::shared_ptr<TextureResource> getTexture() const;
   private:
     uint32_t mFrameBufferId;

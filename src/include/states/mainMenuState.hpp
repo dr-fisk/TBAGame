@@ -21,7 +21,7 @@
 class MainMenu : public State
 {
   public:
-    MainMenu(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<RenderEngine>& crpRenderEngine);
+    MainMenu(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<ResourceManager>& crpResourceMngr);
     ~MainMenu();
     void fixedUpdate(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);
     void render(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);
@@ -31,7 +31,7 @@ class MainMenu : public State
     static void buttonCallback(const Button<>& rVal);
     static void dropdownCallbacK(const Button<glm::ivec2>& rVal);
     LestTrueType ttf;
-    std::shared_ptr<Font> mNewFont;
+    Font mNewFont;
     std::shared_ptr<Text> mText;
     std::shared_ptr<Sprite> mSprite;
     std::shared_ptr<Sprite> mSprite2;
@@ -47,6 +47,8 @@ class MainMenu : public State
     glm::vec2 curr_pos;
     float xMove;
     float yMove;
+    Texture2D spriteTexture;
+    Texture2D sprite2Texture;
 };
 
 #endif
