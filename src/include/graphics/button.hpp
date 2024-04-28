@@ -4,14 +4,15 @@
 #include <string>
 #include <functional>
 
-#include "graphics/graphics.hpp"
+#include "graphics/component.hpp"
 #include "drawable/sprite.hpp"
+#include "graphics/label.hpp"
 #include "drawable/text.hpp"
 #include "event/event.hpp"
 #include "glm/vec2.hpp"
 
 template <typename T=void *>
-class Button : public Graphics
+class Button : public Component
 {
   public:
     Button() = delete;
@@ -54,9 +55,10 @@ class Button : public Graphics
     
     Sprite mBox;
     Text mText;
-    std::shared_ptr<Texture2D> mDefaultTexture;
-    std::shared_ptr<Texture2D> mHoverTexture;
-    std::shared_ptr<Texture2D> mPressedTexture;
+    Label mLabel;
+    std::shared_ptr<Texture2D> mpDefaultTexture;
+    std::shared_ptr<Texture2D> mpHoverTexture;
+    std::shared_ptr<Texture2D> mpPressedTexture;
     lg::Color mDefaultColor;
     lg::Color mHoverColor;
     lg::Color mPressedColor;

@@ -43,6 +43,10 @@ else
 CFLAGS = -O2
 endif
 
+ifeq (release, $(BUILD))
+CFLAGS += -Wl,-subsystem,windows
+endif
+
 CFLAGS  += -std=c++17 -Wall -Wextra -MMD -MD -I$(INCLPATH) -I$(SRCINCLPATH) -I$(HEADERS) -I$(LESTTTFPATH)
 
 LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -pthread -llestpng -llestttf -static-libgcc -static-libstdc++
@@ -79,7 +83,7 @@ resourceFiles = image.cpp \
 								resource.cpp \
 								textureResource.cpp
 
-drawableFiles = drawable.cpp \
+drawableFiles = dot.cpp \
 								text.cpp \
 								sprite.cpp
 
@@ -96,11 +100,14 @@ rendererFiles = renderer2D.cpp \
 
 inputFiles = input.cpp
 
-graphicsFiles = scrollbar.cpp
+graphicsFiles = component.cpp \
+								scrollbar.cpp \
+                label.cpp
 
 dynLibFiles = png.cpp
 
-utilityFiles = edgeTable.cpp
+utilityFiles = edgeTable.cpp \
+							 transform.cpp
 objs := $(patsubst %.cxx, %.o, $(entrypoint))
 
 objs += $(patsubst %.cpp, %.o, $(linkFiles))

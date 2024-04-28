@@ -60,6 +60,7 @@ class Font
     void generateGlyfData(const char cChar);
     void updateEdges(const char cChar, const uint8_t cCharSize) const;
     GlyfHeader getCharGlyfHeader(const char cChar, const LestTrueType& crTtf);
+    void getFontScale(const char cChar, float& rScaleX, float& rScaleY) const;
 
     // Character raw generated point data, use this to generate new edges with the given size
     typedef std::map<char, FontPage> FontTable;
@@ -70,7 +71,12 @@ class Font
     int32_t mCapHeight;
     int32_t mMaxWidth;
     int32_t mMaxHeight;
+    int32_t mLeftSideBearing;
+    int32_t mRightSideBearing;
+    int32_t mAscender;
+    int32_t mDescender;
     uint16_t mAdvancedWidth;
+    float mUpm;
     std::string mFontFamily;
 };
 

@@ -62,17 +62,7 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
 //! @return None
 void RenderWindow::display()
 {
-  GLCall(glfwSwapBuffers(mpWindow));
-}
-
-//! @brief Draws VBO data to window
-//!
-//! @param cCount Number of Elements to Draw
-//!
-//! @return None 
-void RenderWindow::draw(const uint64_t cCount)
-{
-  GLCall(glDrawElements(GL_TRIANGLES, cCount, GL_UNSIGNED_INT, nullptr));
+  glfwSwapBuffers(mpWindow);
 }
 
 //! @brief Gets window width
@@ -106,41 +96,6 @@ bool RenderWindow::isOpen()
 {
   std::unique_lock<std::mutex> lock(mDataAccesMutex);
   return !glfwWindowShouldClose(mpWindow);
-}
-
-//! @brief Ensures coordinates are never out of bounds from resolution
-//!
-//! @return None
-void RenderWindow::boundCoords(GLfloat *pLeft, GLfloat *pWidth, GLfloat *pTop, GLfloat *pHeight)
-{
-  uint32_t wWidth = getWindowWidth();
-  uint32_t wHeight = getWindowHeight();
-
-  if (*pWidth > wWidth)
-    *pWidth = wWidth;
-
-  if (*pHeight > wHeight)
-    *pHeight = wHeight;
-
-  if (*pLeft > wWidth)
-    *pLeft = wWidth;
-  
-  if (*pHeight > wHeight)
-    *pHeight = wHeight;
-
-  if ((*pLeft + *pWidth) > wWidth) {
-    *pLeft -= *pWidth;
-
-    if (*pLeft < 0.0f)
-      *pLeft = 0.0f;
-  }
-
-  if ((*pTop + *pHeight) > wHeight) {
-    *pTop -= *pHeight;
-
-    if (*pTop < 0.0f)
-      *pTop = 0.0f;
-  }
 }
 
 RenderWindow::~RenderWindow()

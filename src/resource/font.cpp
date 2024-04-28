@@ -470,6 +470,7 @@ void Font::readTtfFile(const std::string& crPath, LestTrueType &rTtf)
   mCapHeight = os2.sCapHeight;
   mMaxWidth = head.xMax - head.xMin;
   mMaxHeight = head.yMax - head.yMin;
+  mUpm = head.unitsPerEm;
   HheaHeader hhea = rTtf.getHheaHeader();
   mAdvancedWidth = hhea.advancedWidthMax;
 }
@@ -567,18 +568,14 @@ void Font::loadGlyphs(const uint32_t cCharSize) const
     }
   }
 
-  std::cout <<"text start\n";
-
   mTextures[size].create(offset.y, offset.x);
 
-  std::cout <<"text genned\n";
   for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
   {
     currChar = static_cast<char>(i);
     mTextures[size].update(mFont[size][currChar].Bitmap.data(), mFont[size][currChar].Dimensions,
                                  mFont[size][currChar].Offset);
   }
-  std::cout <<"text doned\n";
 }
 
 //! @brief Updates edges scaled down to cCharSize

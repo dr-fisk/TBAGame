@@ -220,7 +220,7 @@ void Game::runGame()
     mStates.top()->lateUpdate(mpWindow, FIXED_TIMESTEP);
 
     mStates.top()->render(mpWindow, smoothDeltaTime / FIXED_TIMESTEP);
-    // mpWindow->display();
+    mpWindow->display();
 
     RenderCommand::pollEvents();
 

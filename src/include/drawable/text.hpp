@@ -8,23 +8,19 @@
 #define GLM_FORCE_CTOR_INIT
 #include "vertex.hpp"
 #include "resource/font.hpp"
-#include "drawable.hpp"
+#include "drawable/dot.hpp"
 #include "renderEngine/resourceManager.hpp"
 #include "shapes/box.hpp"
 #include "glm/vec2.hpp"
 #include "renderer/camera.hpp"
 
-class Text : public Drawable
+class Text : public Dot
 {
   public:
-    Text() = default;
-    Text(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<ResourceManager>& prResourceMngr,
-         const uint8_t cCharSize, const glm::vec2& crPos,
-         const int32_t cLineWrap=-1, const float cLineHeight=1.2f);
+    Text();
     Text(const Font& crFont, const std::string& crText, const uint8_t cCharSize=12);
     Text& setString(const std::string& crText);
     const Texture2D& getTexture() const;
-    bool hasResource();
     void movePos(const glm::vec2& crMoveVector);
     Text& setPos(const glm::vec2& crPos);
     Text& setFont(const Font& crFont);
@@ -37,14 +33,19 @@ class Text : public Drawable
     glm::vec2 getPos() const;
     std::string& getString();
     glm::vec2 getSize() const;
+    glm::vec2 getSize2() const;
+    uint8_t getCharSize() const;
     void draw();
+    void draw(const Transform& crTransform);
     ~Text();
     Box<glm::vec2> getGlobalBounds(const OrthCamera& crCamera) const;
   private:
-      void gridfitText(const glm::vec2& crTopLeft);
-      void updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize, 
-                                  std::array<Vertex, sNumQuadVerts>& rVertexes);
-      void updateQuadColor(std::array<Vertex, sNumQuadVerts>& rVertexes);
+    void gridfitText(const glm::vec2& crTopLeft);
+    void updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize, 
+                                std::array<Vertex, sNumQuadVerts>& rVertexes);
+    void updateQuadColor(std::array<Vertex, sNumQuadVerts>& rVertexes);
+    void gridfitText();
+
     struct TextVertexData
     {
       glm::vec2 Pos;
@@ -56,12 +57,12 @@ class Text : public Drawable
     std::string mText;
     std::vector<TextVertexData> mTextVertexes;
     Box<glm::vec2> mBox;
+    glm::vec2 mSize;
     int32_t mLineWrap = -1;
     int32_t mLineSpace;
     uint8_t mCharSize = 12;
     uint16_t mAdvancedWidth;
     int32_t mCapHeight;
-    // std::shared_ptr<TextureResource> mpTexture;
     const Texture2D* mpTexture;
     lg::Color mColor = lg::Black;
 };

@@ -1,46 +1,14 @@
 #include <limits>
+#include <algorithm>
 
 #include "drawable/text.hpp"
 #include "renderer/renderer2D.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-//! @brief Text Constructor
-//!
-//! @param[in]  prFont         Font Object to be used when rendering Text
-//! @param[in]  crText         String to be rendered
-//! @param[out] prResourceMngr Resource Manager to create Texture Resource
-//! @param[in]  cCharSize      Font Size
-//! @param[in]  crPos          Position of Text
-//! @param[in]  cLineWrap      Number of pixels before line of texts wraps under
-//! @param[in]  cLineHeight    Height of Line multiplier
-//!
-//! @return Text Object 
-// Text::Text(std::shared_ptr<Font>& prFont, const std::string& crText, std::shared_ptr<ResourceManager>& prResourceMngr,
-//            const uint8_t cCharSize, const glm::vec2& crPos,
-//            const int32_t cLineWrap, const float cLineHeight)
-// {
-//   mpFont = prFont;
-//   mText = crText;
-//   mLayer = std::numeric_limits<uint32_t>::max();
 
-//   // mBox.setPos({cLeft, cTop});
-//   mLineWrap = cLineWrap;
-//   mCharSize = cCharSize;
-
-//   if(!mpFont->hasGlyphsLoaded(mCharSize))
-//   {
-//     mpFont->loadGlyphs(mCharSize, prResourceMngr);
-//   }
-
-//   mCapHeight = mpFont->getCapitalHeight();
-//   mAdvancedWidth = (static_cast<float>(mpFont->getAdvancedWidth()) / static_cast<float>(mpFont->getCapitalHeight())) 
-//                    * (mCharSize - 1);
-//   mLineSpace = std::ceil(cLineHeight * mCharSize);
-//   mpTexture = &mpFont->getTexture(mCharSize);
-
-//   gridfitText(crPos);
-//   mGeometryNeedUpdate = false;
-// }
+Text::Text() : mpFont(nullptr), mpTexture(nullptr)
+{
+}
 
 //! @brief Text Constructor
 //!
@@ -78,8 +46,80 @@ Text& Text::setString(const std::string& crString)
 {
   mText.clear();
   mText = crString;
-  mGeometryNeedUpdate = true;
+  gridfitText(mBox.getTopLeft());
+  mGeometryNeedUpdate = false;
   return *this;
+}
+
+//! @brief Creates layout of Text
+//!
+//! @return None
+void Text::gridfitText()
+{
+  glm::uvec2 dim(0,0);
+  glm::uvec2 offset(0,0);
+  glm::uvec2 size(0,0);
+  float top = 0;
+  float left = 0;
+  glm::vec2 pos(0.0f, 0.0f);
+  glm::vec2 textCoord(0.0f, 0.0f);
+  lg::Color color = lg::Black;
+  Vertex tempVert;
+  mTextVertexes.clear();
+  mTextVertexes.reserve(mText.size());
+  size = mpTexture->getSize();
+  TextVertexData tempTextVert;
+  float minX = 0;
+  float minY = 0;
+  float maxX = 0;
+  float maxY = 0;
+
+  for(size_t i = 0; i < mText.size(); i ++)
+  {
+    // Update for more dynamic behavior
+    if((0 <= mLineWrap) && (left > mLineWrap))
+    {
+      top += mLineSpace; // replace with top member variable plus linespace
+      left = 0;
+    }
+
+    if((mText[i] == U' ') || (mText[i] == U'\n') || (mText[i] == U'\t'))
+   {
+      switch(static_cast<uint8_t>(mText[i]))
+      {
+        case U' ':
+          left += mAdvancedWidth;
+          break;
+        case U'\n':
+          top += mLineSpace; // replace with top member variable plus linespace
+          left = 0;
+          break;
+        case U'\t':
+          left += (mAdvancedWidth * 4);
+          break;
+      }
+
+      continue;
+  }
+    pos.x = left;
+    pos.y = top;
+
+    dim = mpFont->getCharacterDimensions(mCharSize, mText[i]);
+    pos.y += mpFont->getYBearing(mText[i], mCharSize) + mpFont->getYDescent(mText[i], mCharSize);
+    textCoord.x = dim.x;
+    textCoord.y = dim.y;
+    color = lg::Black;
+    offset = mpFont->getOffset(mText[i], mCharSize);
+    tempTextVert.Pos = pos;
+    tempTextVert.Size = dim;
+    updateTextureCoordinates(offset, dim, tempTextVert.Vertexes);
+    updateQuadColor(tempTextVert.Vertexes);
+
+    mTextVertexes.push_back(tempTextVert);
+    left += dim.x;
+  }
+
+  mSize = glm::vec2{left, (top + mCharSize)};
 }
 
 //! @brief Creates layout of Text
@@ -89,16 +129,13 @@ void Text::gridfitText(const glm::vec2& crTopLeft)
 {
   glm::uvec2 dim(0,0);
   glm::uvec2 offset(0,0);
-  glm::uvec2 size(0,0);
   float top = crTopLeft.y;
   float left = crTopLeft.x;
   glm::vec2 pos(0.0f, 0.0f);
   glm::vec2 textCoord(0.0f, 0.0f);
-  lg::Color color = lg::Black;
   Vertex tempVert;
   mTextVertexes.clear();
   mTextVertexes.reserve(mText.size());
-  size = mpTexture->getSize();
   TextVertexData tempTextVert;
 
   for(size_t i = 0; i < mText.size(); i ++)
@@ -110,18 +147,23 @@ void Text::gridfitText(const glm::vec2& crTopLeft)
       left = crTopLeft.x;
     }
 
-    switch(static_cast<uint8_t>(mText[i]))
+    if((mText[i] == U' ') || (mText[i] == U'\n') || (mText[i] == U'\t'))
     {
-      case U' ':
-        left += mAdvancedWidth;
-        continue;
-      case U'\n':
-        top += mLineSpace; // replace with top member variable plus linespace
-        left = crTopLeft.x;
-        continue;
-      case U'\t':
-        left += (mAdvancedWidth * 4);
-        continue;
+      switch(static_cast<uint8_t>(mText[i]))
+      {
+        case U' ':
+          left += mAdvancedWidth;
+          break;
+        case U'\n':
+          top += mLineSpace;
+          left = crTopLeft.x;
+          break;
+        case U'\t':
+          left += (mAdvancedWidth * 4);
+          break;
+      }
+
+      continue;
     }
 
     pos.x = left;
@@ -131,7 +173,6 @@ void Text::gridfitText(const glm::vec2& crTopLeft)
     pos.y += mpFont->getYBearing(mText[i], mCharSize) + mpFont->getYDescent(mText[i], mCharSize);
     textCoord.x = dim.x;
     textCoord.y = dim.y;
-    color = lg::Black;
     offset = mpFont->getOffset(mText[i], mCharSize);
     tempTextVert.Pos = pos;
     tempTextVert.Size = dim;
@@ -174,12 +215,30 @@ void Text::draw()
   }
 }
 
-//! @brief Check if Text has a resource
+//! @brief Draws text by given tranform to apply to text vertexes
 //!
-//! @return true if Text has resource false otherwise
-bool Text::hasResource()
+//! @param crTransform Transform to apply to text vertexes
+//!
+//! @return None
+void Text::draw(const Transform& crTransform)
 {
-  return nullptr != mpTexture;
+  if(mRender)
+  {
+    if(mGeometryNeedUpdate)
+    {
+      gridfitText();
+    }
+    
+    Transform temp = crTransform;
+    for(auto& vertex : mTextVertexes)
+    {
+      temp.setScale(vertex.Size);
+      temp.setPos({crTransform.getPos().x + vertex.Pos.x, crTransform.getPos().y + vertex.Pos.y});
+      Renderer2D::registerQuad(temp, vertex.Vertexes, mpTexture, {0.0f, 0.0f});
+    }
+
+    mGeometryNeedUpdate = false;
+  }
 }
 
 //! @brief Moves Position by adding x and y values
@@ -219,6 +278,11 @@ std::string& Text::getString()
 glm::vec2 Text::getSize() const
 {
   return mBox.getSize();
+}
+
+glm::vec2 Text::getSize2() const
+{
+  return mSize;
 }
 
 //! @brief Returns Text Position
@@ -272,6 +336,11 @@ Box<glm::vec2> Text::getGlobalBounds(const OrthCamera& crCamera) const
   return Box<glm::vec2>::createBoxTopLeft(topLeft, size);
 }
 
+//! @brief  Attaches font to text
+//!
+//! @param[in] crFont 
+//!
+//! @return None
 Text& Text::setFont(const Font& crFont)
 {
   mpFont = &crFont;
@@ -300,6 +369,11 @@ Text& Text::setFontSize(const uint8_t cCharSize, std::shared_ptr<ResourceManager
   return *this;
 }
 
+//! @brief Enables/disables linewrap functionality
+//!
+//! @param[in] cEnable Enable/Disable boolean
+//!
+//! @return Text reference to chain setters
 Text& Text::setLineWrap(const bool cEnable)
 {
   mLineWrap = cEnable;
@@ -307,23 +381,42 @@ Text& Text::setLineWrap(const bool cEnable)
   return *this;
 }
 
+//! @brief Inserts string to text object
+//!
+//! @param[in] crString String to append
+//! @param[in] cIndex   Index to append string to
+//!
+//! @return None
 void Text::insertString(const std::string& crString, const size_t cIndex)
 {
   mText.insert(cIndex, crString);
   mGeometryNeedUpdate = true;
 }
 
+//! @brief Appends string to end of text object
+//!
+//! @param[in] crString String to append
+//!
+//! @return None 
 void Text::appendString(const std::string& crString)
 {
   mText += crString;
   mGeometryNeedUpdate = true;
 }
 
+//! @brief Gets the length of string member variable
+//!
+//! @return Length of String member variable 
 size_t Text::getLength() const
 {
   return mText.size();
 }
 
+//! @brief Sets the fill color for text
+//!
+//! @param[in] crColor Fill color
+//! 
+//! @return Text reference to chain setters 
 Text& Text::setColor(const lg::Color &crColor)
 {
   mColor = crColor;
@@ -331,6 +424,11 @@ Text& Text::setColor(const lg::Color &crColor)
   return *this;
 }
 
+//! @brief Updates vertexes to fill color
+//!
+//! @param[out] rVertexes Vertexes to set fill color on
+//!
+//! @return None
 void Text::updateQuadColor(std::array<Vertex, sNumQuadVerts>& rVertexes)
 {
   rVertexes[3].OverrideSampleColor = 1.0f;
@@ -341,4 +439,12 @@ void Text::updateQuadColor(std::array<Vertex, sNumQuadVerts>& rVertexes)
   rVertexes[2].Rgba = mColor;
   rVertexes[1].Rgba = mColor;
   rVertexes[0].Rgba = mColor;
+}
+
+//! @brief Gets font character size
+//!
+//! @return Font character size 
+uint8_t Text::getCharSize() const
+{
+  return mCharSize;
 }

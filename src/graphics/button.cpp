@@ -9,6 +9,7 @@
 //! @return Button Object 
 template <typename T>
 Button<T>::Button(const Box<glm::vec2>& crBox)
+: mpDefaultTexture(nullptr), mpHoverTexture(nullptr), mpPressedTexture(nullptr)
 {
   mDefaultColor = lg::Transparent;
   mHoverColor = lg::Transparent;
@@ -19,6 +20,8 @@ Button<T>::Button(const Box<glm::vec2>& crBox)
   mCallback = nullptr;
   mId = -1;
   mPressedPadding = glm::vec2(0, 0);
+  mTransform.setPos(crBox.getPos());
+  mTransform.setScale(crBox.getSize());
 }
 
 //! @brief Sets the Callback function to be called when the button is clicked
@@ -113,6 +116,11 @@ bool Button<T>::mouseButtonRelease(const Event::MouseButtonEvent& crEvent)
 
         return true;
       }
+      else
+      {
+        mState = DEFAULT_STATE;
+        setButtonTexture();
+      }
       break;
   }
 
@@ -161,6 +169,7 @@ template <typename T>
 void Button<T>::movePos(const glm::vec2& crMove, const bool cCheckIfMouseHovering)
 {
   mBox.movePos(crMove);
+  mTransform += crMove;
 
   if (0 != mText.getLength())
   {
@@ -180,6 +189,7 @@ template <typename T>
 Button<T>& Button<T>::setPos(const glm::vec2& crPos, const bool cCheckIfMouseHovering)
 {
   mBox.setPos(crPos);
+  mTransform.setPos(crPos);
 
   if (0 != mText.getLength())
   {
@@ -197,7 +207,7 @@ template <typename T>
 void Button<T>::setTextPos()
 {
   glm::vec2 textSize = mText.getSize();
-  glm::vec2 buttonCenter = mBox.getPos();
+  glm::vec2 buttonCenter = mTransform.getPos();
   mText.setPos({buttonCenter.x - (textSize.x / 2.0f), buttonCenter.y - (textSize.y / 2.0f)});
 }
 
@@ -210,12 +220,7 @@ template <typename T>
 Button<T>& Button<T>::setSize(const glm::vec2& crSize)
 {
   mBox.setSize(crSize);
-
-  if (0 != mText.getLength())
-  {
-    setTextPos();
-  }
-
+  mTransform.setScale(crSize);
   return *this;
 }
 
@@ -264,8 +269,10 @@ Button<T>& Button<T>::setPressedColor(const lg::Color& crColor)
 template <typename T>
 bool Button<T>::isInAABB(const glm::vec2& crPos)
 {
-  Box<glm::vec2> box = mBox.getBox();
-  return box.inLocalBounds(crPos);
+  glm::vec2 topLeft = mTransform.getPos() - (mTransform.getScale() / 2.0f);
+
+  return (crPos.x > topLeft.x) && (crPos.x < (topLeft.x + mTransform.getScale().x)) &&
+        (crPos.y > topLeft.y) && (crPos.y < (topLeft.y + mTransform.getScale().y));
 }
 
 //! @brief Determines if Mouse Position is in AABB of button
@@ -277,11 +284,12 @@ bool Button<T>::isInAABB(const glm::vec2& crPos)
 template <typename T>
 bool Button<T>::isInAABB(const glm::vec2& crPos, const glm::vec2& crPadding)
 {
-  Box<glm::vec2> box = mBox.getBox();
-  glm::vec2 size = box.getSize();
-  size += crPadding;
-  box.setSize(size);
-  return box.inLocalBounds(crPos);
+
+  glm::vec2 size = mTransform.getScale() + crPadding;
+  glm::vec2 topLeft = mTransform.getPos() - (size / 2.0f);
+
+  return (crPos.x > topLeft.x) && (crPos.x < (topLeft.x + size.x)) &&
+        (crPos.y > topLeft.y) && (crPos.y < (topLeft.y + size.y));
 }
 
 //! @brief Sets whether to render Button or not
@@ -346,11 +354,11 @@ glm::vec2 Button<T>::getSize() const
 template <typename T>
 Button<T>& Button<T>::setDefaultTexture(const std::shared_ptr<Texture2D>& crpTexture)
 {
-  mDefaultTexture = crpTexture;
+  mpDefaultTexture = crpTexture;
 
   if(DEFAULT_STATE == mState)
   {
-    mBox.setTexture(*mDefaultTexture);
+    mBox.setTexture(*mpDefaultTexture);
   }
 
   return *this;
@@ -365,11 +373,11 @@ Button<T>& Button<T>::setDefaultTexture(const std::shared_ptr<Texture2D>& crpTex
 template <typename T>
 Button<T>& Button<T>::setHoverTexture(const std::shared_ptr<Texture2D>& crpTexture)
 {
-  mHoverTexture = crpTexture;
+  mpHoverTexture = crpTexture;
 
   if(HOVER_STATE == mState)
   {
-    mBox.setTexture(*mHoverTexture);
+    mBox.setTexture(*mpHoverTexture);
   }
 
   return *this;
@@ -384,7 +392,7 @@ Button<T>& Button<T>::setHoverTexture(const std::shared_ptr<Texture2D>& crpTextu
 template <typename T>
 Button<T>& Button<T>::setPressedTexture(const std::shared_ptr<Texture2D>& crpTexture)
 {
-  mPressedTexture = crpTexture;
+  mpPressedTexture = crpTexture;
   return *this;
 }
 
@@ -460,9 +468,9 @@ void Button<T>::setButtonTexture()
   switch(mState)
   {
     case DEFAULT_STATE:
-      if(nullptr != mDefaultTexture)
+      if(nullptr != mpDefaultTexture)
       {
-        mBox.setTexture(*mDefaultTexture);
+        mBox.setTexture(*mpDefaultTexture);
       }
       else
       {
@@ -470,9 +478,9 @@ void Button<T>::setButtonTexture()
       }
       break;
     case HOVER_STATE:
-      if(nullptr != mHoverTexture)
+      if(nullptr != mpHoverTexture)
       {
-        mBox.setTexture(*mHoverTexture);
+        mBox.setTexture(*mpHoverTexture);
       }
       else
       {
@@ -480,14 +488,15 @@ void Button<T>::setButtonTexture()
       }
       break;
     case PRESSED_STATE:
-      if(nullptr != mPressedTexture)
+      if(nullptr != mpPressedTexture)
       {
-        mBox.setTexture(*mPressedTexture);
+        mBox.setTexture(*mpPressedTexture);
       }
       else
       {
         mBox.setColor(mPressedColor);
       }
+
       break;
   }
 }
@@ -537,12 +546,8 @@ void Button<T>::onButtonMoveUpdate(const bool cCheckIfMouseHovering)
 template <typename T>
 void Button<T>::draw()
 {
-  mBox.draw();
-
-  if(0 != mText.getLength())
-  {
-    mText.draw();
-  }
+  mBox.draw(mTransform);
+  mText.draw();
 }
 
 template <typename T>

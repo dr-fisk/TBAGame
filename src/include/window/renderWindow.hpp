@@ -20,7 +20,6 @@ class RenderWindow : public RenderTarget
       uint32_t getWindowWidth();
       uint32_t getWindowHeight();
       void display();
-      void draw(const uint64_t cCount);
       void setActive();
       void initWindow();
       GLFWwindow *getGlWindow();
@@ -31,7 +30,6 @@ class RenderWindow : public RenderTarget
       std::shared_ptr<RenderWindow> createSharedWindow();
     private:
       void setCallbacks();
-      void boundCoords(GLfloat *pLeft, GLfloat *pWidth, GLfloat *pTop, GLfloat *pHeight);
 
       glm::uvec2 mWindowSize;
       std::string mTitle;

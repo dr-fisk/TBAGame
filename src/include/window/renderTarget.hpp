@@ -13,7 +13,6 @@ class RenderTarget
       RenderTarget() = default;
       ~RenderTarget() = default;
       virtual void display() = 0;
-      virtual void draw(const uint64_t cCount) = 0;
       virtual uint32_t getWindowHeight() = 0;
       virtual uint32_t getWindowWidth() = 0;
       virtual const glm::uvec2& getWindowSize() = 0;

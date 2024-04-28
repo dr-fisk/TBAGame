@@ -51,50 +51,61 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   tempTexture3->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
 
   // This can change to doing the same thing text does for editing colors
-  mButton = std::make_shared<Button<>>(Box(glm::vec2{0, 0}, glm::vec2{200, 50}));
-  Text text = Text(mNewFont, "Iris will be my wife.", 12);
-  mButton->setText(text)
-           .setTextColor(lg::Red)
-           .setDefaultTexture(tempTexture)
-           .setHoverTexture(tempTexture2)
-           .setPressedTexture(tempTexture3);
+  // mButton = std::make_shared<Button<>>(Box(glm::vec2{0, 0}, glm::vec2{200, 50}));
+  // Text text = Text(mNewFont, "Iris will be my wife.", 12);
+  // mButton->setText(text)
+  //          .setTextColor(lg::Red)
+  //          .setDefaultTexture(tempTexture)
+  //          .setHoverTexture(tempTexture2)
+  //          .setPressedTexture(tempTexture3);
 
-  text.setString("Test1")
-      .setColor(lg::Black); 
-  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(Box(glm::vec2{0, 0}, glm::vec2{50, 50})));
-  mButtons[mButtons.size() - 1]->setText(text);
-  text.setString("Iris")
-      .setColor(lg::Pink);
-  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(Box(glm::vec2{0, 0}, glm::vec2{50, 50})));
-  mButtons[mButtons.size() - 1]->setText(text);
-  text.setString("Test3")
-      .setColor(lg::Green);
-  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(Box(glm::vec2{0, 0}, glm::vec2{50, 50})));
-  mButtons[mButtons.size() - 1]->setText(text);
-  mButtons[0]->setValue(glm::ivec2(0,0));
-  mButtons[1]->setValue(glm::ivec2(10,10));
-  mButtons[2]->setValue(glm::ivec2(200,200));
+  // text.setString("Test1")
+  //     .setColor(lg::Black); 
+  // mButtons.push_back(std::make_shared<Button<glm::ivec2>>(Box(glm::vec2{0, 0}, glm::vec2{50, 50})));
+  // mButtons[mButtons.size() - 1]->setText(text);
+  // text.setString("Iris")
+  //     .setColor(lg::Pink);
+  // mButtons.push_back(std::make_shared<Button<glm::ivec2>>(Box(glm::vec2{0, 0}, glm::vec2{50, 50})));
+  // mButtons[mButtons.size() - 1]->setText(text);
+  // text.setString("Test3")
+  //     .setColor(lg::Green);
+  // mButtons.push_back(std::make_shared<Button<glm::ivec2>>(Box(glm::vec2{0, 0}, glm::vec2{50, 50})));
+  // mButtons[mButtons.size() - 1]->setText(text);
+  // mButtons[0]->setValue(glm::ivec2(0,0));
+  // mButtons[1]->setValue(glm::ivec2(10,10));
+  // mButtons[2]->setValue(glm::ivec2(200,200));
 
-  for(auto& button : mButtons)
-  {
-    button->setDefaultColor(lg::Grey);
-    button->setHoverColor(lg::Green);
-    button->setPressedColor(lg::Red);
-    button->onClick(MainMenu::dropdownCallbacK);
-  }
+  // for(auto& button : mButtons)
+  // {
+  //   button->setDefaultColor(lg::Grey);
+  //   button->setHoverColor(lg::Green);
+  //   button->setPressedColor(lg::Red);
+  //   button->onClick(MainMenu::dropdownCallbacK);
+  // }
 
-  mMenu = std::make_shared<DropDownMenu<glm::ivec2>>(2, mButtons, glm::vec2(700.0f, 700.0f), glm::vec2{45.0f, 30.0f});
+  // mMenu = std::make_shared<DropDownMenu<glm::ivec2>>(2, mButtons, glm::vec2(700.0f, 700.0f), glm::vec2{45.0f, 30.0f});
 
-  mButton->setPos({250.0f, 250.0f});
-  mButton->setValue(nullptr);
-  mButton->onClick(MainMenu::buttonCallback);
+  // mButton->setPos({250.0f, 250.0f});
+  // mButton->setValue(nullptr);
+  // mButton->onClick(MainMenu::buttonCallback);
 
-  mScroll = std::make_shared<Scrollbar>(Box(glm::vec2(900, 50), glm::vec2(20, 60)));
-  mScroll->setDefaultColor(lg::Grey)
-          .setHoverColor(lg::Green)
-          .setPressedColor(lg::Green)
-          .setPressedPadding(glm::vec2(50, 50));
+  // mScroll = std::make_shared<Scrollbar>(Box(glm::vec2(900, 50), glm::vec2(20, 60)));
+  // mScroll->setDefaultColor(lg::Grey)
+  //         .setHoverColor(lg::Green)
+  //         .setPressedColor(lg::Green)
+  //         .setPressedPadding(glm::vec2(50, 50));
 
+  Text labelText = Text(mNewFont, "My label.", 12);
+  labelText.setColor(lg::Black);
+  Sprite labelSprite = Sprite(lg::White, Box(glm::vec2(500.0f, 500.0f), glm::vec2(75.0f, 50.0f)));
+  mLabel = std::make_shared<Label>(labelSprite, labelText);
+
+  mLabel->setHorizontalAlign(Label::HorizontalAlign::CENTER);
+  mLabel->setVerticalAlign(Label::VerticalAlign::BOTTOM);
+  mLabel->setPos(glm::vec2(500.0f, 500.0f));
+  mLabel->resize(glm::vec2(75.0f, 50.0f));
+  // mLabel->setSprite(labelSprite);
+  // mLabel->setText(labelText);
   // mFbo = std::make_shared<FrameBuffer>();
   // mFbo->bind();
   // RenderCommand::enableBlend();
@@ -110,7 +121,6 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   curr_pos = mSprite->getPos();
   xMove = 0.0f;
   yMove = 0.0f;
-  std::cout << "State contructed\n";
 }
 
 void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const double cDeltaTime)
@@ -123,9 +133,9 @@ void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const
   // std::cout << glm::to_string(sprite_pos) << std::endl;
   while(crpTarget->pollEvent(tempEvent))
   {
-    mButton->clicked(tempEvent);
-    mMenu->update(tempEvent);
-    mScroll->update(tempEvent);
+    // mButton->clicked(tempEvent);
+    // mMenu->update(tempEvent);
+    // mScroll->update(tempEvent);
 
     switch(tempEvent.Type)
     {
@@ -232,13 +242,14 @@ void MainMenu::render(const std::shared_ptr<RenderTarget>& crpTarget, const doub
   // sprite_pos = mSprite->getPos();
   RenderCommand::clear();
   Renderer2D::beginScene(mCam);
-  mText->draw();
+  // mText->draw();
   mSprite->draw();
   mSprite2->draw();
   mSprite3->draw();
-  mButton->draw();
-  mScroll->draw();
-  mMenu->draw();
+  // mButton->draw();
+  // mScroll->draw();
+  // mMenu->draw();
+  mLabel->draw();
   Renderer2D::endScene();
 }
 

@@ -13,6 +13,7 @@
 #include "drawable/sprite.hpp"
 #include "graphics/button.hpp"
 #include "graphics/dropdownmenu.hpp"
+#include "graphics/label.hpp"
 #include "graphics/scrollbar.hpp"
 #include "renderEngine/frameBuffer.hpp"
 #include "glm/vec2.hpp"
@@ -43,6 +44,7 @@ class MainMenu : public State
     std::shared_ptr<FrameBuffer> mFbo;
     std::shared_ptr<Sprite> mView;
     std::shared_ptr<OrthCamera> mCam;
+    std::shared_ptr<Label> mLabel;
     glm::vec2 sprite_pos;
     glm::vec2 curr_pos;
     float xMove;

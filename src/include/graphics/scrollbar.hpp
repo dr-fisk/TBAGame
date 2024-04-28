@@ -4,11 +4,11 @@
 #include <vector>
 #include <memory>
 
-#include "graphics/graphics.hpp"
+#include "graphics/Component.hpp"
 #include "graphics/button.hpp"
 #include "glm/vec2.hpp"
 
-class Scrollbar : public Graphics
+class Scrollbar : public Component
 {
   public:
     Scrollbar() = delete;
@@ -38,7 +38,7 @@ class Scrollbar : public Graphics
     std::shared_ptr<Button<>> mScrollbarButton;
     float mPrevMousey;
     ScrollbarState mState;
-    std::vector<std::shared_ptr<Graphics>> mGraphicsList;
+    std::vector<std::shared_ptr<Component>> mGraphicsList;
 };
 
 #endif

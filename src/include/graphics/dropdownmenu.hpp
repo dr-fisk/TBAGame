@@ -5,7 +5,7 @@
 #include <vector>
 #include <optional>
 
-#include "graphics/graphics.hpp"
+#include "graphics/component.hpp"
 #include "graphics/button.hpp"
 #include "glm/vec2.hpp"
 
@@ -18,7 +18,7 @@
 //!    Button ID. Note that the Active Button will be ID 0 and all elements in Vector will be incremented by 1
 //!    Map accordingly, or use the function to return Button with given ID
 template <typename T=void *>
-class DropDownMenu : public Graphics
+class DropDownMenu : public Component
 {
   public:
     DropDownMenu() = delete;

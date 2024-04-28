@@ -4,17 +4,13 @@
 #include <chrono>
 #include <mutex>
 #include <condition_variable>
-#include <queue>
 #include <unordered_map>
 #include <shared_mutex>
 
 #define GLM_FORCE_CTOR_INIT
 #include "vertex.hpp"
-#include "glcommon.hpp"
 #include "renderer/renderer2D.hpp"
 #include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/string_cast.hpp"
-#include "math/lestMath.hpp"
 
 static const uint8_t TWO_D_COORDS = 2;
 static const uint8_t TRIANGLE_VERTICES2D = 3;
@@ -36,20 +32,15 @@ enum VertexPositions
   TOP_LEFT
 };
 
-struct TextureCacheData
-{
-  const Texture2D* TexturePtr;
-  bool Bounded;
-};
-
 struct RenderData
 {
   std::shared_ptr<VertexArray> QuadVao;
   std::shared_ptr<VertexBuffer> QuadVbo; // Can be removed soon Vao keeps track of this
   std::shared_ptr<Shader> QuadShader;
   Vertex Quads[sMaxVertices];
-  std::vector<TextureCacheData> TextureCache;
+  std::vector<const Texture2D*> TextureCache;
   uint8_t TextureCacheIndex;
+  uint8_t PrevRenderTextureCacheIndex;
   uint32_t NumVerts;
   uint32_t NumQuadCount;
   glm::mat4 ViewProjection;
@@ -61,8 +52,8 @@ static bool sLimitsDefined = false;
 static glm::vec2 sTextCoords[sNumQuadVerts];
 static glm::vec4 sQuadVertexes[sNumQuadVerts];
 
-std::shared_mutex sSharedMutex;
-std::unordered_map<GLFWwindow*, RenderData> sContextMap;
+static std::shared_mutex sSharedMutex;
+static std::unordered_map<GLFWwindow*, RenderData> sContextMap;
 
 void initNewContext(GLFWwindow* pContext)
 {
@@ -105,6 +96,7 @@ void initNewContext(GLFWwindow* pContext)
   renderData->NumQuadCount = 0;
   renderData->TextureCache.resize(sMaxTextures);
   renderData->TextureCacheIndex = 0;
+  renderData->PrevRenderTextureCacheIndex = 0;
   renderData->VboMutex = std::make_shared<std::mutex>();
   sSharedMutex.unlock();
 }
@@ -127,6 +119,7 @@ void initSharedContext(GLFWwindow* pOriginalContext, GLFWwindow* pNewContext)
   renderData->NumQuadCount = 0;
   renderData->TextureCache.resize(sMaxTextures);
   renderData->TextureCacheIndex = 0;
+  renderData->PrevRenderTextureCacheIndex = 0;
   sSharedMutex.unlock();
 }
 
@@ -179,7 +172,6 @@ void Renderer2D::beginScene(const std::shared_ptr<OrthCamera>& crpCamera)
 
 void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
                               std::array<Vertex, sNumQuadVerts>& rVertexes,
-                              const lg::Color& crColor,
                               const bool cGeometryNeedUpdate)
 {
   GLFWwindow* context = glfwGetCurrentContext();
@@ -191,8 +183,6 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
     nextBatch();
   }
 
-  if(renderData->CameraView->geometryNeedUpdate() || cGeometryNeedUpdate)
-  {
     // Apparently rounding crPos here may potentially cause stutters during movement, float values can cause rasterization issues so it's a trade off
     glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(crPos, 0.0f)) * /*rotation*/ glm::scale(glm::mat4(1.0f),
                                        {crSize.x, crSize.y, 1.0f});
@@ -200,23 +190,100 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
     for(int i = 0; i < sNumQuadVerts; i ++)
     {
       renderData->Quads[renderData->NumVerts].Pos = renderData->ViewProjection * transform * sQuadVertexes[i];
-      renderData->Quads[renderData->NumVerts].Rgba = crColor;
+      renderData->Quads[renderData->NumVerts].Rgba = rVertexes[i].Rgba;
       renderData->Quads[renderData->NumVerts].TextCoord = sTextCoords[i];
       renderData->Quads[renderData->NumVerts].TextureIndex = -1;
       rVertexes[i] = renderData->Quads[renderData->NumVerts];
 
       renderData->NumVerts ++;
     }
-  }
-  else
-  {
-    for(int i = 0; i < sNumQuadVerts; i ++)
-    {
-      rVertexes[i].TextureIndex = -1;
-      renderData->Quads[renderData->NumVerts] = rVertexes[i];
 
-      renderData->NumVerts ++;
+  renderData->NumQuadCount ++;
+  sSharedMutex.unlock_shared();
+}
+
+void Renderer2D::registerQuad(const Transform& crTransform,
+                          std::array<Vertex, sNumQuadVerts>& rVertexes,
+                          const glm::vec2& cOffset)
+{
+  GLFWwindow* context = glfwGetCurrentContext();
+  sSharedMutex.lock_shared();
+  RenderData* renderData = &sContextMap.at(context);
+
+  if(renderData->NumVerts >= sMaxVertices)
+  {
+    nextBatch();
+  }
+
+    // Apparently rounding crPos here may potentially cause stutters during movement, float values can cause rasterization issues so it's a trade off
+  glm::mat4 transform = crTransform.translate(cOffset) * /*rotation*/ glm::scale(glm::mat4(1.0f), glm::vec3{crTransform.getScale(), 1.0f});
+  for(int i = 0; i < sNumQuadVerts; i ++)
+  {
+    renderData->Quads[renderData->NumVerts].Pos = renderData->ViewProjection * transform * sQuadVertexes[i];
+    renderData->Quads[renderData->NumVerts].Rgba = rVertexes[i].Rgba;
+    renderData->Quads[renderData->NumVerts].TextCoord = sTextCoords[i];
+    renderData->Quads[renderData->NumVerts].TextureIndex = -1;
+    rVertexes[i] = renderData->Quads[renderData->NumVerts];
+
+    renderData->NumVerts ++;
+  }
+
+  renderData->NumQuadCount ++;
+  sSharedMutex.unlock_shared();
+}
+
+void Renderer2D::registerQuad(const Transform& crTransform,
+                          std::array<Vertex, sNumQuadVerts>& rVertexes,
+                          const Texture2D* &crpTexture,
+                          const glm::vec2& cOffset)
+{
+  GLFWwindow* context = glfwGetCurrentContext();
+  sSharedMutex.lock_shared();
+  RenderData* renderData = &sContextMap.at(context);
+
+  if(renderData->NumVerts >= sMaxVertices)
+  {
+    nextBatch();
+  }
+
+  float textureIndex = -1.0f;
+  for(size_t i = 0; i < renderData->TextureCacheIndex; i ++)
+  {
+    if(*renderData->TextureCache[i] == *crpTexture)
+    {
+      textureIndex = i;
+      break;
     }
+  }
+
+  if(-1 == textureIndex)
+  {
+    if(renderData->TextureCacheIndex == sMaxTextures)
+    {
+      nextBatch();
+      renderData->TextureCacheIndex = 0;
+      renderData->PrevRenderTextureCacheIndex = 0;
+    }
+
+    renderData->TextureCache[renderData->TextureCacheIndex] = crpTexture;
+    textureIndex = renderData->TextureCacheIndex;
+    renderData->TextureCacheIndex ++;
+  }
+
+  // rotation  glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3{0.0, 0.0, 1.0}) *
+  glm::mat4 transform = crTransform.translate(cOffset) * /*rotation*/ glm::scale(glm::mat4(1.0f), glm::vec3{crTransform.getScale(), 1.0f});
+
+  // Setting default color to purple, so if something bad happens when rendering it's in your face
+  for(int i = 0; i < sNumQuadVerts; i ++)
+  {
+    renderData->Quads[renderData->NumVerts].Pos = renderData->ViewProjection * transform * sQuadVertexes[i];
+    renderData->Quads[renderData->NumVerts].TextCoord = rVertexes[i].TextCoord;
+    renderData->Quads[renderData->NumVerts].TextureIndex = textureIndex;
+    renderData->Quads[renderData->NumVerts].OverrideSampleColor = rVertexes[i].OverrideSampleColor;
+    renderData->Quads[renderData->NumVerts].Rgba = rVertexes[i].Rgba;
+    rVertexes[i] = renderData->Quads[renderData->NumVerts];
+
+    renderData->NumVerts ++;
   }
 
   renderData->NumQuadCount ++;
@@ -232,7 +299,7 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
   sSharedMutex.lock_shared();
   RenderData* renderData = &sContextMap.at(context);
 
-  if(renderData->NumVerts >= sMaxVertices || renderData->TextureCacheIndex == sMaxTextures)
+  if(renderData->NumVerts >= sMaxVertices)
   {
     nextBatch();
   }
@@ -240,7 +307,7 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
   float textureIndex = -1.0f;
   for(size_t i = 0; i < renderData->TextureCacheIndex; i ++)
   {
-    if(*renderData->TextureCache[i].TexturePtr == *crpTexture)
+    if(*renderData->TextureCache[i] == *crpTexture)
     {
       textureIndex = i;
       break;
@@ -249,14 +316,18 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
 
   if(-1 == textureIndex)
   {
-    renderData->TextureCache[renderData->TextureCacheIndex].TexturePtr = crpTexture;
-    renderData->TextureCache[renderData->TextureCacheIndex].Bounded = false;
+    if(renderData->TextureCacheIndex == sMaxTextures)
+    {
+      nextBatch();
+      renderData->TextureCacheIndex = 0;
+      renderData->PrevRenderTextureCacheIndex = 0;
+    }
+
+    renderData->TextureCache[renderData->TextureCacheIndex] = crpTexture;
     textureIndex = renderData->TextureCacheIndex;
     renderData->TextureCacheIndex ++;
   }
 
-  if(renderData->CameraView->geometryNeedUpdate() || cGeometryNeedUpdate)
-  {
     // rotation  glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3{0.0, 0.0, 1.0}) *
     glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(crPos, 0.0f)) * glm::scale(glm::mat4(1.0f),
                                         {crSize.x, crSize.y, 1.0f});
@@ -273,17 +344,7 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
 
       renderData->NumVerts ++;
     }
-  }
-  else
-  {
-    for(int i = 0; i < sNumQuadVerts; i ++)
-    {
-      rVertexes[i].TextureIndex = textureIndex;
-      renderData->Quads[renderData->NumVerts] = rVertexes[i];
 
-      renderData->NumVerts ++;
-    }
-  }
 
   renderData->NumQuadCount ++;
   sSharedMutex.unlock_shared();
@@ -296,7 +357,6 @@ void Renderer2D::endScene()
   sSharedMutex.lock_shared();
   sContextMap.at(context).CameraView->unsetUpdateFlag();
   sSharedMutex.unlock_shared();
-  glfwSwapBuffers(context);
 }
 
 void Renderer2D::initBatch()
@@ -321,19 +381,16 @@ void Renderer2D::flush()
   sSharedMutex.lock_shared();
   RenderData* renderData = &sContextMap.at(context);
 
-  for(size_t i = 0; i < renderData->TextureCacheIndex; i++)
+  for(size_t i = renderData->PrevRenderTextureCacheIndex; i < renderData->TextureCacheIndex; i++)
   {
-    if(!renderData->TextureCache[i].Bounded)
-    {
-      renderData->TextureCache[i].TexturePtr->bind(i);
-      renderData->TextureCache[i].Bounded = true;
-    }
+    renderData->TextureCache[i]->bind(i);
   }
 
+  renderData->PrevRenderTextureCacheIndex = renderData->TextureCacheIndex;
   renderData->VboMutex->lock();
   // Draw stuff
   renderData->QuadVbo->updateVboSubBuffer(0, renderData->NumVerts * sizeof(Vertex), renderData->Quads);
-  GLCall(glDrawElements(GL_TRIANGLES, renderData->NumQuadCount * 6, GL_UNSIGNED_INT, nullptr));
+  glDrawElements(GL_TRIANGLES, renderData->NumQuadCount * 6, GL_UNSIGNED_INT, nullptr);
   renderData->VboMutex->unlock();
   sSharedMutex.unlock_shared();
 }

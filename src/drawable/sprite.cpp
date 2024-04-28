@@ -6,6 +6,53 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/string_cast.hpp"
 
+//! @brief Default Constructor
+//!
+//! @return Sprite Object
+Sprite::Sprite() : mpTexture(nullptr)
+{
+  mDrawFunc = std::bind(&Sprite::drawUntexturedSprite, this);
+  mDrawFunc2 = RegisterDrawCall([=](const Transform& crTransform){ drawUntexturedSprite2(crTransform);});
+}
+
+//! @brief Registers lambda function to bind member functions to std::function
+//!
+//! @param Callback Lambda function to register member function
+//!
+//! @return Function pointer 
+std::function<void(const Transform&)> Sprite::RegisterDrawCall(std::function<void(const Transform&)> Callback)
+{
+  return Callback;
+}
+
+Sprite::Sprite(const Sprite& rSprite)
+{
+  *this = rSprite;
+}
+
+Sprite& Sprite::operator=(const Sprite& rhs)
+{
+  if(this == &rhs)
+  {
+    return *this;
+  }
+
+  
+  mBox = rhs.mBox;
+  mPrevPos = rhs.mPrevPos;
+  mVertexes = rhs.mVertexes;
+  mpTexture = rhs.mpTexture;
+  if(!mpTexture)
+  {
+    mDrawFunc = std::bind(&Sprite::drawUntexturedSprite, this);
+  }
+  else
+  {
+    mDrawFunc = std::bind(&Sprite::drawTexturedSprite, this);
+  }
+  return *this;
+}
+
 //! @brief Sprite Constructor
 //!
 //! @param[in] crTexture Texture of Sprite
@@ -18,6 +65,8 @@ Sprite::Sprite(const Texture2D& crTexture, const Box<glm::vec2>& crBox) : mpText
   mPrevPos = mBox.getPos();
   updateTextureCoordinates(glm::vec2(0.0f, 0.0f), crTexture.getSize());
   mGeometryNeedUpdate = true;
+  mDrawFunc = std::bind(&Sprite::drawTexturedSprite, this);
+  mDrawFunc2 = RegisterDrawCall([=](const Transform& crTransform){ drawTexturedSprite2(crTransform);});
 }
 
 //! @brief Sprite Constructor
@@ -30,8 +79,10 @@ Sprite::Sprite(const lg::Color& crColor, const Box<glm::vec2>& crBox) : mpTextur
 {
   mBox = crBox;
   mPrevPos = mBox.getPos();
-  mColor = crColor;
+  setColor(crColor);
   mGeometryNeedUpdate = true;
+  mDrawFunc = std::bind(&Sprite::drawUntexturedSprite, this);
+  mDrawFunc2 = RegisterDrawCall([=](const Transform& crTransform){ drawUntexturedSprite2(crTransform);});
 }
 
 //! @brief Get Texture for Drawable
@@ -49,26 +100,9 @@ void Sprite::draw()
 {
   if(mRender)
   {
-    // TODO: Update offset for sprites
-    if(nullptr != mpTexture)
-    {
-      Renderer2D::registerQuad(mBox.getTopLeft(), mBox.getSize(), mVertexes, mpTexture, mGeometryNeedUpdate);
-    }
-    else
-    {
-      Renderer2D::registerQuad(mBox.getTopLeft(), mBox.getSize(), mVertexes, mColor, mGeometryNeedUpdate);
-    }
-
+    mDrawFunc();
     mGeometryNeedUpdate = false;
   }
-}
-
-//! @brief Returns if Sprite has a Texture
-//!
-//! @return true if Sprite has a Texture false otherwise
-bool Sprite::hasResource()
-{
-  return (nullptr != mpTexture);
 }
 
 //! @brief Sets Color of Sprite
@@ -79,7 +113,11 @@ bool Sprite::hasResource()
 //! @return None
 Sprite& Sprite::setColor(const lg::Color& crColor)
 {
-  mColor = crColor;
+  for(auto& vertex : mVertexes)
+  {
+    vertex.Rgba = crColor;
+  }
+
   mGeometryNeedUpdate = true;
   return *this;
 }
@@ -155,24 +193,6 @@ Sprite::~Sprite()
 //! @brief Sets Texture for Sprite
 //! TODO: Add the size of the texture to set
 //!
-//! @param[in] crpTexture Texture to set on Sprite
-//! @param[in] cInvert    Inverts texture coordinates
-//!
-//! @return None 
-Sprite& Sprite::setTexture(const std::shared_ptr<TextureResource>& crpTexture, const bool cInvert)
-{
-  glm::vec2 offset(0, 0); // Update offset
-
-  mTexture = crpTexture;
-
-  updateTextureCoordinates(offset, mTexture->getSize());
-  mGeometryNeedUpdate = true;
-  return *this;
-}
-
-//! @brief Sets Texture for Sprite
-//! TODO: Add the size of the texture to set
-//!
 //! @param[in] crTexture  Texture to set on Sprite
 //! @param[in] cInvert    Inverts texture coordinates
 //!
@@ -185,6 +205,8 @@ Sprite& Sprite::setTexture(const Texture2D& crTexture, const bool cInvert)
 
   updateTextureCoordinates(offset, mpTexture->getSize());
   mGeometryNeedUpdate = true;
+  mDrawFunc = std::bind(&Sprite::drawTexturedSprite, this);
+  mDrawFunc2 = RegisterDrawCall([=](const Transform& crTransform){ drawTexturedSprite2(crTransform);});
   return *this;
 }
 
@@ -240,4 +262,48 @@ Box<glm::vec2> Sprite::getGlobalBounds(const OrthCamera& crCamera) const
   glm::vec2 size = crCamera.getViewProjectionMatrix() * transform * BOTTOM_RIGHT;
   size = abs(size - topLeft);
   return Box<glm::vec2>::createBoxTopLeft(topLeft, size);
+}
+
+//! @brief Draws sprite by transform Vertexes by given transform
+//!
+//! @param crTransform Transform to apply to Sprite
+//!
+//! @return None
+void Sprite::draw(const Transform& crTransform)
+{
+  if(mRender)
+  {
+    mDrawFunc2(crTransform);
+    mGeometryNeedUpdate = false;
+  }
+}
+
+//! @brief Callback draw function for untextured sprites
+//!
+//! @param crTransform Transform to apply to Sprite
+//!
+//! @return None
+void Sprite::drawUntexturedSprite2(const Transform& crTransform)
+{
+  Renderer2D::registerQuad(crTransform, mVertexes, crTransform.getScale() / 2.0f);
+}
+
+//! @brief Callback draw function for textured sprites
+//!
+//! @param crTransform Transform to apply to Sprite
+//!
+//! @return None
+void Sprite::drawTexturedSprite2(const Transform& crTransform)
+{
+  Renderer2D::registerQuad(crTransform, mVertexes, mpTexture, crTransform.getScale() / 2.0f);
+}
+
+void Sprite::drawUntexturedSprite()
+{
+  Renderer2D::registerQuad(mBox.getTopLeft(), mBox.getSize(), mVertexes, mGeometryNeedUpdate);
+}
+
+void Sprite::drawTexturedSprite()
+{
+  Renderer2D::registerQuad(mBox.getTopLeft(), mBox.getSize(), mVertexes, mpTexture, mGeometryNeedUpdate);
 }
