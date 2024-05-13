@@ -1,52 +1,57 @@
 #ifndef DROP_DOWN_MENU_HPP
 #define DROP_DOWN_MENU_HPP
 
+//TODO Rename to dropdown menu
+
 #include <memory>
 #include <vector>
-#include <optional>
 
-#include "graphics/component.hpp"
-#include "graphics/button.hpp"
-#include "glm/vec2.hpp"
+#include "graphics/menuItem.hpp"
+#include "shapes/box2D.hpp"
+#include "graphics/menuListener.hpp"
+#include "graphics/popupMenu.hpp"
+#include "graphics/popupMenuListener.hpp"
 
-//! How to use
-//! 1. Provide the Active Button, this will be the button that is displayed when there is no drop down menu
-//! 2. Provide a list of buttons that will be shown when drop down menu exists
-//! 3. Please ensure Active Button is contained within the Button list as well
-//! 4. Optional: Set Callback functions for all buttons, they will be called when that button becomes the active button
-//! 5. Alternatively, if you rather check to see which button was clicked, a std::optional will be returned with the
-//!    Button ID. Note that the Active Button will be ID 0 and all elements in Vector will be incremented by 1
-//!    Map accordingly, or use the function to return Button with given ID
-template <typename T=void *>
-class DropDownMenu : public Component
+class DropdownMenu : public MenuItem, public MenuListener, public PopupMenuListener
 {
   public:
-    DropDownMenu() = delete;
-    DropDownMenu(const uint32_t cActive, const std::vector<std::shared_ptr<Button<T>>>& crButtons,
-                 const glm::vec2& crPos, const glm::vec2& crSize);
-    ~DropDownMenu() = default;
-    std::optional<int32_t> update(const Event& crEvent);
-    std::shared_ptr<Button<T>> getButtonByID(const int32_t cId);
-    void draw();
+    DropdownMenu();
+    ~DropdownMenu() = default;
+    void addMenuItem(const std::shared_ptr<MenuItem> cpMenuItem);
+    void handleEvent(const Event& crEvent) override;
+    void draw() override;
+    DropdownMenu& setMenuLocation(const glm::vec2& crPos);
+    void performAction(const ActionEvent& crEvent) override;
+    void menuDeselected(const MenuEvent& crEvent) override;
+    void menuSelected(const MenuEvent& crEvent) override;
+    void menuCancelled(const MenuEvent& crEvent) override;
+    DropdownMenu& addMenuListener(MenuListener* pListener);
+    void removeMenuListener(const MenuListener* cpListener);
+    void setIsTopLevel(const bool cTop);
+    bool isTopLevel() const;
+    std::shared_ptr<PopupMenu> getPopupMenu() const override;
+    void popupMenuCancelled(const PopupMenuEvent& crEvent) override;
+    void popupMenuWillBecomeInvisible(const PopupMenuEvent& crEvent) override;
+    void popupMenuWillBecomeVisible(const PopupMenuEvent& crEvent) override;
+    bool isPopupMenuVisible() const;
   private:
+    void notifyMenuSelected();
+    void notifyMenuDeselected();
+    void notifyMenuCancelled();
+    // void addMenuItem(const std::shared_ptr<DropdownMenu> cpMenu);
+
     enum DropDownMenuState
     {
-      DEFAULT_STATE,
-      CLICKED_STATE
+      MENU_LIST_SHOW,
+      MENU_LIST_HIDE
     };
 
-    std::shared_ptr<Button<T>> mActiveButton;
-    std::vector<std::shared_ptr<Button<T>>> mButtons;
-    DropDownMenuState mState;
-    glm::vec2 mPos;
-    glm::vec2 mSize;
-
-    void defaultStateHandler(const Event& crEvent);
-    std::optional<int32_t> clickedStateHanlder(const Event& crEvent);
-    void updateDropDown();
-    void showDropDown(const bool cShow);
+    std::shared_ptr<PopupMenu> mpPopupMenu;
+    DropDownMenuState mDropDownState;
+    Box2D<float> mMenuBounds;
+    bool mDefaultMenuLocation;
+    std::vector<MenuListener*> mMenuListeners;
+    bool mTopLevel;
 };
-
-#include "../../graphics/dropdownmenu.cpp"
 
 #endif

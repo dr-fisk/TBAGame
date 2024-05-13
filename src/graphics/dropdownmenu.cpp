@@ -1,189 +1,203 @@
-#include "graphics/dropdownmenu.hpp"
+#include "graphics/dropDownMenu.hpp"
 
-//! @brief Creates DropDownMenu from List of Buttons and Active Button
-//!
-//! @param crActiveIdx  The Active Button to be displayed when DropDown Menu is hidden
-//! @param crButtons The list of Buttons to display when DropDown Menus is shown Note: Active Button should be in list
-//! @param crPos     The Position of the dropdown menu
-//! @param crSize    The size of Buttons
-//!
-//! @return DropDownMenu Object
-template <typename T>
-DropDownMenu<T>::DropDownMenu(const uint32_t cActiveIdx,
-                              const std::vector<std::shared_ptr<Button<T>>>& crButtons,
-                              const glm::vec2& crPos, const glm::vec2& crSize)
+DropdownMenu::DropdownMenu()
 {
-  // Add future throw
-  mActiveButton = crButtons[cActiveIdx];
-  mButtons = crButtons;
-  mPos = crPos;
-  mState = DEFAULT_STATE;
+  // initial bounds should be set to pos + size/2 as button pos is tracked from it's center
+  mDefaultMenuLocation = true;
+  mDropDownState = MENU_LIST_HIDE;
+  mTopLevel = false;
+  mpPopupMenu = std::make_shared<PopupMenu>();
+  mpPopupMenu->setInvoker(this);
+  mpPopupMenu->setVisible(false);
+  mpPopupMenu->addPopupMenuListerner(this);
+}
 
-  uint32_t id = 0;
-
-  for(auto& button : mButtons)
+void DropdownMenu::performAction(const ActionEvent& crEvent)
+{
+  if(this == crEvent.mpSource)
   {
-    button->setId(id);
-    id ++;
-  }
-
-  mActiveButton->setId(id);
-  mActiveButton->setSize(crSize);
-  mActiveButton->setPos(crPos);
-  mActiveButton->disableCallback(true);
-  glm::vec2 nextPos = glm::vec2(crPos.x, crPos.y + crSize.y);
-
-  for(auto& button : mButtons)
-  {
-    if(mActiveButton->getId() != button->getId())
+    std::cout << "Clicked " << getString() << std::endl;
+    if(!mTopLevel)
     {
-      button->setRender(false);
-      button->setSize(crSize);
-      button->setPos(nextPos, false);
-      button->disableCallback(false);
-      nextPos.y = nextPos.y + crSize.y;
+      return;
     }
-  }
 
-  // Size of entire dropdown menu when active
-  mSize.x = abs(crSize.x);
-  mSize.y = abs(nextPos.y - mPos.y);
-}
-
-//! @brief Handles the Default State of the Dropdown Menu checking for when the Active Button gets clicked
-//!
-//! @param crEvent Event to handle
-//!
-//! @return None
-template <typename T>
-void DropDownMenu<T>::defaultStateHandler(const Event& crEvent)
-{
-  if(mActiveButton->clicked(crEvent))
-  {
-    std::cout << "BAM\n";
-    mState = CLICKED_STATE;
-    showDropDown(true);
-  }
-}
-
-//! @brief Updates the Dropdown Menu Button Positions
-//!
-//! @return None
-template <typename T>
-void DropDownMenu<T>::updateDropDown()
-{
-  glm::vec2 pos = mActiveButton->getPos();
-  pos.y += mActiveButton->getSize().y;
-
-  for(auto& button : mButtons)
-  {
-    if(mActiveButton->getId() != button->getId())
+    switch(mDropDownState)
     {
-      button->setPos(pos, false);
-      button->setRender(false);
-      button->disableCallback(false);
-      pos.y += button->getSize().y;
-    }
-  }
-}
-
-//! @brief Handles Clicked behavior for dropdown, whether it's hide dropdown or update Active Button
-//!
-//! @param crEvent Clicked Event to handle
-//!
-//! @return Optional value, it will be set if a valid Button click has occurred
-template <typename T>
-std::optional<int32_t> DropDownMenu<T>::clickedStateHanlder(const Event& crEvent)
-{
-  for(auto& button : mButtons)
-  {
-    if(button->clicked(crEvent))
-    {
-      mState = DEFAULT_STATE;
-      if(mActiveButton->getId() == button->getId())
-      {
-        showDropDown(false);
+      case MENU_LIST_SHOW:
+        mDropDownState = MENU_LIST_HIDE;
+        notifyMenuDeselected();
         break;
-      }
-      else
-      {
-        button->setPos(mActiveButton->getPos());
-        mActiveButton = button;
-        mActiveButton->disableCallback(true);
-        updateDropDown();
-        return std::optional<int32_t>(mActiveButton->getId());
-      }
+      case MENU_LIST_HIDE:
+        mDropDownState = MENU_LIST_SHOW;
+        notifyMenuSelected();
+        break;
+      default:
+        break;
     }
   }
-
-  return std::optional<int32_t>();
 }
 
-//! @brief Handles updating Dropdown Menu given an event
-//!
-//! @param crEvent Event to process
-//!
-//! @return Optional value, it will be set if a valid Button click has occurred
-template <typename T>
-std::optional<int32_t> DropDownMenu<T>::update(const Event& crEvent)
+void DropdownMenu::addMenuItem(const std::shared_ptr<MenuItem> cpMenuItem)
 {
-  switch(mState)
+  // If MenuItem does not have popup menu then it is a regular menu item
+  mpPopupMenu->addItem(cpMenuItem);
+  // cpMenuItem->addActionListener(this);
+  mMenuItemList.push_back(cpMenuItem);
+}
+
+// void DropdownMenu::addMenuItem(const std::shared_ptr<DropdownMenu> cpMenu)
+// {
+//   mpPopupMenu->addItem(cpMenu);
+//   cpMenu->addMenuListener(this);
+//   addMenuListener(cpMenu.get());
+//   mMenuItemList.push_back(cpMenu);
+// }
+
+void DropdownMenu::draw()
+{
+  if(mUpdateUI)
   {
-    case DEFAULT_STATE:
-      defaultStateHandler(crEvent);
+    // updateListBounds();
+    mpPopupMenu->setPreferredSize(mTransform.getScale().x, mTransform.getScale().y);
+    if(!isTopLevel())
+    {
+      mpPopupMenu->setPos({mTransform.getPos().x + (mTransform.getScale().x / 2.0f),
+                        mTransform.getPos().y - (mTransform.getScale().y / 2.0f)});
+    }
+    else
+    {
+      mpPopupMenu->setPos({mTransform.getPos().x - (mTransform.getScale().x / 2.0f),
+                        mTransform.getPos().y + (mTransform.getScale().y / 2.0f)});
+    }
+    mUpdateUI = false;
+  }
+
+  mLabel.draw();
+  mpPopupMenu->draw();
+}
+
+void DropdownMenu::handleEvent(const Event& crEvent)
+{
+  if(!mEnabled)
+  {
+    return;
+  }
+
+  AbstractButton::handleEvent(crEvent);
+
+  switch(mDropDownState)
+  {
+    case MENU_LIST_HIDE:
+      if(!mTopLevel && isHover())
+      {
+        mDropDownState = MENU_LIST_SHOW;
+        mpPopupMenu->setVisible(true);
+      }
       break;
-    case CLICKED_STATE:
-      return clickedStateHanlder(crEvent);
+    case MENU_LIST_SHOW:
+      if(!isPressed() || wasClicked())
+      {
+        mpPopupMenu->handleEvent(crEvent);
+      }
+      break;
     default:
       break;
   }
-  return std::optional<int32_t>();
 }
 
-//! @brief Show/Hide the Dropdown Menu
-//!
-//! @param cShow Show/Hide Dropdown Menu
-//!
-//! @return None 
-template <typename T>
-void DropDownMenu<T>::showDropDown(const bool cShow)
+DropdownMenu& DropdownMenu::setMenuLocation(const glm::vec2& crPos)
 {
-  for(auto& button : mButtons)
+  mpPopupMenu->setMenuLocation(crPos);
+  return *this;
+}
+
+DropdownMenu& DropdownMenu::addMenuListener(MenuListener* pListener)
+{
+  mMenuListeners.push_back(pListener);
+  return *this;
+}
+
+void DropdownMenu::removeMenuListener(const MenuListener* cpListener)
+{
+  for(auto itr = mMenuListeners.begin(); itr != mMenuListeners.end(); itr++)
   {
-    if(mActiveButton->getId() != button->getId())
+    if(*itr == cpListener)
     {
-      button->setRender(cShow);
+      mMenuListeners.erase(itr);
+      break;
     }
   }
 }
 
-//! @brief Searches for Button that correlates to the ID
-//! 
-//! @param cId ID of Button
-//!
-//! @return Button if found, nullptr otherwise 
-template <typename T>
-std::shared_ptr<Button<T>> DropDownMenu<T>::getButtonByID(const int32_t cId)
+void DropdownMenu::notifyMenuSelected()
 {
-  for(const auto& button : mButtons)
+  for(const auto& menuListener : mMenuListeners)
   {
-    if(button->getId() == cId)
-    {
-      return button;
-    }
+    menuListener->menuSelected(MenuEvent(this));
   }
-
-  return nullptr;
 }
 
-//! @brief Draws dropdown Menu
-//!
-//! @return None
-template <typename T>
-void  DropDownMenu<T>::draw()
+void DropdownMenu::notifyMenuDeselected()
 {
-  for(const auto& button : mButtons)
+  for(const auto& menuListener : mMenuListeners)
   {
-    button->draw();
+    menuListener->menuDeselected(MenuEvent(this));
   }
+}
+
+void DropdownMenu::notifyMenuCancelled()
+{
+  for(const auto& menuListener : mMenuListeners)
+  {
+    menuListener->menuCancelled(MenuEvent(this));
+  }
+}
+
+void DropdownMenu::menuDeselected(const MenuEvent& crEvent)
+{
+}
+
+void DropdownMenu::menuSelected(const MenuEvent& crEvent)
+{
+}
+
+void DropdownMenu::menuCancelled(const MenuEvent& crEvent)
+{
+  mDropDownState = MENU_LIST_HIDE;
+}
+
+void DropdownMenu::setIsTopLevel(const bool cTop)
+{
+  mTopLevel = cTop;
+}
+
+bool DropdownMenu::isTopLevel() const
+{
+  return mTopLevel;
+}
+
+std::shared_ptr<PopupMenu> DropdownMenu::getPopupMenu() const
+{
+  return mpPopupMenu;
+}
+
+void DropdownMenu::popupMenuCancelled(const PopupMenuEvent& crEvent)
+{
+  mDropDownState = MENU_LIST_HIDE;
+}
+
+void DropdownMenu::popupMenuWillBecomeInvisible(const PopupMenuEvent& crEvent)
+{
+  mDropDownState = MENU_LIST_HIDE;
+}
+
+void DropdownMenu::popupMenuWillBecomeVisible(const PopupMenuEvent& crEvent)
+{
+  mDropDownState = MENU_LIST_SHOW;
+}
+
+bool DropdownMenu::isPopupMenuVisible() const
+{
+  return mpPopupMenu->isVisible();
 }

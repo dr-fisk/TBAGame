@@ -27,7 +27,7 @@ namespace lg
       gMousePos.y = cY;
 
       Event tempEvent;
-      tempEvent.Type = Event::MouseMove;
+      tempEvent.Type = Event::EventType::MouseMove;
       tempEvent.MousePos.x = cX;
       tempEvent.MousePos.y = cY;
       lg::Input::pushEvent(tempEvent, pWindow);
@@ -48,10 +48,10 @@ namespace lg
       switch(cAction)
       {
         case GLFW_PRESS:
-          tempEvent.Type = Event::MouseButtonPress;
+          tempEvent.Type = Event::EventType::MouseButtonPress;
           break;
         case GLFW_RELEASE:
-          tempEvent.Type = Event::MouseButtonRelease;
+          tempEvent.Type = Event::EventType::MouseButtonRelease;
           break;
       }
 

@@ -448,3 +448,21 @@ uint8_t Text::getCharSize() const
 {
   return mCharSize;
 }
+
+std::vector<Box<glm::vec2>> Text::getBoundingBoxes() const
+{
+  std::vector<Box<glm::vec2>> temp;
+  temp.reserve(mText.size());
+  
+  for(const auto& data : mTextVertexes)
+  {
+    temp.push_back({data.Pos, data.Size});
+  }
+
+  return temp;
+}
+
+const std::string& Text::getString() const
+{
+  return mText;
+}

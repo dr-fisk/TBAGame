@@ -25,21 +25,28 @@ class Label : public Component
     };
 
     Label() = default;
-    Label(const Sprite& crSprite, const Text& crText);
-    Label(const Text& crText, const Sprite& crSprite);
+    Label(const Text& crText);
+    Label(const Transform& crTranform, const Text& crText);
+    Label(const Text& crText, const Transform& crTranform);
     ~Label() = default;
     void draw();
-    Label& setSprite(const Sprite& crSprite);
     Label& setText(const Text& crText);
     Label& setHorizontalAlign(const HorizontalAlign cAlign);
     Label& setVerticalAlign(const VerticalAlign cAlign);
     Label& setTexture(std::shared_ptr<Texture2D> pTexture);
     Label& setBackgroundColor(const lg::Color& crColor);
-    void update();
+    Label& movePos(const glm::vec2& crMove) override;
+    Label& setPos(const glm::vec2& crPos) override;
+    Label& resize(const glm::vec2& crSize) override;
+    Label& setPadding(const glm::vec2& crPadding) override;
+    Label& setString(const std::string& crString);
+    Label& setTextColor(const lg::Color& crColor);
+    Label& setTextPosition(const glm::vec2& crPos);
+    const std::string& getString() const;
   private:
     void horizontalAlign();
     void verticalAlign();
-    std::function<void()> Register(std::function<void()> Callback);
+    void alignText();
 
     Sprite mSprite;
     Text mText;

@@ -19,7 +19,7 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
 {
   std::string temp = "Envy Code R.ttf";
   mStartTime = std::chrono::system_clock::now();
-  std::vector<std::shared_ptr<Button<glm::ivec2>>> mButtons;
+  // std::vector<std::shared_ptr<Button<glm::ivec2>>> mButtons;
 
   mNewFont.loadFromFile(temp, 5);
   std::cout << "Font loaded\n";
@@ -51,13 +51,18 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   tempTexture3->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
 
   // This can change to doing the same thing text does for editing colors
-  // mButton = std::make_shared<Button<>>(Box(glm::vec2{0, 0}, glm::vec2{200, 50}));
-  // Text text = Text(mNewFont, "Iris will be my wife.", 12);
-  // mButton->setText(text)
-  //          .setTextColor(lg::Red)
-  //          .setDefaultTexture(tempTexture)
-  //          .setHoverTexture(tempTexture2)
-  //          .setPressedTexture(tempTexture3);
+  mButton = std::make_shared<Button>();
+  Text text = Text(mNewFont, "Iris will be my wife.", 12);
+  mButton->setText(text)
+           .setTextColor(lg::Red)
+           .setDefaultTexture(tempTexture)
+           .setHoverTexture(tempTexture2)
+           .setPressedTexture(tempTexture3)
+           .setVerticalAlignment(Label::VerticalAlign::CENTER)
+           .setHorizontalAlignment(Label::HorizontalAlign::CENTER)
+           .setPos({250.0f, 250.0f})
+           .resize({200, 50})
+           .onClick(&MainMenu::buttonCallback);
 
   // text.setString("Test1")
   //     .setColor(lg::Black); 
@@ -89,21 +94,80 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   // mButton->setValue(nullptr);
   // mButton->onClick(MainMenu::buttonCallback);
 
-  // mScroll = std::make_shared<Scrollbar>(Box(glm::vec2(900, 50), glm::vec2(20, 60)));
-  // mScroll->setDefaultColor(lg::Grey)
-  //         .setHoverColor(lg::Green)
-  //         .setPressedColor(lg::Green)
-  //         .setPressedPadding(glm::vec2(50, 50));
+  mScroll = std::make_shared<Scrollbar>(Scrollbar::VERTICAL, 0, 800);
+  Button tempButton = Button();
+
+  tempButton.setDefaultColor(lg::Grey)
+          .setHoverColor(lg::Green)
+          .setPressedColor(lg::Green)
+          .setPadding(glm::vec2(50, 50))
+          .setPos({900, 50})
+          .resize({20, 60});
+  mScroll->setButton(tempButton);
 
   Text labelText = Text(mNewFont, "My label.", 12);
   labelText.setColor(lg::Black);
-  Sprite labelSprite = Sprite(lg::White, Box(glm::vec2(500.0f, 500.0f), glm::vec2(75.0f, 50.0f)));
-  mLabel = std::make_shared<Label>(labelSprite, labelText);
-
-  mLabel->setHorizontalAlign(Label::HorizontalAlign::CENTER);
-  mLabel->setVerticalAlign(Label::VerticalAlign::BOTTOM);
+  mLabel = std::make_shared<Label>(labelText);
   mLabel->setPos(glm::vec2(500.0f, 500.0f));
   mLabel->resize(glm::vec2(75.0f, 50.0f));
+  mLabel->setHorizontalAlign(Label::HorizontalAlign::CENTER);
+  mLabel->setVerticalAlign(Label::VerticalAlign::CENTER);
+  mLabel->setBackgroundColor(lg::Yellow);
+
+  mScroll->addComponent(mLabel)
+         .addComponent(mButton);
+
+  mScroll2 = std::make_shared<Scrollbar>(Scrollbar::HORIZONTAL, 0, 1000);
+  tempButton.setDefaultColor(lg::Grey)
+          .setHoverColor(lg::Green)
+          .setPressedColor(lg::Green)
+          .setPadding(glm::vec2(50, 50))
+          .setPos({60, 900})
+          .resize({60, 20});
+  mScroll2->setButton(tempButton);
+  mScroll2->addComponent(mLabel)
+         .addComponent(mButton);
+
+  labelText.setString("Menu");
+  mMenu = std::make_shared<DropdownMenu>();
+  mMenu->setPos({900, 900})
+       .resize({75, 35})
+       .setText(labelText)
+       .setVerticalAlignment(Label::VerticalAlign::CENTER)
+       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  std::shared_ptr<MenuItem> tempMenu = std::make_shared<MenuItem>();
+  labelText.setString("Menu2");
+  tempMenu
+       ->setText(labelText)
+       .setVerticalAlignment(Label::VerticalAlign::CENTER)
+       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  mMenu->addMenuItem(tempMenu);
+  std::shared_ptr<DropdownMenu> menu2 = std::make_shared<DropdownMenu>();
+  labelText.setString("Drop2");
+  menu2->setText(labelText)
+       .setVerticalAlignment(Label::VerticalAlign::CENTER)
+       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  tempMenu = std::make_shared<MenuItem>();
+  labelText.setString("Item2");
+  tempMenu
+       ->setText(labelText)
+       .setVerticalAlignment(Label::VerticalAlign::CENTER)
+       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  menu2->addMenuItem(tempMenu);
+  mMenu->addMenuItem(menu2);
+  std::shared_ptr<DropdownMenu> menu3 = std::make_shared<DropdownMenu>();
+  labelText.setString("Drop3");
+  menu3->setText(labelText)
+       .setVerticalAlignment(Label::VerticalAlign::CENTER)
+       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  tempMenu = std::make_shared<MenuItem>();
+  labelText.setString("Item3");
+  tempMenu
+       ->setText(labelText)
+       .setVerticalAlignment(Label::VerticalAlign::CENTER)
+       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  menu3->addMenuItem(tempMenu);
+  mMenu->addMenuItem(menu3);
   // mLabel->setSprite(labelSprite);
   // mLabel->setText(labelText);
   // mFbo = std::make_shared<FrameBuffer>();
@@ -133,13 +197,14 @@ void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const
   // std::cout << glm::to_string(sprite_pos) << std::endl;
   while(crpTarget->pollEvent(tempEvent))
   {
-    // mButton->clicked(tempEvent);
+    mButton->handleEvent(tempEvent);
     // mMenu->update(tempEvent);
-    // mScroll->update(tempEvent);
-
+    mScroll->update(tempEvent);
+    mScroll2->update(tempEvent);
+    mMenu->handleEvent(tempEvent);
     switch(tempEvent.Type)
     {
-      case Event::KeyPress:
+      case Event::EventType::KeyPress:
       {
         switch(tempEvent.Key.KeyCode)
         {
@@ -161,7 +226,7 @@ void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const
         }
         break;
       }
-      case Event::KeyRelease:
+      case Event::EventType::KeyRelease:
       {
         switch(tempEvent.Key.KeyCode)
         {
@@ -183,7 +248,7 @@ void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const
         }
         break;
       }
-      case Event::WindowResize:
+      case Event::EventType::WindowResize:
       {
         // Viewport needs to be updated on window resize if you want viewport to be same as windowsize
         mCam->setProjection(tempEvent.WindowView.x, tempEvent.WindowView.Width, tempEvent.WindowView.Height, tempEvent.WindowView.y);
@@ -246,9 +311,10 @@ void MainMenu::render(const std::shared_ptr<RenderTarget>& crpTarget, const doub
   mSprite->draw();
   mSprite2->draw();
   mSprite3->draw();
-  // mButton->draw();
-  // mScroll->draw();
-  // mMenu->draw();
+  mButton->draw();
+  mScroll->draw();
+  mScroll2->draw();
+  mMenu->draw();
   mLabel->draw();
   Renderer2D::endScene();
 }
@@ -262,16 +328,12 @@ bool MainMenu::shouldStateExit()
   return false;
 }
 
-void MainMenu::buttonCallback(const Button<>& rVal)
+void MainMenu::buttonCallback()
 {
-  if(rVal.getValue() == nullptr)
-  {
-    std::cout << "Bruhhh\n";
-  }
   std::cout << "Clicked\n";
 }
 
-void MainMenu::dropdownCallbacK(const Button<glm::ivec2>& rVal)
-{
-  std::cout << "(" << rVal.getValue().x << ", " << rVal.getValue().y << ")" << std::endl;
-}
+// void MainMenu::dropdownCallbacK(const Button<glm::ivec2>& rVal)
+// {
+//   std::cout << "(" << rVal.getValue().x << ", " << rVal.getValue().y << ")" << std::endl;
+// }

@@ -15,7 +15,7 @@ namespace lg
         case GLFW_PRESS:
         {
           Event tempEvent;
-          tempEvent.Type = Event::KeyPress;
+          tempEvent.Type = Event::EventType::KeyPress;
           tempEvent.Key.KeyCode = cKey;
           lg::Input::pushEvent(tempEvent, pWindow);
           break;
@@ -25,7 +25,7 @@ namespace lg
         case GLFW_RELEASE:
         {
           Event tempEvent;
-          tempEvent.Type = Event::KeyRelease;
+          tempEvent.Type = Event::EventType::KeyRelease;
           tempEvent.Key.KeyCode = cKey;
           lg::Input::pushEvent(tempEvent, pWindow);
           break;

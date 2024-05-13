@@ -35,7 +35,7 @@ class Event
       float Height;
     };
 
-    enum EventType
+    enum class EventType
     {
       MouseButtonPress,
       MouseButtonRelease,

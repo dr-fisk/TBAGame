@@ -12,7 +12,7 @@
 #include "drawable/text.hpp"
 #include "drawable/sprite.hpp"
 #include "graphics/button.hpp"
-#include "graphics/dropdownmenu.hpp"
+#include "graphics/dropDownMenu.hpp"
 #include "graphics/label.hpp"
 #include "graphics/scrollbar.hpp"
 #include "renderEngine/frameBuffer.hpp"
@@ -29,17 +29,18 @@ class MainMenu : public State
     bool shouldStateExit();
 
   private:
-    static void buttonCallback(const Button<>& rVal);
-    static void dropdownCallbacK(const Button<glm::ivec2>& rVal);
+    static void buttonCallback();
+    // static void dropdownCallbacK(const Button<glm::ivec2>& rVal);
     LestTrueType ttf;
     Font mNewFont;
     std::shared_ptr<Text> mText;
     std::shared_ptr<Sprite> mSprite;
     std::shared_ptr<Sprite> mSprite2;
     std::shared_ptr<Sprite> mSprite3;
-    std::shared_ptr<Button<>> mButton;
+    std::shared_ptr<Button> mButton;
     std::shared_ptr<Scrollbar> mScroll;
-    std::shared_ptr<DropDownMenu<glm::ivec2>> mMenu;
+    std::shared_ptr<Scrollbar> mScroll2;
+    std::shared_ptr<DropdownMenu> mMenu;
     std::chrono::time_point<std::chrono::system_clock> mStartTime;
     std::shared_ptr<FrameBuffer> mFbo;
     std::shared_ptr<Sprite> mView;

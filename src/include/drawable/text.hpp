@@ -32,6 +32,7 @@ class Text : public Dot
     size_t getLength() const;
     glm::vec2 getPos() const;
     std::string& getString();
+    const std::string& getString() const;
     glm::vec2 getSize() const;
     glm::vec2 getSize2() const;
     uint8_t getCharSize() const;
@@ -39,6 +40,7 @@ class Text : public Dot
     void draw(const Transform& crTransform);
     ~Text();
     Box<glm::vec2> getGlobalBounds(const OrthCamera& crCamera) const;
+    std::vector<Box<glm::vec2>> getBoundingBoxes() const;
   private:
     void gridfitText(const glm::vec2& crTopLeft);
     void updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize, 

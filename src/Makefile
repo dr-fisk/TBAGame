@@ -22,6 +22,7 @@ STATEPATH = ./states
 WINDOWPATH = ./window
 RESOURCEPATH = ./resource
 GUIPATH = ./gui
+GRAPHICSEVENTPATH = ./graphicsEvent
 DRAWABLESPATH = ./drawable
 RENDERENGINEPATH = ./renderEngine
 RENDERERPATH = ./renderer
@@ -101,8 +102,18 @@ rendererFiles = renderer2D.cpp \
 inputFiles = input.cpp
 
 graphicsFiles = component.cpp \
+                label.cpp \
+								abstractButton.cpp \
+								button.cpp \
 								scrollbar.cpp \
-                label.cpp
+								menuItem.cpp \
+								dropDownMenu.cpp \
+								popupMenu.cpp
+
+graphicsEventsFiles = itemEvent.cpp \
+											actionEvent.cpp \
+											menuEvent.cpp \
+											popupMenuEvent.cpp
 
 dynLibFiles = png.cpp
 
@@ -132,6 +143,9 @@ rendererObjs = $(addprefix $(RENDERERPATH)/, $(renderer))
 
 graphics = $(patsubst %.cpp, %.o, $(graphicsFiles))
 graphicsObjs = $(addprefix $(GRAPHICSPATH)/, $(graphics))
+
+graphicsEvents = $(patsubst %.cpp, %.o, $(graphicsEventsFiles))
+graphicsEventsObjs = $(addprefix $(GRAPHICSEVENTPATH)/, $(graphicsEventsFiles))
 
 inputs = $(patsubst %.cpp, %.o, $(inputFiles))
 inputObjs = $(addprefix $(INPUTPATH)/, $(inputs))
@@ -198,6 +212,10 @@ $(INPUTPATH):
 	@echo "MAKE	Inputs"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(INPUTPATH)
 
+$(GRAPHICSEVENTPATH):
+	@echo "MAKE	Graphics Events"
+	$(Q)$(MAKE) V=$(V) D=$(D) -C $(GRAPHICSEVENTPATH)
+
 shader:
 		@echo "Copying Shaders"
 		$(Q)cp -r $(SHADERSPATH) $(PATHTOEXEC)
@@ -207,10 +225,10 @@ font:
 		$(Q)cp -r $(FONTSPATH) $(PATHTOEXEC)
 
 $(programs): $(objs) $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RENDERENGINEPATH) $(RENDERERPATH) \
-       $(RESOURCEPATH) $(GRAPHICSPATH) $(UTILITYPATH) $(INPUTPATH)
+       $(RESOURCEPATH) $(GRAPHICSPATH) $(UTILITYPATH) $(INPUTPATH) $(GRAPHICSEVENTPATH)
 	@echo "MAKE $@"
 	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(windowObjs) $(drawableObjs) $(utilitiesObjs) $(renderEngineObjs) \
-	$(rendererObjs) $(resourceObjs) $(graphicsObjs) $(inputObjs) $(LDFLAGS)
+	$(rendererObjs) $(resourceObjs) $(graphicsObjs) $(inputObjs) $(graphicsEventsObjs) $(LDFLAGS)
 	@echo "Checking DIR"
 	$(Q)if [ ! -d $(PATHTOEXEC) ]; then \
 		echo "Creating Win DIR"; \
@@ -297,6 +315,15 @@ clean_window:
 clean_drawable:
 	@echo "Clean Drawable"
 	@for item in ${drawableObjs}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done
+
+clean_graph_events:
+	@echo "Clean Graphics Events"
+	@for item in ${graphicsEventsObjs}; do \
 	if [ -f $${item} ]; then \
 	echo "Rm $${item}"; \
 	rm $${item}; \
@@ -393,6 +420,7 @@ clean_dep:
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(GRAPHICSPATH)
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(RESOURCEPATH)
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(INPUTPATH)
+	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(GRAPHICSEVENTPATH)
 
 clean_exe:
 	@echo "Clean Executable"
@@ -402,7 +430,7 @@ clean_exe:
 	fi
 
 clean: clean_state clean_window clean_drawable clean_lib clean_main clean_dep clean_exe clean_utilities \
-       clean_renderengine clean_renderer clean_graphics clean_resource clean_input
+       clean_renderengine clean_renderer clean_graphics clean_resource clean_input clean_graph_events
 	@echo "Checking win DIR"
 	$(Q)if [ -d $(PATHTOEXEC) ]; then \
 		echo "RM Win DIR"; \
@@ -416,6 +444,6 @@ help:
 	@echo "Makefile will be expanded in the future"
 
 .PRECIOUS: %.o $(STATEPATH)/%.o $(WINDOWPATH)/%.o $(RESOURCEPATH)/%.o $(DRAWABLESPATH)/%.o $(RENDERENGINEPATH)/%.o \
-           $(GRAPHICSPATH)/%.o $(DYNLIBSPATH)/%.so $(UTILITYPATH)/%.o $(INPUTPATH)/%.o $(RENDERERPATH)/%.o
+           $(GRAPHICSPATH)/%.o $(DYNLIBSPATH)/%.so $(UTILITYPATH)/%.o $(INPUTPATH)/%.o $(RENDERERPATH)/%.o $(GRAPHICSEVENTPATH)/%.o
 .PHONY: $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RESOURCEPATH) $(UTILITYPATH) $(RENDERENGINEPATH) \
-        $(GRAPHICSPATH) $(INPUTPATH) $(RENDERERPATH)
+        $(GRAPHICSPATH) $(INPUTPATH) $(RENDERERPATH) $(GRAPHICSEVENTPATH)

@@ -8,8 +8,7 @@
 //! @return Texture2D Object
 Texture2D::Texture2D()
 {
-  GLCall(glCreateTextures(GL_TEXTURE_2D, 1, &mTextureId));
-  std::cout << "Texture ID generated: " << mTextureId << std::endl;
+  glCreateTextures(GL_TEXTURE_2D, 1, &mTextureId);
   mBufferGenerated = false;
 }
 
@@ -31,13 +30,13 @@ int8_t Texture2D::create(const uint32_t cHeight, const uint32_t cWidth, const in
                        const int32_t cFormat)
 {
   std::vector<uint32_t> tempBuffer(cWidth * cHeight, 0);
-  GLCall(glBindTexture(GL_TEXTURE_2D, mTextureId));
-  GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-  GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-  GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-  GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-  GLCall(glTexImage2D(GL_TEXTURE_2D, 0, cInternalFormat, cWidth, cHeight, 0, cFormat, GL_UNSIGNED_BYTE,
-         tempBuffer.data()));
+  glBindTexture(GL_TEXTURE_2D, mTextureId);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexImage2D(GL_TEXTURE_2D, 0, cInternalFormat, cWidth, cHeight, 0, cFormat, GL_UNSIGNED_BYTE,
+         tempBuffer.data());
   unbind();
 
   if( GL_NO_ERROR != glGetError())
@@ -71,10 +70,10 @@ int8_t Texture2D::update(void *pBuffer, const glm::uvec2& crDimensions, const gl
     return -1;
   }
 
-  GLCall(glBindTexture(GL_TEXTURE_2D, mTextureId));
-  GLCall(glTexSubImage2D(GL_TEXTURE_2D, 0, crOffset.x, crOffset.y, crDimensions.x, crDimensions.y, cFormat,
-                         cType, pBuffer));
-  GLCall(glBindTexture(GL_TEXTURE_2D, 0));
+  glBindTexture(GL_TEXTURE_2D, mTextureId);
+  glTexSubImage2D(GL_TEXTURE_2D, 0, crOffset.x, crOffset.y, crDimensions.x, crDimensions.y, cFormat,
+                         cType, pBuffer);
+  glBindTexture(GL_TEXTURE_2D, 0);
   return 0;
 }
 
@@ -86,8 +85,8 @@ int8_t Texture2D::update(void *pBuffer, const glm::uvec2& crDimensions, const gl
 void Texture2D::bind(const int32_t cSlot) const
 {
   //Can select different textures 0-31 depending on platform
-  GLCall(glActiveTexture(GL_TEXTURE0 + cSlot));
-  GLCall(glBindTexture(GL_TEXTURE_2D, mTextureId));
+  glActiveTexture(GL_TEXTURE0 + cSlot);
+  glBindTexture(GL_TEXTURE_2D, mTextureId);
 }
 
 //! @brief Unbinds Texture2D Resource
@@ -95,7 +94,7 @@ void Texture2D::bind(const int32_t cSlot) const
 //! @return None
 void Texture2D::unbind() const
 {
-  GLCall(glBindTexture(GL_TEXTURE_2D, 0));
+  glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 //! @brief Gets Texture2D ID associated with Texture2D Resource
@@ -133,6 +132,5 @@ bool Texture2D::operator==(const Texture2D& rhs) const
 //! @return None
 Texture2D::~Texture2D()
 {
-  std::cout << "Deleting this cunt: " << mTextureId << std::endl;
-  GLCall(glDeleteTextures(1, &mTextureId));
+  glDeleteTextures(1, &mTextureId);
 }
