@@ -232,6 +232,14 @@ void Renderer2D::registerQuad(const Transform& crTransform,
   sSharedMutex.unlock_shared();
 }
 
+//! @brief Registers the quad to be drawn
+//!
+//! @param[in] crTransform  Transform to transform quad to
+//! @param[in] rVertexes    Vertexes associated with quad
+//! @param[in] crpTexture   Texture to draw on quad
+//! @param[in] cOffset      Offset to draw quad from, ex: topLeft is {0, 0} offset, center is {width / 2.0f, height / 2.0f}
+//!
+//! @return None 
 void Renderer2D::registerQuad(const Transform& crTransform,
                           std::array<Vertex, sNumQuadVerts>& rVertexes,
                           const Texture2D* &crpTexture,

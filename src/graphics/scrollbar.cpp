@@ -2,6 +2,13 @@
 
 #include "graphics/scrollbar.hpp"
 
+//! @brief Scrollbar Constructor
+//!
+//! @param[in] cOrientation Orientation of the scrollbar Vertical or Horizontal 
+//! @param[in] cMin         Min Coordinates that matches orientation of scrollbar
+//! @param[in] cMax         Max Coordinates that matches orientation of scrollbar
+//!
+//! @return Scrollbar object
 Scrollbar::Scrollbar(const ScrollbarOrientation cOrientation, const uint32_t cMin, const uint32_t cMax)
 {
   mState = DEFAULT_STATE;
@@ -12,6 +19,11 @@ Scrollbar::Scrollbar(const ScrollbarOrientation cOrientation, const uint32_t cMi
   mMaxBound = cMax;
 }
 
+//! @brief Sets a button to the scrollbar
+//!
+//! @param[in] crButton Button to set
+//! 
+//! @return Scrollbar reference to chain calls 
 Scrollbar& Scrollbar::setButton(const Button& crButton)
 {
   mScrollbarButton = crButton;
@@ -19,6 +31,11 @@ Scrollbar& Scrollbar::setButton(const Button& crButton)
   return *this;
 }
 
+//! @brief Handles the mouse move event
+//!
+//! @param[in] crEvent Mouse Event
+//!
+//! @return None 
 void Scrollbar::mouseMoveEvent(const Event& crEvent)
 {
   glm::vec2 moveVector = {0, 0};
@@ -63,6 +80,11 @@ void Scrollbar::mouseMoveEvent(const Event& crEvent)
   mPrevMousePos = {crEvent.MousePos.x, crEvent.MousePos.y};
 }
 
+//! @brief Udates the scrollbar
+//!
+//! @param crEvent Event to handle
+//!
+//! @return None
 void Scrollbar::update(const Event& crEvent)
 {
   mScrollbarButton.handleEvent(crEvent);
@@ -91,11 +113,19 @@ void Scrollbar::update(const Event& crEvent)
   }
 }
 
+//! @brief Draws the scrollbar
+//!
+//! @return None
 void Scrollbar::draw()
 {
   mScrollbarButton.draw();
 }
 
+//! @brief Adds a component to the scrollbar
+//!
+//! @param[in] pComponent Component to add
+//! 
+//! @return Scrollbar reference to chain event 
 Scrollbar& Scrollbar::addComponent(const std::shared_ptr<Component> pComponent)
 {
   mGraphicsList.push_back(pComponent);

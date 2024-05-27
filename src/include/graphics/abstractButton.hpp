@@ -9,7 +9,7 @@
 #include "graphics/itemListener.hpp"
 #include "graphics/actionListener.hpp"
 
-class AbstractButton : public Component, public ItemListener, public ActionListener
+class AbstractButton : public Component
 {
   public:
     AbstractButton();
@@ -35,8 +35,8 @@ class AbstractButton : public Component, public ItemListener, public ActionListe
     AbstractButton& setString(const std::string& crString);
     AbstractButton& setPadding(const glm::vec2& crPadding);
     AbstractButton& addItemListener(ItemListener* cpItemListener);
-    AbstractButton& addActionListener(ActionListener* cpActionListener);
-    void removeActionListener(const ActionListener* cpActionListener);
+    AbstractButton& addActionListener(ActionListener<AbstractButton>* cpActionListener);
+    void removeActionListener(const ActionListener<AbstractButton>* cpActionListener);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Getters
@@ -46,13 +46,11 @@ class AbstractButton : public Component, public ItemListener, public ActionListe
     glm::vec2 getSize() const;
     bool isPressed() const;
     bool isHover() const;
-
+    bool isDefault() const;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Event Handlers
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual void itemEvent(const ItemEvent& crEvent) override;
-    virtual void performAction(const ActionEvent& crEvent) override;
     virtual void handleEvent(const Event& crEvent);
     virtual void draw() override;
     void onClick(std::function<void()> pFunc);
@@ -64,6 +62,7 @@ class AbstractButton : public Component, public ItemListener, public ActionListe
     bool isInAABB(const glm::vec2& crPos);
     bool isInAABB(const glm::vec2& crPos, const glm::vec2& crPadding);
     void setButtonTexture();
+    virtual void buttonClicked() = 0;
 
     enum ButtonState
     {
@@ -82,7 +81,7 @@ class AbstractButton : public Component, public ItemListener, public ActionListe
     ButtonState mState;
     glm::vec2 mPressedPadding;
     std::list<ItemListener*> mItemListeners;
-    std::list<ActionListener*> mActionListeners;
+    std::list<ActionListener<AbstractButton>*> mActionListeners;
     std::function<void()> mCallback;
     bool mClicked;
 };

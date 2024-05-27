@@ -9,7 +9,6 @@
 #include "vertex.hpp"
 #include "resource/font.hpp"
 #include "drawable/dot.hpp"
-#include "renderEngine/resourceManager.hpp"
 #include "shapes/box.hpp"
 #include "glm/vec2.hpp"
 #include "renderer/camera.hpp"
@@ -24,7 +23,7 @@ class Text : public Dot
     void movePos(const glm::vec2& crMoveVector);
     Text& setPos(const glm::vec2& crPos);
     Text& setFont(const Font& crFont);
-    Text& setFontSize(const uint8_t cCharSize, std::shared_ptr<ResourceManager>& prResourceMngr);
+    Text& setFontSize(const uint8_t cCharSize);
     Text& setLineWrap(const bool cEnable);
     void insertString(const std::string& crString, const size_t cIndex);
     void appendString(const std::string& crString);

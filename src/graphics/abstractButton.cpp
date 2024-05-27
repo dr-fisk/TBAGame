@@ -115,14 +115,13 @@ void AbstractButton::mouseButtonRelease(const Event::MouseButtonEvent& crEvent)
     case PRESSED_STATE:
       if(isInAABB({crEvent.x, crEvent.y}))
       {
-        mState = HOVER_STATE;
-
-        performAction(ActionEvent(this, ActionEvent::ActionEventType::ACTION_OCCURRED));
+        buttonClicked();
         setButtonTexture();
 
         for(const auto& actionListener : mActionListeners)
         {
-          actionListener->performAction(ActionEvent(this, ActionEvent::ActionEventType::ACTION_OCCURRED));
+          actionListener->performAction(ActionEvent<AbstractButton>(this, 
+                                        ActionEvent<AbstractButton>::ActionEventType::ACTION_OCCURRED));
         }
 
         if(mCallback)
@@ -450,38 +449,48 @@ AbstractButton& AbstractButton::setPadding(const glm::vec2& crPadding)
   return *this;
 }
 
+//! @brief Returns whether the button was clicked
+//!
+//! @return true if clicked, false otherwise 
 bool AbstractButton::wasClicked() const
 {
   return mClicked;
 }
 
+//! @brief Returns whether Button is pressed
+//!
+//! @return true if pressed, false otherwise 
 bool AbstractButton::isPressed() const
 {
   return mState == PRESSED_STATE;
 }
 
-void AbstractButton::itemEvent(const ItemEvent& crEvent)
-{
-  std::cout << "Item Event" << std::endl;
-}
-
-void AbstractButton::performAction(const ActionEvent& crEvent)
-{
-}
-
+//! @brief TODO
+//! @param pItemListener 
+//! @return 
 AbstractButton& AbstractButton::addItemListener(ItemListener* pItemListener)
 {
   mItemListeners.push_back(pItemListener);
   return *this;
 }
 
-AbstractButton& AbstractButton::addActionListener(ActionListener* pActionListener)
+//! @brief Adds action listener to listeners list
+//!
+//! @param[in] pActionListener Listener 
+//!
+//! @return Abstract Button reference to chain calls
+AbstractButton& AbstractButton::addActionListener(ActionListener<AbstractButton>* pActionListener)
 {
   mActionListeners.push_back(pActionListener);
   return *this;
 }
 
-void AbstractButton::removeActionListener(const ActionListener* cpActionListener)
+//! @brief Removes action listener from list
+//!
+//! @param[in] cpActionListener Listener
+//!
+//! @return None
+void AbstractButton::removeActionListener(const ActionListener<AbstractButton>* cpActionListener)
 {
   for(auto itr = mActionListeners.begin(); itr != mActionListeners.end();)
   {
@@ -495,7 +504,18 @@ void AbstractButton::removeActionListener(const ActionListener* cpActionListener
   }
 }
 
+//! @brief Returns whether Button has mouse hovering over it
+//!
+//! @return true if mouse hovering over button, false otherwise 
 bool AbstractButton::isHover() const
 {
   return mState == HOVER_STATE;
+}
+
+//! @brief Returns whether Button is in a default state meaning not pressed, not hover
+//!
+//! @return true if button is in default state, false otherwise 
+bool AbstractButton::isDefault() const
+{
+  return mState == DEFAULT_STATE;
 }

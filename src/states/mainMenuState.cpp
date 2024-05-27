@@ -40,6 +40,8 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   std::shared_ptr<Texture2D> tempTexture = std::make_shared<Texture2D>();
   std::shared_ptr<Texture2D> tempTexture2 = std::make_shared<Texture2D>();
   std::shared_ptr<Texture2D> tempTexture3 = std::make_shared<Texture2D>();
+  borderedImgTest.create(tempImg.getDimensions().y, tempImg.getDimensions().x, tempImg.getInternalFormat());
+  borderedImgTest.update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
   tempImg.recolorBorderedShape(lg::Color(135, 135, 135), lg::Color(170, 170, 170), lg::White);
   tempTexture->create(tempImg.getDimensions().y, tempImg.getDimensions().x, tempImg.getInternalFormat());
   tempTexture->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
@@ -49,6 +51,9 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   tempImg.recolorBorderedShape(lg::Color(230, 230, 230), lg::Color(230, 230, 230), lg::Color(170, 170, 170));
   tempTexture3->create(tempImg.getDimensions().y, tempImg.getDimensions().x, tempImg.getInternalFormat());
   tempTexture3->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
+  mNineSliced = std::make_unique<SlicedSprite>();
+  mNineSliced->setTexture(borderedImgTest);
+  mNineSliced->setAllBorders(5, 5, 5, 5);
 
   // This can change to doing the same thing text does for editing colors
   mButton = std::make_shared<Button>();
@@ -63,36 +68,6 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
            .setPos({250.0f, 250.0f})
            .resize({200, 50})
            .onClick(&MainMenu::buttonCallback);
-
-  // text.setString("Test1")
-  //     .setColor(lg::Black); 
-  // mButtons.push_back(std::make_shared<Button<glm::ivec2>>(Box(glm::vec2{0, 0}, glm::vec2{50, 50})));
-  // mButtons[mButtons.size() - 1]->setText(text);
-  // text.setString("Iris")
-  //     .setColor(lg::Pink);
-  // mButtons.push_back(std::make_shared<Button<glm::ivec2>>(Box(glm::vec2{0, 0}, glm::vec2{50, 50})));
-  // mButtons[mButtons.size() - 1]->setText(text);
-  // text.setString("Test3")
-  //     .setColor(lg::Green);
-  // mButtons.push_back(std::make_shared<Button<glm::ivec2>>(Box(glm::vec2{0, 0}, glm::vec2{50, 50})));
-  // mButtons[mButtons.size() - 1]->setText(text);
-  // mButtons[0]->setValue(glm::ivec2(0,0));
-  // mButtons[1]->setValue(glm::ivec2(10,10));
-  // mButtons[2]->setValue(glm::ivec2(200,200));
-
-  // for(auto& button : mButtons)
-  // {
-  //   button->setDefaultColor(lg::Grey);
-  //   button->setHoverColor(lg::Green);
-  //   button->setPressedColor(lg::Red);
-  //   button->onClick(MainMenu::dropdownCallbacK);
-  // }
-
-  // mMenu = std::make_shared<DropDownMenu<glm::ivec2>>(2, mButtons, glm::vec2(700.0f, 700.0f), glm::vec2{45.0f, 30.0f});
-
-  // mButton->setPos({250.0f, 250.0f});
-  // mButton->setValue(nullptr);
-  // mButton->onClick(MainMenu::buttonCallback);
 
   mScroll = std::make_shared<Scrollbar>(Scrollbar::VERTICAL, 0, 800);
   Button tempButton = Button();
@@ -129,7 +104,7 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
          .addComponent(mButton);
 
   labelText.setString("Menu");
-  mMenu = std::make_shared<DropdownMenu>();
+  mMenu = std::make_shared<Menu>();
   mMenu->setPos({900, 900})
        .resize({75, 35})
        .setText(labelText)
@@ -142,7 +117,7 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
        .setVerticalAlignment(Label::VerticalAlign::CENTER)
        .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
   mMenu->addMenuItem(tempMenu);
-  std::shared_ptr<DropdownMenu> menu2 = std::make_shared<DropdownMenu>();
+  std::shared_ptr<Menu> menu2 = std::make_shared<Menu>();
   labelText.setString("Drop2");
   menu2->setText(labelText)
        .setVerticalAlignment(Label::VerticalAlign::CENTER)
@@ -155,7 +130,7 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
        .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
   menu2->addMenuItem(tempMenu);
   mMenu->addMenuItem(menu2);
-  std::shared_ptr<DropdownMenu> menu3 = std::make_shared<DropdownMenu>();
+  std::shared_ptr<Menu> menu3 = std::make_shared<Menu>();
   labelText.setString("Drop3");
   menu3->setText(labelText)
        .setVerticalAlignment(Label::VerticalAlign::CENTER)
@@ -198,7 +173,6 @@ void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const
   while(crpTarget->pollEvent(tempEvent))
   {
     mButton->handleEvent(tempEvent);
-    // mMenu->update(tempEvent);
     mScroll->update(tempEvent);
     mScroll2->update(tempEvent);
     mMenu->handleEvent(tempEvent);
@@ -307,6 +281,9 @@ void MainMenu::render(const std::shared_ptr<RenderTarget>& crpTarget, const doub
   // sprite_pos = mSprite->getPos();
   RenderCommand::clear();
   Renderer2D::beginScene(mCam);
+  Transform test;
+  test.setPos({650.0f, 650.0f});
+  test.setScale({200.0f, 50.0f});
   // mText->draw();
   mSprite->draw();
   mSprite2->draw();
@@ -316,6 +293,7 @@ void MainMenu::render(const std::shared_ptr<RenderTarget>& crpTarget, const doub
   mScroll2->draw();
   mMenu->draw();
   mLabel->draw();
+  mNineSliced->draw(test);
   Renderer2D::endScene();
 }
 

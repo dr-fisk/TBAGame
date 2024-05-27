@@ -3,6 +3,7 @@
 
 #include "graphics/component.hpp"
 
+template <typename T>
 class ActionEvent
 {
   public:
@@ -14,10 +15,12 @@ class ActionEvent
       ACTION_OCCURRED
     };
 
-    ActionEvent(Component* pSource, const ActionEventType cType);
+    ActionEvent(T* pSource, const ActionEventType cType);
 
-    Component* mpSource;
+    T* mpSource;
     ActionEventType mType;
 };
+
+#include "../../graphicsEvent/actionEvent.cpp"
 
 #endif

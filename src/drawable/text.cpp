@@ -347,7 +347,7 @@ Text& Text::setFont(const Font& crFont)
   return *this;
 }
 
-Text& Text::setFontSize(const uint8_t cCharSize, std::shared_ptr<ResourceManager>& prResourceMngr)
+Text& Text::setFontSize(const uint8_t cCharSize)
 {
   if(mpFont)
   {    

@@ -100,6 +100,14 @@ Button& Button::setPressedPadding(const glm::vec2& crPadding)
   return *this;
 }
 
+//! @brief Handles a button click event
+//!
+//! @return None
+void Button::buttonClicked()
+{
+  mState = HOVER_STATE;
+}
+
 //! @brief Sets the correct Color/Texture depending on button state
 //!
 //! @return None 

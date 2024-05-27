@@ -42,15 +42,14 @@ void FrameBuffer::unbind() const
 //! @brief Invalidates the current FrameBuffer Object
 //!
 //! @param[in] crDimensions   Dimensions to set the Frame Buffer Object Color attachment
-//! @param[in] prResourceMngr The render engine to get a texture resource from
 //!
 //! @return None 
-void FrameBuffer::invalidate(const glm::uvec2& crDimensions, std::shared_ptr<ResourceManager>& prResourceMngr)
+void FrameBuffer::invalidate(const glm::uvec2& crDimensions)
 {
   bind();
-  mTexture = std::make_shared<TextureResource>("FBO1", prResourceMngr, crDimensions, GL_RGB8, GL_RGB);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture->getTextureId(), 0);
-  std::cout << "Texture binded: " << mTexture->getTextureId() << std::endl;
+  mTexture.create(crDimensions.y, crDimensions.x, GL_RGB8, GL_RGB);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture.getTextureId(), 0);
+  std::cout << "Texture binded: " << mTexture.getTextureId() << std::endl;
 
   glGenRenderbuffers(1, &mRenderBufferId);
   glBindRenderbuffer(GL_RENDERBUFFER, mRenderBufferId);
@@ -76,7 +75,7 @@ void FrameBuffer::invalidate(const glm::uvec2& crDimensions, std::shared_ptr<Res
 //! @brief Gets the Texture attached to the Frame Buffer Object
 //!
 //! @return Texture Resource
-std::shared_ptr<TextureResource> FrameBuffer::getTexture() const
+Texture2D FrameBuffer::getTexture() const
 {
   return mTexture;
 }

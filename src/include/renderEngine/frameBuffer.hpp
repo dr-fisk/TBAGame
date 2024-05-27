@@ -4,8 +4,7 @@
 #include <cstdint>
 #include <memory>
 
-#include "renderEngine/resourceManager.hpp"
-#include "resource/textureResource.hpp"
+#include "renderEngine/texture2D.hpp"
 #include "glm/vec2.hpp"
 
 class FrameBuffer
@@ -16,12 +15,12 @@ class FrameBuffer
     ~FrameBuffer();
     void bind() const;
     void unbind() const;
-    void invalidate(const glm::uvec2& crDimensions, std::shared_ptr<ResourceManager>& prResourceMngr);
-    std::shared_ptr<TextureResource> getTexture() const;
+    void invalidate(const glm::uvec2& crDimensions);
+    Texture2D getTexture() const;
   private:
     uint32_t mFrameBufferId;
     uint32_t mRenderBufferId;
-    std::shared_ptr<TextureResource> mTexture;
+    Texture2D mTexture;
 };
 
 #endif

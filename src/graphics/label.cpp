@@ -1,5 +1,10 @@
 #include "graphics/label.hpp"
 
+//! @brief Constructs a label with specified text object
+//!
+//! @param[in] crText Text to set to label
+//!
+//! @return Label Object 
 Label::Label(const Text& crText)
 {
   mSprite.setBox({mTransform.getPos(), mTransform.getScale()});
@@ -9,16 +14,28 @@ Label::Label(const Text& crText)
   mUpdateUI = true;
 }
 
-Label::Label(const Transform& crTranform, const Text& crText)
+//! @brief Constructs a label with specified transform and text
+//!
+//! @param[in] crTranform Transform to set
+//! @param[in] crText     crText Text to set to label
+//!
+//! @return Label Object
+Label::Label(const Transform& crTransform, const Text& crText)
 {
-  mSprite.setBox({{0, 0}, crTranform.getScale()});
-  mTransform = crTranform;
+  mSprite.setBox({{0, 0}, crTransform.getScale()});
+  mTransform = crTransform;
   mText = crText;
   mHorizontalAlign = HorizontalAlign::NONE;
   mVerticalAlign = VerticalAlign::NONE;
   mUpdateUI = true;
 }
 
+//! @brief Constructs a label with specified transform and text
+//!
+//! @param[in] crText     crText Text to set to label
+//! @param[in] crTranform Transform to set
+//!
+//! @return Label Object
 Label::Label(const Text& crText, const Transform& crTranform)
 {
   mSprite.setBox({{0, 0}, crTranform.getScale()});
@@ -27,6 +44,9 @@ Label::Label(const Text& crText, const Transform& crTranform)
   mUpdateUI = true;
 }
 
+//! @brief Draws the label
+//!
+//! @return None
 void Label::draw()
 {
   if(mUpdateUI)
@@ -39,6 +59,11 @@ void Label::draw()
   mText.draw(mTextTransform);
 }
 
+//! @brief Sets the text on the Label
+//!
+//! @param[in] crText Text to set on label
+//!
+//! @return Label reference to chain calls
 Label& Label::setText(const Text& crText)
 {
   mText = crText;
@@ -46,12 +71,21 @@ Label& Label::setText(const Text& crText)
   return *this;
 }
 
+//! @brief Sets the vertical alignment of the text
+//!
+//! @param[in] cAlign Vertical alignment
+//! 
+//! @return Label reference to chain calls 
 Label& Label::setVerticalAlign(const VerticalAlign cAlign)
 {
   mVerticalAlign = cAlign;
   mUpdateUI = true;
   return *this;
 }
+
+//! @brief Aligns the text vertically on the associated sprite
+//!
+//! @return None
 void Label::verticalAlign()
 {
   switch(mVerticalAlign)
@@ -86,6 +120,11 @@ void Label::verticalAlign()
   }
 }
 
+//! @brief Sets the horizontal alignment of the text
+//!
+//! @param[in] cAlign Horizontal alignment
+//! 
+//! @return Label reference to chain calls 
 Label& Label::setHorizontalAlign(const HorizontalAlign cAlign)
 {
   mHorizontalAlign = cAlign;
@@ -93,6 +132,9 @@ Label& Label::setHorizontalAlign(const HorizontalAlign cAlign)
   return *this;
 }
 
+//! @brief Aligns the text horizontally on the associated sprite
+//!
+//! @return None
 void Label::horizontalAlign()
 {
   switch(mHorizontalAlign)
@@ -127,6 +169,11 @@ void Label::horizontalAlign()
   }
 }
 
+//! @brief Sets the texture of the sprite associated with the label
+//!
+//! @param[in] pTexture Texture to set
+//!
+//! @return Label reference to chain calls
 Label& Label::setTexture(std::shared_ptr<Texture2D> pTexture)
 {
   mpTexture = pTexture;
@@ -134,12 +181,22 @@ Label& Label::setTexture(std::shared_ptr<Texture2D> pTexture)
   return *this;
 }
 
+//! @brief Sets the backgrounds color of the sprite
+//!        Note: If sprite is textured this won't be used 
+//! @param[in] crColor Color
+//!
+//! @return Label reference to chain calls
 Label& Label::setBackgroundColor(const lg::Color& crColor)
 {
   mSprite.setColor(crColor);
   return *this;
 }
 
+//! @brief Move label by specified amount
+//!
+//! @param[in] crMove Amount to move label
+//!
+//! @return Label reference to chain calls
 Label& Label::movePos(const glm::vec2& crMove)
 {
   mTransform += crMove;
@@ -147,6 +204,11 @@ Label& Label::movePos(const glm::vec2& crMove)
   return *this;
 }
 
+//! @brief Sets the Label Position
+//!
+//! @param[in] crPos Position
+//!
+//! @return Label reference to chain calls
 Label& Label::setPos(const glm::vec2& crPos)
 {
   mTransform.setPos(crPos);
@@ -154,6 +216,11 @@ Label& Label::setPos(const glm::vec2& crPos)
   return *this;
 }
 
+//! @brief Sets the Label Size
+//!
+//! @param[in] crSize Size
+//!
+//! @return Label reference to chain calls
 Label& Label::resize(const glm::vec2& crSize)
 {
   mTransform.setScale(crSize);
@@ -167,12 +234,20 @@ Label& Label::setPadding(const glm::vec2& crPadding)
   return *this;
 }
 
+//! @brief Aligns Label Text to it's horizontal and vertical alignment
+//!
+//! @return None
 void Label::alignText()
 {
   horizontalAlign();
   verticalAlign();
 }
 
+//! @brief Sets the Label String
+//!
+//! @param[in] crString New Label String
+//!
+//! @return Label reference to chain calls
 Label& Label::setString(const std::string& crString)
 {
   mText.setString(crString);
@@ -180,17 +255,31 @@ Label& Label::setString(const std::string& crString)
   return *this;
 }
 
+//! @brief Gets the string displayed on the Label
+//!
+//! @return Label String
 const std::string& Label::getString() const
 {
   return mText.getString();
 }
 
+//! @brief Sets the fill color of the text displayed on Label
+//!
+//! @param[in] crColor Fill Color
+//!
+//! @return Label reference to chain calls
 Label& Label::setTextColor(const lg::Color& crColor)
 {
   mText.setColor(crColor);
   return *this;
 }
 
+//! @brief Sets the position of Text directly
+//!        Note: This will be overwritten if the Horizontal and Vertical alignment is not set to None
+//!
+//! @param[in] crPos Position
+//!
+//! @return Label reference to chain calls
 Label& Label::setTextPosition(const glm::vec2& crPos)
 {
   mTextTransform.setPos(crPos);

@@ -1,6 +1,8 @@
 #include "graphics/popupMenu.hpp"
-#include "graphics/dropDownMenu.hpp"
 
+//! @brief Default Constructor
+//!
+//! @return PopupMenu Object
 PopupMenu::PopupMenu()
 {
   mBounds.left = 0;
@@ -12,6 +14,12 @@ PopupMenu::PopupMenu()
   mActiveSubMenu = nullptr;
 }
 
+//! @brief Adds a menu item to the Popup Menu
+//!        Note: Popup Menu keeps a shared pointer so it is not necessary to keep the menu item in scope
+//!
+//! @param[in] cpMenuItem Menu Item to add to the Popup Menu
+//!
+//! @return None
 void PopupMenu::addItem(const std::shared_ptr<MenuItem> cpMenuItem)
 {
   // default to left most position, later add center and right
@@ -30,14 +38,16 @@ void PopupMenu::addItem(const std::shared_ptr<MenuItem> cpMenuItem)
   mBounds.height += cpMenuItem->getSize().y;
 }
 
-std::shared_ptr<PopupMenu> popupMenu;
-
-void PopupMenu::updateListPositions()
+//! @brief Updates the position of the menu items in the PopupMenu
+//!
+//! @return None
+void PopupMenu::updatePopupMenuItemPositions()
 { 
   mBounds.height = 0;
   mBounds.width = mTransform.getScale().x;
   mBounds.left = mTransform.getPos().x;
   mBounds.top = mTransform.getPos().y;
+  std::shared_ptr<PopupMenu> popupMenu;
 
   for(auto& item : mComponents)
   {
@@ -62,11 +72,14 @@ void PopupMenu::updateListPositions()
   }
 }
 
+//! @brief Draws the Popup Menu if it is visible
+//!
+//! @return None
 void PopupMenu::draw()
 {
   if(mUpdateUI)
   {
-    updateListPositions();
+    updatePopupMenuItemPositions();
     mUpdateUI = false;
   }
 
@@ -79,6 +92,12 @@ void PopupMenu::draw()
   }
 }
 
+//! @brief Sets the preferred size of all Popup Menu Items
+//!
+//! @param[in] cWidth  Width to set Menu Items
+//! @param[in] cHeight Height to set Menu Items
+//!
+//! @return Popup Menu reference to chain calls
 PopupMenu& PopupMenu::setPreferredSize(const float cWidth, const float cHeight)
 {
   mPreferredSize = {cWidth, cHeight};
@@ -86,6 +105,11 @@ PopupMenu& PopupMenu::setPreferredSize(const float cWidth, const float cHeight)
   return *this;
 }
 
+//! @brief Handles incoming events
+//!
+//! @param[in] crEvent Event to handle
+//!
+//! @return None 
 void PopupMenu::handleEvent(const Event& crEvent)
 {
   for(auto& item : mComponents)
@@ -126,6 +150,7 @@ void PopupMenu::handleEvent(const Event& crEvent)
         mActiveSubMenu->setVisible(true);
       }
     }
+    
   }
 
   // Check if mouse was pressed out of bounds to close popup menu
@@ -135,6 +160,11 @@ void PopupMenu::handleEvent(const Event& crEvent)
   }
 }
 
+//! @brief Checks if mouse press was out of bounds to close Popup Menu
+//!
+//! @param[in] crEvent Mouse Press Event
+//!
+//! @return None 
 void PopupMenu::checkMousePressOutOfBounds(const Event& crEvent)
 {
   if(!mBounds.contains(crEvent.MouseButton.x, crEvent.MouseButton.y) && !mActiveSubMenu)
@@ -144,22 +174,40 @@ void PopupMenu::checkMousePressOutOfBounds(const Event& crEvent)
   }
 }
 
+//! @brief Sets the Popup Menu location
+//!
+//! @param[in] crPos Position to set the Popup Menu
+//!
+//! @return None 
 void PopupMenu::setMenuLocation(const glm::vec2& crPos)
 {
   mTransform.setPos(crPos);
   mUpdateUI = true;
 }
 
+//! @brief Sets the Popup Menu invoker
+//!
+//! @param[in] cpInvoker The invoker of the Popup Menu
+//!
+//! @return None 
 void PopupMenu::setInvoker(const AbstractButton* cpInvoker)
 {
   cmpInvoker = cpInvoker;
 }
 
-void PopupMenu::addPopupMenuListerner(PopupMenuListener* cpListener)
+//! @brief Adds a listener to this Popup Menu
+//!
+//! @param[in] cpListener Listener to add to Component
+//!
+//! @return None 
+void PopupMenu::addPopupMenuListerner(PopupMenuListener<PopupMenu>* cpListener)
 {
   mPopupMenuListeners.push_back(cpListener);
 }
 
+//! @brief Notifies listeners that the Popup Menu was cancelled
+//!
+//! @return None
 void PopupMenu::notifyCancelled()
 {
   for(auto& listener : mPopupMenuListeners)
@@ -168,6 +216,9 @@ void PopupMenu::notifyCancelled()
   }
 }
 
+//! @brief Notifies the listeners that the Popup Menu will go invisible soon
+//!
+//! @return None
 void PopupMenu::notifyInvisible()
 {
   for(auto& listener : mPopupMenuListeners)
@@ -176,6 +227,9 @@ void PopupMenu::notifyInvisible()
   }
 }
 
+//! @brief Notifies the listeners that the Popup Menu will be visible soon
+//!
+//! @return None
 void PopupMenu::notifyVisible()
 {
   for(auto& listener : mPopupMenuListeners)
@@ -184,7 +238,12 @@ void PopupMenu::notifyVisible()
   }
 }
 
-void PopupMenu::popupMenuCancelled(const PopupMenuEvent& crEvent)
+//! @brief Handles the Component Popup Menu cancelled event
+//!
+//! @param[in] crEvent Popup Menu Event
+//!
+//! @return None
+void PopupMenu::popupMenuCancelled(const PopupMenuEvent<PopupMenu>& crEvent)
 {
   mVisible = false;
 
@@ -197,14 +256,29 @@ void PopupMenu::popupMenuCancelled(const PopupMenuEvent& crEvent)
   notifyCancelled();
 }
 
-void PopupMenu::popupMenuWillBecomeInvisible(const PopupMenuEvent& crEvent)
+//! @brief Handles the Component Popup Menu becoming invisible event
+//!
+//! @param[in] crEvent Popup Menu Event
+//!
+//! @return None
+void PopupMenu::popupMenuWillBecomeInvisible(const PopupMenuEvent<PopupMenu>& crEvent)
 {
 }
 
-void PopupMenu::popupMenuWillBecomeVisible(const PopupMenuEvent& crEvent)
+//! @brief Handles the Component Popup Menu visible event
+//!
+//! @param[in] crEvent Popup Menu Event
+//!
+//! @return None
+void PopupMenu::popupMenuWillBecomeVisible(const PopupMenuEvent<PopupMenu>& crEvent)
 {
 }
 
+//! @brief Sets the component to be visible or not and notifies listeners
+//!
+//! @param cVisible Controls visibility of component
+//!
+//! @return None
 void PopupMenu::setVisible(const bool cVisible)
 {
   mVisible = cVisible;
@@ -217,4 +291,12 @@ void PopupMenu::setVisible(const bool cVisible)
   {
     notifyInvisible();
   }
+}
+
+//! @brief Gets the Menu Item list
+//!
+//! @return Menu Items
+std::vector<std::shared_ptr<MenuItem>> PopupMenu::getMenuItems() const
+{
+  return mComponents;
 }

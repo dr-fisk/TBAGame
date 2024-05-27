@@ -26,6 +26,8 @@ class Button : public AbstractButton
     bool isPressed() const;
     ~Button() = default;
   private:
+    void buttonClicked() override;
+
     glm::vec2 mPressedPadding;
     int64_t mId;
 };

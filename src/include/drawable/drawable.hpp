@@ -3,7 +3,6 @@
 
 #include "common.hpp"
 #include "renderEngine/texture2D.hpp"
-#include "resource/textureResource.hpp"
 #include "glm/vec2.hpp"
 #include "renderer/camera.hpp"
 #include "shapes/box.hpp"

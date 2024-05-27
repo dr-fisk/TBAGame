@@ -1,5 +1,6 @@
 #include <iostream>
 
+#define GLM_FORCE_CTOR_INIT
 #include "drawable/sprite.hpp"
 #include "resource/image.hpp"
 #include "renderer/renderer2D.hpp"
@@ -9,8 +10,9 @@
 //! @brief Default Constructor
 //!
 //! @return Sprite Object
-Sprite::Sprite() : mpTexture(nullptr)
+Sprite::Sprite()
 {
+  mpTexture = nullptr;
   mDrawFunc = std::bind(&Sprite::drawUntexturedSprite, this);
   mDrawFunc2 = RegisterDrawCall([=](const Transform& crTransform){ drawUntexturedSprite2(crTransform);});
 }
@@ -59,8 +61,9 @@ Sprite& Sprite::operator=(const Sprite& rhs)
 //! @param[in] crBox     Dimensions of Sprite
 //!
 //! @return Sprite Object
-Sprite::Sprite(const Texture2D& crTexture, const Box<glm::vec2>& crBox) : mpTexture(&crTexture)
+Sprite::Sprite(const Texture2D& crTexture, const Box<glm::vec2>& crBox)
 {
+  mpTexture = &crTexture;
   mBox = crBox;
   mPrevPos = mBox.getPos();
   updateTextureCoordinates(glm::vec2(0.0f, 0.0f), crTexture.getSize());
@@ -75,8 +78,9 @@ Sprite::Sprite(const Texture2D& crTexture, const Box<glm::vec2>& crBox) : mpText
 //! @param[in] crBox     Dimensions of Sprite
 //!
 //! @return Sprite Object
-Sprite::Sprite(const lg::Color& crColor, const Box<glm::vec2>& crBox) : mpTexture(nullptr)
+Sprite::Sprite(const lg::Color& crColor, const Box<glm::vec2>& crBox)
 {
+  mpTexture = nullptr;
   mBox = crBox;
   mPrevPos = mBox.getPos();
   setColor(crColor);
@@ -180,14 +184,6 @@ const Box<glm::vec2>& Sprite::getBox() const
 glm::vec2 Sprite::getSize() const
 {
   return mBox.getSize();
-}
-
-//! @brief Default Destructor
-//!        Unregisters Sprite from Render List
-//!
-//! @return None
-Sprite::~Sprite()
-{
 }
 
 //! @brief Sets Texture for Sprite

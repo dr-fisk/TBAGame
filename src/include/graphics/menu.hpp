@@ -9,36 +9,33 @@
 #include "graphics/menuItem.hpp"
 #include "shapes/box2D.hpp"
 #include "graphics/menuListener.hpp"
-#include "graphics/popupMenu.hpp"
 #include "graphics/popupMenuListener.hpp"
+#include "graphics/popupMenu.hpp"
 
-class DropdownMenu : public MenuItem, public MenuListener, public PopupMenuListener
+class Menu : public MenuItem, public PopupMenuListener<PopupMenu>
 {
   public:
-    DropdownMenu();
-    ~DropdownMenu() = default;
+    Menu();
+    ~Menu() = default;
     void addMenuItem(const std::shared_ptr<MenuItem> cpMenuItem);
     void handleEvent(const Event& crEvent) override;
     void draw() override;
-    DropdownMenu& setMenuLocation(const glm::vec2& crPos);
-    void performAction(const ActionEvent& crEvent) override;
-    void menuDeselected(const MenuEvent& crEvent) override;
-    void menuSelected(const MenuEvent& crEvent) override;
-    void menuCancelled(const MenuEvent& crEvent) override;
-    DropdownMenu& addMenuListener(MenuListener* pListener);
+    Menu& setMenuLocation(const glm::vec2& crPos);
+    Menu& addMenuListener(MenuListener* pListener);
     void removeMenuListener(const MenuListener* cpListener);
     void setIsTopLevel(const bool cTop);
     bool isTopLevel() const;
     std::shared_ptr<PopupMenu> getPopupMenu() const override;
-    void popupMenuCancelled(const PopupMenuEvent& crEvent) override;
-    void popupMenuWillBecomeInvisible(const PopupMenuEvent& crEvent) override;
-    void popupMenuWillBecomeVisible(const PopupMenuEvent& crEvent) override;
     bool isPopupMenuVisible() const;
+    void popupMenuCancelled(const PopupMenuEvent<PopupMenu>& crEvent) override;
+    void popupMenuWillBecomeInvisible(const PopupMenuEvent<PopupMenu>& crEvent) override;
+    void popupMenuWillBecomeVisible(const PopupMenuEvent<PopupMenu>& crEvent) override;
+    std::vector<std::shared_ptr<MenuItem>> getMenuItems() const override;
   private:
     void notifyMenuSelected();
     void notifyMenuDeselected();
     void notifyMenuCancelled();
-    // void addMenuItem(const std::shared_ptr<DropdownMenu> cpMenu);
+    void buttonClicked() override;
 
     enum DropDownMenuState
     {

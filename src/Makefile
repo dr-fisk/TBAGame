@@ -31,7 +31,6 @@ INPUTPATH = ./input
 SRC = ./src
 SHADERSPATH = ./shaders
 FONTSPATH = ./fonts
-DYNLIBSPATH = ./libs
 LESTTTFPATH = ../lestttf
 FONTPATH = ../TtfFont
 UTILITYPATH = ./utility
@@ -71,8 +70,6 @@ stateFiles = state.cpp \
              mainMenuState.cpp \
              exceptionState.cpp
 
-guiFiles   = gui.cpp
-
 windowFiles = renderWindow.cpp \
               renderTarget.cpp \
 							mouse.cpp \
@@ -80,16 +77,14 @@ windowFiles = renderWindow.cpp \
 							window.cpp
 
 resourceFiles = image.cpp \
-                font.cpp \
-								resource.cpp \
-								textureResource.cpp
+                font.cpp
 
 drawableFiles = dot.cpp \
 								text.cpp \
-								sprite.cpp
+								sprite.cpp \
+								nineSlicedSprite.cpp
 
-renderEngineFiles = resourceManager.cpp \
-										indexBuffer.cpp \
+renderEngineFiles = indexBuffer.cpp \
 										shader.cpp \
 										vertexBuffer.cpp \
 										vertexArray.cpp \
@@ -104,21 +99,21 @@ inputFiles = input.cpp
 graphicsFiles = component.cpp \
                 label.cpp \
 								abstractButton.cpp \
+								toggleButton.cpp \
 								button.cpp \
 								scrollbar.cpp \
 								menuItem.cpp \
-								dropDownMenu.cpp \
+								menu.cpp \
 								popupMenu.cpp
 
 graphicsEventsFiles = itemEvent.cpp \
-											actionEvent.cpp \
-											menuEvent.cpp \
-											popupMenuEvent.cpp
+											menuEvent.cpp 
 
 dynLibFiles = png.cpp
 
 utilityFiles = edgeTable.cpp \
 							 transform.cpp
+
 objs := $(patsubst %.cxx, %.o, $(entrypoint))
 
 objs += $(patsubst %.cpp, %.o, $(linkFiles))
@@ -145,18 +140,12 @@ graphics = $(patsubst %.cpp, %.o, $(graphicsFiles))
 graphicsObjs = $(addprefix $(GRAPHICSPATH)/, $(graphics))
 
 graphicsEvents = $(patsubst %.cpp, %.o, $(graphicsEventsFiles))
-graphicsEventsObjs = $(addprefix $(GRAPHICSEVENTPATH)/, $(graphicsEventsFiles))
+graphicsEventsObjs = $(addprefix $(GRAPHICSEVENTPATH)/, $(graphicsEvents))
 
 inputs = $(patsubst %.cpp, %.o, $(inputFiles))
 inputObjs = $(addprefix $(INPUTPATH)/, $(inputs))
 
 dynLibPrefix = lest
-
-dynamicLibs = $(patsubst %.cpp, %.dll, $(dynLibFiles))
-dynamicLibsDLL = $(addprefix $(dynLibPrefix), $(dynamicLibs))
-dynamicLibDLLObjs = $(addprefix $(DYNLIBSPATH)/, $(dynamicLibsDLL))
-dynamicLibObjs = $(patsubst %.cpp, %.o, $(dynLibFiles))
-dynamicLibObjsPath = $(addprefix $(DYNLIBSPATH)/, $(dynamicLibObjs))
 
 utilities = $(patsubst %.cpp, %.o, $(utilityFiles))
 utilitiesObjs = $(addprefix $(UTILITYPATH)/, $(utilities))
@@ -166,7 +155,6 @@ deps += $(patsubst %.o, %.d, $(stateObjs))
 deps += $(patsubst %.o, %.d, $(guiObjs))
 deps += $(patsubst %.o, %.d, $(windowObjs))
 deps += $(patsubst %.o, %.d, $(drawableObjs))
-deps += $(patsubst %.o, %.d, $(dynamicLibObjsPath))
 
 # include $(deps)
 ifneq ($(DEBUG), 1)
@@ -330,21 +318,6 @@ clean_graph_events:
 	fi \
 	done
 
-clean_lib:
-	@echo "Clean Libraries"
-	@for item in ${dynamicLibDLLObjs}; do \
-	if [ -f $${item} ]; then \
-	echo "Rm $${item}"; \
-	rm $${item}; \
-	fi \
-	done
-	@for item in ${dynamicLibObjsPath}; do \
-	if [ -f $${item} ]; then \
-	echo "Rm $${item}"; \
-	rm $${item}; \
-	fi \
-	done
-
 clean_main:
 	@echo "Clean Main Files"
 	@for item in ${objs}; do \
@@ -429,7 +402,7 @@ clean_exe:
 		rm $(programs); \
 	fi
 
-clean: clean_state clean_window clean_drawable clean_lib clean_main clean_dep clean_exe clean_utilities \
+clean: clean_state clean_window clean_drawable clean_main clean_dep clean_exe clean_utilities \
        clean_renderengine clean_renderer clean_graphics clean_resource clean_input clean_graph_events
 	@echo "Checking win DIR"
 	$(Q)if [ -d $(PATHTOEXEC) ]; then \
@@ -444,6 +417,6 @@ help:
 	@echo "Makefile will be expanded in the future"
 
 .PRECIOUS: %.o $(STATEPATH)/%.o $(WINDOWPATH)/%.o $(RESOURCEPATH)/%.o $(DRAWABLESPATH)/%.o $(RENDERENGINEPATH)/%.o \
-           $(GRAPHICSPATH)/%.o $(DYNLIBSPATH)/%.so $(UTILITYPATH)/%.o $(INPUTPATH)/%.o $(RENDERERPATH)/%.o $(GRAPHICSEVENTPATH)/%.o
+           $(GRAPHICSPATH)/%.o $(UTILITYPATH)/%.o $(INPUTPATH)/%.o $(RENDERERPATH)/%.o $(GRAPHICSEVENTPATH)/%.o
 .PHONY: $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RESOURCEPATH) $(UTILITYPATH) $(RENDERENGINEPATH) \
         $(GRAPHICSPATH) $(INPUTPATH) $(RENDERERPATH) $(GRAPHICSEVENTPATH)

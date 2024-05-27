@@ -3,14 +3,17 @@
 
 #include "graphics/component.hpp"
 
+template <typename T>
 class PopupMenuEvent
 {
   public:
     PopupMenuEvent() = delete;
-    PopupMenuEvent(Component* cpSource);
+    PopupMenuEvent(T* cpSource);
     ~PopupMenuEvent() = default;
 
-    Component* mpSource;
+    T* mpSource;
 };
+
+#include "../../graphicsEvent/popupMenuEvent.cpp"
 
 #endif

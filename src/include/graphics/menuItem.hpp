@@ -8,10 +8,9 @@ class MenuItem : public AbstractButton
   public:
     MenuItem();
     virtual ~MenuItem() = default;
-    std::vector<std::shared_ptr<MenuItem>> getMenuItems() const;
-    virtual void performAction(const ActionEvent& crEvent) override;
+    virtual std::vector<std::shared_ptr<MenuItem>> getMenuItems() const;
   protected:
-    std::vector<std::shared_ptr<MenuItem>> mMenuItemList;
+    virtual void buttonClicked() override;
   private:
 };
 
