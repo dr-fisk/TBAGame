@@ -14,6 +14,6 @@ void ToggleButton::draw()
   if(mVisible)
   {
     AbstractButton::draw();
-    mToggleSprite.draw();
+    // mToggleSprite.draw();
   }
 }

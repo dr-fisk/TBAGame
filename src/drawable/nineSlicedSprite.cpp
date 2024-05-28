@@ -15,82 +15,14 @@ SlicedSprite::SlicedSprite()
   mpTexture = nullptr;
 }
 
-void SlicedSprite::draw(const Transform& crTransform)
-{
-  Transform actualTransform;
-  const float X_SCALE =    crTransform.getScale().x - (mLeft + mRight);
-  const float Y_SCALE =    crTransform.getScale().y - (mTop + mBottom);
-  const float RIGHT_POS =  crTransform.getPos().x + ((X_SCALE + mRight) / 2.0f);
-  const float LEFT_POS =   crTransform.getPos().x - ((X_SCALE + mLeft) / 2.0f);
-  const float TOP_POS =    crTransform.getPos().y - ((Y_SCALE + mTop) / 2.0f);
-  const float BOTTOM_POS = crTransform.getPos().y + ((Y_SCALE + mBottom) / 2.0f);
-
-  for(auto& quad : mSlicedQuads)
-  {
-    switch(quad.first)
-    {
-      // Doesn't Scale
-      case NineSliceTypes::TOP_LEFT:
-        actualTransform.setScale({mLeft, mTop});
-        actualTransform.setPos({LEFT_POS, TOP_POS});
-        actualTransform.setRotation(crTransform.getRotation());
-        break;
-      // Only scales horiztonally
-      case NineSliceTypes::TOP_CENTER:
-        actualTransform.setScale({X_SCALE, mTop});
-        actualTransform.setPos({crTransform.getPos().x, TOP_POS});
-        actualTransform.setRotation(crTransform.getRotation());
-        break;
-      // Doesn't Scale
-      case NineSliceTypes::TOP_RIGHT:
-        actualTransform.setScale({mRight, mTop});
-        actualTransform.setPos({RIGHT_POS, TOP_POS});
-        actualTransform.setRotation(crTransform.getRotation());
-        break;
-      // Only scales vertically
-      case NineSliceTypes::MID_LEFT:
-        actualTransform.setScale({mLeft, Y_SCALE});
-        actualTransform.setPos({LEFT_POS, crTransform.getPos().y});
-        actualTransform.setRotation(crTransform.getRotation());
-        break;
-      // Scales both vertically and horizontally
-      case NineSliceTypes::MID_CENTER:
-        actualTransform.setScale({X_SCALE, Y_SCALE});
-        actualTransform.setPos(crTransform.getPos());
-        actualTransform.setRotation(crTransform.getRotation());
-        break;
-      // Only scales vertically
-      case NineSliceTypes::MID_RIGHT:
-        actualTransform.setScale({mRight, Y_SCALE});
-        actualTransform.setPos({RIGHT_POS, crTransform.getPos().y});
-        actualTransform.setRotation(crTransform.getRotation());
-        break;
-      // Doesn't Scale
-      case NineSliceTypes::BOTTOM_LEFT:
-        actualTransform.setScale({mLeft, mBottom});
-        actualTransform.setPos({LEFT_POS, BOTTOM_POS});
-        actualTransform.setRotation(crTransform.getRotation());
-        break;
-      // Only scales horiztonally
-      case NineSliceTypes::BOTTOM_CENTER:
-        actualTransform.setScale({X_SCALE, mBottom});
-        actualTransform.setPos({crTransform.getPos().x, BOTTOM_POS});
-        actualTransform.setRotation(crTransform.getRotation());
-        break;
-      // Doesn't Scale
-      case NineSliceTypes::BOTTOM_RIGHT:
-        actualTransform.setScale({mRight, mBottom});
-        actualTransform.setPos({RIGHT_POS, BOTTOM_POS});
-        actualTransform.setRotation(crTransform.getRotation());
-        break;
-    }
-
-    Renderer2D::registerQuad(actualTransform, quad.second, mpTexture, actualTransform.getScale() / 2.0f);
-  }
-}
-
 SlicedSprite& SlicedSprite::setColor(const lg::Color& crColor)
 {
+  SlicedQuadData& data = mSlicedQuads.at(NineSliceTypes::MID_CENTER);
+  data.Vertexes[0].Rgba = crColor;
+  data.Vertexes[1].Rgba = crColor;
+  data.Vertexes[2].Rgba = crColor;
+  data.Vertexes[3].Rgba = crColor;
+  data.UseTexture = false;
   return *this;
 }
 
@@ -101,11 +33,22 @@ void SlicedSprite::movePos(const glm::vec2& crMoveVector)
 
 SlicedSprite& SlicedSprite::setPos(const glm::vec2& crPos)
 {
+  mTransform.setPos(crPos);
+  mGeometryNeedUpdate = true;
   return *this;
 }
 
-SlicedSprite& SlicedSprite::setSize(const glm::vec2& crSize)
+SlicedSprite& SlicedSprite::resize(const glm::vec2& crSize)
 {
+  mTransform.setScale(crSize);
+  mGeometryNeedUpdate = true;
+  return *this;
+}
+
+SlicedSprite& SlicedSprite::setTransform(const Transform& crTransform)
+{
+  mTransform = crTransform;
+  mGeometryNeedUpdate = true;
   return *this;
 }
 
@@ -138,54 +81,55 @@ void SlicedSprite::updateTextureCoordinates(const glm::vec2& crOffset, const glm
   {
 
     setOffset(quad.first, crOffset, offset);
-    quad.second[0].TextCoord = offset / static_cast<glm::vec2>(mpTexture->getSize());
+    quad.second.UseTexture = true;
+    quad.second.Vertexes[0].TextCoord = offset / static_cast<glm::vec2>(mpTexture->getSize());
 
     switch(quad.first)
     {
       case NineSliceTypes::TOP_LEFT:
-        quad.second[1].TextCoord = glm::vec2{offset.x + mLeft, offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[2].TextCoord = glm::vec2{offset.x + mLeft, offset.y + mTop} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[3].TextCoord = glm::vec2{offset.x, offset.y + mTop} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[1].TextCoord = glm::vec2{offset.x + mLeft, offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[2].TextCoord = glm::vec2{offset.x + mLeft, offset.y + mTop} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[3].TextCoord = glm::vec2{offset.x, offset.y + mTop} / static_cast<glm::vec2>(mpTexture->getSize());
         break;
       case NineSliceTypes::TOP_CENTER:
-        quad.second[1].TextCoord = glm::vec2{offset.x + mpTexture->getSize().x - (mRight + 1), offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[2].TextCoord = glm::vec2{offset.x + mpTexture->getSize().x - (mRight + 1), offset.y + mTop} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[3].TextCoord = glm::vec2{offset.x, offset.y + mTop} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[1].TextCoord = glm::vec2{offset.x + mpTexture->getSize().x - (mRight + 1), offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[2].TextCoord = glm::vec2{offset.x + mpTexture->getSize().x - (mRight + 1), offset.y + mTop} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[3].TextCoord = glm::vec2{offset.x, offset.y + mTop} / static_cast<glm::vec2>(mpTexture->getSize());
         break;
       case NineSliceTypes::TOP_RIGHT:
-        quad.second[1].TextCoord = glm::vec2{offset.x + mRight, offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[2].TextCoord = glm::vec2{offset.x + mRight, offset.y + mTop} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[3].TextCoord = glm::vec2{offset.x, offset.y + mTop} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[1].TextCoord = glm::vec2{offset.x + mRight, offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[2].TextCoord = glm::vec2{offset.x + mRight, offset.y + mTop} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[3].TextCoord = glm::vec2{offset.x, offset.y + mTop} / static_cast<glm::vec2>(mpTexture->getSize());
         break;
       case NineSliceTypes::MID_LEFT:
-        quad.second[1].TextCoord = glm::vec2{offset.x + mLeft, offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[2].TextCoord = glm::vec2{offset.x + mLeft, mpTexture->getSize().y - mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[3].TextCoord = glm::vec2{offset.x, mpTexture->getSize().y - mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[1].TextCoord = glm::vec2{offset.x + mLeft, offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[2].TextCoord = glm::vec2{offset.x + mLeft, mpTexture->getSize().y - mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[3].TextCoord = glm::vec2{offset.x, mpTexture->getSize().y - mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
         break;
       case NineSliceTypes::MID_CENTER:
-        quad.second[1].TextCoord = glm::vec2{mpTexture->getSize().x - (mRight + 1), offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[2].TextCoord = glm::vec2{mpTexture->getSize().x - (mRight + 1), mpTexture->getSize().y - mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[3].TextCoord = glm::vec2{offset.x, mpTexture->getSize().y - mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[1].TextCoord = glm::vec2{mpTexture->getSize().x - (mRight + 1), offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[2].TextCoord = glm::vec2{mpTexture->getSize().x - (mRight + 1), mpTexture->getSize().y - mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[3].TextCoord = glm::vec2{offset.x, mpTexture->getSize().y - mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
         break;
       case NineSliceTypes::MID_RIGHT:
-        quad.second[1].TextCoord = glm::vec2{offset.x + mRight, offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[2].TextCoord = glm::vec2{offset.x + mRight, mpTexture->getSize().y - mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[3].TextCoord = glm::vec2{offset.x, mpTexture->getSize().y - mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[1].TextCoord = glm::vec2{offset.x + mRight, offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[2].TextCoord = glm::vec2{offset.x + mRight, mpTexture->getSize().y - mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[3].TextCoord = glm::vec2{offset.x, mpTexture->getSize().y - mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
         break;
       case NineSliceTypes::BOTTOM_LEFT:
-        quad.second[1].TextCoord = glm::vec2{offset.x + mLeft, offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[2].TextCoord = glm::vec2{offset.x + mLeft, offset.y + mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[3].TextCoord = glm::vec2{offset.x, offset.y + mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[1].TextCoord = glm::vec2{offset.x + mLeft, offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[2].TextCoord = glm::vec2{offset.x + mLeft, offset.y + mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[3].TextCoord = glm::vec2{offset.x, offset.y + mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
         break;
       case NineSliceTypes::BOTTOM_CENTER:
-        quad.second[1].TextCoord = glm::vec2{offset.x + mpTexture->getSize().x - (mRight + 1), offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[2].TextCoord = glm::vec2{offset.x + mpTexture->getSize().x - (mRight + 1), offset.y + mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[3].TextCoord = glm::vec2{offset.x, offset.y + mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[1].TextCoord = glm::vec2{offset.x + mpTexture->getSize().x - (mRight + 1), offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[2].TextCoord = glm::vec2{offset.x + mpTexture->getSize().x - (mRight + 1), offset.y + mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[3].TextCoord = glm::vec2{offset.x, offset.y + mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
         break;
       case NineSliceTypes::BOTTOM_RIGHT:
-        quad.second[1].TextCoord = glm::vec2{offset.x + mRight, offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[2].TextCoord = glm::vec2{offset.x + mRight, offset.y + mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
-        quad.second[3].TextCoord = glm::vec2{offset.x, offset.y + mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[1].TextCoord = glm::vec2{offset.x + mRight, offset.y} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[2].TextCoord = glm::vec2{offset.x + mRight, offset.y + mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
+        quad.second.Vertexes[3].TextCoord = glm::vec2{offset.x, offset.y + mBottom} / static_cast<glm::vec2>(mpTexture->getSize());
         break;
     }
   }
@@ -227,17 +171,120 @@ void SlicedSprite::setOffset(const NineSliceTypes cType, const glm::vec2& crOffs
 
 void SlicedSprite::draw()
 {
-  
+  if(mGeometryNeedUpdate)
+  {
+    updateGeometry();
+    mGeometryNeedUpdate = false;
+  }
+
+  // If no borders set, then don't bother drawing the other 8 quads and only draw center
+  if(0 == mTop && 0 == mLeft && 0 == mRight && 0 == mBottom)
+  {
+    SlicedQuadData& data = mSlicedQuads.at(NineSliceTypes::MID_CENTER);
+    if(data.UseTexture)
+    {
+      Renderer2D::registerQuad(data.QuadTransform, data.Vertexes, mpTexture, data.QuadTransform.getScale() / 2.0f);
+    }
+    else
+    {
+      Renderer2D::registerQuad(data.QuadTransform, data.Vertexes, data.QuadTransform.getScale() / 2.0f);
+    }
+  }
+  else
+  {
+    for(auto& quad : mSlicedQuads)
+    {
+      if(quad.second.UseTexture)
+      {
+        Renderer2D::registerQuad(quad.second.QuadTransform, quad.second.Vertexes, mpTexture, quad.second.QuadTransform.getScale() / 2.0f);
+      }
+      else
+      {
+        Renderer2D::registerQuad(quad.second.QuadTransform, quad.second.Vertexes, quad.second.QuadTransform.getScale() / 2.0f);
+      }
+    }
+  }
+}
+
+void SlicedSprite::updateGeometry()
+{
+  const float X_SCALE =    mTransform.getScale().x - (mLeft + mRight);
+  const float Y_SCALE =    mTransform.getScale().y - (mTop + mBottom);
+  const float RIGHT_POS =  mTransform.getPos().x + ((X_SCALE + mRight) / 2.0f);
+  const float LEFT_POS =   mTransform.getPos().x - ((X_SCALE + mLeft) / 2.0f);
+  const float TOP_POS =    mTransform.getPos().y - ((Y_SCALE + mTop) / 2.0f);
+  const float BOTTOM_POS = mTransform.getPos().y + ((Y_SCALE + mBottom) / 2.0f);
+
+  for(auto& quad : mSlicedQuads)
+  {
+    switch(quad.first)
+    {
+      // Doesn't Scale
+      case NineSliceTypes::TOP_LEFT:
+        quad.second.QuadTransform.setScale({mLeft, mTop});
+        quad.second.QuadTransform.setPos({LEFT_POS, TOP_POS});
+        quad.second.QuadTransform.setRotation(mTransform.getRotation());
+        break;
+      // Only scales horiztonally
+      case NineSliceTypes::TOP_CENTER:
+        quad.second.QuadTransform.setScale({X_SCALE, mTop});
+        quad.second.QuadTransform.setPos({mTransform.getPos().x, TOP_POS});
+        quad.second.QuadTransform.setRotation(mTransform.getRotation());
+        break;
+      // Doesn't Scale
+      case NineSliceTypes::TOP_RIGHT:
+        quad.second.QuadTransform.setScale({mRight, mTop});
+        quad.second.QuadTransform.setPos({RIGHT_POS, TOP_POS});
+        quad.second.QuadTransform.setRotation(mTransform.getRotation());
+        break;
+      // Only scales vertically
+      case NineSliceTypes::MID_LEFT:
+        quad.second.QuadTransform.setScale({mLeft, Y_SCALE});
+        quad.second.QuadTransform.setPos({LEFT_POS, mTransform.getPos().y});
+        quad.second.QuadTransform.setRotation(mTransform.getRotation());
+        break;
+      // Scales both vertically and horizontally
+      case NineSliceTypes::MID_CENTER:
+        quad.second.QuadTransform.setScale({X_SCALE, Y_SCALE});
+        quad.second.QuadTransform.setPos(mTransform.getPos());
+        quad.second.QuadTransform.setRotation(mTransform.getRotation());
+        break;
+      // Only scales vertically
+      case NineSliceTypes::MID_RIGHT:
+        quad.second.QuadTransform.setScale({mRight, Y_SCALE});
+        quad.second.QuadTransform.setPos({RIGHT_POS, mTransform.getPos().y});
+        quad.second.QuadTransform.setRotation(mTransform.getRotation());
+        break;
+      // Doesn't Scale
+      case NineSliceTypes::BOTTOM_LEFT:
+        quad.second.QuadTransform.setScale({mLeft, mBottom});
+        quad.second.QuadTransform.setPos({LEFT_POS, BOTTOM_POS});
+        quad.second.QuadTransform.setRotation(mTransform.getRotation());
+        break;
+      // Only scales horiztonally
+      case NineSliceTypes::BOTTOM_CENTER:
+        quad.second.QuadTransform.setScale({X_SCALE, mBottom});
+        quad.second.QuadTransform.setPos({mTransform.getPos().x, BOTTOM_POS});
+        quad.second.QuadTransform.setRotation(mTransform.getRotation());
+        break;
+      // Doesn't Scale
+      case NineSliceTypes::BOTTOM_RIGHT:
+        quad.second.QuadTransform.setScale({mRight, mBottom});
+        quad.second.QuadTransform.setPos({RIGHT_POS, BOTTOM_POS});
+        quad.second.QuadTransform.setRotation(mTransform.getRotation());
+        break;
+    }
+  }
 }
 
 glm::vec2 SlicedSprite::getSize() const
 {
-
+  return mTransform.getScale();
 }
 
 glm::vec2 SlicedSprite::getPos() const
 {
-
+  return mTransform.getPos();
 }
 
 void SlicedSprite::setSpecificBorder(const SliceBorder cBorder, const float cSize)
@@ -260,6 +307,8 @@ void SlicedSprite::setSpecificBorder(const SliceBorder cBorder, const float cSiz
       return;
   }
 
+  mGeometryNeedUpdate = true;
+
   // Probably want a delayed update
   if(mpTexture)
   {
@@ -273,10 +322,65 @@ void SlicedSprite::setAllBorders(const float cLeft, const float cTop, const floa
   mLeft = cLeft;
   mRight = cRight;
   mBottom = cBottom;
+  mGeometryNeedUpdate = true;
 
   // Probably want a delayed update
   if(mpTexture)
   {
     updateTextureCoordinates({0.0f, 0.0f}, mpTexture->getSize());
+  }
+}
+
+void SlicedSprite::fillBorderColor(const lg::Color& crColor)
+{
+  for(auto& quad : mSlicedQuads)
+  {
+    switch(quad.first)
+    {
+      // All quads surrounding Mid center are borders
+      case NineSliceTypes::TOP_LEFT:
+      case NineSliceTypes::TOP_CENTER:
+      case NineSliceTypes::TOP_RIGHT:
+      case NineSliceTypes::MID_LEFT:
+      case NineSliceTypes::MID_RIGHT:
+      case NineSliceTypes::BOTTOM_LEFT:
+      case NineSliceTypes::BOTTOM_CENTER:
+      case NineSliceTypes::BOTTOM_RIGHT:
+        quad.second.UseTexture = false;
+        quad.second.Vertexes[0].Rgba = crColor;
+        quad.second.Vertexes[1].Rgba = crColor;
+        quad.second.Vertexes[2].Rgba = crColor;
+        quad.second.Vertexes[3].Rgba = crColor;
+        break;
+      case NineSliceTypes::MID_CENTER:
+        break;
+    }
+  }
+}
+
+void SlicedSprite::removeBorderColor()
+{
+  for(auto& quad : mSlicedQuads)
+  {
+    switch(quad.first)
+    {
+      // All quads surrounding Mid center are borders
+      case NineSliceTypes::TOP_LEFT:
+      case NineSliceTypes::TOP_CENTER:
+      case NineSliceTypes::TOP_RIGHT:
+      case NineSliceTypes::MID_LEFT:
+      case NineSliceTypes::MID_RIGHT:
+      case NineSliceTypes::BOTTOM_LEFT:
+      case NineSliceTypes::BOTTOM_CENTER:
+      case NineSliceTypes::BOTTOM_RIGHT:
+        quad.second.UseTexture = true;
+        quad.second.Vertexes[0].Rgba = lg::Transparent;
+        quad.second.Vertexes[1].Rgba = lg::Transparent;
+        quad.second.Vertexes[2].Rgba = lg::Transparent;
+        quad.second.Vertexes[3].Rgba = lg::Transparent;
+        break;
+      case NineSliceTypes::MID_CENTER:
+        break;
+    }
   }
 }

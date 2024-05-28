@@ -364,6 +364,7 @@ void Renderer2D::endScene()
   flush();
   sSharedMutex.lock_shared();
   sContextMap.at(context).CameraView->unsetUpdateFlag();
+  // std::cout << sContextMap.at(context).NumQuadCount << std::endl;
   sSharedMutex.unlock_shared();
 }
 

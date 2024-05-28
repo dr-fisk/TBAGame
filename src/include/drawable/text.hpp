@@ -33,10 +33,8 @@ class Text : public Dot
     std::string& getString();
     const std::string& getString() const;
     glm::vec2 getSize() const;
-    glm::vec2 getSize2() const;
     uint8_t getCharSize() const;
     void draw();
-    void draw(const Transform& crTransform);
     ~Text();
     Box<glm::vec2> getGlobalBounds(const OrthCamera& crCamera) const;
     std::vector<Box<glm::vec2>> getBoundingBoxes() const;
@@ -45,7 +43,6 @@ class Text : public Dot
     void updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize, 
                                 std::array<Vertex, sNumQuadVerts>& rVertexes);
     void updateQuadColor(std::array<Vertex, sNumQuadVerts>& rVertexes);
-    void gridfitText();
 
     struct TextVertexData
     {

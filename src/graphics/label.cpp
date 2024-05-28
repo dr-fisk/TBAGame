@@ -1,5 +1,10 @@
 #include "graphics/label.hpp"
 
+Label::Label()
+{
+  mSprite.setAllBorders(0, 0, 0, 0);
+}
+
 //! @brief Constructs a label with specified text object
 //!
 //! @param[in] crText Text to set to label
@@ -7,22 +12,23 @@
 //! @return Label Object 
 Label::Label(const Text& crText)
 {
-  mSprite.setBox({mTransform.getPos(), mTransform.getScale()});
+  mSprite.setTransform(mTransform);
   mText = crText;
   mHorizontalAlign = HorizontalAlign::NONE;
   mVerticalAlign = VerticalAlign::NONE;
+  mSprite.setAllBorders(0, 0, 0, 0);
   mUpdateUI = true;
 }
 
 //! @brief Constructs a label with specified transform and text
 //!
-//! @param[in] crTranform Transform to set
+//! @param[in] crTransform Transform to set
 //! @param[in] crText     crText Text to set to label
 //!
 //! @return Label Object
 Label::Label(const Transform& crTransform, const Text& crText)
 {
-  mSprite.setBox({{0, 0}, crTransform.getScale()});
+  mSprite.setTransform(crTransform);
   mTransform = crTransform;
   mText = crText;
   mHorizontalAlign = HorizontalAlign::NONE;
@@ -33,13 +39,14 @@ Label::Label(const Transform& crTransform, const Text& crText)
 //! @brief Constructs a label with specified transform and text
 //!
 //! @param[in] crText     crText Text to set to label
-//! @param[in] crTranform Transform to set
+//! @param[in] crTransform Transform to set
 //!
 //! @return Label Object
-Label::Label(const Text& crText, const Transform& crTranform)
+Label::Label(const Text& crText, const Transform& crTransform)
 {
-  mSprite.setBox({{0, 0}, crTranform.getScale()});
-  mTransform = crTranform;
+  mSprite.setTransform(crTransform);
+  mSprite.setAllBorders(0, 0, 0, 0);
+  mTransform = crTransform;
   mText = crText;
   mUpdateUI = true;
 }
@@ -51,12 +58,14 @@ void Label::draw()
 {
   if(mUpdateUI)
   {
+    mSprite.setTransform(mTransform);
     alignText();
+    mText.setPos(mTextTransform.getPos());
     mUpdateUI = false;
   }
 
-  mSprite.draw(mTransform);
-  mText.draw(mTextTransform);
+  mSprite.draw();
+  mText.draw();
 }
 
 //! @brief Sets the text on the Label

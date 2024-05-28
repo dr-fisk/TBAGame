@@ -13,7 +13,7 @@ class ToggleButton : public AbstractButton
     virtual void buttonClicked() override;
 
     bool mToggled;
-    Sprite mToggleSprite;
+    // Sprite mToggleSprite;
 };
 
 #endif

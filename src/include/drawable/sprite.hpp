@@ -28,7 +28,8 @@ class Sprite : public I_Sprite
     const Texture2D& getTexture() const;
     void movePos(const glm::vec2& crMoveVector) override;
     Sprite& setPos(const glm::vec2& crPos) override;
-    Sprite& setSize(const glm::vec2& crSize) override;
+    Sprite& resize(const glm::vec2& crSize) override;
+    Sprite& setTransform(const Transform& crTransform) override;
     Sprite& setTexture(const Texture2D& crTexture, const bool cInvert=false) override;
     Sprite& setBox(const Box<glm::vec2>& crBox) override;
     glm::vec2 getSize() const;
@@ -37,7 +38,7 @@ class Sprite : public I_Sprite
     const Box<glm::vec2>& getBox() const;
     void setLayer(const uint32_t cLayer);
     void draw();
-    void draw(const Transform& crTransform) override;
+    // void draw(const Transform& crTransform) override;
     Box<glm::vec2> getGlobalBounds(const OrthCamera& crCamera) const;
   protected:
     void updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize) override;
@@ -51,7 +52,6 @@ class Sprite : public I_Sprite
     glm::vec2 mPrevPos;
     std::array<Vertex, sNumQuadVerts> mVertexes;
     std::function<void()> mDrawFunc;
-    std::function<void(const Transform&)> mDrawFunc2;
 };
 
 #endif

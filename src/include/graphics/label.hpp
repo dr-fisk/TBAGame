@@ -2,8 +2,8 @@
 #define LABEL_HPP
 
 #include "graphics/component.hpp"
-#include "drawable/sprite.hpp"
 #include "drawable/text.hpp"
+#include "drawable/nineSlicedSprite.hpp"
 
 class Label : public Component
 {
@@ -24,7 +24,7 @@ class Label : public Component
       NONE
     };
 
-    Label() = default;
+    Label();
     Label(const Text& crText);
     Label(const Transform& crTranform, const Text& crText);
     Label(const Text& crText, const Transform& crTranform);
@@ -48,7 +48,7 @@ class Label : public Component
     void verticalAlign();
     void alignText();
 
-    Sprite mSprite;
+    SlicedSprite mSprite;
     Text mText;
     Transform mTextTransform;
     std::shared_ptr<Texture2D> mpTexture;

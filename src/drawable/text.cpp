@@ -54,77 +54,6 @@ Text& Text::setString(const std::string& crString)
 //! @brief Creates layout of Text
 //!
 //! @return None
-void Text::gridfitText()
-{
-  glm::uvec2 dim(0,0);
-  glm::uvec2 offset(0,0);
-  glm::uvec2 size(0,0);
-  float top = 0;
-  float left = 0;
-  glm::vec2 pos(0.0f, 0.0f);
-  glm::vec2 textCoord(0.0f, 0.0f);
-  lg::Color color = lg::Black;
-  Vertex tempVert;
-  mTextVertexes.clear();
-  mTextVertexes.reserve(mText.size());
-  size = mpTexture->getSize();
-  TextVertexData tempTextVert;
-  float minX = 0;
-  float minY = 0;
-  float maxX = 0;
-  float maxY = 0;
-
-  for(size_t i = 0; i < mText.size(); i ++)
-  {
-    // Update for more dynamic behavior
-    if((0 <= mLineWrap) && (left > mLineWrap))
-    {
-      top += mLineSpace; // replace with top member variable plus linespace
-      left = 0;
-    }
-
-    if((mText[i] == U' ') || (mText[i] == U'\n') || (mText[i] == U'\t'))
-   {
-      switch(static_cast<uint8_t>(mText[i]))
-      {
-        case U' ':
-          left += mAdvancedWidth;
-          break;
-        case U'\n':
-          top += mLineSpace; // replace with top member variable plus linespace
-          left = 0;
-          break;
-        case U'\t':
-          left += (mAdvancedWidth * 4);
-          break;
-      }
-
-      continue;
-  }
-    pos.x = left;
-    pos.y = top;
-
-    dim = mpFont->getCharacterDimensions(mCharSize, mText[i]);
-    pos.y += mpFont->getYBearing(mText[i], mCharSize) + mpFont->getYDescent(mText[i], mCharSize);
-    textCoord.x = dim.x;
-    textCoord.y = dim.y;
-    color = lg::Black;
-    offset = mpFont->getOffset(mText[i], mCharSize);
-    tempTextVert.Pos = pos;
-    tempTextVert.Size = dim;
-    updateTextureCoordinates(offset, dim, tempTextVert.Vertexes);
-    updateQuadColor(tempTextVert.Vertexes);
-
-    mTextVertexes.push_back(tempTextVert);
-    left += dim.x;
-  }
-
-  mSize = glm::vec2{left, (top + mCharSize)};
-}
-
-//! @brief Creates layout of Text
-//!
-//! @return None
 void Text::gridfitText(const glm::vec2& crTopLeft)
 {
   glm::uvec2 dim(0,0);
@@ -215,32 +144,6 @@ void Text::draw()
   }
 }
 
-//! @brief Draws text by given tranform to apply to text vertexes
-//!
-//! @param crTransform Transform to apply to text vertexes
-//!
-//! @return None
-void Text::draw(const Transform& crTransform)
-{
-  if(mRender)
-  {
-    if(mGeometryNeedUpdate)
-    {
-      gridfitText();
-    }
-    
-    Transform temp = crTransform;
-    for(auto& vertex : mTextVertexes)
-    {
-      temp.setScale(vertex.Size);
-      temp.setPos({crTransform.getPos().x + vertex.Pos.x, crTransform.getPos().y + vertex.Pos.y});
-      Renderer2D::registerQuad(temp, vertex.Vertexes, mpTexture, {0.0f, 0.0f});
-    }
-
-    mGeometryNeedUpdate = false;
-  }
-}
-
 //! @brief Moves Position by adding x and y values
 //!
 //! @param[in] crMoveVector Vector values to move Text
@@ -278,11 +181,6 @@ std::string& Text::getString()
 glm::vec2 Text::getSize() const
 {
   return mBox.getSize();
-}
-
-glm::vec2 Text::getSize2() const
-{
-  return mSize;
 }
 
 //! @brief Returns Text Position

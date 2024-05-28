@@ -19,14 +19,12 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
 {
   std::string temp = "Envy Code R.ttf";
   mStartTime = std::chrono::system_clock::now();
-  // std::vector<std::shared_ptr<Button<glm::ivec2>>> mButtons;
-
   mNewFont.loadFromFile(temp, 5);
-  std::cout << "Font loaded\n";
+  // std::cout << "Font loaded\n";
   mText = std::make_shared<Text>(mNewFont, "FPS: 0", 12);
   mText->setPos({200.0f, 50.0f});
   mText->setColor(lg::Blue);
-  std::cout << "Text Done\n";
+  // std::cout << "Text Done\n";
   Image temp_img("../src/art.png");
   spriteTexture.create(temp_img.getDimensions().y, temp_img.getDimensions().x, temp_img.getInternalFormat());
   spriteTexture.update(temp_img.getImgData().data(), temp_img.getDimensions(), temp_img.getOffset(), temp_img.getFormat(), temp_img.getType());
@@ -52,9 +50,13 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   tempTexture3->create(tempImg.getDimensions().y, tempImg.getDimensions().x, tempImg.getInternalFormat());
   tempTexture3->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
   mNineSliced = std::make_unique<SlicedSprite>();
+  Transform test;
+  test.setPos({650.0f, 650.0f});
+  test.setScale({200.0f, 50.0f});
   mNineSliced->setTexture(borderedImgTest);
   mNineSliced->setAllBorders(5, 5, 5, 5);
-
+  mNineSliced->fillBorderColor(lg::Red);
+  mNineSliced->setTransform(test);
   // This can change to doing the same thing text does for editing colors
   mButton = std::make_shared<Button>();
   Text text = Text(mNewFont, "Iris will be my wife.", 12);
@@ -281,9 +283,6 @@ void MainMenu::render(const std::shared_ptr<RenderTarget>& crpTarget, const doub
   // sprite_pos = mSprite->getPos();
   RenderCommand::clear();
   Renderer2D::beginScene(mCam);
-  Transform test;
-  test.setPos({650.0f, 650.0f});
-  test.setScale({200.0f, 50.0f});
   // mText->draw();
   mSprite->draw();
   mSprite2->draw();
@@ -293,7 +292,7 @@ void MainMenu::render(const std::shared_ptr<RenderTarget>& crpTarget, const doub
   mScroll2->draw();
   mMenu->draw();
   mLabel->draw();
-  mNineSliced->draw(test);
+  mNineSliced->draw();
   Renderer2D::endScene();
 }
 

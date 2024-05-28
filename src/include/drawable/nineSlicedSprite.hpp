@@ -34,28 +34,38 @@ class SlicedSprite : public I_Sprite
     SlicedSprite();
     ~SlicedSprite() = default;
 
-    void draw(const Transform& crTransform) override;
+    // void draw(const Transform& crTransform) override;
     SlicedSprite& setColor(const lg::Color& crColor) override;
     void movePos(const glm::vec2& crMoveVector) override;
     SlicedSprite& setPos(const glm::vec2& crPos) override;
-    SlicedSprite& setSize(const glm::vec2& crSize) override;
+    SlicedSprite& resize(const glm::vec2& crSize) override;
+    SlicedSprite& setTransform(const Transform& crTransform) override;
     SlicedSprite& setTexture(const Texture2D& crTexture, const bool cInvert=false) override;
     SlicedSprite& setBox(const Box<glm::vec2>& crBox) override;
-    void draw(); // remove
+    void draw();
     glm::vec2 getSize() const;
     glm::vec2 getPos() const;
 
     void setSpecificBorder(const SliceBorder cBorder, const float cSize);
     void setAllBorders(const float cLeft, const float cTop, const float cRight, const float cBottom);
+    void fillBorderColor(const lg::Color& crColor);
+    void removeBorderColor();
   private:
     void updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize) override;
     void setOffset(const NineSliceTypes cType, const glm::vec2& crOffset, glm::vec2& rResult);
+    void updateGeometry();
+    struct SlicedQuadData
+    {
+      std::array<Vertex, sNumQuadVerts> Vertexes;
+      bool UseTexture{false};
+      Transform QuadTransform;
+    };
 
-    std::map<NineSliceTypes, std::array<Vertex, sNumQuadVerts>> mSlicedQuads;
-    float mTop = 1.0f;
-    float mBottom = 1.0f;
-    float mRight = 1.0f;
-    float mLeft = 1.0f;
+    std::map<NineSliceTypes, SlicedQuadData> mSlicedQuads;
+    float mTop = 0.0f;
+    float mBottom = 0.0f;
+    float mRight = 0.0f;
+    float mLeft = 0.0f;
 };
 
 #endif
