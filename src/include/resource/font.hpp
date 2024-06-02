@@ -7,7 +7,7 @@
 
 #include "color.hpp"
 #include "lestTtf.h"
-#include "utility/plot_utility.hpp"
+#include "utility/edgeTypeDefs.hpp"
 #include "renderEngine/texture2D.hpp"
 #include "glm/vec2.hpp"
 
@@ -76,7 +76,8 @@ class Font
     int32_t mAscender;
     int32_t mDescender;
     uint16_t mAdvancedWidth;
-    float mUpm;
+    uint16_t mUnitsPerEm;
+    uint16_t mSmallestPointSize;
     std::string mFontFamily;
 };
 

@@ -8,12 +8,13 @@ class ToggleButton : public AbstractButton
   public:
     ToggleButton();
     ~ToggleButton() = default;
-    void draw() override;
+    // void draw() override;
   private:
     virtual void buttonClicked() override;
+    void setButtonTexture() override;
 
+    std::shared_ptr<Texture2D> mpCheckedTexture;
     bool mToggled;
-    // Sprite mToggleSprite;
 };
 
 #endif

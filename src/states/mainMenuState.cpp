@@ -13,9 +13,8 @@
 #include "glm/ext.hpp"
 #include "glm/gtx/string_cast.hpp"
 #include "math/lestMath.hpp"
-MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
-                   const std::shared_ptr<ResourceManager>& crpResourceMngr) :
-                   State(crStates, crpResourceMngr)
+MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
+                   State(crStates)
 {
   std::string temp = "Envy Code R.ttf";
   mStartTime = std::chrono::system_clock::now();
@@ -36,47 +35,55 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   mSprite2 = std::make_shared<Sprite>(spriteTexture, Box(glm::vec2{600.0f, 600.0f}, glm::vec2{16, 16}));
   Image tempImg("../src/SquareWBorder.png");
   std::shared_ptr<Texture2D> tempTexture = std::make_shared<Texture2D>();
-  std::shared_ptr<Texture2D> tempTexture2 = std::make_shared<Texture2D>();
-  std::shared_ptr<Texture2D> tempTexture3 = std::make_shared<Texture2D>();
   borderedImgTest.create(tempImg.getDimensions().y, tempImg.getDimensions().x, tempImg.getInternalFormat());
   borderedImgTest.update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
   tempImg.recolorBorderedShape(lg::Color(135, 135, 135), lg::Color(170, 170, 170), lg::White);
   tempTexture->create(tempImg.getDimensions().y, tempImg.getDimensions().x, tempImg.getInternalFormat());
   tempTexture->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
-  tempImg.recolorBorderedShape(lg::Color(210, 210, 210), lg::Color(170, 170, 170), lg::Color(170, 170, 170));
-  tempTexture2->create(tempImg.getDimensions().y, tempImg.getDimensions().x, tempImg.getInternalFormat());
-  tempTexture2->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
-  tempImg.recolorBorderedShape(lg::Color(230, 230, 230), lg::Color(230, 230, 230), lg::Color(170, 170, 170));
-  tempTexture3->create(tempImg.getDimensions().y, tempImg.getDimensions().x, tempImg.getInternalFormat());
-  tempTexture3->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
+  Image btnImg("../src/ButtonTexture.png");
+  Image btnImg2("../src/InvertedButtonTexture.png");
+  std::shared_ptr<Texture2D> btnTexture = std::make_shared<Texture2D>();
+  btnTexture->create(btnImg.getDimensions().y, btnImg.getDimensions().x, btnImg.getInternalFormat());
+  btnTexture->update(btnImg.getImgData().data(), btnImg.getDimensions(), btnImg.getOffset(), btnImg.getFormat(), btnImg.getType());
+  std::shared_ptr<Texture2D> btnTexture2 = std::make_shared<Texture2D>();
+  btnTexture2->create(btnImg2.getDimensions().y, btnImg2.getDimensions().x, btnImg2.getInternalFormat());
+  btnTexture2->update(btnImg2.getImgData().data(), btnImg2.getDimensions(), btnImg2.getOffset(), btnImg2.getFormat(), btnImg2.getType());
+
   mNineSliced = std::make_unique<SlicedSprite>();
   Transform test;
   test.setPos({650.0f, 650.0f});
   test.setScale({200.0f, 50.0f});
   mNineSliced->setTexture(borderedImgTest);
-  mNineSliced->setAllBorders(5, 5, 5, 5);
+  mNineSliced->setBorders(5, 5, 5, 5);
   mNineSliced->fillBorderColor(lg::Red);
   mNineSliced->setTransform(test);
   // This can change to doing the same thing text does for editing colors
   mButton = std::make_shared<Button>();
-  Text text = Text(mNewFont, "Iris will be my wife.", 12);
+  Text text = Text(mNewFont, "Iris will be my wifeA6?!", 18);
   mButton->setText(text)
-           .setTextColor(lg::Red)
-           .setDefaultTexture(tempTexture)
-           .setHoverTexture(tempTexture2)
-           .setPressedTexture(tempTexture3)
-           .setVerticalAlignment(Label::VerticalAlign::CENTER)
+           .setTextColor(lg::Black)
+           .setDefaultTexture(btnTexture)
+           .setHoverTexture(btnTexture2)
+           .setPressedTexture(btnTexture2)
+           .  setVerticalAlignment(Label::VerticalAlign::CENTER)
            .setHorizontalAlignment(Label::HorizontalAlign::CENTER)
            .setPos({250.0f, 250.0f})
            .resize({200, 50})
+           .setBorder(2)
+          //  .setBorderColor(ButtonState::DEFAULT_STATE, lg::Color(135, 135, 135))
+          //  .setBorderColor(ButtonState::HOVER_STATE, lg::Color(175, 175, 175))
+          //  .setBorderColor(ButtonState::PRESSED_STATE, lg::Color(230, 230, 230))
+           .setBorderColor(ButtonState::DEFAULT_STATE, lg::Black)
+           .setBorderColor(ButtonState::HOVER_STATE, lg::Black)
+           .setBorderColor(ButtonState::PRESSED_STATE, lg::Black)
            .onClick(&MainMenu::buttonCallback);
 
   mScroll = std::make_shared<Scrollbar>(Scrollbar::VERTICAL, 0, 800);
   Button tempButton = Button();
 
-  tempButton.setDefaultColor(lg::Grey)
-          .setHoverColor(lg::Green)
-          .setPressedColor(lg::Green)
+  tempButton.setBackgroundColor(ButtonState::DEFAULT_STATE, lg::Grey)
+          .setBackgroundColor(ButtonState::HOVER_STATE, lg::Green)
+          .setBackgroundColor(ButtonState::PRESSED_STATE, lg::Green)
           .setPadding(glm::vec2(50, 50))
           .setPos({900, 50})
           .resize({20, 60});
@@ -89,15 +96,15 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
   mLabel->resize(glm::vec2(75.0f, 50.0f));
   mLabel->setHorizontalAlign(Label::HorizontalAlign::CENTER);
   mLabel->setVerticalAlign(Label::VerticalAlign::CENTER);
-  mLabel->setBackgroundColor(lg::Yellow);
+  mLabel->setBackgroundColor(lg::White);
 
   mScroll->addComponent(mLabel)
          .addComponent(mButton);
 
   mScroll2 = std::make_shared<Scrollbar>(Scrollbar::HORIZONTAL, 0, 1000);
-  tempButton.setDefaultColor(lg::Grey)
-          .setHoverColor(lg::Green)
-          .setPressedColor(lg::Green)
+  tempButton.setBackgroundColor(ButtonState::DEFAULT_STATE, lg::Grey)
+          .setBackgroundColor(ButtonState::HOVER_STATE, lg::Green)
+          .setBackgroundColor(ButtonState::PRESSED_STATE, lg::Green)
           .setPadding(glm::vec2(50, 50))
           .setPos({60, 900})
           .resize({60, 20});
@@ -126,8 +133,7 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
        .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
   tempMenu = std::make_shared<MenuItem>();
   labelText.setString("Item2");
-  tempMenu
-       ->setText(labelText)
+  tempMenu->setText(labelText)
        .setVerticalAlignment(Label::VerticalAlign::CENTER)
        .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
   menu2->addMenuItem(tempMenu);
@@ -139,12 +145,22 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
        .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
   tempMenu = std::make_shared<MenuItem>();
   labelText.setString("Item3");
-  tempMenu
-       ->setText(labelText)
+  tempMenu->setText(labelText)
        .setVerticalAlignment(Label::VerticalAlign::CENTER)
        .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
   menu3->addMenuItem(tempMenu);
   mMenu->addMenuItem(menu3);
+
+  mpCheckbox = std::make_unique<ToggleButton>();
+  mpCheckbox->resize({32,32})
+            .setPos({550, 550})
+            .setBackgroundColor(ButtonState::DEFAULT_STATE, lg::White)
+            .setBackgroundColor(ButtonState::HOVER_STATE, lg::White)
+            .setBackgroundColor(ButtonState::PRESSED_STATE, lg::White)
+            .setBorder(2)
+            .setBorderColor(ButtonState::DEFAULT_STATE, lg::Black)
+            .setBorderColor(ButtonState::HOVER_STATE, lg::Grey)
+            .setBorderColor(ButtonState::PRESSED_STATE, lg::White);
   // mLabel->setSprite(labelSprite);
   // mLabel->setText(labelText);
   // mFbo = std::make_shared<FrameBuffer>();
@@ -178,6 +194,7 @@ void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const
     mScroll->update(tempEvent);
     mScroll2->update(tempEvent);
     mMenu->handleEvent(tempEvent);
+    mpCheckbox->handleEvent(tempEvent);
     switch(tempEvent.Type)
     {
       case Event::EventType::KeyPress:
@@ -293,6 +310,7 @@ void MainMenu::render(const std::shared_ptr<RenderTarget>& crpTarget, const doub
   mMenu->draw();
   mLabel->draw();
   mNineSliced->draw();
+  mpCheckbox->draw();
   Renderer2D::endScene();
 }
 

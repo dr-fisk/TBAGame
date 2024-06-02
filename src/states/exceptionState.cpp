@@ -4,8 +4,7 @@
 #include "drawable/drawable.hpp"
 
 ExceptionState::ExceptionState(const std::stack<std::shared_ptr<State>>& crStates,
-                               const std::shared_ptr<ResourceManager> crpResourceMngr,
-                               const std::string& crError) : State(crStates, crpResourceMngr)
+                               const std::string& crError) : State(crStates)
 {
   mError = crError;
   mpWindow = std::make_shared<RenderWindow>(800, 800, "Exception Encountered");

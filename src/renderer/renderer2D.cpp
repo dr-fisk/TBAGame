@@ -23,7 +23,7 @@ static const uint32_t sMaxQuads = 1000;
 static const uint32_t sMaxVertices = sMaxQuads * 4;
 static const uint32_t sMaxIndices = sMaxQuads * 6;
 static int32_t sMaxTextures;
-
+static const glm::mat4 sIDENTITY_MATRIX(1.0f);
 enum VertexPositions
 {
   BOTTOM_LEFT,
@@ -184,10 +184,10 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
   }
 
     // Apparently rounding crPos here may potentially cause stutters during movement, float values can cause rasterization issues so it's a trade off
-    glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(crPos, 0.0f)) * /*rotation*/ glm::scale(glm::mat4(1.0f),
+    glm::mat4 transform = glm::translate(sIDENTITY_MATRIX, glm::vec3(crPos, 0.0f)) * /*rotation*/ glm::scale(sIDENTITY_MATRIX,
                                        {crSize.x, crSize.y, 1.0f});
     // Setting default color to purple, so if something bad happens when rendering it's in your face
-    for(int i = 0; i < sNumQuadVerts; i ++)
+    for(int i = 0; i < sNumQuadVerts; ++i)
     {
       renderData->Quads[renderData->NumVerts].Pos = renderData->ViewProjection * transform * sQuadVertexes[i];
       renderData->Quads[renderData->NumVerts].Rgba = rVertexes[i].Rgba;
@@ -215,13 +215,11 @@ void Renderer2D::registerQuad(const Transform& crTransform,
     nextBatch();
   }
 
-    // Apparently rounding crPos here may potentially cause stutters during movement, float values can cause rasterization issues so it's a trade off
-  glm::mat4 transform = crTransform.translate(cOffset) * /*rotation*/ glm::scale(glm::mat4(1.0f), glm::vec3{crTransform.getScale(), 1.0f});
-  for(int i = 0; i < sNumQuadVerts; i ++)
+  glm::mat4 transform = crTransform.translate(cOffset) * /*rotation*/ glm::scale(sIDENTITY_MATRIX, glm::vec3{crTransform.getScale(), 1.0f});
+  for(int i = 0; i < sNumQuadVerts; ++i)
   {
+    renderData->Quads[renderData->NumVerts] = rVertexes[i];
     renderData->Quads[renderData->NumVerts].Pos = renderData->ViewProjection * transform * sQuadVertexes[i];
-    renderData->Quads[renderData->NumVerts].Rgba = rVertexes[i].Rgba;
-    renderData->Quads[renderData->NumVerts].TextCoord = sTextCoords[i];
     renderData->Quads[renderData->NumVerts].TextureIndex = -1;
     rVertexes[i] = renderData->Quads[renderData->NumVerts];
 
@@ -255,7 +253,7 @@ void Renderer2D::registerQuad(const Transform& crTransform,
   }
 
   float textureIndex = -1.0f;
-  for(size_t i = 0; i < renderData->TextureCacheIndex; i ++)
+  for(size_t i = 0; i < renderData->TextureCacheIndex; ++i)
   {
     if(*renderData->TextureCache[i] == *crpTexture)
     {
@@ -278,17 +276,15 @@ void Renderer2D::registerQuad(const Transform& crTransform,
     renderData->TextureCacheIndex ++;
   }
 
-  // rotation  glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3{0.0, 0.0, 1.0}) *
-  glm::mat4 transform = crTransform.translate(cOffset) * /*rotation*/ glm::scale(glm::mat4(1.0f), glm::vec3{crTransform.getScale(), 1.0f});
+  // rotation  glm::rotate(sIDENTITY_MATRIX, glm::radians(45.0f), glm::vec3{0.0, 0.0, 1.0}) *
+  glm::mat4 transform = crTransform.translate(cOffset) * /*rotation*/ glm::scale(sIDENTITY_MATRIX, glm::vec3{crTransform.getScale(), 1.0f});
 
   // Setting default color to purple, so if something bad happens when rendering it's in your face
   for(int i = 0; i < sNumQuadVerts; i ++)
   {
+    renderData->Quads[renderData->NumVerts] = rVertexes[i];
     renderData->Quads[renderData->NumVerts].Pos = renderData->ViewProjection * transform * sQuadVertexes[i];
-    renderData->Quads[renderData->NumVerts].TextCoord = rVertexes[i].TextCoord;
     renderData->Quads[renderData->NumVerts].TextureIndex = textureIndex;
-    renderData->Quads[renderData->NumVerts].OverrideSampleColor = rVertexes[i].OverrideSampleColor;
-    renderData->Quads[renderData->NumVerts].Rgba = rVertexes[i].Rgba;
     rVertexes[i] = renderData->Quads[renderData->NumVerts];
 
     renderData->NumVerts ++;
@@ -313,7 +309,7 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
   }
 
   float textureIndex = -1.0f;
-  for(size_t i = 0; i < renderData->TextureCacheIndex; i ++)
+  for(size_t i = 0; i < renderData->TextureCacheIndex; ++i)
   {
     if(*renderData->TextureCache[i] == *crpTexture)
     {
@@ -336,12 +332,12 @@ void Renderer2D::registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
     renderData->TextureCacheIndex ++;
   }
 
-    // rotation  glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3{0.0, 0.0, 1.0}) *
-    glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(crPos, 0.0f)) * glm::scale(glm::mat4(1.0f),
+    // rotation  glm::rotate(sIDENTITY_MATRIX, glm::radians(45.0f), glm::vec3{0.0, 0.0, 1.0}) *
+    glm::mat4 transform = glm::translate(sIDENTITY_MATRIX, glm::vec3(crPos, 0.0f)) * glm::scale(sIDENTITY_MATRIX,
                                         {crSize.x, crSize.y, 1.0f});
 
     // Setting default color to purple, so if something bad happens when rendering it's in your face
-    for(int i = 0; i < sNumQuadVerts; i ++)
+    for(int i = 0; i < sNumQuadVerts; ++i)
     {
       renderData->Quads[renderData->NumVerts].Pos = renderData->ViewProjection * transform * sQuadVertexes[i];
       renderData->Quads[renderData->NumVerts].TextCoord = rVertexes[i].TextCoord;
@@ -390,7 +386,7 @@ void Renderer2D::flush()
   sSharedMutex.lock_shared();
   RenderData* renderData = &sContextMap.at(context);
 
-  for(size_t i = renderData->PrevRenderTextureCacheIndex; i < renderData->TextureCacheIndex; i++)
+  for(size_t i = renderData->PrevRenderTextureCacheIndex; i < renderData->TextureCacheIndex; ++i)
   {
     renderData->TextureCache[i]->bind(i);
   }

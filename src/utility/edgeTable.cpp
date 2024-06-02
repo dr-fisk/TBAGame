@@ -19,6 +19,7 @@ namespace EdgeTable
   //! @brief Updates the x intersection value of crNode from the following formula x + y * dx/dy
   //!
   //! @param[in]  crNode  Node from edge table to update x intersection
+  //! @param[in]  cDy
   //!
   //! @return New x intersection value
   float currentXVal(const EdgeTableNode& crNode, const float cDy)
@@ -57,11 +58,16 @@ namespace EdgeTable
   {
     for(int i = rEdgeTableIdx; i < cNumEdges; i ++)
     {
-      if (crEdgeTable[i].yLower < cY || decimalCmp(cY, crEdgeTable[i].yLower))
+      if(crEdgeTable[i].yLower <= cY)
       {
-        rEdgeTableIdx ++;
         rActiveEdgeTable[rActiveTableIdx] = crEdgeTable[i];
+        rActiveEdgeTable[rActiveTableIdx].xIntersect = currentXVal(rActiveEdgeTable[rActiveTableIdx], cY - rActiveEdgeTable[rActiveTableIdx].yLower);
         rActiveTableIdx ++;
+        rEdgeTableIdx ++;
+      }
+      else
+      {
+        break;
       }
     }
 
@@ -69,7 +75,7 @@ namespace EdgeTable
 
     for(int i = 0; i < rActiveTableIdx; i ++)
     {
-      if (rActiveEdgeTable[i].yUpper < cY || decimalCmp(cY, rActiveEdgeTable[i].yUpper) || cY + 1 >= cMaxY)
+      if(rActiveEdgeTable[i].yUpper <= cY)
       {
         for(int j = i; j < rActiveTableIdx - 1; j ++)
         {

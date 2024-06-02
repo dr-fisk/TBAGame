@@ -26,6 +26,7 @@ class Scrollbar : public Component
     void draw();
 
     Scrollbar& addComponent(const std::shared_ptr<Component> pComponent);
+    void updateUI() override;
   private:
     void mouseMoveEvent(const Event& crEvent);
 

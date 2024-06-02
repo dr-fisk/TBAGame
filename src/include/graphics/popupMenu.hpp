@@ -27,6 +27,7 @@ class PopupMenu : public Component, public PopupMenuListener<PopupMenu>
     void popupMenuWillBecomeVisible(const PopupMenuEvent<PopupMenu>& crEvent) override;
     void setVisible(const bool cVisible) override;
     std::vector<std::shared_ptr<MenuItem>> getMenuItems() const;
+    void updateUI() override;
   private:
     void updatePopupMenuItemPositions();
     void notifyCancelled();

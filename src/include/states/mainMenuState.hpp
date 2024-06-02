@@ -19,11 +19,12 @@
 #include "glm/vec2.hpp"
 #include "renderer/camera.hpp"
 #include "drawable/nineSlicedSprite.hpp"
+#include "graphics/toggleButton.hpp"
 
 class MainMenu : public State
 {
   public:
-    MainMenu(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<ResourceManager>& crpResourceMngr);
+    MainMenu(const std::stack<std::shared_ptr<State>>& crStates);
     ~MainMenu();
     void fixedUpdate(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);
     void render(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);
@@ -48,6 +49,7 @@ class MainMenu : public State
     std::shared_ptr<OrthCamera> mCam;
     std::shared_ptr<Label> mLabel;
     std::unique_ptr<SlicedSprite> mNineSliced;
+    std::unique_ptr<ToggleButton> mpCheckbox;
     glm::vec2 sprite_pos;
     glm::vec2 curr_pos;
     float xMove;

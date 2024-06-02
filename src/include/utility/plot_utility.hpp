@@ -9,13 +9,6 @@
 #include "color.hpp"
 #include "glm/vec2.hpp"
 
-template <typename T>
-struct Edges
-{
-  T p1;
-  T p2;
-};
-
 template <typename T> class PlotUtility
 {
   public:
