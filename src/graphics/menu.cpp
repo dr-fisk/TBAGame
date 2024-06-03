@@ -21,7 +21,7 @@ Menu::Menu()
 //! @return None
 void Menu::buttonClicked()
 {
-  mState = HOVER_STATE;
+  mState = ButtonState::HOVER_STATE;
   std::cout << "Clicked " << getString() << std::endl;
   if(!mTopLevel)
   {
@@ -60,21 +60,10 @@ void Menu::draw()
 {
   if(mUpdateUI)
   {
-    mpPopupMenu->setPreferredSize(mTransform.getScale().x, mTransform.getScale().y);
-    if(!isTopLevel())
-    {
-      mpPopupMenu->setPos({mTransform.getPos().x + (mTransform.getScale().x / 2.0f),
-                        mTransform.getPos().y - (mTransform.getScale().y / 2.0f)});
-    }
-    else
-    {
-      mpPopupMenu->setPos({mTransform.getPos().x - (mTransform.getScale().x / 2.0f),
-                        mTransform.getPos().y + (mTransform.getScale().y / 2.0f)});
-    }
-    mUpdateUI = false;
+    updateUI();
   }
 
-  mLabel.draw();
+  AbstractButton::draw();
   mpPopupMenu->draw();
 }
 
@@ -261,4 +250,23 @@ void Menu::popupMenuWillBecomeVisible(const PopupMenuEvent<PopupMenu>& crEvent)
 std::vector<std::shared_ptr<MenuItem>> Menu::getMenuItems() const
 {
   return mpPopupMenu->getMenuItems();
+}
+
+void Menu::updateUI()
+{
+  mpPopupMenu->setPreferredSize(mTransform.getScale().x, mTransform.getScale().y);
+  if(!isTopLevel())
+  {
+    mpPopupMenu->setPos({mTransform.getPos().x + (mTransform.getScale().x / 2.0f),
+                      mTransform.getPos().y - (mTransform.getScale().y / 2.0f)});
+  }
+  else
+  {
+    mpPopupMenu->setPos({mTransform.getPos().x - (mTransform.getScale().x / 2.0f),
+                      mTransform.getPos().y + (mTransform.getScale().y / 2.0f)});
+  }
+
+  AbstractButton::updateUI();
+
+  mUpdateUI = false;
 }

@@ -5,10 +5,13 @@
 //! @return Abstract Button object
 AbstractButton::AbstractButton()
 {
-  mDefaultColor = lg::Grey;
-  mLabel.setBackgroundColor(mDefaultColor);
-  mHoverColor = lg::Green;
-  mPressedColor = lg::Red;
+  mDefaultBackgroundColor = lg::Grey;
+  mLabel.setBackgroundColor(mDefaultBackgroundColor);
+  mHoverBackgroundColor = lg::Green;
+  mPressedBackgroundColor = lg::Red;
+  mDefaultBorderColor = lg::Transparent;
+  mHoverBorderColor = lg::Transparent;
+  mPressedBorderColor = lg::Transparent;
   mState = ButtonState::DEFAULT_STATE;
 }
 
@@ -57,27 +60,30 @@ void AbstractButton::mouseMoveUpdate(const Event::MouseMoveEvent& crEvent)
 {
   switch(mState)
   {
-    case DEFAULT_STATE:
+    case ButtonState::DEFAULT_STATE:
       if(isInAABB({crEvent.x, crEvent.y}))
       {
-        mState = HOVER_STATE;
-        setButtonTexture();
+        mState = ButtonState::HOVER_STATE;
+        mUpdateUI = true;
+    
       }
 
       break;
-    case HOVER_STATE:
+    case ButtonState::HOVER_STATE:
       if(!isInAABB({crEvent.x, crEvent.y}))
       {
-        mState = DEFAULT_STATE;
-        setButtonTexture();
+        mState = ButtonState::DEFAULT_STATE;
+    
+        mUpdateUI = true;
       }
 
       break;
-    case PRESSED_STATE:
+    case ButtonState::PRESSED_STATE:
       if(!isInAABB({crEvent.x, crEvent.y}, mPressedPadding))
       {
-        mState = DEFAULT_STATE;
-        setButtonTexture();
+        mState = ButtonState::DEFAULT_STATE;
+    
+        mUpdateUI = true;
       }
       break;
   }
@@ -92,11 +98,12 @@ void AbstractButton::mouseButtonUpdate(const Event::MouseButtonEvent& crEvent)
 {
   switch(mState)
   {
-    case HOVER_STATE:
+    case ButtonState::HOVER_STATE:
       if(isInAABB({crEvent.x, crEvent.y}))
       { 
-        mState = PRESSED_STATE;
-        setButtonTexture();
+        mState = ButtonState::PRESSED_STATE;
+    
+        mUpdateUI = true;
       }
 
       break;
@@ -112,12 +119,11 @@ void AbstractButton::mouseButtonRelease(const Event::MouseButtonEvent& crEvent)
 {
   switch(mState)
   {
-    case PRESSED_STATE:
+    case ButtonState::PRESSED_STATE:
       if(isInAABB({crEvent.x, crEvent.y}))
       {
         buttonClicked();
-        setButtonTexture();
-
+    
         for(const auto& actionListener : mActionListeners)
         {
           actionListener->performAction(ActionEvent<AbstractButton>(this, 
@@ -133,9 +139,11 @@ void AbstractButton::mouseButtonRelease(const Event::MouseButtonEvent& crEvent)
       }
       else
       {
-        mState = DEFAULT_STATE;
-        setButtonTexture();
+        mState = ButtonState::DEFAULT_STATE;
+    
       }
+
+      mUpdateUI = true;
       break;
   }
 }
@@ -214,7 +222,8 @@ AbstractButton& AbstractButton::setTextPos(const glm::vec2& crPos)
 AbstractButton& AbstractButton::setDefaultTexture(const std::shared_ptr<Texture2D>& crpTexture)
 {
   mpDefaultTexture = crpTexture;
-  setButtonTexture();
+  mUpdateUI = true;
+
   return *this;
 }
 
@@ -227,7 +236,8 @@ AbstractButton& AbstractButton::setDefaultTexture(const std::shared_ptr<Texture2
 AbstractButton& AbstractButton::setHoverTexture(const std::shared_ptr<Texture2D>& crpTexture)
 {
   mpHoverTexture = crpTexture;
-  setButtonTexture();
+  mUpdateUI = true;
+
   return *this;
 }
 
@@ -240,43 +250,7 @@ AbstractButton& AbstractButton::setHoverTexture(const std::shared_ptr<Texture2D>
 AbstractButton& AbstractButton::setPressedTexture(const std::shared_ptr<Texture2D>& crpTexture)
 {
   mpPressedTexture = crpTexture;
-  setButtonTexture();
-  return *this;
-}
-
-//! @brief Sets the Default Button Color
-//!
-//! @param crColor Color of Button
-//!
-//! @return None
-AbstractButton& AbstractButton::setDefaultColor(const lg::Color& crColor)
-{
-  mDefaultColor = crColor;
-  setButtonTexture();
-  return *this;
-}
-
-//! @brief Sets the Hover Button Color
-//!
-//! @param crColor Color of Button
-//!
-//! @return None
-AbstractButton& AbstractButton::setHoverColor(const lg::Color& crColor)
-{
-  mHoverColor = crColor;
-  setButtonTexture();
-  return *this;
-}
-
-//! @brief Sets the Pressed Button Color
-//!
-//! @param crColor Color of Button
-//!
-//! @return None
-AbstractButton& AbstractButton::setPressedColor(const lg::Color& crColor)
-{
-  mPressedColor = crColor;
-  setButtonTexture();
+  mUpdateUI = true;
   return *this;
 }
 
@@ -316,36 +290,50 @@ void AbstractButton::setButtonTexture()
 {
   switch(mState)
   {
-    case DEFAULT_STATE:
+    case ButtonState::DEFAULT_STATE:
       if(nullptr != mpDefaultTexture)
       {
         mLabel.setTexture(mpDefaultTexture);
       }
       else
       {
-        mLabel.setBackgroundColor(mDefaultColor);
+        mLabel.setBackgroundColor(mDefaultBackgroundColor);
+      }
+
+      if(mLabel.hasBorder())
+      {
+        mLabel.setBorderColor(mDefaultBorderColor);
       }
       break;
-    case HOVER_STATE:
+    case ButtonState::HOVER_STATE:
       if(nullptr != mpHoverTexture)
       {
         mLabel.setTexture(mpHoverTexture);
       }
       else
       {
-        mLabel.setBackgroundColor(mHoverColor);
+        mLabel.setBackgroundColor(mHoverBackgroundColor);
+      }
+
+      if(mLabel.hasBorder())
+      {
+        mLabel.setBorderColor(mHoverBorderColor);
       }
       break;
-    case PRESSED_STATE:
+    case ButtonState::PRESSED_STATE:
       if(nullptr != mpPressedTexture)
       {
         mLabel.setTexture(mpPressedTexture);
       }
       else
       {
-        mLabel.setBackgroundColor(mPressedColor);
+        mLabel.setBackgroundColor(mPressedBackgroundColor);
       }
 
+      if(mLabel.hasBorder())
+      {
+        mLabel.setBorderColor(mPressedBorderColor);
+      }
       break;
   }
 }
@@ -356,7 +344,11 @@ void AbstractButton::setButtonTexture()
 void AbstractButton::draw()
 {
   // Abstract buttons do not need to update anything itself, other classes that extend may have to
-  mUpdateUI = false;
+
+  if(mUpdateUI)
+  {
+    updateUI();
+  }
 
   mLabel.draw();
 }
@@ -416,10 +408,11 @@ AbstractButton& AbstractButton::setText(const Text& crText)
 //!
 //! @param pFunc Function to call when button is clicked
 //!
-//! @return None
-void AbstractButton::onClick(std::function<void()> pFunc)
+//! @return Abstract Button reference to chain calls
+AbstractButton& AbstractButton::onClick(std::function<void()> pFunc)
 {
   mCallback = pFunc;
+  return *this;
 }
 
 //! @brief Gets Button Position
@@ -462,7 +455,7 @@ bool AbstractButton::wasClicked() const
 //! @return true if pressed, false otherwise 
 bool AbstractButton::isPressed() const
 {
-  return mState == PRESSED_STATE;
+  return mState == ButtonState::PRESSED_STATE;
 }
 
 //! @brief TODO
@@ -509,7 +502,7 @@ void AbstractButton::removeActionListener(const ActionListener<AbstractButton>* 
 //! @return true if mouse hovering over button, false otherwise 
 bool AbstractButton::isHover() const
 {
-  return mState == HOVER_STATE;
+  return mState == ButtonState::HOVER_STATE;
 }
 
 //! @brief Returns whether Button is in a default state meaning not pressed, not hover
@@ -517,5 +510,60 @@ bool AbstractButton::isHover() const
 //! @return true if button is in default state, false otherwise 
 bool AbstractButton::isDefault() const
 {
-  return mState == DEFAULT_STATE;
+  return mState == ButtonState::DEFAULT_STATE;
+}
+
+AbstractButton& AbstractButton::setBorder(const float cBorderSize)
+{
+  mLabel.setBorder(cBorderSize);
+  mUpdateUI = true;
+  return *this;
+}
+
+AbstractButton& AbstractButton::setBackgroundColor(const ButtonState cState, const lg::Color& crColor)
+{
+  switch(cState)
+  {
+    case ButtonState::DEFAULT_STATE:
+      mDefaultBackgroundColor = crColor;
+      break;
+    case ButtonState::HOVER_STATE:
+      mHoverBackgroundColor = crColor;
+      break;
+    case ButtonState::PRESSED_STATE:
+      mPressedBackgroundColor = crColor;
+      break;
+    default:
+      return *this;  
+  }
+
+  mUpdateUI = true;
+  return *this;
+}
+
+AbstractButton& AbstractButton::setBorderColor(const ButtonState cState, const lg::Color& crColor)
+{
+  switch(cState)
+  {
+    case ButtonState::DEFAULT_STATE:
+      mDefaultBorderColor = crColor;
+      break;
+    case ButtonState::HOVER_STATE:
+      mHoverBorderColor = crColor;
+      break;
+    case ButtonState::PRESSED_STATE:
+      mPressedBorderColor = crColor;
+      break;
+    default:
+      return *this;  
+  }
+
+  mUpdateUI = true;
+  return *this; 
+}
+
+void AbstractButton::updateUI()
+{
+  setButtonTexture();
+  mUpdateUI = false;
 }

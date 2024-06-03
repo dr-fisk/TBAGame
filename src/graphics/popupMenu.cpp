@@ -79,8 +79,7 @@ void PopupMenu::draw()
 {
   if(mUpdateUI)
   {
-    updatePopupMenuItemPositions();
-    mUpdateUI = false;
+    updateUI();
   }
 
   if(mVisible)
@@ -299,4 +298,10 @@ void PopupMenu::setVisible(const bool cVisible)
 std::vector<std::shared_ptr<MenuItem>> PopupMenu::getMenuItems() const
 {
   return mComponents;
+}
+
+void PopupMenu::updateUI()
+{
+  updatePopupMenuItemPositions();
+  mUpdateUI = false;
 }

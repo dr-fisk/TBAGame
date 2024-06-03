@@ -40,7 +40,7 @@ SHADER = $(SHADERSPATH)/shader1.txt
 ifeq (debug, $(BUILD))
 CFLAGS = -g
 else
-CFLAGS = -O2
+CFLAGS = -O3
 endif
 
 ifeq (release, $(BUILD))
@@ -68,7 +68,8 @@ linkFiles  = common.cpp \
 
 stateFiles = state.cpp \
              mainMenuState.cpp \
-             exceptionState.cpp
+             exceptionState.cpp \
+						 sandboxState.cpp
 
 windowFiles = renderWindow.cpp \
               renderTarget.cpp \

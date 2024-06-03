@@ -65,7 +65,7 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
            .setDefaultTexture(btnTexture)
            .setHoverTexture(btnTexture2)
            .setPressedTexture(btnTexture2)
-           .  setVerticalAlignment(Label::VerticalAlign::CENTER)
+           .setVerticalAlignment(Label::VerticalAlign::CENTER)
            .setHorizontalAlignment(Label::HorizontalAlign::CENTER)
            .setPos({250.0f, 250.0f})
            .resize({200, 50})

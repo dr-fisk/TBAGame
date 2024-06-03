@@ -8,6 +8,7 @@
 #include "game.hpp"
 #include "states/mainMenuState.hpp"
 #include "states/exceptionState.hpp"
+#include "states/sandboxState.hpp"
 #include "renderer/renderer2D.hpp"
 #include "renderer/renderCommand.hpp"
 #include "glm/vec2.hpp"
@@ -23,7 +24,8 @@ uint16_t gFps = 0;
 void Game::initMainState()
 {
   //mStates.push(std::make_shared<ExceptionState>(mStates, "TESTING", mShaders[MAIN_SHADER], mpWindow->getGlWindow(), mpVao));
-  mStates.push(std::make_shared<MainMenu>(mStates, mpResourceMngr));
+  mStates.push(std::make_shared<MainMenu>(mStates));
+  // mStates.push(std::make_shared<SandboxState>(mStates));
 }
 
 //! @brief Default Constructor
@@ -45,7 +47,6 @@ Game::Game()
   gView.y = view[1];
   gView.WindowWidth = view[2];
   gView.WindowHeight = view[3];
-  mpResourceMngr = std::make_shared<ResourceManager>();
 
   // mFbo = std::make_shared<FrameBuffer>();
 
@@ -76,8 +77,6 @@ Game::~Game()
     mStates.pop();
   }
 
-  // mFbo.reset();
-  mpResourceMngr.reset();
   mpWindow.reset();
   glfwTerminate();
 }

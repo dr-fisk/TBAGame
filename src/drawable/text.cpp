@@ -8,6 +8,7 @@
 
 Text::Text() : mpFont(nullptr), mpTexture(nullptr)
 {
+  mBox.setTopLeft({0, 0});
 }
 
 //! @brief Text Constructor
@@ -28,6 +29,7 @@ Text::Text(const Font& crFont, const std::string& crText, const uint8_t cCharSiz
     mpFont->loadGlyphs(mCharSize);
   }
 
+  mBox.setTopLeft({0, 0});
   mCapHeight = mpFont->getCapitalHeight();
   mAdvancedWidth = (static_cast<float>(mpFont->getAdvancedWidth()) / static_cast<float>(mpFont->getCapitalHeight())) 
                    * (mCharSize - 1);
@@ -56,6 +58,11 @@ Text& Text::setString(const std::string& crString)
 //! @return None
 void Text::gridfitText(const glm::vec2& crTopLeft)
 {
+  if(!mpFont)
+  {
+    return;
+  }
+
   glm::uvec2 dim(0,0);
   glm::uvec2 offset(0,0);
   float top = crTopLeft.y;
@@ -66,6 +73,7 @@ void Text::gridfitText(const glm::vec2& crTopLeft)
   mTextVertexes.clear();
   mTextVertexes.reserve(mText.size());
   TextVertexData tempTextVert;
+  const float WHITE_SPACE_WIDTH = mpFont->getCharacterDimensions(mCharSize, ' ').x;
 
   for(size_t i = 0; i < mText.size(); i ++)
   {
@@ -81,14 +89,14 @@ void Text::gridfitText(const glm::vec2& crTopLeft)
       switch(static_cast<uint8_t>(mText[i]))
       {
         case U' ':
-          left += mAdvancedWidth;
+          left += WHITE_SPACE_WIDTH;
           break;
         case U'\n':
           top += mLineSpace;
           left = crTopLeft.x;
           break;
         case U'\t':
-          left += (mAdvancedWidth * 4);
+          left += (WHITE_SPACE_WIDTH * 4);
           break;
       }
 

@@ -131,3 +131,8 @@ Scrollbar& Scrollbar::addComponent(const std::shared_ptr<Component> pComponent)
   mGraphicsList.push_back(pComponent);
   return *this;
 }
+
+void Scrollbar::updateUI()
+{
+  mScrollbarButton.updateUI();
+}

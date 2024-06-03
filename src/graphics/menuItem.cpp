@@ -22,5 +22,5 @@ std::vector<std::shared_ptr<MenuItem>> MenuItem::getMenuItems() const
 //! @return None
 void MenuItem::buttonClicked()
 {
-  mState = DEFAULT_STATE;
+  mState = ButtonState::DEFAULT_STATE;
 }

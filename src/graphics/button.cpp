@@ -9,7 +9,7 @@
 //! @return Button Object 
 Button::Button()
 {
-  mState = DEFAULT_STATE;
+  mState = ButtonState::DEFAULT_STATE;
   // mCallbackDisabled = false;
   mCallback = nullptr;
   mId = -1;
@@ -77,7 +77,7 @@ void Button::disableCallback(const bool cEnable)
 //! @return true if mouse is hovering false otherwise
 bool Button::isHover() const
 {
-  return HOVER_STATE == mState;
+  return ButtonState::HOVER_STATE == mState;
 }
 
 //! @brief Returns if button is pressed
@@ -85,7 +85,7 @@ bool Button::isHover() const
 //! @return true if button is pressed false otherwise
 bool Button::isPressed() const
 {
-  return PRESSED_STATE == mState;
+  return ButtonState::PRESSED_STATE == mState;
 }
 
 //! @brief Sets the Pressed padding 
@@ -105,7 +105,7 @@ Button& Button::setPressedPadding(const glm::vec2& crPadding)
 //! @return None
 void Button::buttonClicked()
 {
-  mState = HOVER_STATE;
+  mState = ButtonState::HOVER_STATE;
 }
 
 //! @brief Sets the correct Color/Texture depending on button state
@@ -123,28 +123,28 @@ void Button::buttonClicked()
 //   {
 //     switch(mState)
 //     {
-//       case HOVER_STATE:
+//       case ButtonState::HOVER_STATE:
 //         if(!isInAABB(lg::Mouse::getMousePosf()))
 //         {
-//           mState = DEFAULT_STATE;
+//           mState = ButtonState::DEFAULT_STATE;
 //         }
 //         break;
-//       case PRESSED_STATE:
+//       case ButtonState::PRESSED_STATE:
 //         if(!isInAABB(lg::Mouse::getMousePosf(), mPressedPadding))
 //         {
-//           mState = DEFAULT_STATE;
+//           mState = ButtonState::DEFAULT_STATE;
 //         }
 //         break;
-//       case DEFAULT_STATE:
+//       case ButtonState::DEFAULT_STATE:
 //         if(isInAABB(lg::Mouse::getMousePosf()))
 //         {
-//           mState = HOVER_STATE;
+//           mState = ButtonState::HOVER_STATE;
 //         }
 //     }
 //   }
 //   else
 //   {
-//     mState = DEFAULT_STATE;
+//     mState = ButtonState::DEFAULT_STATE;
 //   }
 
 //   setButtonTexture();

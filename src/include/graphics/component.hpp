@@ -23,6 +23,8 @@ class Component
     virtual bool isVisible() const;
     virtual bool isEnabled() const;
     virtual std::shared_ptr<PopupMenu> getPopupMenu() const;
+    // Perhaps eventually have an event listener to force update all this instead of checking if update is needed
+    virtual void updateUI() = 0;
   protected:
     Transform mTransform;
     glm::vec2 mPadding;

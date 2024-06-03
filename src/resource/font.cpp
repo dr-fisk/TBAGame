@@ -7,7 +7,7 @@
 #include "utility/plot_utility.hpp"
 #include "utility/edgeTable.hpp"
 
-static const int32_t ASCII_CHAR_START = 33;
+static const int32_t ASCII_CHAR_START = 32;
 static const int32_t ASCII_CHAR_END = 126;
 static const uint8_t BASE_SIZE_PX = 16;
 static const uint8_t BASE_SIZE_PT = 12;
@@ -532,6 +532,12 @@ void Font::loadGlyphs(const uint32_t cCharSize) const
   for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
   {
     currChar = static_cast<char>(i);
+    mFont[cCharSize][currChar].Dimensions = glm::uvec2(
+    calculatePixelSize(mGlyfData[currChar].FontHeader.xMax - mGlyfData[currChar].FontHeader.xMin, PT_SIZE, mUnitsPerEm),
+    calculatePixelSize(mGlyfData[currChar].FontHeader.yMax - mGlyfData[currChar].FontHeader.yMin, PT_SIZE, mUnitsPerEm));
+      // Correct the right dimensions
+    mFont[cCharSize][currChar].Dimensions.x += 1;
+    mFont[cCharSize][currChar].Dimensions.y += 1;
     if(mGlyfData[currChar].Contours.size() > 0)
     {
         // If we get a crash with different fonts this can be why
@@ -542,10 +548,6 @@ void Font::loadGlyphs(const uint32_t cCharSize) const
         // Connect edges together
         generateEdges(currChar, cCharSize);
 
-        mFont[cCharSize][currChar].Dimensions = glm::uvec2(
-          calculatePixelSize(mGlyfData[currChar].FontHeader.xMax - mGlyfData[currChar].FontHeader.xMin, PT_SIZE, mUnitsPerEm),
-          calculatePixelSize(mGlyfData[currChar].FontHeader.yMax - mGlyfData[currChar].FontHeader.yMin, PT_SIZE, mUnitsPerEm));
-
         mFont[cCharSize][currChar].Ybearing = cCharSize - mFont[cCharSize][currChar].Dimensions.y;
 
         if(mFont[cCharSize][currChar].Ybearing < 0)
@@ -553,9 +555,6 @@ void Font::loadGlyphs(const uint32_t cCharSize) const
           mFont[cCharSize][currChar].Ybearing = 0;
         }
 
-        // Correct the right dimensions
-        mFont[cCharSize][currChar].Dimensions.x += 1;
-        mFont[cCharSize][currChar].Dimensions.y += 1;
         updateEdges(currChar, cCharSize);
         mFont[cCharSize][currChar].Bitmap.resize(
           (mFont[cCharSize][currChar].Dimensions.y) * (mFont[cCharSize][currChar].Dimensions.x), lg::Color(255, 255, 255, 0).getRgba());
@@ -573,7 +572,7 @@ void Font::loadGlyphs(const uint32_t cCharSize) const
 
   mTextures[cCharSize].create(offset.y, offset.x);
 
-  for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
+  for(int32_t i = ASCII_CHAR_START + 1; i <= ASCII_CHAR_END; i ++)
   {
     currChar = static_cast<char>(i);
     mTextures[cCharSize].update(mFont[cCharSize][currChar].Bitmap.data(), mFont[cCharSize][currChar].Dimensions,

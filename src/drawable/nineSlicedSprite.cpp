@@ -70,11 +70,6 @@ SlicedSprite& SlicedSprite::setBox(const Box<glm::vec2>& crBox)
 
 void SlicedSprite::updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize)
 {
-  // 1   ->    2
-  //           |
-  //           v
-  // 4   <-    3
-
   glm::vec2 offset = crOffset;
 
   for(auto& quad : mSlicedQuads)
@@ -292,16 +287,16 @@ void SlicedSprite::setSpecificBorder(const SliceBorder cBorder, const float cSiz
   switch(cBorder)
   {
     case SliceBorder::TOP:
-      mTop = cSize;
+      mTop = std::abs(cSize);
       break;
     case SliceBorder::LEFT:
-      mLeft = cSize;
+      mLeft = std::abs(cSize);
       break;
     case SliceBorder::BOTTOM:
-      mBottom = cSize;
+      mBottom = std::abs(cSize);
       break;
     case SliceBorder::RIGHT:
-      mRight = cSize;
+      mRight = std::abs(cSize);
       break;
     default:
       return;
@@ -316,12 +311,12 @@ void SlicedSprite::setSpecificBorder(const SliceBorder cBorder, const float cSiz
   }
 }
 
-void SlicedSprite::setAllBorders(const float cLeft, const float cTop, const float cRight, const float cBottom)
+void SlicedSprite::setBorders(const float cLeft, const float cTop, const float cRight, const float cBottom)
 {
-  mTop = cTop;
-  mLeft = cLeft;
-  mRight = cRight;
-  mBottom = cBottom;
+  mTop = std::abs(cTop);
+  mLeft = std::abs(cLeft);
+  mRight = std::abs(cRight);
+  mBottom = std::abs(cBottom);
   mGeometryNeedUpdate = true;
 
   // Probably want a delayed update
@@ -383,4 +378,46 @@ void SlicedSprite::removeBorderColor()
         break;
     }
   }
+}
+
+void SlicedSprite::clearColor()
+{
+  for(auto& quad : mSlicedQuads)
+  {
+    for(auto& vertex : quad.second.Vertexes)
+    {
+      vertex.Rgba = lg::Transparent;
+    }
+
+    quad.second.UseTexture = true;
+  }
+}
+
+SlicedSprite& SlicedSprite::setSpecificSliceColor(const NineSliceTypes cSplice, const lg::Color crColor)
+{
+  switch(cSplice)
+  {
+      case NineSliceTypes::TOP_LEFT:
+      case NineSliceTypes::TOP_CENTER:
+      case NineSliceTypes::TOP_RIGHT:
+      case NineSliceTypes::MID_LEFT:
+      case NineSliceTypes::MID_RIGHT:
+      case NineSliceTypes::BOTTOM_LEFT:
+      case NineSliceTypes::BOTTOM_CENTER:
+      case NineSliceTypes::BOTTOM_RIGHT:
+      case NineSliceTypes::MID_CENTER:
+        break;
+    default:
+      return *this;
+  }
+
+  // At this point we know we have a valid type
+  SlicedQuadData& data = mSlicedQuads.at(cSplice);
+  data.UseTexture = false;
+  data.Vertexes[0].Rgba = crColor;
+  data.Vertexes[1].Rgba = crColor;
+  data.Vertexes[2].Rgba = crColor;
+  data.Vertexes[3].Rgba = crColor;
+
+  return *this;
 }

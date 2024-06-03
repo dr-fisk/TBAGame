@@ -123,14 +123,6 @@ namespace EdgeTable
 
     fillEdgeTable(crEdges, edgeTable, numEdges);
 
-    // if(cha == 'M')
-    // {
-    //   for(int i = 0; i < numEdges; i++)
-    //   {
-    //     std::cout << edgeTable[i].dxPerScan << "x + " << edgeTable[i].xIntersect << " = y " << "{" << edgeTable[i].yLower << " <= y <= " << edgeTable[i].yUpper << "}" << std::endl;
-    //   }
-    // }
-
     for(int32_t y = cMinY; y < crDimensions.y; y ++)
     {
       dy = y;
@@ -147,11 +139,6 @@ namespace EdgeTable
           endIntersection = activeEdgeTable[i + 1].xIntersect;
           endIndex = static_cast<int32_t>(activeEdgeTable[i + 1].xIntersect);
           endCovered = endIntersection - endIndex;
-
-          if(decimalCmp(startIntersection, endIntersection))
-          {
-            std::cout << "Intersection!\n";
-          }
 
           if(startIndex == endIndex)
           {

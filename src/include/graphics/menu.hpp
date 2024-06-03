@@ -31,6 +31,7 @@ class Menu : public MenuItem, public PopupMenuListener<PopupMenu>
     void popupMenuWillBecomeInvisible(const PopupMenuEvent<PopupMenu>& crEvent) override;
     void popupMenuWillBecomeVisible(const PopupMenuEvent<PopupMenu>& crEvent) override;
     std::vector<std::shared_ptr<MenuItem>> getMenuItems() const override;
+    void updateUI() override;
   private:
     void notifyMenuSelected();
     void notifyMenuDeselected();

@@ -42,12 +42,14 @@ class SlicedSprite : public I_Sprite
     SlicedSprite& setTransform(const Transform& crTransform) override;
     SlicedSprite& setTexture(const Texture2D& crTexture, const bool cInvert=false) override;
     SlicedSprite& setBox(const Box<glm::vec2>& crBox) override;
+    SlicedSprite& setSpecificSliceColor(const NineSliceTypes cSplice, const lg::Color crColor);
+    void clearColor();
     void draw();
     glm::vec2 getSize() const;
     glm::vec2 getPos() const;
 
     void setSpecificBorder(const SliceBorder cBorder, const float cSize);
-    void setAllBorders(const float cLeft, const float cTop, const float cRight, const float cBottom);
+    void setBorders(const float cLeft, const float cTop, const float cRight, const float cBottom);
     void fillBorderColor(const lg::Color& crColor);
     void removeBorderColor();
   private:

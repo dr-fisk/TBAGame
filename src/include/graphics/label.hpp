@@ -24,7 +24,7 @@ class Label : public Component
       NONE
     };
 
-    Label();
+    Label() = default;
     Label(const Text& crText);
     Label(const Transform& crTranform, const Text& crText);
     Label(const Text& crText, const Transform& crTranform);
@@ -42,7 +42,11 @@ class Label : public Component
     Label& setString(const std::string& crString);
     Label& setTextColor(const lg::Color& crColor);
     Label& setTextPosition(const glm::vec2& crPos);
+    Label& setBorder(const float cBorderSize);
+    Label& setBorderColor(const lg::Color& crColor);
     const std::string& getString() const;
+    bool hasBorder() const;
+    void updateUI() override;
   private:
     void horizontalAlign();
     void verticalAlign();
@@ -52,8 +56,10 @@ class Label : public Component
     Text mText;
     Transform mTextTransform;
     std::shared_ptr<Texture2D> mpTexture;
-    HorizontalAlign mHorizontalAlign;
-    VerticalAlign mVerticalAlign;
+    HorizontalAlign mHorizontalAlign = HorizontalAlign::NONE;
+    VerticalAlign mVerticalAlign = VerticalAlign::NONE;
+    float mBorderSizePx = 0.0f;
+    lg::Color mBorderColor;
 };
 
 #endif

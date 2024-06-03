@@ -22,7 +22,7 @@ class Color
       mRGBA |= (0x000000ff & cRed);
     }
     Color(const Color &crRhs){*this = crRhs;}
-    Color(){}
+    Color() : mRGBA(0) {}
     ~Color(){}
     uint8_t getAlpha() const {return (mRGBA & 0xff000000) >> 24;}
     uint8_t getBlue() const {return (mRGBA & 0x00ff0000) >> 16;}
@@ -44,6 +44,24 @@ class Color
       mRGBA |= (0x000000ff & cAlpha) << 24;
     }
 
+    void setRed(const uint8_t cRed)
+    {
+      mRGBA &= (0xffffff00);
+      mRGBA |= (0x000000ff & cRed);
+    }
+
+    void setGreen(const uint8_t cGreen)
+    {
+      mRGBA &= (0xff00ffff);
+      mRGBA |= (0x000000ff & cGreen) << 8;
+    }
+
+    void setBlue(const uint8_t cBlue)
+    {
+      mRGBA &= (0xffff00ff);
+      mRGBA |= (0x000000ff & cBlue) << 16;
+    }
+
     Color& operator=(const Color &crRhs)
     {
       mRGBA = crRhs.mRGBA;
@@ -58,6 +76,32 @@ class Color
     bool operator==(const uint32_t crRhs) const
     {
       return crRhs == mRGBA; 
+    }
+
+    static uint8_t getAlpha(const uint32_t cRgba) { return (0xff000000 & cRgba) >> 24; }
+   
+    static void setAlpha(uint32_t& rRgba, const uint8_t cAlpha)
+    {
+      rRgba &= (0x00ffffff);
+      rRgba |= (0x000000ff & cAlpha) << 24;
+    }
+
+    static void setRed(uint32_t& rRgba, const uint8_t cRed)
+    {
+      rRgba &= (0xffffff00);
+      rRgba |= (0x000000ff & cRed);
+    }
+
+    static void setGreen(uint32_t& rRgba, const uint8_t cGreen)
+    {
+      rRgba &= (0xff00ffff);
+      rRgba |= (0x000000ff & cGreen) << 8;
+    }
+
+    static void setBlue(uint32_t& rRgba, const uint8_t cBlue)
+    {
+      rRgba &= (0xffff00ff);
+      rRgba |= (0x000000ff & cBlue) << 16;
     }
 
     static const Color Red;

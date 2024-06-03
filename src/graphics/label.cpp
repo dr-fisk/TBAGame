@@ -1,10 +1,5 @@
 #include "graphics/label.hpp"
 
-Label::Label()
-{
-  mSprite.setAllBorders(0, 0, 0, 0);
-}
-
 //! @brief Constructs a label with specified text object
 //!
 //! @param[in] crText Text to set to label
@@ -16,7 +11,6 @@ Label::Label(const Text& crText)
   mText = crText;
   mHorizontalAlign = HorizontalAlign::NONE;
   mVerticalAlign = VerticalAlign::NONE;
-  mSprite.setAllBorders(0, 0, 0, 0);
   mUpdateUI = true;
 }
 
@@ -45,7 +39,6 @@ Label::Label(const Transform& crTransform, const Text& crText)
 Label::Label(const Text& crText, const Transform& crTransform)
 {
   mSprite.setTransform(crTransform);
-  mSprite.setAllBorders(0, 0, 0, 0);
   mTransform = crTransform;
   mText = crText;
   mUpdateUI = true;
@@ -58,10 +51,7 @@ void Label::draw()
 {
   if(mUpdateUI)
   {
-    mSprite.setTransform(mTransform);
-    alignText();
-    mText.setPos(mTextTransform.getPos());
-    mUpdateUI = false;
+    updateUI();
   }
 
   mSprite.draw();
@@ -294,4 +284,37 @@ Label& Label::setTextPosition(const glm::vec2& crPos)
   mTextTransform.setPos(crPos);
   mUpdateUI = true;
   return *this;
+}
+
+Label& Label::setBorder(const float cBorderSize)
+{
+  mBorderSizePx = std::abs(cBorderSize);
+
+  if(0 == mBorderSizePx)
+  {
+    mSprite.clearColor();
+  }
+
+  mSprite.setBorders(cBorderSize, cBorderSize, cBorderSize, cBorderSize);
+  return *this;
+}
+
+Label& Label::setBorderColor(const lg::Color& crColor)
+{
+  mBorderColor = crColor;
+  mSprite.fillBorderColor(crColor);
+  return *this;
+}
+
+bool Label::hasBorder() const
+{
+  return 0.0f < mBorderSizePx;
+}
+
+void Label::updateUI()
+{
+  mSprite.setTransform(mTransform);
+  alignText();
+  mText.setPos(mTextTransform.getPos());
+  mUpdateUI = false;
 }
