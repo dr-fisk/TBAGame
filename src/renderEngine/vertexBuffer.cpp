@@ -37,7 +37,7 @@ void VertexBuffer::setLayout(const VertexBufferLayout& crLayout)
 //! @return None
 void VertexBuffer::updateVboSubBuffer(const uint32_t cIndex, const uint32_t cBuffSize, void *pBuffer)
 {
-  GLCall(glBufferSubData(GL_ARRAY_BUFFER, cIndex, cBuffSize, pBuffer));
+  glBufferSubData(GL_ARRAY_BUFFER, cIndex, cBuffSize, pBuffer);
 }
 
 //! @brief Deletes VertexBuffer

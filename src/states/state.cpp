@@ -5,13 +5,11 @@
 //! @brief Constructs new state which contains stack of states and window context
 //!
 //! @param[in] crStates        Stack of States
-//! @param[in] crpRenderEngine Resource Manager
 //!
 //! @return State Object
-State::State(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<RenderEngine>& crpRenderEngine)
+State::State(const std::stack<std::shared_ptr<State>>& crStates)
 {
   mStates = crStates;
-  mpRenderEngine = crpRenderEngine;
 }
 
 //! @brief Renders VBO Data

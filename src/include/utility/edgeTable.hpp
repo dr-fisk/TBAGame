@@ -4,18 +4,12 @@
 #include <cstdint>
 #include <vector>
 #include <fstream>
+#include <iostream>
 
+#include "color.hpp"
+#include "utility/edgeTypeDefs.hpp"
 #include "common.hpp"
-#include "utility/plot_utility.hpp"
 #include "glm/vec2.hpp"
-
-struct EdgeTableNode
-{
-  float yUpper;
-  float yLower;
-  float xIntersect;
-  float dxPerScan;
-};
 
 namespace EdgeTable
 {
@@ -24,12 +18,13 @@ namespace EdgeTable
   bool edgeTableXLessThan(const EdgeTableNode &crNode1, const EdgeTableNode& crNode2);
   void fillActiveEdgeTable(const std::vector<EdgeTableNode>& crEdgeTable, std::vector<EdgeTableNode>& rActiveEdgeTable,
                            uint32_t& rEdgeTableIdx, const uint32_t cNumEdges,
-                           size_t& rActiveTableIdx, const float cY, const uint32_t cMaxY);
+                           size_t& rActiveTableIdx, const float cY);
   void sortEdgeTable(std::vector<EdgeTableNode>& rEdgeTable, const uint32_t cNumEdges);
   void sortActiveEdgeTable(std::vector<EdgeTableNode>& rActiveEdgeTable, const size_t cActiveTableIdx);
   void updateActiveTableXVals(std::vector<EdgeTableNode>& rActiveEdgeTable, const size_t cActiveTableIdx,
                               const float cDy = 1.0);
-  
+  bool skipCurrentEdge(const EdgeTableNode &crNode1, const EdgeTableNode& crNode2);
+
   //! @brief Fills rEdgeTable from crEdges list
   //!
   //! @param[in]  crEdges    List of Edges to construct an Edge Table from
@@ -45,7 +40,6 @@ namespace EdgeTable
     float smallerYVal = 0;
     float dx = 0;
     float dy = 0;
-    float m = 0;
     T p1 = {0, 0};
     T p2 = {0, 0};
     for (int32_t i = 0; i < crEdges.size(); i ++)
@@ -64,21 +58,19 @@ namespace EdgeTable
 
       if (decimalCmp(p1.x, p2.x))
       {
-        m = 0;
-        rEdgeTable[rNumEdges].dxPerScan = m;
+        rEdgeTable[rNumEdges].dxPerScan = 0;
       }
       else
       {
         dy = p2.y - p1.y;
         dx = p2.x - p1.x;
-        if(dy == 0.0f)
+        if(decimalCmp(dy, 0.0f))
         {
           rEdgeTable[rNumEdges].dxPerScan = 0;
         }
         else
         {
-          m = dy / dx;
-          rEdgeTable[rNumEdges].dxPerScan = 1.0f / m;
+          rEdgeTable[rNumEdges].dxPerScan = dx / dy;
         }
       }
 
@@ -110,7 +102,6 @@ namespace EdgeTable
     size_t activeEdgeTableIdx = 0;
     uint32_t numEdges = 0;
     uint32_t edgeTableIdx = 0;
-    glm::ivec2 pt = {0,0};
     float scanlineSubDiv = 5;
     float alphaWeight = 255.0 / scanlineSubDiv;
     float stepPerScanline = 1.0 / scanlineSubDiv;
@@ -126,6 +117,9 @@ namespace EdgeTable
     lg::Color tempColor;
     uint8_t alpha = 0;
     float dy = 0;
+    int intersection = 0;
+    int prevStartIndex = -1;
+    float pixelCoverage = 0;
 
     fillEdgeTable(crEdges, edgeTable, numEdges);
 
@@ -134,50 +128,57 @@ namespace EdgeTable
       dy = y;
       for(int32_t dx = 0; dx < scanlineSubDiv; dx++)
       {
-        fillActiveEdgeTable(edgeTable, activeEdgeTable, edgeTableIdx, numEdges, activeEdgeTableIdx, dy, crDimensions.y);
-        for(int32_t i = 0; i < activeEdgeTableIdx && activeEdgeTableIdx > 1; i += 2)
+        fillActiveEdgeTable(edgeTable, activeEdgeTable, edgeTableIdx, numEdges, activeEdgeTableIdx, dy);
+        intersection = 0;
+        for(int32_t i = 0; i < activeEdgeTableIdx && activeEdgeTableIdx > 1;)
         {
           startIntersection = activeEdgeTable[i].xIntersect;
-          startIndex = activeEdgeTable[i].xIntersect;
+          startIndex = static_cast<int32_t>(activeEdgeTable[i].xIntersect);
           startCovered = (startIndex + 1) - startIntersection;
 
           endIntersection = activeEdgeTable[i + 1].xIntersect;
-          endIndex = activeEdgeTable[i + 1].xIntersect;
-          endCovered = endIntersection - (endIndex);
+          endIndex = static_cast<int32_t>(activeEdgeTable[i + 1].xIntersect);
+          endCovered = endIntersection - endIndex;
+
+          if((i - 1 > 0) && skipCurrentEdge(activeEdgeTable[i], activeEdgeTable[i - 1]))
+          {
+            i++;
+            continue;
+          }
 
           if(startIndex == endIndex)
           {
             idx1 = (y * crDimensions.x) + startIndex;
-            alpha = lg::Color(rBitmap[idx1]).getAlpha();
-            tempColor = lg::Color(crColor.getRed(), crColor.getGreen(), crColor.getBlue(),
-                                  alphaWeight * startCovered);
-            tempColor.addAlpha(alpha);
-            rBitmap[idx1] = crColor.getRgba();
+            uint8_t currAlpha = lg::Color::getAlpha(rBitmap[idx1]);
+            alpha = lg::Color::getAlpha(rBitmap[idx1]);
+            alpha += static_cast<uint8_t>(alphaWeight * startCovered);
+            lg::Color::setAlpha(rBitmap[idx1], alpha);
           }
           else
           {
             idx1 = (y * crDimensions.x) + startIndex;
             idx2 = (y * crDimensions.x) + endIndex;
-            alpha = lg::Color(rBitmap[idx1]).getAlpha();
-            tempColor = lg::Color(crColor.getRed(), crColor.getGreen(), crColor.getBlue(),
-                                  alphaWeight * startCovered);
-            tempColor.addAlpha(alpha);
-            rBitmap[idx1] = tempColor.getRgba();
-            alpha = lg::Color(rBitmap[idx2]).getAlpha();
-            tempColor = lg::Color(crColor.getRed(), crColor.getGreen(), crColor.getBlue(),
-                                  alphaWeight * endCovered);
-            tempColor.addAlpha(alpha);
-            rBitmap[idx2] = tempColor.getRgba();
+            uint8_t currAlpha = lg::Color::getAlpha(rBitmap[idx1]);
+
+            alpha = lg::Color::getAlpha(rBitmap[idx1]);
+            alpha += static_cast<uint8_t>(alphaWeight * startCovered);
+            lg::Color::setAlpha(rBitmap[idx1], alpha);
+            currAlpha = lg::Color::getAlpha(rBitmap[idx2]);
+
+            alpha = lg::Color::getAlpha(rBitmap[idx2]);
+            alpha += static_cast<uint8_t>(alphaWeight * endCovered);
+            lg::Color::setAlpha(rBitmap[idx2], alpha);
           }
 
           for (int32_t x = startIndex + 1; x < endIndex; x ++)
           {	
-            pt = {x, y};
-            alpha = lg::Color(rBitmap[crDimensions.x * y + x]).getAlpha();
-            tempColor = lg::Color(crColor.getRed(), crColor.getGreen(), crColor.getBlue(), alphaWeight);
-            tempColor.addAlpha(alpha);
-            PlotUtility<glm::ivec2>::drawPixelInBitmap(pt, rBitmap, crDimensions.x, tempColor);
+            uint8_t currAlpha = lg::Color::getAlpha(rBitmap[crDimensions.x * y + x]);
+            alpha = lg::Color::getAlpha(rBitmap[crDimensions.x * y + x]);
+            alpha += static_cast<uint8_t>(alphaWeight);
+            lg::Color::setAlpha(rBitmap[crDimensions.x * y + x], alpha);
           }
+
+          i +=2;
         }
 
         updateActiveTableXVals(activeEdgeTable, activeEdgeTableIdx, stepPerScanline);

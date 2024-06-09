@@ -4,17 +4,17 @@
 #include <string>
 #include <memory>
 
-#include "renderEngine/renderEngine.hpp"
+#include "renderEngine/ResourceManager.hpp"
 
 class Resource
 {
   public:
     Resource() = default;
-    Resource(const std::string& crTag, std::shared_ptr<RenderEngine>& prRenderEngine);
+    Resource(const std::string& crTag, std::shared_ptr<ResourceManager>& prResourceMngr);
     virtual ~Resource() = default;
   protected:
     const std::string mTag;
-    std::shared_ptr<RenderEngine> mpRenderEngine;
+    std::shared_ptr<ResourceManager> mpResourceManager;
 };
 
 #endif

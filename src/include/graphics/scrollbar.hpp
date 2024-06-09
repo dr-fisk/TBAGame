@@ -4,28 +4,30 @@
 #include <vector>
 #include <memory>
 
-#include "graphics/graphics.hpp"
+#include "graphics/Component.hpp"
 #include "graphics/button.hpp"
 #include "glm/vec2.hpp"
 
-class Scrollbar : public Graphics
+class Scrollbar : public Component
 {
   public:
+    enum ScrollbarOrientation
+    {
+      HORIZONTAL,
+      VERTICAL
+    };
+
+
     Scrollbar() = delete;
-    Scrollbar(std::shared_ptr<RenderEngine>& prRenderEngine, const glm::vec2& crPos, const glm::vec2& crSize);
+    Scrollbar(const ScrollbarOrientation cOrientation, const uint32_t cMin, const uint32_t cMax);
     ~Scrollbar() = default;
-    void setDefaultTexture(const std::shared_ptr<TextureResource>& crpTexture);
-    void setHoverTexture(const std::shared_ptr<TextureResource>& crpTexture);
-    void setPressedTexture(const std::shared_ptr<TextureResource>& crpTexture);
-    void setDefaultColor(const lg::Color& crColor);
-    void setHoverColor(const lg::Color& crColor);
-    void setPressedColor(const lg::Color& crColor);
-    void setPressedPadding(const glm::vec2& crPadding);
+    Scrollbar& setButton(const Button& crButton);
     void update(const Event& crEvent);
     void draw();
+
+    Scrollbar& addComponent(const std::shared_ptr<Component> pComponent);
+    void updateUI() override;
   private:
-    void mousePressEvent(const Event& crEvent);
-    void mouseReleaseEvent(const Event& crEvent);
     void mouseMoveEvent(const Event& crEvent);
 
     enum ScrollbarState
@@ -34,10 +36,13 @@ class Scrollbar : public Graphics
       SCROLL_STATE
     };
 
-    std::shared_ptr<Button<>> mScrollbarButton;
-    float mPrevMousey;
+    Button mScrollbarButton;
+    glm::vec2 mPrevMousePos;
     ScrollbarState mState;
-    std::vector<std::shared_ptr<Graphics>> mGraphicsList;
+    ScrollbarOrientation mOrientation;
+    std::vector<std::shared_ptr<Component>> mGraphicsList;
+    uint32_t mMinBound;
+    uint32_t mMaxBound;
 };
 
 #endif

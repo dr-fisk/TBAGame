@@ -4,10 +4,25 @@
 #include <queue>
 
 #include "resource/font.hpp"
+#include "utility/plot_utility.hpp"
 #include "utility/edgeTable.hpp"
 
-static const int32_t ASCII_CHAR_START = 33;
+static const int32_t ASCII_CHAR_START = 32;
 static const int32_t ASCII_CHAR_END = 126;
+static const uint8_t BASE_SIZE_PX = 16;
+static const uint8_t BASE_SIZE_PT = 12;
+
+float calculatePixelSize(const float cFontDimension, const float cPointSize, const uint32_t cUnitsPerEm)
+{
+  return (cFontDimension * cPointSize * 96.0f) / (72.0f * static_cast<float>(cUnitsPerEm)); 
+}
+
+int32_t calcMetric(const int32_t cDimensions, const float cPointSize, const uint32_t cUnitsPerEm)
+{
+  float lsb = calculatePixelSize(cDimensions, cPointSize, cUnitsPerEm);
+
+  return std::ceil(lsb);
+}
 
 //! @brief Constructs Font
 //!
@@ -15,13 +30,11 @@ static const int32_t ASCII_CHAR_END = 126;
 //!
 //! @param[in] crTtfPath     Path to ttf File
 //! @param[in] cNumOfSubDivs Number of subdivisions for bezier curve generation
-//! @param[in] cColor        Color of Font
 //!
 //! @return Font Object
-Font::Font(const std::string& crTtfPath, const uint32_t cNumOfSubDivs, const lg::Color cColor)
+void Font::loadFromFile(const std::string& crTtfPath, const uint32_t cNumOfSubDivs)
 {
   mNumSubDiv = cNumOfSubDivs;
-  mFontColor = cColor;
 
   const char EXTENSION[] = ".ttf";
   int32_t temp2 = -1;
@@ -41,9 +54,11 @@ Font::Font(const std::string& crTtfPath, const uint32_t cNumOfSubDivs, const lg:
   for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
   {
     currChar = static_cast<char>(i);
-    mGlyfData[currChar].FontHeader = getCharGlyfHeader(currChar, ttf);
-  
-    if(mGlyfData[currChar].FontHeader.numberofContours > 0)
+    mGlyfData.try_emplace(currChar);
+    mGlyfData.at(currChar).FontHeader = getCharGlyfHeader(currChar, ttf);
+    mGlyfData.at(currChar).HorMetrics = ttf.getSpecificCharacterHorMetrics(currChar);
+
+    if(mGlyfData.at(currChar).FontHeader.numberofContours > 0)
     {
       generateGlyfData(currChar);
     }
@@ -58,10 +73,11 @@ Font::Font(const std::string& crTtfPath, const uint32_t cNumOfSubDivs, const lg:
 //! @param[in] cCharSize Font Size to generate glyph
 //!
 //! @return None
-void Font::scanLineFill(const char cChar, const uint8_t cCharSize)
+void Font::scanLineFill(const char cChar, const uint8_t cCharSize) const
 {
-  EdgeTable::scanLineFill(mFont[cCharSize - 1][cChar].GenPtsEdges, mFont[cCharSize - 1][cChar].Dimensions,
-                          mFont[cCharSize - 1][cChar].Bitmap, mFontColor, 0, cChar);
+  std::cout << cChar << " : " << std::endl;
+  EdgeTable::scanLineFill(mFont.at(cCharSize).at(cChar).GenPtsEdges, mFont.at(cCharSize).at(cChar).Dimensions,
+                          mFont.at(cCharSize).at(cChar).Bitmap, lg::White, 0, cChar);
 }
 
 //! @brief Fills polygon with a Seed Fill TODO: Add seed coordinate
@@ -78,14 +94,14 @@ void Font::fillColor(const char cChar, const uint8_t cCharSize)
   int32_t currPoint = -1;
   int32_t startingPoint = 0; 
   visited.push(startingPoint);
-  mFont[cCharSize - 1][cChar].Bitmap[startingPoint] = mFontColor.getRgba();
+  mFont.at(cCharSize).at(cChar).Bitmap[startingPoint] = lg::White.getRgba();
   int32_t point_below = 0;
   int32_t point_above = 0;
   int32_t point_right = 0;
   int32_t point_left = 0;
-  uint32_t num_rows = mFont[cCharSize - 1][cChar].Dimensions.y;
-  uint32_t num_cols = mFont[cCharSize - 1][cChar].Dimensions.x;
-  const uint32_t color_map_size = mFont[cCharSize - 1][cChar].Bitmap.size();
+  uint32_t num_rows = mFont.at(cCharSize).at(cChar).Dimensions.y;
+  uint32_t num_cols = mFont.at(cCharSize).at(cChar).Dimensions.x;
+  const uint32_t color_map_size = mFont.at(cCharSize).at(cChar).Bitmap.size();
   glm::vec2 curr_point_coords;
   glm::vec2 point_above_coords;
   glm::vec2 point_below_coords;
@@ -109,39 +125,39 @@ void Font::fillColor(const char cChar, const uint8_t cCharSize)
 
 
     if(point_below < color_map_size && 
-       !(mFontColor == mFont[cCharSize - 1][cChar].Bitmap[point_below]))
+       !(lg::White == mFont.at(cCharSize).at(cChar).Bitmap[point_below]))
     {
       if(PlotUtility<glm::vec2>::arePointsTouching(point_below_coords, curr_point_coords))
       {
         visited.push(point_below);
-        mFont[cCharSize - 1][cChar].Bitmap[point_below] = mFontColor.getRgba();
+        mFont.at(cCharSize).at(cChar).Bitmap[point_below] = lg::White.getRgba();
       }
     }
 
-    if(point_above >= 0 && !(mFontColor == mFont[cCharSize - 1][cChar].Bitmap[point_above]))
+    if(point_above >= 0 && !(lg::White == mFont.at(cCharSize).at(cChar).Bitmap[point_above]))
     {
       if(PlotUtility<glm::vec2>::arePointsTouching(point_above_coords, curr_point_coords))
       {
         visited.push(point_above);
-        mFont[cCharSize - 1][cChar].Bitmap[point_above] = mFontColor.getRgba();
+        mFont.at(cCharSize).at(cChar).Bitmap[point_above] = lg::White.getRgba();
       }
     }
 
-    if(point_right < color_map_size && !(mFontColor == mFont[cCharSize - 1][cChar].Bitmap[point_right]))
+    if(point_right < color_map_size && !(lg::White == mFont.at(cCharSize).at(cChar).Bitmap[point_right]))
     {
       if (PlotUtility<glm::vec2>::arePointsTouching(point_right_coords, curr_point_coords))
       {
         visited.push(point_right);
-        mFont[cCharSize - 1][cChar].Bitmap[point_right] = mFontColor.getRgba();
+        mFont.at(cCharSize).at(cChar).Bitmap[point_right] = lg::White.getRgba();
       }
     }
 
-    if(point_left >= 0 && !(mFontColor == mFont[cCharSize - 1][cChar].Bitmap[point_left]))
+    if(point_left >= 0 && !(lg::White == mFont.at(cCharSize).at(cChar).Bitmap[point_left]))
     {
       if(PlotUtility<glm::vec2>::arePointsTouching(point_left_coords, curr_point_coords))
       {
         visited.push(point_left);
-        mFont[cCharSize - 1][cChar].Bitmap[point_left] = mFontColor.getRgba();
+        mFont.at(cCharSize).at(cChar).Bitmap[point_left] = lg::White.getRgba();
       }
     }
   }
@@ -157,18 +173,18 @@ void Font::fillColor(const char cChar, const uint8_t cCharSize)
 //! @return None
 void Font::fillGeneratedPointColor(const char cChar, const uint8_t cCharSize)
 {
-  const uint32_t num_cols = mFont[cCharSize - 1][cChar].Dimensions.x;
+  const uint32_t num_cols = mFont.at(cCharSize).at(cChar).Dimensions.x;
   int i = 0;
   glm::ivec2 p1 = {0, 0};
   glm::ivec2 p2 = {0, 0};
   
-  for (const auto &edge : mFont[cCharSize - 1][cChar].GenPtsEdges)
+  for (const auto &edge : mFont.at(cCharSize).at(cChar).GenPtsEdges)
   {
     p1.x = edge.p1.x;
     p1.y = edge.p1.y;
     p2.x = edge.p2.x;
     p2.y = edge.p2.y;
-    PlotUtility<glm::ivec2>::plotLine(p1, p2, mFont[cCharSize - 1][cChar].Bitmap, num_cols, mFontColor);
+    PlotUtility<glm::ivec2>::plotLine(p1, p2, mFont.at(cCharSize).at(cChar).Bitmap, num_cols, lg::White);
   }
 }
 
@@ -188,18 +204,18 @@ void Font::updateNumberOfContours(const char cChar)
   int32_t nextIdx = 0;
   int32_t contourLen = 0;
 
-  for(int32_t i = 0; i < mGlyfData[cChar].FontHeader.numberofContours; i++)
+  for(int32_t i = 0; i < mGlyfData.at(cChar).FontHeader.numberofContours; i++)
   {
     contourStartIdx = j;
     genPtsStartIdx = currIdx;
     contourStart = 1;
     contourStartedOff = 0;
-    for(; j <= mGlyfData[cChar].FontHeader.endPtsOfContours[i]; j ++)
+    for(; j <= mGlyfData.at(cChar).FontHeader.SimpleGlyfData->endPtsOfContours[i]; j ++)
     {
-      contourLen = mGlyfData[cChar].FontHeader.endPtsOfContours[i] - contourStartIdx + 1;
+      contourLen = mGlyfData.at(cChar).FontHeader.SimpleGlyfData->endPtsOfContours[i] - contourStartIdx + 1;
       nextIdx = (j + 1 - contourStartIdx) % contourLen + contourStartIdx;
 
-      if(ON_CURVE_POINT & mGlyfData[cChar].FontHeader.flags[j])
+      if(ON_CURVE_POINT & mGlyfData.at(cChar).FontHeader.SimpleGlyfData->flags[j])
       {
         currIdx++;
       }
@@ -208,7 +224,7 @@ void Font::updateNumberOfContours(const char cChar)
         if (contourStart)
         {
           contourStartedOff = 1;
-          if (ON_CURVE_POINT & mGlyfData[cChar].FontHeader.flags[nextIdx])
+          if (ON_CURVE_POINT & mGlyfData.at(cChar).FontHeader.SimpleGlyfData->flags[nextIdx])
           {
             currIdx++;
             j++;
@@ -217,7 +233,7 @@ void Font::updateNumberOfContours(const char cChar)
           currIdx ++;
         }
 
-        if ((ON_CURVE_POINT & mGlyfData[cChar].FontHeader.flags[nextIdx]))
+        if ((ON_CURVE_POINT & mGlyfData.at(cChar).FontHeader.SimpleGlyfData->flags[nextIdx]))
         {
           j++;
         }
@@ -229,7 +245,7 @@ void Font::updateNumberOfContours(const char cChar)
     }
 
     // Process last contour point
-    if(ON_CURVE_POINT & mGlyfData[cChar].FontHeader.flags[j - 1])
+    if(ON_CURVE_POINT & mGlyfData.at(cChar).FontHeader.SimpleGlyfData->flags[j - 1])
     {
       currIdx++;
     }
@@ -240,7 +256,7 @@ void Font::updateNumberOfContours(const char cChar)
       currIdx += mNumSubDiv;
     }
 
-    mGlyfData[cChar].Contours[i] = currIdx;
+    mGlyfData.at(cChar).Contours[i] = currIdx;
   }
 }
 
@@ -257,36 +273,37 @@ int32_t Font::generateGlyphPoints(const char cChar)
 
   int32_t j = 0;
   uint32_t currIdx = 0;
-  float xPos = 0.0f;
-  float yPos = 0.0f;
+  int32_t xPos = 0.0f;
+  int32_t yPos = 0.0f;
   int32_t contourStartIdx = 0;
   int32_t genPtsStartIdx = 0;
   int8_t contourStartedOff = 0;
   int8_t contourStart = 0;
   int32_t nextIdx = 0;
   int32_t contourLen = 0;
-  glm::vec2 minCoord = glm::vec2(mGlyfData[cChar].FontHeader.xMin,
-                                               mGlyfData[cChar].FontHeader.yMin);
-  glm::vec2 maxCoord = glm::vec2(mGlyfData[cChar].FontHeader.xMax,
-                                               mGlyfData[cChar].FontHeader.yMax);
+  GlyfRawData* glyfData = &mGlyfData.at(cChar);
+  glm::vec2 minCoord = glm::vec2(glyfData->FontHeader.xMin,
+                                               glyfData->FontHeader.yMin);
+  glm::vec2 maxCoord = glm::vec2(glyfData->FontHeader.xMax,
+                                               glyfData->FontHeader.yMax);
   GLfloat yShift = -maxCoord.y;
 
-  for(int32_t i = 0; i < mGlyfData[cChar].FontHeader.numberofContours; i++)
+  for(int32_t i = 0; i < glyfData->FontHeader.numberofContours; i++)
   {
     contourStartIdx = j;
     genPtsStartIdx = currIdx;
     contourStart = 1;
     contourStartedOff = 0;
-    for(; j <= mGlyfData[cChar].FontHeader.endPtsOfContours[i]; j ++)
+    for(; j <= glyfData->FontHeader.SimpleGlyfData->endPtsOfContours[i]; j ++)
     {
-      xPos = (mGlyfData[cChar].FontHeader.xCoordinates[j]) - minCoord.x;
-      yPos = abs((mGlyfData[cChar].FontHeader.yCoordinates[j]) + yShift);
-      contourLen = mGlyfData[cChar].FontHeader.endPtsOfContours[i] - contourStartIdx + 1;
+      xPos = (glyfData->FontHeader.SimpleGlyfData->xCoordinates[j]) - minCoord.x;
+      yPos = abs((glyfData->FontHeader.SimpleGlyfData->yCoordinates[j]) + yShift);
+      contourLen = glyfData->FontHeader.SimpleGlyfData->endPtsOfContours[i] - contourStartIdx + 1;
       nextIdx = (j + 1 - contourStartIdx) % contourLen + contourStartIdx;
 
-      if(ON_CURVE_POINT & mGlyfData[cChar].FontHeader.flags[j])
+      if(ON_CURVE_POINT & glyfData->FontHeader.SimpleGlyfData->flags[j])
       {
-        mGlyfData[cChar].GeneratedPoints[currIdx] = glm::vec2(xPos, yPos);
+        glyfData->GeneratedPoints[currIdx] = glm::vec2(xPos, yPos);
         currIdx++;
       }
       else
@@ -295,33 +312,33 @@ int32_t Font::generateGlyphPoints(const char cChar)
         if (contourStart)
         {
           contourStartedOff = 1;
-          if (ON_CURVE_POINT & mGlyfData[cChar].FontHeader.flags[nextIdx])
+          if (ON_CURVE_POINT & glyfData->FontHeader.SimpleGlyfData->flags[nextIdx])
           {
-            mGlyfData[cChar].GeneratedPoints[currIdx] = glm::vec2(
-              (mGlyfData[cChar].FontHeader.xCoordinates[nextIdx]) - minCoord.x,
-              abs((mGlyfData[cChar].FontHeader.yCoordinates[nextIdx]) + yShift));
+            glyfData->GeneratedPoints[currIdx] = glm::vec2(
+              (glyfData->FontHeader.SimpleGlyfData->xCoordinates[nextIdx]) - minCoord.x,
+              abs((glyfData->FontHeader.SimpleGlyfData->yCoordinates[nextIdx]) + yShift));
             currIdx++;
             j++;
             continue;
           }
 
           xPos = xPos + ((
-            (mGlyfData[cChar].FontHeader.xCoordinates[nextIdx]) - minCoord.x - xPos) / 2.0f);
+            (glyfData->FontHeader.SimpleGlyfData->xCoordinates[nextIdx]) - minCoord.x - xPos) / 2.0f);
           yPos = yPos + ((
-            abs((mGlyfData[cChar].FontHeader.yCoordinates[nextIdx]) + yShift) - yPos) / 2.0f);
+            abs((glyfData->FontHeader.SimpleGlyfData->yCoordinates[nextIdx]) + yShift) - yPos) / 2.0f);
           // I changed the order here, might have effects
-          mGlyfData[cChar].GeneratedPoints[currIdx].x = xPos;
-          mGlyfData[cChar].GeneratedPoints[currIdx].y = yPos;
+          glyfData->GeneratedPoints[currIdx].x = xPos;
+          glyfData->GeneratedPoints[currIdx].y = yPos;
 
           currIdx ++;
         }
 
-        p0 = mGlyfData[cChar].GeneratedPoints[currIdx - 1];
+        p0 = glyfData->GeneratedPoints[currIdx - 1];
         p1 = glm::vec2(xPos, yPos);
-        p2 = glm::vec2((mGlyfData[cChar].FontHeader.xCoordinates[nextIdx]) - minCoord.x,
-                              abs((mGlyfData[cChar].FontHeader.yCoordinates[nextIdx]) + yShift)); 
+        p2 = glm::vec2((glyfData->FontHeader.SimpleGlyfData->xCoordinates[nextIdx]) - minCoord.x,
+                              abs((glyfData->FontHeader.SimpleGlyfData->yCoordinates[nextIdx]) + yShift)); 
 
-        if (!(ON_CURVE_POINT & mGlyfData[cChar].FontHeader.flags[nextIdx]))
+        if (!(ON_CURVE_POINT & glyfData->FontHeader.SimpleGlyfData->flags[nextIdx]))
         {
           // Get midpoint between p1 and p2
           p2 = glm::vec2(p1.x + ((p2.x - p1.x) / 2.0f),
@@ -332,7 +349,7 @@ int32_t Font::generateGlyphPoints(const char cChar)
           j++;
         }
         
-        currIdx += PlotUtility<glm::vec2>::tessellateQuadBezier(mGlyfData[cChar].GeneratedPoints,
+        currIdx += PlotUtility<glm::vec2>::tessellateQuadBezier(glyfData->GeneratedPoints,
                                                               currIdx, mNumSubDiv, p0, p1, p2);
       }
 
@@ -340,20 +357,20 @@ int32_t Font::generateGlyphPoints(const char cChar)
     }
 
     // Process last contour point
-    if(ON_CURVE_POINT & mGlyfData[cChar].FontHeader.flags[j - 1])
+    if(ON_CURVE_POINT & glyfData->FontHeader.SimpleGlyfData->flags[j - 1])
     {
-      mGlyfData[cChar].GeneratedPoints[currIdx] = mGlyfData[cChar].GeneratedPoints[genPtsStartIdx];
+      glyfData->GeneratedPoints[currIdx] = glyfData->GeneratedPoints[genPtsStartIdx];
       currIdx++;
     }
 
     //handle off curve
     if(contourStartedOff)
     {
-      p0 = mGlyfData[cChar].GeneratedPoints[currIdx - 1];
-      p1.x = (mGlyfData[cChar].FontHeader.xCoordinates[contourStartIdx]) - minCoord.x;
-      p1.y = abs((mGlyfData[cChar].FontHeader.yCoordinates[contourStartIdx]) + yShift);
-      p2 = mGlyfData[cChar].GeneratedPoints[genPtsStartIdx];
-      currIdx += PlotUtility<glm::vec2>::tessellateQuadBezier(mGlyfData[cChar].GeneratedPoints,
+      p0 = glyfData->GeneratedPoints[currIdx - 1];
+      p1.x = (glyfData->FontHeader.SimpleGlyfData->xCoordinates[contourStartIdx]) - minCoord.x;
+      p1.y = abs((glyfData->FontHeader.SimpleGlyfData->yCoordinates[contourStartIdx]) + yShift);
+      p2 = glyfData->GeneratedPoints[genPtsStartIdx];
+      currIdx += PlotUtility<glm::vec2>::tessellateQuadBezier(glyfData->GeneratedPoints,
                                                             currIdx, mNumSubDiv, p0, p1, p2);
     }
   }
@@ -367,17 +384,17 @@ int32_t Font::generateGlyphPoints(const char cChar)
 //! @param[in] cCharSize Size of character to generate edges for
 //!
 //! @return None
-void Font::generateEdges(const char cChar, const uint8_t cCharSize)
+void Font::generateEdges(const char cChar, const uint8_t cCharSize) const
 {
   int32_t j = 0;
   int32_t edgeIdx = 0;
 
-  for(int32_t i = 0; i < mGlyfData[cChar].Contours.size(); i ++)
+  for(int32_t i = 0; i < mGlyfData.at(cChar).Contours.size(); i ++)
   {
-    for(; j < mGlyfData[cChar].Contours[i] - 1; j ++)
+    for(; j < mGlyfData.at(cChar).Contours[i] - 1; j ++)
     {
-      mFont[cCharSize - 1][cChar].GenPtsEdges[edgeIdx].p1 = mGlyfData[cChar].GeneratedPoints[j];
-      mFont[cCharSize - 1][cChar].GenPtsEdges[edgeIdx].p2 = mGlyfData[cChar].GeneratedPoints[j + 1];
+      mFont.at(cCharSize).at(cChar).GenPtsEdges[edgeIdx].p1 = mGlyfData.at(cChar).GeneratedPoints[j];
+      mFont.at(cCharSize).at(cChar).GenPtsEdges[edgeIdx].p2 = mGlyfData.at(cChar).GeneratedPoints[j + 1];
       edgeIdx ++;
     }    
     j ++;
@@ -390,9 +407,9 @@ void Font::generateEdges(const char cChar, const uint8_t cCharSize)
 //! @param[in] cChar     Character to grab bitmap from
 //!
 //! @return Bitmap data
-std::vector<uint32_t> Font::getData(const uint8_t cCharSize, const char cChar)
+std::vector<uint32_t> Font::getData(const uint8_t cCharSize, const char cChar) const
 {
-    return mFont.at(cCharSize - 1).at(cChar).Bitmap;
+    return mFont.at(cCharSize).at(cChar).Bitmap;
 }
 
 //! @brief Gets character dimensions for given character and size
@@ -401,9 +418,9 @@ std::vector<uint32_t> Font::getData(const uint8_t cCharSize, const char cChar)
 //! @param[in] cChar     Character to get dimensions from
 //!
 //! @return Dimensions of character in Vector2 format
-glm::uvec2 Font::getCharacterDimensions(const uint8_t cCharSize, const char cChar)
+glm::uvec2 Font::getCharacterDimensions(const uint8_t cCharSize, const char cChar) const
 {
-  return mFont.at(cCharSize - 1).at(cChar).Dimensions;
+  return mFont.at(cCharSize).at(cChar).Dimensions;
 }
 
 //! TODO: Remove this is debug code
@@ -413,10 +430,10 @@ void Font::writeGenPoints(const char cChar, const uint8_t cCharSize)
 
   // fd << "-----------------------------------------------------" << std::endl;
   // fd << "Points for letter: " << cChar << std::endl;
-  // fd << "Dimensions: " << mFont[cCharSize - 1][cChar].Dimensions;
-  // fd << mGlyfData[cChar].GeneratedPoints.size() << std::endl;
+  // fd << "Dimensions: " << mFont.at(cCharSize).at(cChar).D)mensions;
+  // fd << mGlyfData.at(cChar).GeneratedPoints.size() << std::endl;
   // int i = 0;
-  // for(const auto& pts : mGlyfData[cChar].GeneratedPoints)
+  // for(const auto& pts : mGlyfData.at(cChar).GeneratedPoints)
   // {
   //   fd << i << ": " << pts;
   //   i++;
@@ -424,28 +441,38 @@ void Font::writeGenPoints(const char cChar, const uint8_t cCharSize)
   // fd << "-----------------------------------------------------" << std::endl;
 }
 
-//! @brief Gets Ybearing from character in font size map
+//! @brief Gets YHint from character in font size map
 //!
-//! @param[in] cChar     Character to grab Ybearing from
-//! @param[in] cCharSize Character size to grab Ybearing from
+//! @param[in] cChar     Character to grab YHint from
+//! @param[in] cCharSize Character size to grab YHint from
 //!
-//! @return Ybearing
-int32_t Font::getYBearing(const char cChar, const uint8_t cCharSize)
+//! @return YHint
+int32_t Font::getYHint(const char cChar, const uint8_t cCharSize) const
 {
-  return mFont[cCharSize - 1].at(cChar).Ybearing;
+  return mFont.at(cCharSize).at(cChar).YHint;
 }
 
-//! @brief Gets Ydescent from character in font size map
+//! @brief Gets LeftSideBearing from character in font size map
 //!
-//! @param[in] cChar     Character to grab Ydescent from
-//! @param[in] cCharSize Character size to grab Ydescent from
+//! @param[in] cChar     Character to grab LeftSideBearing from
+//! @param[in] cCharSize Character size to grab LeftSideBearing from
 //!
-//! @return Ydescent
-int32_t Font::getYDescent(const char cChar, const uint8_t cCharSize)
+//! @return LeftSideBearing
+int16_t Font::getLeftSideBearing(const char cChar, const uint8_t cCharSize) const
 {
-  return mFont[cCharSize - 1].at(cChar).Ydescent;
+  return mFont.at(cCharSize).at(cChar).LeftSideBearing;
 }
 
+//! @brief Gets Advance Width from character in font size map
+//!
+//! @param[in] cChar     Character to grab Advance Width from
+//! @param[in] cCharSize Character size to grab Advance Width from
+//!
+//! @return Advance Width
+int16_t Font::getAdvancedWidth(const char cChar, const uint8_t cCharSize) const
+{
+  return mFont.at(cCharSize).at(cChar).AdvanceWidth;
+}
 
 //! @brief Reads in TTF file data
 //!
@@ -472,6 +499,7 @@ void Font::readTtfFile(const std::string& crPath, LestTrueType &rTtf)
   mCapHeight = os2.sCapHeight;
   mMaxWidth = head.xMax - head.xMin;
   mMaxHeight = head.yMax - head.yMin;
+  mUnitsPerEm = head.unitsPerEm;
   HheaHeader hhea = rTtf.getHheaHeader();
   mAdvancedWidth = hhea.advancedWidthMax;
 }
@@ -483,100 +511,107 @@ void Font::readTtfFile(const std::string& crPath, LestTrueType &rTtf)
 //! @return None
 void Font::generateGlyfData(const char cChar)
 {
-  if(mGlyfData[cChar].FontHeader.numberofContours > 0)
+  if(mGlyfData.at(cChar).FontHeader.numberofContours >= 0)
   {
-    mGlyfData[cChar].Contours.resize(mGlyfData[cChar].FontHeader.numberofContours);
+    mGlyfData.at(cChar).Contours.resize(mGlyfData.at(cChar).FontHeader.numberofContours);
 
-    // Update the number of contours for mFont[cCharSize - 1][cChar] to properly allocate memory for generatedPoints
+    // Update the number of contours for mFont.at(cCharSize).at(cChar) t) properly allocate memory for generatedPoints
     updateNumberOfContours(cChar);
 
     // Generate points from TTF file
-    mGlyfData[cChar].GeneratedPoints.resize(mGlyfData[cChar].Contours[mGlyfData[cChar].Contours.size() - 1]);
+    mGlyfData.at(cChar).GeneratedPoints.resize(mGlyfData.at(cChar).Contours[mGlyfData.at(cChar).Contours.size() - 1]);
     generateGlyphPoints(cChar);
   }
 }
 
 //! @brief Loads glyph data for given character size
 //!
-//! @param[in] cCharSize     Size of character to load Glyphs
-//! @param[in] pRenderEngine Resource Manager
+//! @param[in] cCharSize      Size of character to load Glyphs
+//! @param[in] prResourceMngr Resource Manager
 //!
 //! @return None
-void Font::loadGlyphs(const uint32_t cCharSize, std::shared_ptr<RenderEngine>& prRenderEngine)
+void Font::loadGlyphs(const uint32_t cCharSize) const
 {
   // Don't remake font size if it exists in map, return early
-  if(mFont.find(cCharSize - 1) != mFont.end())
+  if(mFont.find(cCharSize) != mFont.end())
   {
     std::cout << "Font size already exists." << std::endl;
     // Doesn't matter dimensions here, because font exists, resource already exists
     return;
   }
 
+  mFont.try_emplace(cCharSize);
+
   char currChar = '\0';
   float scaleY = 0;
   float scaleX = 0;
   glm::uvec2 offset(0, 0);
-  int8_t size = cCharSize - 1;
-  
+  const float EM_PCT = static_cast<float>(cCharSize) / static_cast<float>(BASE_SIZE_PX);
+  const float PT_SIZE = EM_PCT * BASE_SIZE_PT;
+
+  FontTable* fontTable = &mFont.at(cCharSize);
+  FontPage* fontPage = nullptr;
+  GlyfRawData* glyfData = nullptr;
+
+  std::cout << PT_SIZE << std::endl;
+
   for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
   {
+    //******************************************************************************************************************
+    // Data Setup
+    //******************************************************************************************************************
     currChar = static_cast<char>(i);
-    if(mGlyfData[currChar].Contours.size() > 0)
+    fontTable->try_emplace(currChar, FontPage());
+    fontPage = &fontTable->at(currChar);
+    glyfData = &mGlyfData.at(currChar);
+
+    //******************************************************************************************************************
+    // Processing Logic
+    //******************************************************************************************************************
+    fontPage->Dimensions = glm::uvec2(
+    calculatePixelSize(glyfData->FontHeader.xMax - glyfData->FontHeader.xMin, PT_SIZE, mUnitsPerEm),
+    calculatePixelSize(glyfData->FontHeader.yMax - glyfData->FontHeader.yMin, PT_SIZE, mUnitsPerEm));
+    // Correct the right dimensions
+    fontPage->Dimensions.x += 1;
+    fontPage->Dimensions.y += 1;
+    fontPage->AdvanceWidth = std::round(calculatePixelSize(glyfData->HorMetrics.advanceWidth, PT_SIZE, mUnitsPerEm));
+    fontPage->LeftSideBearing = static_cast<int16_t>(calcMetric(glyfData->HorMetrics.leftSideBearing, PT_SIZE, mUnitsPerEm));
+
+    if(glyfData->FontHeader.numberofContours >= 0)
     {
         // If we get a crash with different fonts this can be why
-        mFont[size][currChar].GenPtsEdges.clear();
-        mFont[size][currChar].GenPtsEdges.resize(
-        (mGlyfData[currChar].Contours[mGlyfData[
-          currChar].Contours.size() - 1] - 1) - (mGlyfData[currChar].Contours.size() - 1));
+        fontPage->GenPtsEdges.clear();
+        fontPage->GenPtsEdges.resize((glyfData->Contours[glyfData->Contours.size() - 1] - 1)
+                                     - (glyfData->Contours.size() - 1));
         // Connect edges together
         generateEdges(currChar, cCharSize);
 
-        // Get a ratio between the max height for current letter / max height for a capital letter
-        // This will be used to scale down Y value correctly
-        scaleY = (static_cast<float>(mGlyfData[currChar].FontHeader.yMax - mGlyfData[currChar].FontHeader.yMin)) /
-                 static_cast<float>(mCapHeight);
-
-        // Get ratio of x / y, this will attempt to keep the X x Y dimenion ratios
-        scaleX = 
-        (static_cast<float>(mGlyfData[currChar].FontHeader.xMax - mGlyfData[currChar].FontHeader.xMin)) /
-        static_cast<float>(mMaxWidth);
-
-        mFont[size][currChar].Dimensions = glm::uvec2(size * scaleX, size * scaleY);
-
-        mFont[size][currChar].Ybearing = size - mFont[size][currChar].Dimensions.y;
-
-        if(mFont[size][currChar].Ybearing < 0)
-        {
-          mFont[size][currChar].Ybearing = 0;
-        }
-        
         updateEdges(currChar, cCharSize);
-        
-        // Correct the right dimensions
-        mFont[size][currChar].Dimensions.x += 1;
-        mFont[size][currChar].Dimensions.y += 1;
-        mFont[size][currChar].Bitmap.resize(
-          (mFont[size][currChar].Dimensions.y) * (mFont[size][currChar].Dimensions.x), 0);
+        fontPage->Bitmap.resize(
+          (fontPage->Dimensions.y) * (fontPage->Dimensions.x), lg::Color(255, 255, 255, 0).getRgba());
         scanLineFill(currChar, cCharSize);
 
-        mFont[size][currChar].Offset = offset;
+        fontPage->Offset = offset;
 
-        offset.x += mFont[size][currChar].Dimensions.x;
-        offset.y += mFont[size][currChar].Dimensions.y;
+        offset.x += fontPage->Dimensions.x;
+        offset.y += fontPage->Dimensions.y;
 
-        mFont[size][currChar].Ydescent = abs(cCharSize * (static_cast<float>(mGlyfData[currChar].FontHeader.yMin) /
-                                             static_cast<float>(mMaxHeight)));
+        fontPage->YHint = calcMetric(mCapHeight - glyfData->FontHeader.yMax, PT_SIZE, mUnitsPerEm);
+
+        if('W' == currChar)
+        {
+          std::cout << "YHint: " << (fontPage->Dimensions.x + fontPage->LeftSideBearing)<< std::endl;
+        }
     }
   }
 
-  mTextures.try_emplace(size, std::make_shared<TextureResource>(mFontFamily + std::to_string(cCharSize), prRenderEngine,
-                        offset));
+  mTextures[cCharSize].create(offset.y, offset.x);
 
-  for(int32_t i = ASCII_CHAR_START; i <= ASCII_CHAR_END; i ++)
+  for(int32_t i = ASCII_CHAR_START + 1; i <= ASCII_CHAR_END; i ++)
   {
     currChar = static_cast<char>(i);
-    mTextures[size]->update(mFont[size][currChar].Bitmap.data(), mFont[size][currChar].Dimensions,
-                                 mFont[size][currChar].Offset);
+    fontPage = &fontTable->at(currChar);
+    mTextures[cCharSize].update(fontPage->Bitmap.data(), fontPage->Dimensions, fontPage->Offset);
   }
 }
 
@@ -586,25 +621,21 @@ void Font::loadGlyphs(const uint32_t cCharSize, std::shared_ptr<RenderEngine>& p
 //! @param[in] cCharSize Size to scale down edges
 //!
 //! @return None
-void Font::updateEdges(const char cChar, const uint8_t cCharSize)
+void Font::updateEdges(const char cChar, const uint8_t cCharSize) const
 {
-  float scaleY = 0;
-  float scaleX = 0;
-  float yMax = mGlyfData[cChar].FontHeader.yMax - mGlyfData[cChar].FontHeader.yMin;
-  float xMax = mGlyfData[cChar].FontHeader.xMax - mGlyfData[cChar].FontHeader.xMin;
+  const float EM_PCT = static_cast<float>(cCharSize) / static_cast<float>(BASE_SIZE_PX);
+  const float PT_SIZE = EM_PCT * BASE_SIZE_PT;
+  GlyfRawData* glyfData = &mGlyfData.at(cChar);
+  const float newMaxX = calculatePixelSize(glyfData->FontHeader.xMax - glyfData->FontHeader.xMin, PT_SIZE, mUnitsPerEm) / static_cast<float>(glyfData->FontHeader.xMax - glyfData->FontHeader.xMin);
+  const float newMaxY = calculatePixelSize(glyfData->FontHeader.yMax - glyfData->FontHeader.yMin, PT_SIZE, mUnitsPerEm) / static_cast<float>(glyfData->FontHeader.yMax - glyfData->FontHeader.yMin);
 
-  uint8_t size = cCharSize - 1;
   // Scale down points in edges by the scale
-  for (auto& edges : mFont[size][cChar].GenPtsEdges)
+  for (auto& edges : mFont.at(cCharSize).at(cChar).GenPtsEdges)
   {
-    scaleY = edges.p1.y / yMax;
-    scaleX = edges.p1.x / xMax;
-    edges.p1.x = static_cast<float>(mFont[size][cChar].Dimensions.x) * scaleX;
-    edges.p1.y = static_cast<float>(mFont[size][cChar].Dimensions.y) * scaleY;
-    scaleY = edges.p2.y / yMax;
-    scaleX = edges.p2.x / xMax;
-    edges.p2.x = static_cast<float>(mFont[size][cChar].Dimensions.x) * scaleX;
-    edges.p2.y = static_cast<float>(mFont[size][cChar].Dimensions.y) * scaleY;
+    edges.p1.x = edges.p1.x * newMaxX;
+    edges.p1.y = edges.p1.y * newMaxY;
+    edges.p2.x = edges.p2.x * newMaxX;
+    edges.p2.y = edges.p2.y * newMaxY;
   }
 }
 
@@ -627,9 +658,9 @@ GlyfHeader Font::getCharGlyfHeader(const char cChar, const LestTrueType& crTtf)
 //!
 //! @return true if glyphs are loaded
 //! @return false if glyphs are not loaded
-bool Font::hasGlyphsLoaded(const uint8_t cCharSize)
+bool Font::hasGlyphsLoaded(const uint8_t cCharSize) const
 {
-  return mFont.find(cCharSize - 1) != mFont.end();
+  return mFont.find(cCharSize) != mFont.end();
 }
 
 //! @brief Get Offset from FontTable of character size
@@ -639,25 +670,25 @@ bool Font::hasGlyphsLoaded(const uint8_t cCharSize)
 //! @param[in] cCharSize Character size to get character offset from specific map
 //!
 //! @return Offset for Texture buffer
-glm::uvec2 Font::getOffset(const char cChar, const uint8_t cCharSize)
+glm::uvec2 Font::getOffset(const char cChar, const uint8_t cCharSize) const
 {
-  return mFont[cCharSize - 1][cChar].Offset;
+  return mFont.at(cCharSize).at(cChar).Offset;
 }
 
-//! @brief Get Resource from Texture map of character size
+//! @brief Get Texture from Texture map of character size
 //!
 //! @param[in] cCharSize Character size to get resource from specific map
 //!
-//! @return Texture Resource
-std::shared_ptr<TextureResource> Font::getResource(const uint8_t cCharSize)
+//! @return Texture
+const Texture2D& Font::getTexture(const uint8_t cCharSize) const
 {
-  return mTextures.at(cCharSize - 1);
+  return mTextures.at(cCharSize);
 }
 
 //! @brief Returns the Advanced Width value
 //!
 //! @return Advanced Width
-uint16_t Font::getAdvancedWidth()
+uint16_t Font::getAdvancedWidth() const
 {
   return mAdvancedWidth;
 }
@@ -665,7 +696,7 @@ uint16_t Font::getAdvancedWidth()
 //! @brief Gets Capital Height
 //!
 //! @return Capital Height
-int32_t Font::getCapitalHeight()
+int32_t Font::getCapitalHeight() const
 {
   return mCapHeight;
 }
@@ -673,7 +704,7 @@ int32_t Font::getCapitalHeight()
 //! @brief Gets Max Height
 //!
 //! @return Max Height
-int32_t Font::getMaxHeight()
+int32_t Font::getMaxHeight() const
 {
   return mMaxHeight;
 }
@@ -681,7 +712,7 @@ int32_t Font::getMaxHeight()
 //! @brief Gets Max Width
 //!
 //! @return Max Width
-int32_t Font::getMaxWidth()
+int32_t Font::getMaxWidth() const
 {
   return mMaxWidth;
 }

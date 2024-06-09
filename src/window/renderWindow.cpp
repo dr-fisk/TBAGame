@@ -2,16 +2,15 @@
 #include <vector>
 
 #include "window/renderWindow.hpp"
-#include "window/mouse.hpp"
+#include "input/mouse.hpp"
 #include "input/input.hpp"
-#include "window/keyboard.hpp"
+#include "input/keyboard.hpp"
 #include "window/window.hpp"
 #include "renderer/renderer2D.hpp"
 #include "renderer/renderCommand.hpp"
+#include "input/mouseEvent.hpp"
+#include "input/keyboardEvent.hpp"
 
-bool RenderWindow::msCallbacksInitialized = false;
-int32_t RenderWindow::msWindowId = 0;
-int32_t RenderWindow::msActiveWindowId = -1;
 bool RenderWindow::msFirstInit = true;
 
 //! @brief Initializes opengl window
@@ -42,9 +41,6 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
     exit(-1);
   }
 
-  mWindowId = msWindowId;
-  msWindowId ++;
-
   setActive();
   
   if(msFirstInit)
@@ -53,11 +49,19 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
     msFirstInit = false;
   }
 
+  //Vsync off later make it toggable (limits fps)
+  mEventDispatcher.addEventDispatcher<LestRenderEngine::MouseMoveEvent>();
+  mEventDispatcher.addEventDispatcher<LestRenderEngine::MouseButtonPressEvent>();
+  mEventDispatcher.addEventDispatcher<LestRenderEngine::MouseButtonReleaseEvent>();
+  mEventDispatcher.addEventDispatcher<LestRenderEngine::KeyboardPressEvent>();
+  mEventDispatcher.addEventDispatcher<LestRenderEngine::KeyboardReleaseEvent>();
+  glfwSwapInterval(0);
   Renderer2D::registerContext(pWindow, mpWindow);
-  
+  lg::Input::registerContext(mpWindow);
+  setCallbacks();
+  glfwSetWindowUserPointer(mpWindow, &mEventDispatcher);
   int w, h;
   glfwGetWindowSize(mpWindow, &w, &h);
-  std::cout << "Width: " << w << " Height: " << h << std::endl;
 }
 
 //! @brief Handles displaying data stored in all buffers
@@ -65,17 +69,7 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
 //! @return None
 void RenderWindow::display()
 {
-  GLCall(glfwSwapBuffers(mpWindow));
-}
-
-//! @brief Draws VBO data to window
-//!
-//! @param cCount Number of Elements to Draw
-//!
-//! @return None 
-void RenderWindow::draw(const uint64_t cCount)
-{
-  GLCall(glDrawElements(GL_TRIANGLES, cCount, GL_UNSIGNED_INT, nullptr));
+  glfwSwapBuffers(mpWindow);
 }
 
 //! @brief Gets window width
@@ -107,42 +101,15 @@ const glm::uvec2& RenderWindow::getWindowSize()
 //! @return true if Window is open false otherwise
 bool RenderWindow::isOpen()
 {
+  std::unique_lock<std::mutex> lock(mDataAccesMutex);
   return !glfwWindowShouldClose(mpWindow);
 }
 
-//! @brief Ensures coordinates are never out of bounds from resolution
-//!
-//! @return None
-void RenderWindow::boundCoords(GLfloat *pLeft, GLfloat *pWidth, GLfloat *pTop, GLfloat *pHeight)
+RenderWindow::~RenderWindow()
 {
-  uint32_t wWidth = getWindowWidth();
-  uint32_t wHeight = getWindowHeight();
-
-  if (*pWidth > wWidth)
-    *pWidth = wWidth;
-
-  if (*pHeight > wHeight)
-    *pHeight = wHeight;
-
-  if (*pLeft > wWidth)
-    *pLeft = wWidth;
-  
-  if (*pHeight > wHeight)
-    *pHeight = wHeight;
-
-  if ((*pLeft + *pWidth) > wWidth) {
-    *pLeft -= *pWidth;
-
-    if (*pLeft < 0.0f)
-      *pLeft = 0.0f;
-  }
-
-  if ((*pTop + *pHeight) > wHeight) {
-    *pTop -= *pHeight;
-
-    if (*pTop < 0.0f)
-      *pTop = 0.0f;
-  }
+  Renderer2D::unregisterContext(mpWindow);
+  lg::Input::unregisterContext(mpWindow);
+  glfwDestroyWindow(mpWindow);
 }
 
 //! @brief Sets the current window to be the Current OpenGL context useful for working with multiple windows must be called before any GL Funciton Call
@@ -150,34 +117,9 @@ void RenderWindow::boundCoords(GLfloat *pLeft, GLfloat *pWidth, GLfloat *pTop, G
 //! @return None
 void RenderWindow::setActive()
 {
-  if(msActiveWindowId != mWindowId)
-  {
-    glfwMakeContextCurrent(mpWindow);
-
-    //Vsync off later make it toggable (limits fps)
-    glfwSwapInterval(0);
-    glewExperimental = GL_TRUE;
-    glewInit();
-    
-    if(!msCallbacksInitialized)
-    {
-      setCallbacks();
-    }
-
-    msActiveWindowId = mWindowId;
-  }
-}
-
-//! @brief Cleans up the render window, must be called as this allows for multiple windows to be used
-//!
-//! @return None
-void RenderWindow::destroyWindow()
-{
-  /* Due to shader, IB, VAO, and VBO being smart pointers,
-     reset needs to be called to delete opengl data before
-     terminating window  */
-  Renderer2D::unregisterContext(mpWindow);
-  glfwDestroyWindow(mpWindow);
+  glfwMakeContextCurrent(mpWindow);
+  glewExperimental = GL_TRUE;
+  glewInit();
 }
 
 //! @brief Getter function for getting a reference to the currnet Gl Window
@@ -204,7 +146,7 @@ void RenderWindow::initWindow()
 //! @return True if event returned, false otherwise
 bool RenderWindow::pollEvent(Event& rEvent)
 {
-  return lg::Input::popEvent(rEvent);
+  return lg::Input::popEvent(rEvent, mpWindow);
 }
 
 std::shared_ptr<RenderWindow> RenderWindow::createSharedWindow()
@@ -214,6 +156,7 @@ std::shared_ptr<RenderWindow> RenderWindow::createSharedWindow()
     return nullptr;
   }
 
+  // glfwWindowHint(GLFW_FOCUSED, GLFW_FALSE);
   std::shared_ptr<RenderWindow> window = std::make_shared<RenderWindow>(800, 600, "A shared window", mpWindow);
   setActive();
   // Need params here in function
@@ -229,7 +172,6 @@ void RenderWindow::setCallbacks()
   glfwSetMouseButtonCallback(mpWindow, lg::Mouse::mouseButtonCallback);
   glfwSetKeyCallback(mpWindow, lg::Keyboard::keyCallback);
   glfwSetWindowSizeCallback(mpWindow, lg::Window::windowResizeCallback);
-  msCallbacksInitialized = true;
 }
 
 void RenderWindow::setWindowTitle(const std::string& crTitle)

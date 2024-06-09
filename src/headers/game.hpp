@@ -6,9 +6,8 @@
 // #include <chrono>
 
 #include "states/state.hpp"
-#include "renderEngine/renderEngine.hpp"
 #include "window/renderWindow.hpp"
-#include "lestTtf.h"
+#include "lestTtf.hpp"
 #include "renderEngine/frameBuffer.hpp"
 
 #define ONE_SEC 1
@@ -21,7 +20,6 @@ class Game {
   private:
     std::stack<std::shared_ptr<State>> mStates;
     std::shared_ptr<RenderWindow> mpWindow;
-    std::shared_ptr<RenderEngine> mpRenderEngine;
     LestTrueType ttf;
     int mGameRuntime;
     // std::chrono::time_point<std::chrono::high_resolution_clock> mStartTime;

@@ -6,12 +6,11 @@
 #include "common.hpp"
 #include "glcommon.hpp"
 #include "window/renderWindow.hpp"
-#include "renderEngine/renderEngine.hpp"
 
 class State
 {
   public:
-    State(const std::stack<std::shared_ptr<State>>& crStates, const std::shared_ptr<RenderEngine>& crpRenderEngine);
+    State(const std::stack<std::shared_ptr<State>>& crStates);
     ~State();
     virtual void render(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);
     virtual void update(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);
@@ -20,7 +19,6 @@ class State
     virtual bool shouldStateExit() = 0;
   protected:
     std::stack<std::shared_ptr<State>> mStates;
-    std::shared_ptr<RenderEngine> mpRenderEngine;
     std::shared_ptr<RenderTarget> mpWindow;
 };
 

@@ -8,9 +8,10 @@
 #include "renderEngine/vertexBuffer.hpp"
 #include "renderEngine/indexBuffer.hpp"
 #include "renderEngine/shader.hpp"
-#include "resource/textureResource.hpp"
+#include "renderEngine/texture2D.hpp"
 #include "renderer/camera.hpp"
 #include "vertex.hpp"
+#include "utility/transform.hpp"
 
 class Renderer2D
 {
@@ -19,11 +20,17 @@ class Renderer2D
     static void beginScene(const std::shared_ptr<OrthCamera>& crpCamera);
     static void registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
                              std::array<Vertex, sNumQuadVerts>& rVertexes,
-                             const std::shared_ptr<TextureResource>& crpTexture,
                              const bool cGeometryNeedUpdate);
+    static void registerQuad(const Transform& crTransform,
+                             std::array<Vertex, sNumQuadVerts>& rVertexes,
+                             const glm::vec2& cOffset);
+    static void registerQuad(const Transform& crTransform,
+                             std::array<Vertex, sNumQuadVerts>& rVertexes,
+                             const Texture2D* &crpTexture,
+                             const glm::vec2& cOffset);
     static void registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
                              std::array<Vertex, sNumQuadVerts>& rVertexes,
-                             const lg::Color& crColor,
+                             const Texture2D* &crpTexture,
                              const bool cGeometryNeedUpdate);
     static void endScene();
     static void flush();

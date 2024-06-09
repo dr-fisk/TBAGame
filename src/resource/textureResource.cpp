@@ -11,17 +11,17 @@ TextureResource::TextureResource() : mpTexture(nullptr)
 //! @brief Construct Texture Resource
 //!
 //! @param[in] crTag          Tag associated with resource
-//! @param[in] prRenderEngine Render Engine manager
+//! @param[in] prResourceMngr Render Engine manager
 //! @param[in] crDimensions   Dimensions to create new Texture
 //! @param[in] cInternalFormat Specifies the number of color components in the texture
 //! @param[in] cFormat         Format of Texture
 //!
 //! @return Texture Resource object
-TextureResource::TextureResource(const std::string& crTag, std::shared_ptr<RenderEngine>& prRenderEngine,
+TextureResource::TextureResource(const std::string& crTag, std::shared_ptr<ResourceManager>& prResourceMngr,
                                  const glm::uvec2& crDimensions, const int32_t cInternalFormat,
                                  const int32_t cFormat)
-                                 : Resource(crTag, prRenderEngine),
-                                   mpTexture(prRenderEngine->createTexture(crTag, crDimensions.y, crDimensions.x,
+                                 : Resource(crTag, prResourceMngr),
+                                   mpTexture(prResourceMngr->createTexture(crTag, crDimensions.y, crDimensions.x,
                                              cInternalFormat, cFormat))
 {
 }
@@ -104,7 +104,7 @@ TextureResource::~TextureResource()
 {
   if(!mTag.empty())
   {
-    mpRenderEngine->removeResource(mTag);
+    mpResourceManager->removeResource(mTag);
   }
 }
 

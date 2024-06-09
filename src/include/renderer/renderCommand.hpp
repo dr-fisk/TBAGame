@@ -10,7 +10,7 @@ class RenderCommand
     {
       if(!glfwInit())
       {
-        std::cout << "Failed to open window" << std::endl;
+        std::cout << "Failed to init glfw." << std::endl;
         exit(-1);
       }
 
@@ -21,33 +21,33 @@ class RenderCommand
 
     static void setClearColor(const float cR, const float cG, const float cB, const float cA)
     {
-      GLCall(glClearColor(cR, cG, cB, cA));
+      glClearColor(cR, cG, cB, cA);
     }
 
     static void clear()
     {
-      GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     static void pollEvents()
     {
-      GLCall(glfwPollEvents());
+      glfwPollEvents();
     }
 
     static void enableBlend()
     {
-      GLCall(glEnable(GL_BLEND));
-      GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+      glEnable(GL_BLEND);
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     static void disableBlend()
     {
-      GLCall(glDisable(GL_BLEND));
+      glDisable(GL_BLEND);
     }
 
     static void setViewport(const uint32_t cX, const uint32_t cY, const uint32_t cWidth, const uint32_t cHeight)
     {
-      GLCall(glViewport(cX, cY, cWidth, cHeight));
+      glViewport(cX, cY, cWidth, cHeight);
     }
   private:
 };

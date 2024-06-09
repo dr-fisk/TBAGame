@@ -19,6 +19,7 @@ namespace EdgeTable
   //! @brief Updates the x intersection value of crNode from the following formula x + y * dx/dy
   //!
   //! @param[in]  crNode  Node from edge table to update x intersection
+  //! @param[in]  cDy
   //!
   //! @return New x intersection value
   float currentXVal(const EdgeTableNode& crNode, const float cDy)
@@ -53,15 +54,20 @@ namespace EdgeTable
   //! @return None
   void fillActiveEdgeTable(const std::vector<EdgeTableNode>& crEdgeTable, std::vector<EdgeTableNode>& rActiveEdgeTable,
                            uint32_t& rEdgeTableIdx, const uint32_t cNumEdges, size_t& rActiveTableIdx,
-                           const float cY, const uint32_t cMaxY)
+                           const float cY)
   {
     for(int i = rEdgeTableIdx; i < cNumEdges; i ++)
     {
-      if (crEdgeTable[i].yLower < cY || decimalCmp(cY, crEdgeTable[i].yLower))
+      if(crEdgeTable[i].yLower <= cY)
       {
-        rEdgeTableIdx ++;
         rActiveEdgeTable[rActiveTableIdx] = crEdgeTable[i];
+        rActiveEdgeTable[rActiveTableIdx].xIntersect = currentXVal(rActiveEdgeTable[rActiveTableIdx], cY - rActiveEdgeTable[rActiveTableIdx].yLower);
         rActiveTableIdx ++;
+        rEdgeTableIdx ++;
+      }
+      else
+      {
+        break;
       }
     }
 
@@ -69,7 +75,7 @@ namespace EdgeTable
 
     for(int i = 0; i < rActiveTableIdx; i ++)
     {
-      if (rActiveEdgeTable[i].yUpper < cY || decimalCmp(cY, rActiveEdgeTable[i].yUpper) || cY + 1 >= cMaxY)
+      if(rActiveEdgeTable[i].yUpper < cY)
       {
         for(int j = i; j < rActiveTableIdx - 1; j ++)
         {
@@ -117,5 +123,11 @@ namespace EdgeTable
     {
       rActiveEdgeTable[i].xIntersect = currentXVal(rActiveEdgeTable[i], cDy);
     }
+  }
+
+  bool skipCurrentEdge(const EdgeTableNode &crNode1, const EdgeTableNode& crNode2)
+  {
+    return decimalCmp(crNode1.xIntersect, crNode2.xIntersect) && 
+           (!decimalCmp(crNode1.yLower, crNode2.yLower) && !decimalCmp(crNode1.yUpper, crNode2.yUpper));
   }
 };

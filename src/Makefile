@@ -1,14 +1,15 @@
 SHELL := /bin/bash
 
 CC = x86_64-w64-mingw32-g++-posix
-programs = main.exe
+programs = lestgame.exe
+entrypoint = main.cxx
 
 ifeq (lin64, $(TARGET))
   CC = g++
   programs = main.out
 else ifeq (win64, $(TARGET))
   CC = x86_64-w64-mingw32-g++
-  programs = main.exe
+  programs = lestgame.exe
 endif
 
 LIBPATH = ../lib
@@ -21,15 +22,16 @@ STATEPATH = ./states
 WINDOWPATH = ./window
 RESOURCEPATH = ./resource
 GUIPATH = ./gui
+GRAPHICSEVENTPATH = ./graphicsEvent
 DRAWABLESPATH = ./drawable
 RENDERENGINEPATH = ./renderEngine
 RENDERERPATH = ./renderer
 GRAPHICSPATH = ./graphics
+LESTENGINEEVENTSPATH = ./event
 INPUTPATH = ./input
 SRC = ./src
 SHADERSPATH = ./shaders
 FONTSPATH = ./fonts
-DYNLIBSPATH = ./libs
 LESTTTFPATH = ../lestttf
 FONTPATH = ../TtfFont
 UTILITYPATH = ./utility
@@ -39,7 +41,11 @@ SHADER = $(SHADERSPATH)/shader1.txt
 ifeq (debug, $(BUILD))
 CFLAGS = -g
 else
-CFLAGS = -O2
+CFLAGS = -O3
+endif
+
+ifeq (release, $(BUILD))
+CFLAGS += -Wl,-subsystem,windows
 endif
 
 CFLAGS  += -std=c++17 -Wall -Wextra -MMD -MD -I$(INCLPATH) -I$(SRCINCLPATH) -I$(HEADERS) -I$(LESTTTFPATH)
@@ -63,51 +69,58 @@ linkFiles  = common.cpp \
 
 stateFiles = state.cpp \
              mainMenuState.cpp \
-             exceptionState.cpp
-
-guiFiles   = gui.cpp
+             exceptionState.cpp \
+						 sandboxState.cpp
 
 windowFiles = renderWindow.cpp \
               renderTarget.cpp \
-							mouse.cpp \
-							keyboard.cpp \
 							window.cpp
 
 resourceFiles = image.cpp \
-                font.cpp \
-								resource.cpp \
-								textureResource.cpp
+                font.cpp
 
-drawableFiles = drawable.cpp \
+drawableFiles = dot.cpp \
 								text.cpp \
-								sprite.cpp
+								sprite.cpp \
+								nineSlicedSprite.cpp
 
-renderEngineFiles = renderEngine.cpp \
-										indexBuffer.cpp \
+renderEngineFiles = indexBuffer.cpp \
 										shader.cpp \
 										vertexBuffer.cpp \
 										vertexArray.cpp \
-										texture.cpp \
+										texture2D.cpp \
 										frameBuffer.cpp
 
 rendererFiles = renderer2D.cpp \
                 camera.cpp
 
-inputFiles = input.cpp
+inputFiles = input.cpp \
+						 mouse.cpp \
+						 keyboard.cpp \
+						 mouseEvent.cpp \
+						 keyboardEvent.cpp \
+						 windowEvent.cpp
 
-graphicsFiles = scrollbar.cpp \
-								textbox.cpp
+graphicsFiles = component.cpp \
+                label.cpp \
+								abstractButton.cpp \
+								toggleButton.cpp \
+								button.cpp \
+								scrollbar.cpp \
+								menuItem.cpp \
+								menu.cpp \
+								popupMenu.cpp
 
+graphicsEventsFiles = itemEvent.cpp \
+											menuEvent.cpp 
+
+lestEngineEventFiles =
 dynLibFiles = png.cpp
 
-utilityFiles = edgeTable.cpp
-objs := $(patsubst %.exe, %.o, $(programs))
+utilityFiles = edgeTable.cpp \
+							 transform.cpp
 
-ifeq (lin64, $(TARGET))
-  objs := $(patsubst %.out, %.o, $(programs))
-else ifeq (win64, $(TARGET))
-  objs := $(patsubst %.exe, %.o, $(programs))
-endif
+objs := $(patsubst %.cxx, %.o, $(entrypoint))
 
 objs += $(patsubst %.cpp, %.o, $(linkFiles))
 
@@ -132,16 +145,16 @@ rendererObjs = $(addprefix $(RENDERERPATH)/, $(renderer))
 graphics = $(patsubst %.cpp, %.o, $(graphicsFiles))
 graphicsObjs = $(addprefix $(GRAPHICSPATH)/, $(graphics))
 
+graphicsEvents = $(patsubst %.cpp, %.o, $(graphicsEventsFiles))
+graphicsEventsObjs = $(addprefix $(GRAPHICSEVENTPATH)/, $(graphicsEvents))
+
+lestEngineEvents = $(patsubst %.cpp, %.o, $(lestEngineEventFiles))
+lestEngineEventsObjs = $(addprefix $(LESTENGINEEVENTSPATH)/, $(lestEngineEvents))
+
 inputs = $(patsubst %.cpp, %.o, $(inputFiles))
 inputObjs = $(addprefix $(INPUTPATH)/, $(inputs))
 
 dynLibPrefix = lest
-
-dynamicLibs = $(patsubst %.cpp, %.dll, $(dynLibFiles))
-dynamicLibsDLL = $(addprefix $(dynLibPrefix), $(dynamicLibs))
-dynamicLibDLLObjs = $(addprefix $(DYNLIBSPATH)/, $(dynamicLibsDLL))
-dynamicLibObjs = $(patsubst %.cpp, %.o, $(dynLibFiles))
-dynamicLibObjsPath = $(addprefix $(DYNLIBSPATH)/, $(dynamicLibObjs))
 
 utilities = $(patsubst %.cpp, %.o, $(utilityFiles))
 utilitiesObjs = $(addprefix $(UTILITYPATH)/, $(utilities))
@@ -151,7 +164,6 @@ deps += $(patsubst %.o, %.d, $(stateObjs))
 deps += $(patsubst %.o, %.d, $(guiObjs))
 deps += $(patsubst %.o, %.d, $(windowObjs))
 deps += $(patsubst %.o, %.d, $(drawableObjs))
-deps += $(patsubst %.o, %.d, $(dynamicLibObjsPath))
 
 # include $(deps)
 ifneq ($(DEBUG), 1)
@@ -197,6 +209,14 @@ $(INPUTPATH):
 	@echo "MAKE	Inputs"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(INPUTPATH)
 
+$(GRAPHICSEVENTPATH):
+	@echo "MAKE	Graphics Events"
+	$(Q)$(MAKE) V=$(V) D=$(D) -C $(GRAPHICSEVENTPATH)
+
+$(LESTENGINEEVENTSPATH):
+	@echo "MAKE	Lest Engine Events"
+	$(Q)$(MAKE) V=$(V) D=$(D) -C $(LESTENGINEEVENTSPATH)
+
 shader:
 		@echo "Copying Shaders"
 		$(Q)cp -r $(SHADERSPATH) $(PATHTOEXEC)
@@ -205,11 +225,11 @@ font:
 		@echo "Copying Fonts"
 		$(Q)cp -r $(FONTSPATH) $(PATHTOEXEC)
 
-%.exe: $(objs) $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RENDERENGINEPATH) $(RENDERERPATH) \
-       $(RESOURCEPATH) $(GRAPHICSPATH) $(UTILITYPATH) $(INPUTPATH)
+$(programs): $(objs) $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RENDERENGINEPATH) $(RENDERERPATH) \
+       $(RESOURCEPATH) $(GRAPHICSPATH) $(UTILITYPATH) $(INPUTPATH) $(GRAPHICSEVENTPATH) $(LESTENGINEEVENTSPATH)
 	@echo "MAKE $@"
 	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(windowObjs) $(drawableObjs) $(utilitiesObjs) $(renderEngineObjs) \
-	$(rendererObjs) $(resourceObjs) $(graphicsObjs) $(inputObjs) $(LDFLAGS)
+	$(rendererObjs) $(resourceObjs) $(graphicsObjs) $(inputObjs) $(graphicsEventsObjs) $(lestEngineEventsObjs) $(LDFLAGS)
 	@echo "Checking DIR"
 	$(Q)if [ ! -d $(PATHTOEXEC) ]; then \
 		echo "Creating Win DIR"; \
@@ -302,15 +322,9 @@ clean_drawable:
 	fi \
 	done
 
-clean_lib:
-	@echo "Clean Libraries"
-	@for item in ${dynamicLibDLLObjs}; do \
-	if [ -f $${item} ]; then \
-	echo "Rm $${item}"; \
-	rm $${item}; \
-	fi \
-	done
-	@for item in ${dynamicLibObjsPath}; do \
+clean_graph_events:
+	@echo "Clean Graphics Events"
+	@for item in ${graphicsEventsObjs}; do \
 	if [ -f $${item} ]; then \
 	echo "Rm $${item}"; \
 	rm $${item}; \
@@ -329,6 +343,15 @@ clean_main:
 clean_renderengine:
 	@echo "Clean Render Engine"
 	@for item in ${renderEngineObjs}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done
+
+clean_lestengineevents:
+	@echo "Clean Lest Engine Events"
+	@for item in ${lestEngineEventsObjs}; do \
 	if [ -f $${item} ]; then \
 	echo "Rm $${item}"; \
 	rm $${item}; \
@@ -392,6 +415,8 @@ clean_dep:
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(GRAPHICSPATH)
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(RESOURCEPATH)
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(INPUTPATH)
+	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(GRAPHICSEVENTPATH)
+	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(LESTENGINEEVENTSPATH)
 
 clean_exe:
 	@echo "Clean Executable"
@@ -400,8 +425,9 @@ clean_exe:
 		rm $(programs); \
 	fi
 
-clean: clean_state clean_window clean_drawable clean_lib clean_main clean_dep clean_exe clean_utilities \
-       clean_renderengine clean_renderer clean_graphics clean_resource clean_input
+clean: clean_state clean_window clean_drawable clean_main clean_dep clean_exe clean_utilities \
+       clean_renderengine clean_renderer clean_graphics clean_resource clean_input clean_graph_events \
+			 clean_lestengineevents
 	@echo "Checking win DIR"
 	$(Q)if [ -d $(PATHTOEXEC) ]; then \
 		echo "RM Win DIR"; \
@@ -415,6 +441,7 @@ help:
 	@echo "Makefile will be expanded in the future"
 
 .PRECIOUS: %.o $(STATEPATH)/%.o $(WINDOWPATH)/%.o $(RESOURCEPATH)/%.o $(DRAWABLESPATH)/%.o $(RENDERENGINEPATH)/%.o \
-           $(GRAPHICSPATH)/%.o $(DYNLIBSPATH)/%.so $(UTILITYPATH)/%.o $(INPUTPATH)/%.o $(RENDERERPATH)/%.o
+           $(GRAPHICSPATH)/%.o $(UTILITYPATH)/%.o $(INPUTPATH)/%.o $(RENDERERPATH)/%.o $(GRAPHICSEVENTPATH)/%.o \
+					 $(LESTENGINEEVENTSPATH)/%.o
 .PHONY: $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RESOURCEPATH) $(UTILITYPATH) $(RENDERENGINEPATH) \
-        $(GRAPHICSPATH) $(INPUTPATH) $(RENDERERPATH)
+        $(GRAPHICSPATH) $(INPUTPATH) $(RENDERERPATH) $(GRAPHICSEVENTPATH) $(LESTENGINEEVENTSPATH)

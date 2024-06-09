@@ -5,7 +5,7 @@
 
 #include "states/mainMenuState.hpp"
 #include "drawable/text.hpp"
-#include "window/mouse.hpp"
+#include "input/mouse.hpp"
 #include "shapes/box.hpp"
 #include "resource/image.hpp"
 #include "renderer/renderer2D.hpp"
@@ -13,81 +13,183 @@
 #include "glm/ext.hpp"
 #include "glm/gtx/string_cast.hpp"
 #include "math/lestMath.hpp"
-MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates,
-                   const std::shared_ptr<RenderEngine>& crpRenderEngine) :
-                   State(crStates, crpRenderEngine)
+#include "event/lestRenderEngineEventManager.hpp"
+
+MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
+                   State(crStates)
 {
-  std::string temp = "Envy Code R.ttf";
+  std::string temp = "../TtfFont/Limelight.ttf"; //"Envy Code R.ttf";
   mStartTime = std::chrono::system_clock::now();
-  std::vector<std::shared_ptr<Button<glm::ivec2>>> mButtons;
-
-  mNewFont = std::make_shared<Font>(temp, 5, lg::Black);
-  mText = std::make_shared<Text>(mNewFont, "FPS: 0", mpRenderEngine, 12, glm::vec2{100.0f, 100.0f});
-  // mSprite = std::make_shared<Sprite>(glm::vec2{200.0f, 200.0f}, glm::vec2{16, 16}, lg::White);
-  mSprite = std::make_shared<Sprite>("../src/art.png", mpRenderEngine, glm::vec2{200.0f, 200.0f}, glm::vec2{16, 16});
-  mSprite3 = std::make_shared<Sprite>("../src/heart.png", mpRenderEngine, glm::vec2{50.0f, 300.0f}, glm::vec2{16, 16});
-  mSprite2 = std::make_shared<Sprite>("../src/art.png", mpRenderEngine, glm::vec2{600.0f, 600.0f}, glm::vec2{16, 16});
-  mButton = std::make_shared<Button<>>(mNewFont, "Test", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50});
+  mNewFont.loadFromFile(temp, 5);
+  mText = std::make_shared<Text>(mNewFont, "FPS: 0", 12);
+  mText->setPos({200.0f, 50.0f});
+  mText->setColor(lg::Blue);
+  Image temp_img("../src/art.png");
+  spriteTexture.create(temp_img.getDimensions().y, temp_img.getDimensions().x, temp_img.getInternalFormat());
+  spriteTexture.update(temp_img.getImgData().data(), temp_img.getDimensions(), temp_img.getOffset(), temp_img.getFormat(), temp_img.getType());
+  mSprite = std::make_shared<Sprite>(spriteTexture, Box(glm::vec2{200.0f, 200.0f}, glm::vec2{16, 16}));
+  Image temp_img2("../src/heart.png");
+  sprite2Texture.create(temp_img2.getDimensions().y, temp_img2.getDimensions().x, temp_img2.getInternalFormat());
+  sprite2Texture.update(temp_img2.getImgData().data(), temp_img2.getDimensions(), temp_img2.getOffset(), temp_img2.getFormat(), temp_img2.getType());
+  mSprite3 = std::make_shared<Sprite>(sprite2Texture, Box(glm::vec2{50.0f, 300.0f}, glm::vec2{16, 16}));
+  mSprite2 = std::make_shared<Sprite>(spriteTexture, Box(glm::vec2{600.0f, 600.0f}, glm::vec2{16, 16}));
   Image tempImg("../src/SquareWBorder.png");
+  std::shared_ptr<Texture2D> tempTexture = std::make_shared<Texture2D>();
+  borderedImgTest.create(tempImg.getDimensions().y, tempImg.getDimensions().x, tempImg.getInternalFormat());
+  borderedImgTest.update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
   tempImg.recolorBorderedShape(lg::Color(135, 135, 135), lg::Color(170, 170, 170), lg::White);
-  std::shared_ptr<TextureResource> tempTexture = std::make_shared<TextureResource>(tempImg.getName(), mpRenderEngine, tempImg.getDimensions(), tempImg.getInternalFormat());
+  tempTexture->create(tempImg.getDimensions().y, tempImg.getDimensions().x, tempImg.getInternalFormat());
   tempTexture->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
-  mButton->setDefaultTexture(tempTexture);
-  tempImg.recolorBorderedShape(lg::Color(210, 210, 210), lg::Color(170, 170, 170), lg::Color(170, 170, 170));
-  std::shared_ptr<TextureResource> tempTexture2 = std::make_shared<TextureResource>("Hover", mpRenderEngine, tempImg.getDimensions(), tempImg.getInternalFormat());
-  tempTexture2->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
-  mButton->setHoverTexture(tempTexture2);
-  tempImg.recolorBorderedShape(lg::Color(230, 230, 230), lg::Color(230, 230, 230), lg::Color(170, 170, 170));
-  std::shared_ptr<TextureResource> tempTexture3 = std::make_shared<TextureResource>("Pressed", mpRenderEngine, tempImg.getDimensions(), tempImg.getInternalFormat());
-  tempTexture3->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
-  mButton->setPressedTexture(tempTexture3);
-  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(mNewFont, "Test1", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50}));
-  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(mNewFont, "Test2", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50}));
-  mButtons.push_back(std::make_shared<Button<glm::ivec2>>(mNewFont, "Test3", mpRenderEngine, 12, glm::vec2{0, 0}, glm::vec2{50, 50}));
-  mButtons[0]->setValue(glm::ivec2(0,0));
-  mButtons[1]->setValue(glm::ivec2(10,10));
-  mButtons[2]->setValue(glm::ivec2(200,200));
+  Image btnImg("../src/ButtonTexture.png");
+  Image btnImg2("../src/InvertedButtonTexture.png");
+  std::shared_ptr<Texture2D> btnTexture = std::make_shared<Texture2D>();
+  btnTexture->create(btnImg.getDimensions().y, btnImg.getDimensions().x, btnImg.getInternalFormat());
+  btnTexture->update(btnImg.getImgData().data(), btnImg.getDimensions(), btnImg.getOffset(), btnImg.getFormat(), btnImg.getType());
+  std::shared_ptr<Texture2D> btnTexture2 = std::make_shared<Texture2D>();
+  btnTexture2->create(btnImg2.getDimensions().y, btnImg2.getDimensions().x, btnImg2.getInternalFormat());
+  btnTexture2->update(btnImg2.getImgData().data(), btnImg2.getDimensions(), btnImg2.getOffset(), btnImg2.getFormat(), btnImg2.getType());
 
-  for(auto& button : mButtons)
-  {
-    button->setDefaultColor(lg::Grey);
-    button->setHoverColor(lg::Green);
-    button->setPressedColor(lg::Red);
-    button->onClick(MainMenu::dropdownCallbacK);
-  }
+  mNineSliced = std::make_unique<SlicedSprite>();
+  Transform test;
+  test.setPos({650.0f, 650.0f});
+  test.setScale({200.0f, 50.0f});
+  mNineSliced->setTexture(borderedImgTest);
+  mNineSliced->setBorders(5, 5, 5, 5);
+  mNineSliced->fillBorderColor(lg::Red);
+  mNineSliced->setTransform(test);
+  // This can change to doing the same thing text does for editing colors
+  mButton = std::make_shared<Button>();
+  Text text = Text(mNewFont, "Iris will be my wifeG!", 18);
+  mButton->setText(text)
+           .setTextColor(lg::Black)
+           .setDefaultTexture(btnTexture)
+           .setHoverTexture(btnTexture2)
+           .setPressedTexture(btnTexture2)
+           .setVerticalAlignment(Label::VerticalAlign::CENTER)
+           .setHorizontalAlignment(Label::HorizontalAlign::CENTER)
+           .setPos({250.0f, 250.0f})
+           .resize({300, 62})
+           .setBorder(2)
+          //  .setBorderColor(ButtonState::DEFAULT_STATE, lg::Color(135, 135, 135))
+          //  .setBorderColor(ButtonState::HOVER_STATE, lg::Color(175, 175, 175))
+          //  .setBorderColor(ButtonState::PRESSED_STATE, lg::Color(230, 230, 230))
+           .setBorderColor(ButtonState::DEFAULT_STATE, lg::Black)
+           .setBorderColor(ButtonState::HOVER_STATE, lg::Black)
+           .setBorderColor(ButtonState::PRESSED_STATE, lg::Black)
+           .onClick(&MainMenu::buttonCallback);
 
-  mMenu = std::make_shared<DropDownMenu<glm::ivec2>>(2, mButtons, glm::vec2(700.0f, 700.0f), glm::vec2{45.0f, 30.0f});
+  mScroll = std::make_shared<Scrollbar>(Scrollbar::VERTICAL, 0, 800);
+  Button tempButton = Button();
 
-  mButton->setDefaultColor(lg::Grey);
-  mButton->setHoverColor(lg::Green);
-  mButton->setPressedColor(lg::Red);
-  mButton->setSize({40.0f, 30.0f});
-  mButton->setPos({250.0f, 250.0f});
-  mButton->setValue(nullptr);
-  mButton->onClick(MainMenu::buttonCallback);
+  tempButton.setBackgroundColor(ButtonState::DEFAULT_STATE, lg::Grey)
+          .setBackgroundColor(ButtonState::HOVER_STATE, lg::Green)
+          .setBackgroundColor(ButtonState::PRESSED_STATE, lg::Green)
+          .setPadding(glm::vec2(50, 50))
+          .setPos({900, 50})
+          .resize({20, 60});
+  mScroll->setButton(tempButton);
 
-  mScroll = std::make_shared<Scrollbar>(mpRenderEngine, glm::vec2(900, 50), glm::vec2(20, 60));
-  mScroll->setDefaultColor(lg::Grey);
-  mScroll->setHoverColor(lg::Green);
-  mScroll->setPressedColor(lg::Green);
-  mScroll->setPressedPadding(glm::vec2(50, 50));
+  Text labelText = Text(mNewFont, "My label.", 12);
+  labelText.setColor(lg::Black);
+  mLabel = std::make_shared<Label>(labelText);
+  mLabel->setPos(glm::vec2(500.0f, 500.0f));
+  mLabel->resize(glm::vec2(75.0f, 50.0f));
+  mLabel->setHorizontalAlign(Label::HorizontalAlign::CENTER);
+  mLabel->setVerticalAlign(Label::VerticalAlign::CENTER);
+  mLabel->setBackgroundColor(lg::White);
 
+  mScroll->addComponent(mLabel)
+         .addComponent(mButton);
+
+  mScroll2 = std::make_shared<Scrollbar>(Scrollbar::HORIZONTAL, 0, 1000);
+  tempButton.setBackgroundColor(ButtonState::DEFAULT_STATE, lg::Grey)
+          .setBackgroundColor(ButtonState::HOVER_STATE, lg::Green)
+          .setBackgroundColor(ButtonState::PRESSED_STATE, lg::Green)
+          .setPadding(glm::vec2(50, 50))
+          .setPos({60, 900})
+          .resize({60, 20});
+  mScroll2->setButton(tempButton);
+  mScroll2->addComponent(mLabel)
+         .addComponent(mButton);
+
+  labelText.setString("Menu");
+  mMenu = std::make_shared<Menu>();
+  mMenu->setPos({900, 900})
+       .resize({75, 35})
+       .setText(labelText)
+       .setVerticalAlignment(Label::VerticalAlign::CENTER)
+       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  std::shared_ptr<MenuItem> tempMenu = std::make_shared<MenuItem>();
+  labelText.setString("Menu2");
+  tempMenu
+       ->setText(labelText)
+       .setVerticalAlignment(Label::VerticalAlign::CENTER)
+       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  mMenu->addMenuItem(tempMenu);
+  std::shared_ptr<Menu> menu2 = std::make_shared<Menu>();
+  labelText.setString("Drop2");
+  menu2->setText(labelText)
+       .setVerticalAlignment(Label::VerticalAlign::CENTER)
+       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  tempMenu = std::make_shared<MenuItem>();
+  labelText.setString("Item2");
+  tempMenu->setText(labelText)
+       .setVerticalAlignment(Label::VerticalAlign::CENTER)
+       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  menu2->addMenuItem(tempMenu);
+  mMenu->addMenuItem(menu2);
+  std::shared_ptr<Menu> menu3 = std::make_shared<Menu>();
+  labelText.setString("Drop3");
+  menu3->setText(labelText)
+       .setVerticalAlignment(Label::VerticalAlign::CENTER)
+       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  tempMenu = std::make_shared<MenuItem>();
+  labelText.setString("Item3");
+  tempMenu->setText(labelText)
+       .setVerticalAlignment(Label::VerticalAlign::CENTER)
+       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  menu3->addMenuItem(tempMenu);
+  mMenu->addMenuItem(menu3);
+
+  mpCheckbox = std::make_unique<ToggleButton>();
+  mpCheckbox->resize({32,32})
+            .setPos({550, 550})
+            .setBackgroundColor(ButtonState::DEFAULT_STATE, lg::White)
+            .setBackgroundColor(ButtonState::HOVER_STATE, lg::White)
+            .setBackgroundColor(ButtonState::PRESSED_STATE, lg::White)
+            .setBorder(2)
+            .setBorderColor(ButtonState::DEFAULT_STATE, lg::Black)
+            .setBorderColor(ButtonState::HOVER_STATE, lg::Grey)
+            .setBorderColor(ButtonState::PRESSED_STATE, lg::White);
+  // mLabel->setSprite(labelSprite);
+  // mLabel->setText(labelText);
   // mFbo = std::make_shared<FrameBuffer>();
   // mFbo->bind();
   // RenderCommand::enableBlend();
   // RenderCommand::setClearColor(0.3f, 0.0f, 0.0f, 1.0f);
   // mFbo->unbind();
-  // mFbo->invalidate(glm::uvec2{gWindowWidth, gWindowHeight}, mpRenderEngine);
+  // mFbo->invalidate(glm::uvec2{gWindowWidth, gWindowHeight}, mpResourceMngr);
   // mView = std::make_shared<Sprite>(glm::vec2{gWindowWidth / 2.0f, gWindowHeight / 2.0f}, glm::vec2{gWindowWidth, gWindowHeight}, lg::White);
 
   // mView->setTexture(mFbo->getTexture(), true);
   mCam = std::make_shared<OrthCamera>(0, 1920, 1080, 0);
   Box<glm::vec2> testBox = mSprite->getGlobalBounds(*mCam);
-
-  std::cout << "Pos: " << glm::to_string(testBox.getTopLeft()) << " Size: " << glm::to_string(testBox.getSize()) << std::endl;
-  std::cout << sizeof(glm::vec2) << std::endl;
   // mCam.setPosition({0.0f, 0.0f, 0.0f});
   curr_pos = mSprite->getPos();
+  xMove = 0.0f;
+  yMove = 0.0f;
+
+  mEventSub.setCallback(BIND_EVENT_FN(MainMenu::OnMouseMove));
+  mEventSub1.setCallback(BIND_EVENT_FN(MainMenu::OnMousePress));
+  mEventSub2.setCallback(BIND_EVENT_FN(MainMenu::OnMouseRelease));
+  mEventSub3.setCallback(BIND_EVENT_FN(MainMenu::OnKeyboardPress));
+  mEventSub4.setCallback(BIND_EVENT_FN(MainMenu::OnKeyboardRelease));
+  
+  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(mEventSub);
+  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(mEventSub1);
+  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(mEventSub2);
+  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(mEventSub3);
+  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(mEventSub4);
 }
 
 void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const double cDeltaTime)
@@ -96,63 +198,17 @@ void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const
   // mText->updateText(temp);
 
   Event tempEvent;
-  static float xMove = 0.0f;
-  static float yMove = 0.0f;
   sprite_pos = mSprite->getPos();
-  // std::cout << glm::to_string(sprite_pos) << std::endl;
   while(crpTarget->pollEvent(tempEvent))
   {
-    mButton->clicked(tempEvent);
-    mMenu->update(tempEvent);
+    mButton->handleEvent(tempEvent);
     mScroll->update(tempEvent);
-
+    mScroll2->update(tempEvent);
+    mMenu->handleEvent(tempEvent);
+    mpCheckbox->handleEvent(tempEvent);
     switch(tempEvent.Type)
     {
-      case Event::KeyPress:
-      {
-        switch(tempEvent.Key.KeyCode)
-        {
-          case GLFW_KEY_UP:
-            yMove += -1.0f;
-            break;
-          case GLFW_KEY_DOWN:
-            yMove += 1.0f;
-            break;
-          case GLFW_KEY_LEFT:
-            xMove += -1.0f;
-            break;
-          case GLFW_KEY_RIGHT:
-            xMove += 1.0f;
-            // std::cout << "Right\n";
-            break;
-          default:
-            break;
-        }
-        break;
-      }
-      case Event::KeyRelease:
-      {
-        switch(tempEvent.Key.KeyCode)
-        {
-          case GLFW_KEY_UP:
-            yMove -= -1.0f;
-            break;
-          case GLFW_KEY_DOWN:
-            yMove -= 1.0f;
-            break;
-          case GLFW_KEY_LEFT:
-            xMove -= -1.0f;
-            break;
-          case GLFW_KEY_RIGHT:
-            xMove -= 1.0f;
-            // std::cout << "No more right\n";
-            break;
-          default:
-            break;
-        }
-        break;
-      }
-      case Event::WindowResize:
+      case Event::EventType::WindowResize:
       {
         // Viewport needs to be updated on window resize if you want viewport to be same as windowsize
         mCam->setProjection(tempEvent.WindowView.x, tempEvent.WindowView.Width, tempEvent.WindowView.Height, tempEvent.WindowView.y);
@@ -217,7 +273,11 @@ void MainMenu::render(const std::shared_ptr<RenderTarget>& crpTarget, const doub
   mSprite3->draw();
   mButton->draw();
   mScroll->draw();
+  mScroll2->draw();
   mMenu->draw();
+  mLabel->draw();
+  mNineSliced->draw();
+  mpCheckbox->draw();
   Renderer2D::endScene();
 }
 
@@ -230,16 +290,64 @@ bool MainMenu::shouldStateExit()
   return false;
 }
 
-void MainMenu::buttonCallback(const Button<>& rVal)
+void MainMenu::buttonCallback()
 {
-  if(rVal.getValue() == nullptr)
-  {
-    std::cout << "Bruhhh\n";
-  }
   std::cout << "Clicked\n";
 }
 
-void MainMenu::dropdownCallbacK(const Button<glm::ivec2>& rVal)
+void MainMenu::OnMouseMove(const LestRenderEngine::MouseMoveEvent& crEvent)
 {
-  std::cout << "(" << rVal.getValue().x << ", " << rVal.getValue().y << ")" << std::endl;
+  std::cout << "We are fucking here\n";
+}
+
+void MainMenu::OnMousePress(const LestRenderEngine::MouseButtonPressEvent& crEvent)
+{
+  std::cout << "Mouse press lesgo\n";
+}
+
+void MainMenu::OnMouseRelease(const LestRenderEngine::MouseButtonReleaseEvent& crEvent)
+{
+  std::cout << "Mouse release lesgo\n";
+}
+
+void MainMenu::OnKeyboardPress(const LestRenderEngine::KeyboardPressEvent& crEvent)
+{
+  switch(crEvent.getKey())
+  {
+    case GLFW_KEY_UP:
+      yMove += -1.0f;
+      break;
+    case GLFW_KEY_DOWN:
+      yMove += 1.0f;
+      break;
+    case GLFW_KEY_LEFT:
+      xMove += -1.0f;
+      break;
+    case GLFW_KEY_RIGHT:
+      xMove += 1.0f;
+      break;
+    default:
+      break;
+  }
+}
+
+void MainMenu::OnKeyboardRelease(const LestRenderEngine::KeyboardReleaseEvent& crEvent)
+{
+  switch(crEvent.getKey())
+  {
+    case GLFW_KEY_UP:
+      yMove -= -1.0f;
+      break;
+    case GLFW_KEY_DOWN:
+      yMove -= 1.0f;
+      break;
+    case GLFW_KEY_LEFT:
+      xMove -= -1.0f;
+      break;
+    case GLFW_KEY_RIGHT:
+      xMove -= 1.0f;
+      break;
+    default:
+      break;
+  }
 }
