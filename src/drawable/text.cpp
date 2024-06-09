@@ -74,6 +74,7 @@ void Text::gridfitText(const glm::vec2& crTopLeft)
   mTextVertexes.reserve(mText.size());
   TextVertexData tempTextVert;
   const float WHITE_SPACE_WIDTH = mpFont->getCharacterDimensions(mCharSize, ' ').x;
+  int16_t prevRsb = 0;
 
   for(size_t i = 0; i < mText.size(); i ++)
   {
@@ -107,7 +108,8 @@ void Text::gridfitText(const glm::vec2& crTopLeft)
     pos.y = top;
 
     dim = mpFont->getCharacterDimensions(mCharSize, mText[i]);
-    pos.y += mpFont->getYBearing(mText[i], mCharSize) + mpFont->getYDescent(mText[i], mCharSize);
+    pos.y += mpFont->getYHint(mText[i], mCharSize);
+    pos.x += mpFont->getLeftSideBearing(mText[i], mCharSize);
     textCoord.x = dim.x;
     textCoord.y = dim.y;
     offset = mpFont->getOffset(mText[i], mCharSize);
@@ -117,7 +119,7 @@ void Text::gridfitText(const glm::vec2& crTopLeft)
     updateQuadColor(tempTextVert.Vertexes);
 
     mTextVertexes.push_back(tempTextVert);
-    left += dim.x;
+    left += mpFont->getAdvancedWidth(mText[i], mCharSize);//dim.x + mpFont->getLeftSideBearing(mText[i], mCharSize);
   }
 
   mBox.setBoxTopLeft(crTopLeft, {left - crTopLeft.x, (top + mCharSize) - crTopLeft.y});

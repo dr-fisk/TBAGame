@@ -18,12 +18,13 @@ namespace EdgeTable
   bool edgeTableXLessThan(const EdgeTableNode &crNode1, const EdgeTableNode& crNode2);
   void fillActiveEdgeTable(const std::vector<EdgeTableNode>& crEdgeTable, std::vector<EdgeTableNode>& rActiveEdgeTable,
                            uint32_t& rEdgeTableIdx, const uint32_t cNumEdges,
-                           size_t& rActiveTableIdx, const float cY, const uint32_t cMaxY);
+                           size_t& rActiveTableIdx, const float cY);
   void sortEdgeTable(std::vector<EdgeTableNode>& rEdgeTable, const uint32_t cNumEdges);
   void sortActiveEdgeTable(std::vector<EdgeTableNode>& rActiveEdgeTable, const size_t cActiveTableIdx);
   void updateActiveTableXVals(std::vector<EdgeTableNode>& rActiveEdgeTable, const size_t cActiveTableIdx,
                               const float cDy = 1.0);
-  
+  bool skipCurrentEdge(const EdgeTableNode &crNode1, const EdgeTableNode& crNode2);
+
   //! @brief Fills rEdgeTable from crEdges list
   //!
   //! @param[in]  crEdges    List of Edges to construct an Edge Table from
@@ -119,7 +120,6 @@ namespace EdgeTable
     int intersection = 0;
     int prevStartIndex = -1;
     float pixelCoverage = 0;
-    int ct = 0;
 
     fillEdgeTable(crEdges, edgeTable, numEdges);
 
@@ -128,9 +128,9 @@ namespace EdgeTable
       dy = y;
       for(int32_t dx = 0; dx < scanlineSubDiv; dx++)
       {
-        fillActiveEdgeTable(edgeTable, activeEdgeTable, edgeTableIdx, numEdges, activeEdgeTableIdx, dy, crDimensions.y);
+        fillActiveEdgeTable(edgeTable, activeEdgeTable, edgeTableIdx, numEdges, activeEdgeTableIdx, dy);
         intersection = 0;
-        for(int32_t i = 0; i < activeEdgeTableIdx; i +=2)
+        for(int32_t i = 0; i < activeEdgeTableIdx && activeEdgeTableIdx > 1;)
         {
           startIntersection = activeEdgeTable[i].xIntersect;
           startIndex = static_cast<int32_t>(activeEdgeTable[i].xIntersect);
@@ -139,6 +139,12 @@ namespace EdgeTable
           endIntersection = activeEdgeTable[i + 1].xIntersect;
           endIndex = static_cast<int32_t>(activeEdgeTable[i + 1].xIntersect);
           endCovered = endIntersection - endIndex;
+
+          if((i - 1 > 0) && skipCurrentEdge(activeEdgeTable[i], activeEdgeTable[i - 1]))
+          {
+            i++;
+            continue;
+          }
 
           if(startIndex == endIndex)
           {
@@ -171,13 +177,13 @@ namespace EdgeTable
             alpha += static_cast<uint8_t>(alphaWeight);
             lg::Color::setAlpha(rBitmap[crDimensions.x * y + x], alpha);
           }
+
+          i +=2;
         }
 
         updateActiveTableXVals(activeEdgeTable, activeEdgeTableIdx, stepPerScanline);
         dy += stepPerScanline;
       }
-
-      ct++;
     }
   }
 };

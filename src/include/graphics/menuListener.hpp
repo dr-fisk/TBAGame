@@ -1,10 +1,10 @@
 #ifndef MENU_LISTENER_HPP
 #define MENU_LISTENER_HPP
 
-#include "event/eventListener.hpp"
+#include "graphicsEvent/componentEventListener.hpp"
 #include "graphicsEvent/menuEvent.hpp"
 
-class MenuListener : public EventListener
+class MenuListener : public ComponentEventListener
 {
   public:
     MenuListener() = default;

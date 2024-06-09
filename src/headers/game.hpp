@@ -7,7 +7,7 @@
 
 #include "states/state.hpp"
 #include "window/renderWindow.hpp"
-#include "lestTtf.h"
+#include "lestTtf.hpp"
 #include "renderEngine/frameBuffer.hpp"
 
 #define ONE_SEC 1

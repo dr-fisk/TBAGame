@@ -54,7 +54,7 @@ namespace EdgeTable
   //! @return None
   void fillActiveEdgeTable(const std::vector<EdgeTableNode>& crEdgeTable, std::vector<EdgeTableNode>& rActiveEdgeTable,
                            uint32_t& rEdgeTableIdx, const uint32_t cNumEdges, size_t& rActiveTableIdx,
-                           const float cY, const uint32_t cMaxY)
+                           const float cY)
   {
     for(int i = rEdgeTableIdx; i < cNumEdges; i ++)
     {
@@ -75,7 +75,7 @@ namespace EdgeTable
 
     for(int i = 0; i < rActiveTableIdx; i ++)
     {
-      if(rActiveEdgeTable[i].yUpper <= cY)
+      if(rActiveEdgeTable[i].yUpper < cY)
       {
         for(int j = i; j < rActiveTableIdx - 1; j ++)
         {
@@ -123,5 +123,11 @@ namespace EdgeTable
     {
       rActiveEdgeTable[i].xIntersect = currentXVal(rActiveEdgeTable[i], cDy);
     }
+  }
+
+  bool skipCurrentEdge(const EdgeTableNode &crNode1, const EdgeTableNode& crNode2)
+  {
+    return decimalCmp(crNode1.xIntersect, crNode2.xIntersect) && 
+           (!decimalCmp(crNode1.yLower, crNode2.yLower) && !decimalCmp(crNode1.yUpper, crNode2.yUpper));
   }
 };

@@ -9,6 +9,8 @@
 #include <GLFW/glfw3.h>
 #include "window/renderTarget.hpp"
 #include "event/event.hpp"
+#include "event/applicationEventDispatcher.hpp"
+#include "event/lestRenderEngineEvent.hpp"
 
 class RenderWindow : public RenderTarget
 {
@@ -26,7 +28,6 @@ class RenderWindow : public RenderTarget
       bool pollEvent(Event& rEvent);
       const glm::uvec2& getWindowSize();
       void setWindowTitle(const std::string& crTitle);
-
       std::shared_ptr<RenderWindow> createSharedWindow();
     private:
       void setCallbacks();
@@ -35,6 +36,7 @@ class RenderWindow : public RenderTarget
       std::string mTitle;
       GLFWwindow *mpWindow;
       std::mutex mDataAccesMutex;
+      LestRenderEngine::ApplicationEventDispatcher<LestRenderEngine::LestRenderEngineEvents> mEventDispatcher;
       static bool msFirstInit;
 };
 

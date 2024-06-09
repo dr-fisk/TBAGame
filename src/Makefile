@@ -27,6 +27,7 @@ DRAWABLESPATH = ./drawable
 RENDERENGINEPATH = ./renderEngine
 RENDERERPATH = ./renderer
 GRAPHICSPATH = ./graphics
+LESTENGINEEVENTSPATH = ./event
 INPUTPATH = ./input
 SRC = ./src
 SHADERSPATH = ./shaders
@@ -73,8 +74,6 @@ stateFiles = state.cpp \
 
 windowFiles = renderWindow.cpp \
               renderTarget.cpp \
-							mouse.cpp \
-							keyboard.cpp \
 							window.cpp
 
 resourceFiles = image.cpp \
@@ -95,7 +94,12 @@ renderEngineFiles = indexBuffer.cpp \
 rendererFiles = renderer2D.cpp \
                 camera.cpp
 
-inputFiles = input.cpp
+inputFiles = input.cpp \
+						 mouse.cpp \
+						 keyboard.cpp \
+						 mouseEvent.cpp \
+						 keyboardEvent.cpp \
+						 windowEvent.cpp
 
 graphicsFiles = component.cpp \
                 label.cpp \
@@ -110,6 +114,7 @@ graphicsFiles = component.cpp \
 graphicsEventsFiles = itemEvent.cpp \
 											menuEvent.cpp 
 
+lestEngineEventFiles =
 dynLibFiles = png.cpp
 
 utilityFiles = edgeTable.cpp \
@@ -142,6 +147,9 @@ graphicsObjs = $(addprefix $(GRAPHICSPATH)/, $(graphics))
 
 graphicsEvents = $(patsubst %.cpp, %.o, $(graphicsEventsFiles))
 graphicsEventsObjs = $(addprefix $(GRAPHICSEVENTPATH)/, $(graphicsEvents))
+
+lestEngineEvents = $(patsubst %.cpp, %.o, $(lestEngineEventFiles))
+lestEngineEventsObjs = $(addprefix $(LESTENGINEEVENTSPATH)/, $(lestEngineEvents))
 
 inputs = $(patsubst %.cpp, %.o, $(inputFiles))
 inputObjs = $(addprefix $(INPUTPATH)/, $(inputs))
@@ -205,6 +213,10 @@ $(GRAPHICSEVENTPATH):
 	@echo "MAKE	Graphics Events"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(GRAPHICSEVENTPATH)
 
+$(LESTENGINEEVENTSPATH):
+	@echo "MAKE	Lest Engine Events"
+	$(Q)$(MAKE) V=$(V) D=$(D) -C $(LESTENGINEEVENTSPATH)
+
 shader:
 		@echo "Copying Shaders"
 		$(Q)cp -r $(SHADERSPATH) $(PATHTOEXEC)
@@ -214,10 +226,10 @@ font:
 		$(Q)cp -r $(FONTSPATH) $(PATHTOEXEC)
 
 $(programs): $(objs) $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RENDERENGINEPATH) $(RENDERERPATH) \
-       $(RESOURCEPATH) $(GRAPHICSPATH) $(UTILITYPATH) $(INPUTPATH) $(GRAPHICSEVENTPATH)
+       $(RESOURCEPATH) $(GRAPHICSPATH) $(UTILITYPATH) $(INPUTPATH) $(GRAPHICSEVENTPATH) $(LESTENGINEEVENTSPATH)
 	@echo "MAKE $@"
 	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(windowObjs) $(drawableObjs) $(utilitiesObjs) $(renderEngineObjs) \
-	$(rendererObjs) $(resourceObjs) $(graphicsObjs) $(inputObjs) $(graphicsEventsObjs) $(LDFLAGS)
+	$(rendererObjs) $(resourceObjs) $(graphicsObjs) $(inputObjs) $(graphicsEventsObjs) $(lestEngineEventsObjs) $(LDFLAGS)
 	@echo "Checking DIR"
 	$(Q)if [ ! -d $(PATHTOEXEC) ]; then \
 		echo "Creating Win DIR"; \
@@ -337,6 +349,15 @@ clean_renderengine:
 	fi \
 	done
 
+clean_lestengineevents:
+	@echo "Clean Lest Engine Events"
+	@for item in ${lestEngineEventsObjs}; do \
+	if [ -f $${item} ]; then \
+	echo "Rm $${item}"; \
+	rm $${item}; \
+	fi \
+	done
+
 clean_renderer:
 	@echo "Clean Renderer"
 	@for item in ${rendererObjs}; do \
@@ -395,6 +416,7 @@ clean_dep:
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(RESOURCEPATH)
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(INPUTPATH)
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(GRAPHICSEVENTPATH)
+	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(LESTENGINEEVENTSPATH)
 
 clean_exe:
 	@echo "Clean Executable"
@@ -404,7 +426,8 @@ clean_exe:
 	fi
 
 clean: clean_state clean_window clean_drawable clean_main clean_dep clean_exe clean_utilities \
-       clean_renderengine clean_renderer clean_graphics clean_resource clean_input clean_graph_events
+       clean_renderengine clean_renderer clean_graphics clean_resource clean_input clean_graph_events \
+			 clean_lestengineevents
 	@echo "Checking win DIR"
 	$(Q)if [ -d $(PATHTOEXEC) ]; then \
 		echo "RM Win DIR"; \
@@ -418,6 +441,7 @@ help:
 	@echo "Makefile will be expanded in the future"
 
 .PRECIOUS: %.o $(STATEPATH)/%.o $(WINDOWPATH)/%.o $(RESOURCEPATH)/%.o $(DRAWABLESPATH)/%.o $(RENDERENGINEPATH)/%.o \
-           $(GRAPHICSPATH)/%.o $(UTILITYPATH)/%.o $(INPUTPATH)/%.o $(RENDERERPATH)/%.o $(GRAPHICSEVENTPATH)/%.o
+           $(GRAPHICSPATH)/%.o $(UTILITYPATH)/%.o $(INPUTPATH)/%.o $(RENDERERPATH)/%.o $(GRAPHICSEVENTPATH)/%.o \
+					 $(LESTENGINEEVENTSPATH)/%.o
 .PHONY: $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(RESOURCEPATH) $(UTILITYPATH) $(RENDERENGINEPATH) \
-        $(GRAPHICSPATH) $(INPUTPATH) $(RENDERERPATH) $(GRAPHICSEVENTPATH)
+        $(GRAPHICSPATH) $(INPUTPATH) $(RENDERERPATH) $(GRAPHICSEVENTPATH) $(LESTENGINEEVENTSPATH)

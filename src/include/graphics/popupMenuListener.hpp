@@ -1,11 +1,11 @@
 #ifndef POPUP_MENU_LISTENER_HPP
 #define POPUP_MENU_LISTENER_HPP
 
-#include "event/eventListener.hpp"
+#include "graphicsEvent/componentEventListener.hpp"
 #include "graphicsEvent/popupMenuEvent.hpp"
 
 template <typename T>
-class PopupMenuListener : public EventListener
+class PopupMenuListener : public ComponentEventListener
 {
   public:
     PopupMenuListener() = default;

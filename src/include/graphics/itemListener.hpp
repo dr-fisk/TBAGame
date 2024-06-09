@@ -1,10 +1,10 @@
 #ifndef ITEM_LISTENER_HPP
 #define ITEM_LISTENER_HPP
 
-#include "event/eventListener.hpp"
+#include "graphicsEvent/componentEventListener.hpp"
 #include "graphicsEvent/itemEvent.hpp"
 
-class ItemListener : public EventListener
+class ItemListener : public ComponentEventListener
 {
   public:
     ItemListener() = default;

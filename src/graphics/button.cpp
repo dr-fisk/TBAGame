@@ -1,5 +1,5 @@
 #include "graphics/button.hpp"
-#include "window/mouse.hpp"
+#include "input/mouse.hpp"
 #include "renderer/renderer2D.hpp"
 
 //! @brief Button constructor

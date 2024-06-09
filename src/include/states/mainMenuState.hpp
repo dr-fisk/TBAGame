@@ -7,7 +7,7 @@
 #include <chrono>
 
 #include "state.hpp"
-#include "lestTtf.h"
+#include "lestTtf.hpp"
 #include "resource/font.hpp"
 #include "drawable/text.hpp"
 #include "drawable/sprite.hpp"
@@ -20,6 +20,10 @@
 #include "renderer/camera.hpp"
 #include "drawable/nineSlicedSprite.hpp"
 #include "graphics/toggleButton.hpp"
+#include "input/keyboardEvent.hpp"
+#include "event/eventSubscriber.hpp"
+#include "input/mouseEvent.hpp"
+#include "input/keyboardEvent.hpp"
 
 class MainMenu : public State
 {
@@ -32,6 +36,12 @@ class MainMenu : public State
 
   private:
     static void buttonCallback();
+    void OnMouseMove(const LestRenderEngine::MouseMoveEvent& crEvent);
+    void OnMousePress(const LestRenderEngine::MouseButtonPressEvent& crEvent);
+    void OnMouseRelease(const LestRenderEngine::MouseButtonReleaseEvent& crEvent);
+    void OnKeyboardPress(const LestRenderEngine::KeyboardPressEvent& crEvent);
+    void OnKeyboardRelease(const LestRenderEngine::KeyboardReleaseEvent& crEvent);
+
     // static void dropdownCallbacK(const Button<glm::ivec2>& rVal);
     LestTrueType ttf;
     Font mNewFont;
@@ -57,6 +67,11 @@ class MainMenu : public State
     Texture2D spriteTexture;
     Texture2D sprite2Texture;
     Texture2D borderedImgTest;
+    EventSubscriber<LestRenderEngine::MouseMoveEvent> mEventSub;
+    EventSubscriber<LestRenderEngine::MouseButtonPressEvent> mEventSub1;
+    EventSubscriber<LestRenderEngine::MouseButtonReleaseEvent> mEventSub2;
+    EventSubscriber<LestRenderEngine::KeyboardPressEvent> mEventSub3;
+    EventSubscriber<LestRenderEngine::KeyboardReleaseEvent> mEventSub4;
 };
 
 #endif

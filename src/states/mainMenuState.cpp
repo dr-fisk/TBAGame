@@ -5,7 +5,7 @@
 
 #include "states/mainMenuState.hpp"
 #include "drawable/text.hpp"
-#include "window/mouse.hpp"
+#include "input/mouse.hpp"
 #include "shapes/box.hpp"
 #include "resource/image.hpp"
 #include "renderer/renderer2D.hpp"
@@ -13,17 +13,17 @@
 #include "glm/ext.hpp"
 #include "glm/gtx/string_cast.hpp"
 #include "math/lestMath.hpp"
+#include "event/lestRenderEngineEventManager.hpp"
+
 MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
                    State(crStates)
 {
-  std::string temp = "Envy Code R.ttf";
+  std::string temp = "../TtfFont/Limelight.ttf"; //"Envy Code R.ttf";
   mStartTime = std::chrono::system_clock::now();
   mNewFont.loadFromFile(temp, 5);
-  // std::cout << "Font loaded\n";
   mText = std::make_shared<Text>(mNewFont, "FPS: 0", 12);
   mText->setPos({200.0f, 50.0f});
   mText->setColor(lg::Blue);
-  // std::cout << "Text Done\n";
   Image temp_img("../src/art.png");
   spriteTexture.create(temp_img.getDimensions().y, temp_img.getDimensions().x, temp_img.getInternalFormat());
   spriteTexture.update(temp_img.getImgData().data(), temp_img.getDimensions(), temp_img.getOffset(), temp_img.getFormat(), temp_img.getType());
@@ -59,7 +59,7 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
   mNineSliced->setTransform(test);
   // This can change to doing the same thing text does for editing colors
   mButton = std::make_shared<Button>();
-  Text text = Text(mNewFont, "Iris will be my wifeA6?!", 18);
+  Text text = Text(mNewFont, "Iris will be my wifeG!", 18);
   mButton->setText(text)
            .setTextColor(lg::Black)
            .setDefaultTexture(btnTexture)
@@ -68,7 +68,7 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
            .setVerticalAlignment(Label::VerticalAlign::CENTER)
            .setHorizontalAlignment(Label::HorizontalAlign::CENTER)
            .setPos({250.0f, 250.0f})
-           .resize({200, 50})
+           .resize({300, 62})
            .setBorder(2)
           //  .setBorderColor(ButtonState::DEFAULT_STATE, lg::Color(135, 135, 135))
           //  .setBorderColor(ButtonState::HOVER_STATE, lg::Color(175, 175, 175))
@@ -178,6 +178,18 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
   curr_pos = mSprite->getPos();
   xMove = 0.0f;
   yMove = 0.0f;
+
+  mEventSub.setCallback(BIND_EVENT_FN(MainMenu::OnMouseMove));
+  mEventSub1.setCallback(BIND_EVENT_FN(MainMenu::OnMousePress));
+  mEventSub2.setCallback(BIND_EVENT_FN(MainMenu::OnMouseRelease));
+  mEventSub3.setCallback(BIND_EVENT_FN(MainMenu::OnKeyboardPress));
+  mEventSub4.setCallback(BIND_EVENT_FN(MainMenu::OnKeyboardRelease));
+  
+  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(mEventSub);
+  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(mEventSub1);
+  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(mEventSub2);
+  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(mEventSub3);
+  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(mEventSub4);
 }
 
 void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const double cDeltaTime)
@@ -187,7 +199,6 @@ void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const
 
   Event tempEvent;
   sprite_pos = mSprite->getPos();
-  // std::cout << glm::to_string(sprite_pos) << std::endl;
   while(crpTarget->pollEvent(tempEvent))
   {
     mButton->handleEvent(tempEvent);
@@ -197,50 +208,6 @@ void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const
     mpCheckbox->handleEvent(tempEvent);
     switch(tempEvent.Type)
     {
-      case Event::EventType::KeyPress:
-      {
-        switch(tempEvent.Key.KeyCode)
-        {
-          case GLFW_KEY_UP:
-            yMove += -1.0f;
-            break;
-          case GLFW_KEY_DOWN:
-            yMove += 1.0f;
-            break;
-          case GLFW_KEY_LEFT:
-            xMove += -1.0f;
-            break;
-          case GLFW_KEY_RIGHT:
-            xMove += 1.0f;
-            // std::cout << "Right\n";
-            break;
-          default:
-            break;
-        }
-        break;
-      }
-      case Event::EventType::KeyRelease:
-      {
-        switch(tempEvent.Key.KeyCode)
-        {
-          case GLFW_KEY_UP:
-            yMove -= -1.0f;
-            break;
-          case GLFW_KEY_DOWN:
-            yMove -= 1.0f;
-            break;
-          case GLFW_KEY_LEFT:
-            xMove -= -1.0f;
-            break;
-          case GLFW_KEY_RIGHT:
-            xMove -= 1.0f;
-            // std::cout << "No more right\n";
-            break;
-          default:
-            break;
-        }
-        break;
-      }
       case Event::EventType::WindowResize:
       {
         // Viewport needs to be updated on window resize if you want viewport to be same as windowsize
@@ -328,7 +295,59 @@ void MainMenu::buttonCallback()
   std::cout << "Clicked\n";
 }
 
-// void MainMenu::dropdownCallbacK(const Button<glm::ivec2>& rVal)
-// {
-//   std::cout << "(" << rVal.getValue().x << ", " << rVal.getValue().y << ")" << std::endl;
-// }
+void MainMenu::OnMouseMove(const LestRenderEngine::MouseMoveEvent& crEvent)
+{
+  std::cout << "We are fucking here\n";
+}
+
+void MainMenu::OnMousePress(const LestRenderEngine::MouseButtonPressEvent& crEvent)
+{
+  std::cout << "Mouse press lesgo\n";
+}
+
+void MainMenu::OnMouseRelease(const LestRenderEngine::MouseButtonReleaseEvent& crEvent)
+{
+  std::cout << "Mouse release lesgo\n";
+}
+
+void MainMenu::OnKeyboardPress(const LestRenderEngine::KeyboardPressEvent& crEvent)
+{
+  switch(crEvent.getKey())
+  {
+    case GLFW_KEY_UP:
+      yMove += -1.0f;
+      break;
+    case GLFW_KEY_DOWN:
+      yMove += 1.0f;
+      break;
+    case GLFW_KEY_LEFT:
+      xMove += -1.0f;
+      break;
+    case GLFW_KEY_RIGHT:
+      xMove += 1.0f;
+      break;
+    default:
+      break;
+  }
+}
+
+void MainMenu::OnKeyboardRelease(const LestRenderEngine::KeyboardReleaseEvent& crEvent)
+{
+  switch(crEvent.getKey())
+  {
+    case GLFW_KEY_UP:
+      yMove -= -1.0f;
+      break;
+    case GLFW_KEY_DOWN:
+      yMove -= 1.0f;
+      break;
+    case GLFW_KEY_LEFT:
+      xMove -= -1.0f;
+      break;
+    case GLFW_KEY_RIGHT:
+      xMove -= 1.0f;
+      break;
+    default:
+      break;
+  }
+}

@@ -1,11 +1,11 @@
 #ifndef ACTION_LISTENER_HPP
 #define ACTION_LISTENER_HPP
 
-#include "event/eventListener.hpp"
+#include "graphicsEvent/componentEventListener.hpp"
 #include "graphicsEvent/actionEvent.hpp"
 
 template <typename T>
-class ActionListener : public EventListener
+class ActionListener : public ComponentEventListener
 {
   public:
     ActionListener() = default;

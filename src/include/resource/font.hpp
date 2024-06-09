@@ -6,7 +6,7 @@
 #include <cstdint>
 
 #include "color.hpp"
-#include "lestTtf.h"
+#include "lestTtf.hpp"
 #include "utility/edgeTypeDefs.hpp"
 #include "renderEngine/texture2D.hpp"
 #include "glm/vec2.hpp"
@@ -24,8 +24,9 @@ class Font
     void fillColor(const char cChar, const uint8_t cCharSize);
     void writeGenPoints(const char cChar, const uint8_t cCharSize);
     Font& operator=(const Font& rhs) = delete;
-    int32_t getYBearing(const char cChar, const uint8_t cCharSize) const;
-    int32_t getYDescent(const char cChar, const uint8_t cCharSize) const;
+    int32_t getYHint(const char cChar, const uint8_t cCharSize) const;
+    int16_t getLeftSideBearing(const char cChar, const uint8_t cCharSize) const;
+    int16_t getAdvancedWidth(const char cChar, const uint8_t cCharSize) const;
     void loadGlyphs(const uint32_t cCharSize) const;
     bool hasGlyphsLoaded(const uint8_t cCharSize) const;
     glm::uvec2 getOffset(const char cChar, const uint8_t cCharSize) const;
@@ -38,18 +39,20 @@ class Font
     struct GlyfRawData
     {
       GlyfHeader FontHeader;
+      LongHorMetric HorMetrics;
       std::vector<glm::vec2> GeneratedPoints;
       std::vector<int32_t> Contours;
     };
 
     struct FontPage
     {
-      int32_t Ybearing;
-      int32_t Ydescent;
       std::vector<uint32_t> Bitmap;
       glm::uvec2 Dimensions;
       std::vector<Edges<glm::vec2>> GenPtsEdges;
       glm::uvec2 Offset;
+      uint16_t AdvanceWidth;
+      int16_t LeftSideBearing;
+      int32_t YHint;
     };
 
     void updateNumberOfContours(const char cChar);
@@ -62,7 +65,6 @@ class Font
     GlyfHeader getCharGlyfHeader(const char cChar, const LestTrueType& crTtf);
     void getFontScale(const char cChar, float& rScaleX, float& rScaleY) const;
 
-    // Character raw generated point data, use this to generate new edges with the given size
     typedef std::map<char, FontPage> FontTable;
     mutable std::map<char, GlyfRawData> mGlyfData;
     mutable std::map<uint8_t, FontTable> mFont;

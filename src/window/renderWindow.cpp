@@ -2,12 +2,14 @@
 #include <vector>
 
 #include "window/renderWindow.hpp"
-#include "window/mouse.hpp"
+#include "input/mouse.hpp"
 #include "input/input.hpp"
-#include "window/keyboard.hpp"
+#include "input/keyboard.hpp"
 #include "window/window.hpp"
 #include "renderer/renderer2D.hpp"
 #include "renderer/renderCommand.hpp"
+#include "input/mouseEvent.hpp"
+#include "input/keyboardEvent.hpp"
 
 bool RenderWindow::msFirstInit = true;
 
@@ -48,11 +50,16 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
   }
 
   //Vsync off later make it toggable (limits fps)
+  mEventDispatcher.addEventDispatcher<LestRenderEngine::MouseMoveEvent>();
+  mEventDispatcher.addEventDispatcher<LestRenderEngine::MouseButtonPressEvent>();
+  mEventDispatcher.addEventDispatcher<LestRenderEngine::MouseButtonReleaseEvent>();
+  mEventDispatcher.addEventDispatcher<LestRenderEngine::KeyboardPressEvent>();
+  mEventDispatcher.addEventDispatcher<LestRenderEngine::KeyboardReleaseEvent>();
   glfwSwapInterval(0);
   Renderer2D::registerContext(pWindow, mpWindow);
   lg::Input::registerContext(mpWindow);
   setCallbacks();
-  glfwSetWindowUserPointer(mpWindow, this);
+  glfwSetWindowUserPointer(mpWindow, &mEventDispatcher);
   int w, h;
   glfwGetWindowSize(mpWindow, &w, &h);
 }
