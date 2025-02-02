@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "graphics/scrollbar.hpp"
+#include "event/lestRenderEngineEventManager.hpp"
 
 //! @brief Scrollbar Constructor
 //!
@@ -17,6 +18,7 @@ Scrollbar::Scrollbar(const ScrollbarOrientation cOrientation, const uint32_t cMi
   mPadding = {0, 0};
   mMinBound = cMin;
   mMaxBound = cMax;
+  SLOT(mMouseMoveSub, Scrollbar::onMouseMove);
 }
 
 //! @brief Sets a button to the scrollbar
@@ -24,11 +26,61 @@ Scrollbar::Scrollbar(const ScrollbarOrientation cOrientation, const uint32_t cMi
 //! @param[in] crButton Button to set
 //! 
 //! @return Scrollbar reference to chain calls 
-Scrollbar& Scrollbar::setButton(const Button& crButton)
+Scrollbar& Scrollbar::setButton(const std::shared_ptr<Button> cpButton)
 {
-  mScrollbarButton = crButton;
-  mScrollbarButton.onClick([this](){ mState = DEFAULT_STATE;});
+  mScrollbarButton = cpButton;
+  mScrollbarButton->onClick([this](){ mState = DEFAULT_STATE;});
   return *this;
+}
+
+void Scrollbar::onMouseMove(LestRenderEngine::MouseMoveEvent& crEvent)
+{
+  if(!mScrollbarButton->isPressed())
+  {
+    mPrevMousePos = {crEvent.getX(), crEvent.getY()};
+    return;
+  }
+
+  glm::vec2 moveVector = {0, 0};
+  glm::vec2 topLeft = mScrollbarButton->getPos() - (mScrollbarButton->getSize() / 2.0f);
+  glm::vec2 bottomRight = mScrollbarButton->getPos() + (mScrollbarButton->getSize() / 2.0f);
+
+  if(ScrollbarOrientation::VERTICAL == mOrientation)
+  {
+    moveVector = {0, crEvent.getY() - mPrevMousePos.y};
+
+    if(bottomRight.y + moveVector.y >= mMaxBound)
+    {
+      moveVector.y = mMaxBound - bottomRight.y;
+    }
+    else if(topLeft.y + moveVector.y <= mMinBound)
+    {
+      moveVector.y = mMinBound - topLeft.y;
+    }
+  }
+  else
+  {
+    moveVector = {crEvent.getX() - mPrevMousePos.x, 0};
+    
+    if(bottomRight.x + moveVector.x >= mMaxBound)
+    {
+      moveVector.x = mMaxBound - bottomRight.x;
+    }
+    else if(topLeft.x + moveVector.x <= mMinBound)
+    {
+      moveVector.x = mMinBound - topLeft.x;
+    }
+  }
+
+  mScrollbarButton->movePos(moveVector);
+
+  for(auto& component : mGraphicsList)
+  {
+    // Invert movement for components
+    component->movePos({moveVector.x * -1, moveVector.y * -1});
+  }
+
+  mPrevMousePos = {crEvent.getX(), crEvent.getY()};
 }
 
 //! @brief Handles the mouse move event
@@ -39,8 +91,8 @@ Scrollbar& Scrollbar::setButton(const Button& crButton)
 void Scrollbar::mouseMoveEvent(const Event& crEvent)
 {
   glm::vec2 moveVector = {0, 0};
-  glm::vec2 topLeft = mScrollbarButton.getPos() - (mScrollbarButton.getSize() / 2.0f);
-  glm::vec2 bottomRight = mScrollbarButton.getPos() + (mScrollbarButton.getSize() / 2.0f);
+  glm::vec2 topLeft = mScrollbarButton->getPos() - (mScrollbarButton->getSize() / 2.0f);
+  glm::vec2 bottomRight = mScrollbarButton->getPos() + (mScrollbarButton->getSize() / 2.0f);
 
   if(ScrollbarOrientation::VERTICAL == mOrientation)
   {
@@ -69,7 +121,7 @@ void Scrollbar::mouseMoveEvent(const Event& crEvent)
     }
   }
 
-  mScrollbarButton.movePos(moveVector);
+  mScrollbarButton->movePos(moveVector);
 
   for(auto& component : mGraphicsList)
   {
@@ -87,9 +139,9 @@ void Scrollbar::mouseMoveEvent(const Event& crEvent)
 //! @return None
 void Scrollbar::update(const Event& crEvent)
 {
-  mScrollbarButton.handleEvent(crEvent);
+  mScrollbarButton->handleEvent(crEvent);
 
-  if(mScrollbarButton.isPressed())
+  if(mScrollbarButton->isPressed())
   {
     switch(mState)
     {
@@ -118,7 +170,7 @@ void Scrollbar::update(const Event& crEvent)
 //! @return None
 void Scrollbar::draw()
 {
-  mScrollbarButton.draw();
+  mScrollbarButton->draw();
 }
 
 //! @brief Adds a component to the scrollbar
@@ -134,5 +186,5 @@ Scrollbar& Scrollbar::addComponent(const std::shared_ptr<Component> pComponent)
 
 void Scrollbar::updateUI()
 {
-  mScrollbarButton.updateUI();
+  mScrollbarButton->updateUI();
 }

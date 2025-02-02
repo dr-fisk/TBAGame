@@ -24,7 +24,7 @@ Button::Button()
 //! @return None
 Button& Button::setPos(const glm::vec2& crPos, const bool cCheckIfMouseHovering)
 {
-  mTransform.setPos(crPos);
+  mModifier.setPos(crPos);
 
   // onButtonMoveUpdate(cCheckIfMouseHovering);
   return *this;

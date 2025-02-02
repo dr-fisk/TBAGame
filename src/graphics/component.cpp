@@ -10,14 +10,14 @@ Component::Component()
 
 Component& Component::movePos(const glm::vec2& crMove)
 {
-  mTransform += crMove;
+  mModifier.moveTransform(crMove);
   mUpdateUI = true;
   return *this;
 }
 
 Component& Component::setPos(const glm::vec2& crPos)
 {
-  mTransform.setPos(crPos);
+  mModifier.setPos(crPos);
   mUpdateUI = true;
 
   return *this;
@@ -25,7 +25,7 @@ Component& Component::setPos(const glm::vec2& crPos)
 
 Component& Component::resize(const glm::vec2& crSize)
 {
-  mTransform.setScale(crSize);
+  mModifier.setScale(crSize);
   mUpdateUI = true;
 
   return *this;
@@ -52,6 +52,13 @@ bool Component::isVisible() const
 void Component::setEnabled(const bool cEnable)
 {
   mEnabled = cEnable;
+}
+
+Component& Component::setModifier(const Modifier& crModifier)
+{
+  mModifier = crModifier;
+  mUpdateUI = true;
+  return *this;
 }
 
 bool Component::isEnabled() const

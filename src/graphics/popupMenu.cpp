@@ -44,9 +44,9 @@ void PopupMenu::addItem(const std::shared_ptr<MenuItem> cpMenuItem)
 void PopupMenu::updatePopupMenuItemPositions()
 { 
   mBounds.height = 0;
-  mBounds.width = mTransform.getScale().x;
-  mBounds.left = mTransform.getPos().x;
-  mBounds.top = mTransform.getPos().y;
+  mBounds.width = mModifier.getScale().x;
+  mBounds.left = mModifier.getPos().x;
+  mBounds.top = mModifier.getPos().y;
   std::shared_ptr<PopupMenu> popupMenu;
 
   for(auto& item : mComponents)
@@ -180,7 +180,7 @@ void PopupMenu::checkMousePressOutOfBounds(const Event& crEvent)
 //! @return None 
 void PopupMenu::setMenuLocation(const glm::vec2& crPos)
 {
-  mTransform.setPos(crPos);
+  mModifier.setPos(crPos);
   mUpdateUI = true;
 }
 

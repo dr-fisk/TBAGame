@@ -14,6 +14,7 @@
 #include "glm/gtx/string_cast.hpp"
 #include "math/lestMath.hpp"
 #include "event/lestRenderEngineEventManager.hpp"
+#include "window/window.hpp"
 
 MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
                    State(crStates)
@@ -48,7 +49,12 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
   std::shared_ptr<Texture2D> btnTexture2 = std::make_shared<Texture2D>();
   btnTexture2->create(btnImg2.getDimensions().y, btnImg2.getDimensions().x, btnImg2.getInternalFormat());
   btnTexture2->update(btnImg2.getImgData().data(), btnImg2.getDimensions(), btnImg2.getOffset(), btnImg2.getFormat(), btnImg2.getType());
-
+  SLOT(mEventSub, MainMenu::OnMouseMove);
+  SLOT(mEventSub1, MainMenu::OnMousePress);
+  SLOT(mEventSub2, MainMenu::OnMouseRelease);
+  SLOT(mEventSub3, MainMenu::OnKeyboardPress);
+  SLOT(mEventSub4, MainMenu::OnKeyboardRelease);
+  SLOT(mEventSub5, MainMenu::OnWindowResize);
   mNineSliced = std::make_unique<SlicedSprite>();
   Transform test;
   test.setPos({650.0f, 650.0f});
@@ -59,14 +65,23 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
   mNineSliced->setTransform(test);
   // This can change to doing the same thing text does for editing colors
   mButton = std::make_shared<Button>();
-  Text text = Text(mNewFont, "Iris will be my wifeG!", 18);
-  mButton->setText(text)
-           .setTextColor(lg::Black)
+
+  // TODO: Figure out how to update label so that order of calls doesn't matter
+  // currently if Label is set first and button calls set size and pos, label will use accordingly
+  // likewise if after label will use it's own
+  //
+  // Solution in my mind: Constraints in Modifier() class. This way parent can propagate sizes down and calc constraints
+  // when an update happens
+  mButton->setLabel(
+              Label("ABCDEFGHIJKLMNOPQRSTUV",
+                TextModifier().setTextColor(lg::Black)
+                  .setFont(mNewFont)
+                  .setFontSize(18),
+                Modifier().setVerticalAlign(VerticalAlign::CENTER)
+                  .setHorizontalAlign(HorizontalAlign::CENTER)))
            .setDefaultTexture(btnTexture)
            .setHoverTexture(btnTexture2)
            .setPressedTexture(btnTexture2)
-           .setVerticalAlignment(Label::VerticalAlign::CENTER)
-           .setHorizontalAlignment(Label::HorizontalAlign::CENTER)
            .setPos({250.0f, 250.0f})
            .resize({300, 62})
            .setBorder(2)
@@ -79,9 +94,9 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
            .onClick(&MainMenu::buttonCallback);
 
   mScroll = std::make_shared<Scrollbar>(Scrollbar::VERTICAL, 0, 800);
-  Button tempButton = Button();
+  std::shared_ptr<Button> tempButton = std::make_shared<Button>();
 
-  tempButton.setBackgroundColor(ButtonState::DEFAULT_STATE, lg::Grey)
+  tempButton->setBackgroundColor(ButtonState::DEFAULT_STATE, lg::Grey)
           .setBackgroundColor(ButtonState::HOVER_STATE, lg::Green)
           .setBackgroundColor(ButtonState::PRESSED_STATE, lg::Green)
           .setPadding(glm::vec2(50, 50))
@@ -89,20 +104,22 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
           .resize({20, 60});
   mScroll->setButton(tempButton);
 
-  Text labelText = Text(mNewFont, "My label.", 12);
-  labelText.setColor(lg::Black);
-  mLabel = std::make_shared<Label>(labelText);
-  mLabel->setPos(glm::vec2(500.0f, 500.0f));
-  mLabel->resize(glm::vec2(75.0f, 50.0f));
-  mLabel->setHorizontalAlign(Label::HorizontalAlign::CENTER);
-  mLabel->setVerticalAlign(Label::VerticalAlign::CENTER);
-  mLabel->setBackgroundColor(lg::White);
+  mLabel = std::make_shared<Label>("My label.",
+    TextModifier().setFontSize(12)
+      .setTextColor(lg::Black)
+      .setFont(mNewFont),
+    Modifier().setBackGroundColor(lg::White)
+        .setPos(glm::vec2(500.0f, 500.0f))
+        .setScale(glm::vec2(75.0f, 50.0f))
+        .setHorizontalAlign(HorizontalAlign::CENTER)
+        .setVerticalAlign(VerticalAlign::CENTER));
 
   mScroll->addComponent(mLabel)
          .addComponent(mButton);
 
   mScroll2 = std::make_shared<Scrollbar>(Scrollbar::HORIZONTAL, 0, 1000);
-  tempButton.setBackgroundColor(ButtonState::DEFAULT_STATE, lg::Grey)
+  tempButton = std::make_shared<Button>();
+  tempButton->setBackgroundColor(ButtonState::DEFAULT_STATE, lg::Grey)
           .setBackgroundColor(ButtonState::HOVER_STATE, lg::Green)
           .setBackgroundColor(ButtonState::PRESSED_STATE, lg::Green)
           .setPadding(glm::vec2(50, 50))
@@ -112,42 +129,70 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
   mScroll2->addComponent(mLabel)
          .addComponent(mButton);
 
-  labelText.setString("Menu");
   mMenu = std::make_shared<Menu>();
-  mMenu->setPos({900, 900})
-       .resize({75, 35})
-       .setText(labelText)
-       .setVerticalAlignment(Label::VerticalAlign::CENTER)
-       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  mMenu->setLabel(
+          Label("Menu",
+                Modifier().setVerticalAlign(VerticalAlign::CENTER)
+                  .setHorizontalAlign(HorizontalAlign::CENTER),
+                TextModifier().setFontSize(12)
+                  .setTextColor(lg::Black)
+                  .setFont(mNewFont)
+            ))
+       .setPos({900, 900})
+       .resize({75, 35});
+
   std::shared_ptr<MenuItem> tempMenu = std::make_shared<MenuItem>();
-  labelText.setString("Menu2");
-  tempMenu
-       ->setText(labelText)
-       .setVerticalAlignment(Label::VerticalAlign::CENTER)
-       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
-  mMenu->addMenuItem(tempMenu);
+  tempMenu->setLabel(
+          Label("Menu2",
+                Modifier().setVerticalAlign(VerticalAlign::CENTER)
+                  .setHorizontalAlign(HorizontalAlign::CENTER),
+                TextModifier().setFontSize(12)
+                  .setTextColor(lg::Black)
+                  .setFont(mNewFont)
+            )
+        );
   std::shared_ptr<Menu> menu2 = std::make_shared<Menu>();
-  labelText.setString("Drop2");
-  menu2->setText(labelText)
-       .setVerticalAlignment(Label::VerticalAlign::CENTER)
-       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  menu2->setLabel(
+          Label("Drop2",
+                Modifier().setVerticalAlign(VerticalAlign::CENTER)
+                  .setHorizontalAlign(HorizontalAlign::CENTER),
+                TextModifier().setFontSize(12)
+                  .setTextColor(lg::Black)
+                  .setFont(mNewFont)
+            )
+        );
   tempMenu = std::make_shared<MenuItem>();
-  labelText.setString("Item2");
-  tempMenu->setText(labelText)
-       .setVerticalAlignment(Label::VerticalAlign::CENTER)
-       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  tempMenu->setLabel(
+          Label("Item2",
+                Modifier().setVerticalAlign(VerticalAlign::CENTER)
+                  .setHorizontalAlign(HorizontalAlign::CENTER),
+                TextModifier().setFontSize(12)
+                  .setTextColor(lg::Black)
+                  .setFont(mNewFont)
+            )
+        );
   menu2->addMenuItem(tempMenu);
   mMenu->addMenuItem(menu2);
   std::shared_ptr<Menu> menu3 = std::make_shared<Menu>();
-  labelText.setString("Drop3");
-  menu3->setText(labelText)
-       .setVerticalAlignment(Label::VerticalAlign::CENTER)
-       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  menu3->setLabel(
+          Label("Drop3",
+                Modifier().setVerticalAlign(VerticalAlign::CENTER)
+                  .setHorizontalAlign(HorizontalAlign::CENTER),
+                TextModifier().setFontSize(12)
+                  .setTextColor(lg::Black)
+                  .setFont(mNewFont)
+            )
+        );
   tempMenu = std::make_shared<MenuItem>();
-  labelText.setString("Item3");
-  tempMenu->setText(labelText)
-       .setVerticalAlignment(Label::VerticalAlign::CENTER)
-       .setHorizontalAlignment(Label::HorizontalAlign::CENTER);
+  tempMenu->setLabel(
+          Label("Item3",
+                Modifier().setVerticalAlign(VerticalAlign::CENTER)
+                  .setHorizontalAlign(HorizontalAlign::CENTER),
+                TextModifier().setFontSize(12)
+                  .setTextColor(lg::Black)
+                  .setFont(mNewFont)
+            )
+        );
   menu3->addMenuItem(tempMenu);
   mMenu->addMenuItem(menu3);
 
@@ -178,18 +223,6 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
   curr_pos = mSprite->getPos();
   xMove = 0.0f;
   yMove = 0.0f;
-
-  mEventSub.setCallback(BIND_EVENT_FN(MainMenu::OnMouseMove));
-  mEventSub1.setCallback(BIND_EVENT_FN(MainMenu::OnMousePress));
-  mEventSub2.setCallback(BIND_EVENT_FN(MainMenu::OnMouseRelease));
-  mEventSub3.setCallback(BIND_EVENT_FN(MainMenu::OnKeyboardPress));
-  mEventSub4.setCallback(BIND_EVENT_FN(MainMenu::OnKeyboardRelease));
-  
-  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(mEventSub);
-  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(mEventSub1);
-  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(mEventSub2);
-  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(mEventSub3);
-  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(mEventSub4);
 }
 
 void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const double cDeltaTime)
@@ -201,27 +234,11 @@ void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const
   sprite_pos = mSprite->getPos();
   while(crpTarget->pollEvent(tempEvent))
   {
-    mButton->handleEvent(tempEvent);
-    mScroll->update(tempEvent);
-    mScroll2->update(tempEvent);
-    mMenu->handleEvent(tempEvent);
-    mpCheckbox->handleEvent(tempEvent);
-    switch(tempEvent.Type)
-    {
-      case Event::EventType::WindowResize:
-      {
-        // Viewport needs to be updated on window resize if you want viewport to be same as windowsize
-        mCam->setProjection(tempEvent.WindowView.x, tempEvent.WindowView.Width, tempEvent.WindowView.Height, tempEvent.WindowView.y);
-        glViewport(tempEvent.WindowView.x, tempEvent.WindowView.y, tempEvent.WindowView.Width, tempEvent.WindowView.Height);
-        // int view[4];
-        // glGetIntegerv(GL_VIEWPORT, view);
-        // std::cout << "View: (" << tempEvent.WindowView.x << ", " << tempEvent.WindowView.y << ") " << "(" << tempEvent.WindowView.Width << ", " << tempEvent.WindowView.Height << ")\n";
-        // std::cout << "View: (" << view[0] << ", " << view[1] << ") " << "(" << view[2] << ", " << view[3] << ")\n";
-        break;
-      }
-      default:
-        break;
-    }
+    // mButton->handleEvent(tempEvent);
+    // mScroll->update(tempEvent);
+    // mScroll2->update(tempEvent);
+    // mMenu->handleEvent(tempEvent);
+    // mpCheckbox->handleEvent(tempEvent);
   }
 
   float xDir = 300.0f;
@@ -295,22 +312,22 @@ void MainMenu::buttonCallback()
   std::cout << "Clicked\n";
 }
 
-void MainMenu::OnMouseMove(const LestRenderEngine::MouseMoveEvent& crEvent)
+void MainMenu::OnMouseMove(LestRenderEngine::MouseMoveEvent& crEvent)
 {
-  std::cout << "We are fucking here\n";
+  // std::cout << "We are fucking here\n";
 }
 
-void MainMenu::OnMousePress(const LestRenderEngine::MouseButtonPressEvent& crEvent)
+void MainMenu::OnMousePress(LestRenderEngine::MouseButtonPressEvent& crEvent)
 {
-  std::cout << "Mouse press lesgo\n";
+  // std::cout << "Mouse press lesgo\n";
 }
 
-void MainMenu::OnMouseRelease(const LestRenderEngine::MouseButtonReleaseEvent& crEvent)
+void MainMenu::OnMouseRelease(LestRenderEngine::MouseButtonReleaseEvent& crEvent)
 {
-  std::cout << "Mouse release lesgo\n";
+  // std::cout << "Mouse release lesgo\n";
 }
 
-void MainMenu::OnKeyboardPress(const LestRenderEngine::KeyboardPressEvent& crEvent)
+void MainMenu::OnKeyboardPress(LestRenderEngine::KeyboardPressEvent& crEvent)
 {
   switch(crEvent.getKey())
   {
@@ -331,7 +348,7 @@ void MainMenu::OnKeyboardPress(const LestRenderEngine::KeyboardPressEvent& crEve
   }
 }
 
-void MainMenu::OnKeyboardRelease(const LestRenderEngine::KeyboardReleaseEvent& crEvent)
+void MainMenu::OnKeyboardRelease(LestRenderEngine::KeyboardReleaseEvent& crEvent)
 {
   switch(crEvent.getKey())
   {
@@ -350,4 +367,11 @@ void MainMenu::OnKeyboardRelease(const LestRenderEngine::KeyboardReleaseEvent& c
     default:
       break;
   }
+}
+
+void MainMenu::OnWindowResize(LestRenderEngine::WindowResizeEvent& crEvent)
+{
+    lg::Window::WindowView view = lg::Window::getView();
+    mCam->setProjection(view.x, crEvent.getWidth(), crEvent.getHeight(), view.y);
+    glViewport(view.x, view.y, crEvent.getWidth(), crEvent.getHeight());
 }

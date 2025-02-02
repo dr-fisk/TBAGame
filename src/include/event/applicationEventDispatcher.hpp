@@ -32,15 +32,15 @@ class ApplicationEventDispatcher
     }
 
     template<typename T>
-    void dispatch(const T& crEvent)
+    void dispatch(T& crEvent)
     {
       static_cast<EventDispatcher<T>*>(mDispatcher.at(T::GetStaticType()).get())->notify(crEvent);
     }
 
     template<typename T>
-    bool detach(const EventSubscriber<T>& crSub)
+    void detach(const EventSubscriber<T>& crSub)
     {
-      return static_cast<EventDispatcher<T>*>(mDispatcher.at(T::GetStaticType()).get())->unregisterFromEvent(crSub);
+      static_cast<EventDispatcher<T>*>(mDispatcher.at(T::GetStaticType()).get())->unregisterFromEvent(crSub);
     }
   private:
     std::map<Key, std::unique_ptr<I_EventDispatcher>> mDispatcher;

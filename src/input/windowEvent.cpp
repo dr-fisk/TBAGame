@@ -8,6 +8,17 @@ WindowEvent::WindowEvent(const LestRenderEngineEvents cType, const std::string& 
 {
 }
 
+int32_t WindowEvent::getHeight() const
+{
+  return mHeight;
+}
+
+int32_t WindowEvent::getWidth() const
+{
+  return mWidth;
+}
+
+
 WindowResizeEvent::WindowResizeEvent()
  : WindowEvent(LestRenderEngineEvents::WINDOW_RESIZE, "WindowResizeEvent", 0, 0)
  {

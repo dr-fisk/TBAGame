@@ -109,7 +109,9 @@ graphicsFiles = component.cpp \
 								scrollbar.cpp \
 								menuItem.cpp \
 								menu.cpp \
-								popupMenu.cpp
+								popupMenu.cpp \
+                modifier.cpp \
+								textModifier.cpp
 
 graphicsEventsFiles = itemEvent.cpp \
 											menuEvent.cpp 

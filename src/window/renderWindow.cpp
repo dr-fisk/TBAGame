@@ -10,6 +10,7 @@
 #include "renderer/renderCommand.hpp"
 #include "input/mouseEvent.hpp"
 #include "input/keyboardEvent.hpp"
+#include "input/windowEvent.hpp"
 
 bool RenderWindow::msFirstInit = true;
 
@@ -34,7 +35,7 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
   mTitle = cpTitle;
   mpWindow = glfwCreateWindow(mWindowSize.x, mWindowSize.y, cpTitle, nullptr, pWindow);
 
-  if (!mpWindow)
+  if(!mpWindow)
   {
     std::cout << "Error opening window" << std::endl;
     glfwTerminate();
@@ -49,12 +50,14 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
     msFirstInit = false;
   }
 
-  //Vsync off later make it toggable (limits fps)
   mEventDispatcher.addEventDispatcher<LestRenderEngine::MouseMoveEvent>();
   mEventDispatcher.addEventDispatcher<LestRenderEngine::MouseButtonPressEvent>();
   mEventDispatcher.addEventDispatcher<LestRenderEngine::MouseButtonReleaseEvent>();
   mEventDispatcher.addEventDispatcher<LestRenderEngine::KeyboardPressEvent>();
   mEventDispatcher.addEventDispatcher<LestRenderEngine::KeyboardReleaseEvent>();
+  mEventDispatcher.addEventDispatcher<LestRenderEngine::WindowResizeEvent>();
+
+  //Vsync off later make it toggable (limits fps)
   glfwSwapInterval(0);
   Renderer2D::registerContext(pWindow, mpWindow);
   lg::Input::registerContext(mpWindow);

@@ -34,6 +34,9 @@ class Text : public Dot
     const std::string& getString() const;
     glm::vec2 getSize() const;
     uint8_t getCharSize() const;
+    glm::vec2 getCharPos(const int cCharIndex) const;
+    glm::vec2 getCharSize(const int cCharIndex) const;
+
     void draw();
     ~Text();
     Box<glm::vec2> getGlobalBounds(const OrthCamera& crCamera) const;

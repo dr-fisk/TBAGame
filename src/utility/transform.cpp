@@ -35,6 +35,31 @@ Transform& Transform::setScale(const glm::vec2& crScale)
   return *this;
 }
 
+Transform& Transform::setLeft(const float cLeft)
+{
+  mPosition.x = cLeft;
+  return *this;
+}
+
+Transform& Transform::setTop(const float cTop)
+{
+  
+  mPosition.y = cTop;
+  return *this;
+}
+
+Transform& Transform::setWidth(const float cWidth)
+{
+  mScale.x = cWidth;
+  return *this;
+}
+
+Transform& Transform::setHeight(const float cHeight)
+{
+  mScale.y = cHeight;
+  return *this;
+}
+
 glm::mat4 Transform::translate(const glm::vec2& crOffset) const
 {
   return glm::translate(glm::mat4(1.0f), glm::vec3(mPosition - crOffset, 0.0f));

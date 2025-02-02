@@ -3,7 +3,6 @@
 
 #include <string>
 
-#define BIND_EVENT_FN(fn) [this](auto&&...args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 #define EVENT_CLASS_SCOPED_TYPE(scope, type) static scope GetStaticType() {  return scope::type; }
 #define EVENT_CLASS_SCOPELESS_TYPE(datatype, type) static datatype GetStaticType() { return type; }
 
@@ -23,6 +22,11 @@ class I_Event
     std::string getName() const
     {
       return mName;
+    }
+
+    virtual void setHandled(const bool cHandled)
+    {
+      mHandled = cHandled;
     }
 
     virtual bool isHandled() const

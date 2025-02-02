@@ -254,16 +254,16 @@ std::vector<std::shared_ptr<MenuItem>> Menu::getMenuItems() const
 
 void Menu::updateUI()
 {
-  mpPopupMenu->setPreferredSize(mTransform.getScale().x, mTransform.getScale().y);
+  mpPopupMenu->setPreferredSize(mModifier.getScale().x, mModifier.getScale().y);
   if(!isTopLevel())
   {
-    mpPopupMenu->setPos({mTransform.getPos().x + (mTransform.getScale().x / 2.0f),
-                      mTransform.getPos().y - (mTransform.getScale().y / 2.0f)});
+    mpPopupMenu->setPos({mModifier.getPos().x + (mModifier.getScale().x / 2.0f),
+                      mModifier.getPos().y - (mModifier.getScale().y / 2.0f)});
   }
   else
   {
-    mpPopupMenu->setPos({mTransform.getPos().x - (mTransform.getScale().x / 2.0f),
-                      mTransform.getPos().y + (mTransform.getScale().y / 2.0f)});
+    mpPopupMenu->setPos({mModifier.getPos().x - (mModifier.getScale().x / 2.0f),
+                      mModifier.getPos().y + (mModifier.getScale().y / 2.0f)});
   }
 
   AbstractButton::updateUI();

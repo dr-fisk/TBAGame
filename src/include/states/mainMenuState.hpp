@@ -24,6 +24,7 @@
 #include "event/eventSubscriber.hpp"
 #include "input/mouseEvent.hpp"
 #include "input/keyboardEvent.hpp"
+#include "input/windowEvent.hpp"
 
 class MainMenu : public State
 {
@@ -36,13 +37,14 @@ class MainMenu : public State
 
   private:
     static void buttonCallback();
-    void OnMouseMove(const LestRenderEngine::MouseMoveEvent& crEvent);
-    void OnMousePress(const LestRenderEngine::MouseButtonPressEvent& crEvent);
-    void OnMouseRelease(const LestRenderEngine::MouseButtonReleaseEvent& crEvent);
-    void OnKeyboardPress(const LestRenderEngine::KeyboardPressEvent& crEvent);
-    void OnKeyboardRelease(const LestRenderEngine::KeyboardReleaseEvent& crEvent);
+    void OnMouseMove(LestRenderEngine::MouseMoveEvent& crEvent);
+    void OnMousePress(LestRenderEngine::MouseButtonPressEvent& crEvent);
+    void OnMouseRelease(LestRenderEngine::MouseButtonReleaseEvent& crEvent);
+    void OnKeyboardPress(LestRenderEngine::KeyboardPressEvent& crEvent);
+    void OnKeyboardRelease(LestRenderEngine::KeyboardReleaseEvent& crEvent);
+    void OnWindowResize(LestRenderEngine::WindowResizeEvent& crEvent);
 
-    // static void dropdownCallbacK(const Button<glm::ivec2>& rVal);
+    // static void dropdownCallbacK(const Button<glm::ivec2>& rVal);s
     LestTrueType ttf;
     Font mNewFont;
     std::shared_ptr<Text> mText;
@@ -72,6 +74,7 @@ class MainMenu : public State
     EventSubscriber<LestRenderEngine::MouseButtonReleaseEvent> mEventSub2;
     EventSubscriber<LestRenderEngine::KeyboardPressEvent> mEventSub3;
     EventSubscriber<LestRenderEngine::KeyboardReleaseEvent> mEventSub4;
+    EventSubscriber<LestRenderEngine::WindowResizeEvent> mEventSub5;
 };
 
 #endif

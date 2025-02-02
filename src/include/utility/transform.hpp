@@ -13,6 +13,35 @@ class Transform
     Transform& setRotation(const float cRotation);
     Transform& setPos(const glm::vec2& crPos);
     Transform& setScale(const glm::vec2& crScale);
+    
+    //! @brief Sets Left
+    //!
+    //! @param[in] cLeft Left
+    //! 
+    //! @return Transform Reference
+    Transform& setLeft(const float cLeft);
+
+    //! @brief Sets Top
+    //!
+    //! @param[in] cTop Top
+    //! 
+    //! @return Transform Reference
+    Transform& setTop(const float cTop);
+
+    //! @brief Sets Width
+    //!
+    //! @param[in] cWidth Width
+    //! 
+    //! @return Transform Reference
+    Transform& setWidth(const float cWidth);
+
+    //! @brief Sets Height
+    //!
+    //! @param[in] cHeight Height
+    //! 
+    //! @return Transform Reference 
+    Transform& setHeight(const float cHeight);
+
     glm::vec2 getPos() const;
     glm::vec2 getScale() const;
     float getRotation() const;

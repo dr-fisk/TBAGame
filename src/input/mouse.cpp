@@ -37,7 +37,8 @@ namespace lg
         return;
       }
      
-      dispatcher->dispatch(LestRenderEngine::MouseMoveEvent(cX, cY));
+      LestRenderEngine::MouseMoveEvent mouseMoveEvent(cX, cY);
+      dispatcher->dispatch(mouseMoveEvent);
       Event tempEvent;
       tempEvent.Type = Event::EventType::MouseMove;
       tempEvent.MousePos.x = cX;
@@ -67,15 +68,19 @@ namespace lg
       switch(cAction)
       {
         case GLFW_PRESS:
+        {
+          LestRenderEngine::MouseButtonPressEvent mousePressEvent(cButton, x, y);
           tempEvent.Type = Event::EventType::MouseButtonPress;
-          dispatcher->dispatch<LestRenderEngine::MouseButtonPressEvent>(
-            LestRenderEngine::MouseButtonPressEvent(cButton, x, y));
+          dispatcher->dispatch<LestRenderEngine::MouseButtonPressEvent>(mousePressEvent);
           break;
+        }
         case GLFW_RELEASE:
+        {
+          LestRenderEngine::MouseButtonReleaseEvent mouseButtonReleaseEvent(cButton, x, y);
           tempEvent.Type = Event::EventType::MouseButtonRelease;
-          dispatcher->dispatch<LestRenderEngine::MouseButtonReleaseEvent>(
-            LestRenderEngine::MouseButtonReleaseEvent(cButton, x, y));
+          dispatcher->dispatch<LestRenderEngine::MouseButtonReleaseEvent>(mouseButtonReleaseEvent);
           break;
+        }
       }
 
       lg::Input::pushEvent(tempEvent, pWindow);

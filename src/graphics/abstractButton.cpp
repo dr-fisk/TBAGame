@@ -1,4 +1,5 @@
 #include "graphics/abstractButton.hpp"
+#include "event/lestRenderEngineEventManager.hpp"
 
 //! @brief Default Constructor
 //!
@@ -13,6 +14,13 @@ AbstractButton::AbstractButton()
   mHoverBorderColor = lg::Transparent;
   mPressedBorderColor = lg::Transparent;
   mState = ButtonState::DEFAULT_STATE;
+  SLOT(mMouseButtonPressSub, AbstractButton::onMouseButtonPress);
+  SLOT(mMouseButtonReleaseSub, AbstractButton::onMouseButtonRelease);
+  SLOT(mMouseMoveSub, AbstractButton::onMouseMove);
+}
+
+AbstractButton::~AbstractButton()
+{
 }
 
 //! @brief Event Handler State Machine that calls appropiate functions
@@ -168,51 +176,6 @@ std::string AbstractButton::getString() const
   return mLabel.getString();
 }
 
-//! @brief  Sets the color of the displayed text
-//!
-//! @param[in] crColor Color to set text
-//! 
-//! @return Abstract Button to chain calls 
-AbstractButton& AbstractButton::setTextColor(const lg::Color& crColor)
-{
-  mLabel.setTextColor(crColor);
-  return *this;
-}
-
-//! @brief Sets the Horizontal alignment of the Text to quick presets
-//!
-//! @param cAlign Alignment type
-//!
-//! @return Abstract Button to chain calls 
-AbstractButton& AbstractButton::setHorizontalAlignment(const Label::HorizontalAlign cAlign)
-{
-  mLabel.setHorizontalAlign(cAlign);
-  return *this;
-}
-
-//! @brief Sets the Vertical alignment of the Text to quick presets
-//!
-//! @param[in] cAlign Vertical Alignment
-//! 
-//! @return Abstract Button to chain calls 
-AbstractButton& AbstractButton::setVerticalAlignment(const Label::VerticalAlign cAlign)
-{
-  mLabel.setVerticalAlign(cAlign);
-  return *this;
-}
-
-//! @brief Sets the position of the Text directly
-//!        Note: Set vertical and horizontal to alignment to none (Set by default) otherwise this will be overruled
-//!
-//! @param[in] crPos Position to set Text
-//! 
-//! @return Abstract Button to chain calls 
-AbstractButton& AbstractButton::setTextPos(const glm::vec2& crPos)
-{
-  mLabel.setTextPosition(crPos);
-  return *this;
-}
-
 //! @brief Sets the Default Texture for Button to reference
 //!        If Button is in Default State, Texture will be applied here
 //!
@@ -261,10 +224,10 @@ AbstractButton& AbstractButton::setPressedTexture(const std::shared_ptr<Texture2
 //! @return True if Mouse is in AABB false otherwise
 bool AbstractButton::isInAABB(const glm::vec2& crPos)
 {
-  glm::vec2 topLeft = mTransform.getPos() - (mTransform.getScale() / 2.0f);
+  glm::vec2 topLeft = mModifier.getPos() - (mModifier.getScale() / 2.0f);
 
-  return (crPos.x > topLeft.x) && (crPos.x < (topLeft.x + mTransform.getScale().x)) &&
-        (crPos.y > topLeft.y) && (crPos.y < (topLeft.y + mTransform.getScale().y));
+  return (crPos.x > topLeft.x) && (crPos.x < (topLeft.x + mModifier.getScale().x)) &&
+        (crPos.y > topLeft.y) && (crPos.y < (topLeft.y + mModifier.getScale().y));
 }
 
 //! @brief Determines if Mouse Position is in AABB of button
@@ -276,8 +239,8 @@ bool AbstractButton::isInAABB(const glm::vec2& crPos)
 bool AbstractButton::isInAABB(const glm::vec2& crPos, const glm::vec2& crPadding)
 {
 
-  glm::vec2 size = mTransform.getScale() + crPadding;
-  glm::vec2 topLeft = mTransform.getPos() - (size / 2.0f);
+  glm::vec2 size = mModifier.getScale() + crPadding;
+  glm::vec2 topLeft = mModifier.getPos() - (size / 2.0f);
 
   return (crPos.x > topLeft.x) && (crPos.x < (topLeft.x + size.x)) &&
         (crPos.y > topLeft.y) && (crPos.y < (topLeft.y + size.y));
@@ -360,7 +323,7 @@ void AbstractButton::draw()
 //! @return Abstract button to chain calls
 AbstractButton& AbstractButton::movePos(const glm::vec2& crMove)
 {
-  mTransform += crMove;
+  mModifier.moveTransform(crMove);
   mLabel.movePos(crMove);
   mUpdateUI = true;
   return *this;
@@ -373,7 +336,7 @@ AbstractButton& AbstractButton::movePos(const glm::vec2& crMove)
 //! @return Abstract button to chain calls 
 AbstractButton& AbstractButton::setPos(const glm::vec2& crPos)
 {
-  mTransform.setPos(crPos);
+  mModifier.setPos(crPos);
   mLabel.setPos(crPos);
   mUpdateUI = true;
   return *this;
@@ -386,20 +349,15 @@ AbstractButton& AbstractButton::setPos(const glm::vec2& crPos)
 //! @return None
 AbstractButton& AbstractButton::resize(const glm::vec2& crSize)
 {
-  mTransform.setScale(crSize);
+  mModifier.setScale(crSize);
   mLabel.resize(crSize);
   mUpdateUI = true;
   return *this;
 }
 
-//! @brief Sets the text object of the button
-//!
-//! @param[in] crText Text to set
-//!
-//! @return Abstract button to chain calls
-AbstractButton& AbstractButton::setText(const Text& crText)
+AbstractButton& AbstractButton::setLabel(const Label& crLabel)
 {
-  mLabel.setText(crText);
+  mLabel = crLabel;
   mUpdateUI = true;
   return *this;
 }
@@ -420,7 +378,7 @@ AbstractButton& AbstractButton::onClick(std::function<void()> pFunc)
 //! @return Button Position
 glm::vec2 AbstractButton::getPos() const
 {
-  return mTransform.getPos();
+  return mModifier.getPos();
 }
 
 //! @brief Gets the size of button
@@ -428,7 +386,7 @@ glm::vec2 AbstractButton::getPos() const
 //! @return Size of button 
 glm::vec2 AbstractButton::getSize() const
 {
-  return mTransform.getScale();
+  return mModifier.getScale();
 }
 
 //! @brief Sets padding to allow users to click on button
@@ -495,6 +453,11 @@ void AbstractButton::removeActionListener(const ActionListener<AbstractButton>* 
 
     itr++;
   }
+}
+
+Label& AbstractButton::getLabel()
+{
+  return mLabel;
 }
 
 //! @brief Returns whether Button has mouse hovering over it
@@ -566,4 +529,94 @@ void AbstractButton::updateUI()
 {
   setButtonTexture();
   mUpdateUI = false;
+}
+
+void AbstractButton::onMouseMove(LestRenderEngine::MouseMoveEvent& crEvent)
+{
+  switch(mState)
+  {
+    case ButtonState::DEFAULT_STATE:
+      if(isInAABB({crEvent.getX(), crEvent.getY()}))
+      {
+        mState = ButtonState::HOVER_STATE;
+        mUpdateUI = true;
+    
+      }
+
+      break;
+    case ButtonState::HOVER_STATE:
+      if(!isInAABB({crEvent.getX(), crEvent.getY()}))
+      {
+        mState = ButtonState::DEFAULT_STATE;
+    
+        mUpdateUI = true;
+      }
+
+      break;
+    case ButtonState::PRESSED_STATE:
+      if(!isInAABB({crEvent.getX(), crEvent.getY()}, mPressedPadding))
+      {
+        mState = ButtonState::DEFAULT_STATE;
+    
+        mUpdateUI = true;
+      }
+      break;
+  }
+}
+
+void AbstractButton::onMouseButtonPress(LestRenderEngine::MouseButtonPressEvent& crEvent)
+{
+  if (GLFW_MOUSE_BUTTON_LEFT == crEvent.getMouseButton() && mState == ButtonState::HOVER_STATE)
+  {
+    mState = ButtonState::PRESSED_STATE;
+    mUpdateUI = true;
+    // switch(mState)
+    // {
+    //   case ButtonState::HOVER_STATE:
+    //     if(isInAABB({crEvent.getX(), crEvent.getY()}))
+    //     { 
+    //       mState = ButtonState::PRESSED_STATE;
+      
+    //       mUpdateUI = true;
+    //     }
+
+    //     break;
+    // }
+  }
+}
+
+void AbstractButton::onMouseButtonRelease(LestRenderEngine::MouseButtonReleaseEvent& crEvent)
+{
+  if (GLFW_MOUSE_BUTTON_LEFT == crEvent.getMouseButton())
+  {
+    switch(mState)
+    {
+      case ButtonState::PRESSED_STATE:
+        if(isInAABB({crEvent.getX(), crEvent.getY()}))
+        {
+          buttonClicked();
+      
+          for(const auto& actionListener : mActionListeners)
+          {
+            actionListener->performAction(ActionEvent<AbstractButton>(this, 
+                                          ActionEvent<AbstractButton>::ActionEventType::ACTION_OCCURRED));
+          }
+
+          if(mCallback)
+          {
+            mCallback();
+          }
+
+          mClicked = true;
+        }
+        else
+        {
+          mState = ButtonState::DEFAULT_STATE;
+      
+        }
+
+        mUpdateUI = true;
+        break;
+    }
+  }
 }

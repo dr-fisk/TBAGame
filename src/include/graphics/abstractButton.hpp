@@ -8,6 +8,8 @@
 #include "event/event.hpp"
 #include "graphics/itemListener.hpp"
 #include "graphics/actionListener.hpp"
+#include "event/eventSubscriber.hpp"
+#include "input/mouseEvent.hpp"
 
 enum class ButtonState
 {
@@ -20,16 +22,19 @@ class AbstractButton : public Component
 {
   public:
     AbstractButton();
-    virtual ~AbstractButton() = default;
+    virtual ~AbstractButton();
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Setters
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    AbstractButton& setText(const Text& crText);
-    AbstractButton& setTextColor(const lg::Color& crColor);
-    AbstractButton& setHorizontalAlignment(const Label::HorizontalAlign cAlign);
-    AbstractButton& setVerticalAlignment(const Label::VerticalAlign cAlign);
-    AbstractButton& setTextPos(const glm::vec2& crPos);
+    
+    //! @brief Sets Label
+    //!
+    //! @param[in] crLabel Label
+    //!
+    //! @return Abstract Button Reference
+    AbstractButton& setLabel(const Label& crLabel);
+
     AbstractButton& setDefaultTexture(const std::shared_ptr<Texture2D>& crpTexture);
     AbstractButton& setHoverTexture(const std::shared_ptr<Texture2D>& crpTexture);
     AbstractButton& setPressedTexture(const std::shared_ptr<Texture2D>& crpTexture);
@@ -54,6 +59,11 @@ class AbstractButton : public Component
     std::string getString() const;
     glm::vec2 getPos() const;
     glm::vec2 getSize() const;
+
+    //! @brief Gets Label
+    //!
+    //! @return Label Reference to allow modification
+    Label& getLabel();
     bool isPressed() const;
     bool isHover() const;
     bool isDefault() const;
@@ -67,6 +77,10 @@ class AbstractButton : public Component
     bool wasClicked() const;
     virtual void updateUI() override;
   protected:
+    void onMouseMove(LestRenderEngine::MouseMoveEvent& crEvent);
+    void onMouseButtonPress(LestRenderEngine::MouseButtonPressEvent& crEvent);
+    void onMouseButtonRelease(LestRenderEngine::MouseButtonReleaseEvent& crEvent);
+
     void mouseMoveUpdate(const Event::MouseMoveEvent& crEvent);
     void mouseButtonUpdate(const Event::MouseButtonEvent& crEvent);
     void mouseButtonRelease(const Event::MouseButtonEvent& crEvent);
@@ -91,6 +105,9 @@ class AbstractButton : public Component
     std::list<ActionListener<AbstractButton>*> mActionListeners;
     std::function<void()> mCallback;
     bool mClicked;
+    EventSubscriber<LestRenderEngine::MouseButtonPressEvent> mMouseButtonPressSub;
+    EventSubscriber<LestRenderEngine::MouseButtonReleaseEvent> mMouseButtonReleaseSub;
+    EventSubscriber<LestRenderEngine::MouseMoveEvent> mMouseMoveSub;
 };
 
 #endif

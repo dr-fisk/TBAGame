@@ -21,7 +21,7 @@ class Scrollbar : public Component
     Scrollbar() = delete;
     Scrollbar(const ScrollbarOrientation cOrientation, const uint32_t cMin, const uint32_t cMax);
     ~Scrollbar() = default;
-    Scrollbar& setButton(const Button& crButton);
+    Scrollbar& setButton(const std::shared_ptr<Button> cpButton);
     void update(const Event& crEvent);
     void draw();
 
@@ -29,6 +29,8 @@ class Scrollbar : public Component
     void updateUI() override;
   private:
     void mouseMoveEvent(const Event& crEvent);
+    void onMouseMove(LestRenderEngine::MouseMoveEvent& crEvent);
+
 
     enum ScrollbarState
     {
@@ -36,13 +38,14 @@ class Scrollbar : public Component
       SCROLL_STATE
     };
 
-    Button mScrollbarButton;
+    std::shared_ptr<Button> mScrollbarButton;
     glm::vec2 mPrevMousePos;
     ScrollbarState mState;
     ScrollbarOrientation mOrientation;
     std::vector<std::shared_ptr<Component>> mGraphicsList;
     uint32_t mMinBound;
     uint32_t mMaxBound;
+    EventSubscriber<LestRenderEngine::MouseMoveEvent> mMouseMoveSub;
 };
 
 #endif

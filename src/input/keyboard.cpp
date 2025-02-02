@@ -25,16 +25,16 @@ namespace lg
       {
         case GLFW_PRESS:
         {
-          dispatcher->dispatch<LestRenderEngine::KeyboardPressEvent>(LestRenderEngine::KeyboardPressEvent(
-            cKey, cScancode, cAction, cMods));
+          LestRenderEngine::KeyboardPressEvent keyPressEvent(cKey, cScancode, cAction, cMods);
+          dispatcher->dispatch<LestRenderEngine::KeyboardPressEvent>(keyPressEvent);
           break;
         }
         case GLFW_REPEAT:
           break;
         case GLFW_RELEASE:
         {
-          dispatcher->dispatch<LestRenderEngine::KeyboardReleaseEvent>(LestRenderEngine::KeyboardReleaseEvent(
-            cKey, cScancode, cAction, cMods));
+          LestRenderEngine::KeyboardReleaseEvent keyReleaseEvent(cKey, cScancode, cAction, cMods);
+          dispatcher->dispatch<LestRenderEngine::KeyboardReleaseEvent>(keyReleaseEvent);
           break;
         }
       }

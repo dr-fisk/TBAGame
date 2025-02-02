@@ -24,11 +24,16 @@ class EventDispatcher : public I_EventDispatcher
       mObservers.push_back(&crSub);
     }
 
-    void notify(const T& crEvent) const
+    void notify(T& crEvent) const
     {
       for(auto& observer : mObservers)
       {
         observer->notify(crEvent);
+
+        if(crEvent.isHandled())
+        {
+          break;
+        }
       }
     }
 
@@ -36,7 +41,7 @@ class EventDispatcher : public I_EventDispatcher
     {
       for(auto itr = mObservers.begin(); itr != mObservers.end();)
       {
-        if(*itr == crSub)
+        if(*itr == &crSub)
         {
           itr = mObservers.erase(itr);
         }

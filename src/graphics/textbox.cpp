@@ -2,14 +2,21 @@
 
 #include "graphics/textbox.hpp"
 
-TextBox::TextBox(const glm::vec2& crPos, const glm::vec2& crSize, std::shared_ptr<ResourceManager> prResourceMngr,
-                 const std::string& crDefaultText, const lg::Color& crColor)
+TextBox::TextBox(const glm::vec2& crPos, const glm::vec2& crSize, const std::string& crDefaultText,
+  const lg::Color& crColor)
 {
   glm::vec2 tempPos(0, 0);
   mBox = std::make_shared<Sprite>(crPos, crSize, lg::Grey);
   // mDefaultText = std::make_unique<Text>(nullptr, crDefaultText, prResourceMngr, 12, tempPos);
   // mState = DEFAULT_STATE;
   setPos(crPos);
+}
+
+TextBox& TextBox::setDefaultText(const std::string& crText)
+{
+  mDefaultText = crText;
+  mUpdateUI = true;
+  return *this;
 }
 
 void TextBox::update(const Event& crEvent)

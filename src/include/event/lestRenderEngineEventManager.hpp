@@ -4,6 +4,10 @@
 #include "event/applicationEventDispatcher.hpp"
 #include "event/lestRenderEngineEvent.hpp"
 
+#define SLOT(sub, func){ \
+  sub.setCallback(BIND_EVENT_FN(func));\
+  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(sub);}
+
 namespace LestRenderEngine
 {
 
@@ -13,7 +17,7 @@ class LestRenderEngineEventManager
     using LestApplicationDispatcher = LestRenderEngine::ApplicationEventDispatcher<LestRenderEngine::LestRenderEngineEvents>;
   public:
     template<typename T>
-    static bool registerToEvent(const EventSubscriber<T>& crSub)
+    static bool registerToEvent(EventSubscriber<T>& crSub)
     {
       LestApplicationDispatcher* dispatcher = static_cast<LestApplicationDispatcher*>(glfwGetWindowUserPointer(glfwGetCurrentContext()));
 
@@ -22,6 +26,7 @@ class LestRenderEngineEventManager
         return false;
       }
 
+      crSub.setUnregisterFunc(LestRenderEngineEventManager::unregisterFromEvent<T>);
       dispatcher->attach(crSub);
       return true;
     }
@@ -36,7 +41,8 @@ class LestRenderEngineEventManager
         return false;
       }
 
-      return dispatcher->detach(crSub);
+      dispatcher->detach(crSub);
+      return true;
     }
 };
 

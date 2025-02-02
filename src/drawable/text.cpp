@@ -374,3 +374,13 @@ const std::string& Text::getString() const
 {
   return mText;
 }
+
+glm::vec2 Text::getCharPos(const int cCharIndex) const
+{
+  return mTextVertexes.at(cCharIndex).Pos;
+}
+
+glm::vec2 Text::getCharSize(const int cCharIndex) const
+{
+  return mTextVertexes.at(cCharIndex).Size;
+}
