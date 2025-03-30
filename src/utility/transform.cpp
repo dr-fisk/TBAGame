@@ -2,6 +2,8 @@
 #include "utility/transform.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include <iostream>
+
 glm::vec2 Transform::getPos() const
 {
   return mPosition;
@@ -68,4 +70,9 @@ glm::mat4 Transform::translate(const glm::vec2& crOffset) const
 void Transform::operator+=(const glm::vec2& rVec2)
 {
   mPosition += rVec2;
+}
+
+bool Transform::contains(const float cX, const float cY)
+{
+  return (cX > mPosition.x) && (cX < mPosition.x + mScale.x) && (cY > mPosition.y) && (cY < mPosition.y + mScale.y);
 }

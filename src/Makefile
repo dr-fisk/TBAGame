@@ -111,10 +111,11 @@ graphicsFiles = component.cpp \
 								menu.cpp \
 								popupMenu.cpp \
                 modifier.cpp \
-								textModifier.cpp
+								textModifier.cpp \
+								componentManager.cpp \
+								frame.cpp
 
-graphicsEventsFiles = itemEvent.cpp \
-											menuEvent.cpp 
+graphicsEventsFiles = itemEvent.cpp
 
 lestEngineEventFiles =
 dynLibFiles = png.cpp

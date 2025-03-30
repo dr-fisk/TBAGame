@@ -3,18 +3,21 @@
 
 #include "event/applicationEventDispatcher.hpp"
 #include "event/lestRenderEngineEvent.hpp"
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 #define SLOT(sub, func){ \
   sub.setCallback(BIND_EVENT_FN(func));\
-  LestRenderEngine::LestRenderEngineEventManager::registerToEvent(sub);}
+  lre::LestRenderEngineEventManager::registerToEvent(sub);}
 
-namespace LestRenderEngine
+namespace lre
 {
 
 class LestRenderEngineEventManager
 {
   private:
-    using LestApplicationDispatcher = LestRenderEngine::ApplicationEventDispatcher<LestRenderEngine::LestRenderEngineEvents>;
+    using LestApplicationDispatcher = lre::ApplicationEventDispatcher<lre::LestRenderEngineEvents>;
   public:
     template<typename T>
     static bool registerToEvent(EventSubscriber<T>& crSub)

@@ -1,8 +1,6 @@
 #include "graphics/popupMenu.hpp"
+#include "event/lestRenderEngineEventManager.hpp"
 
-//! @brief Default Constructor
-//!
-//! @return PopupMenu Object
 PopupMenu::PopupMenu()
 {
   mBounds.left = 0;
@@ -10,20 +8,16 @@ PopupMenu::PopupMenu()
   mBounds.width = 0;
   mBounds.height = 0;
   mPreferredSize = {0, 0};
-  cmpInvoker = nullptr;
   mActiveSubMenu = nullptr;
+  mButtonEventSub.setCallback(BIND_EVENT_FN(PopupMenu::onButtonEvent));
+  mPopupEventSub.setCallback(BIND_EVENT_FN(PopupMenu::onPopupMenuEvent));
+  mUpdateUI = true;
 }
 
-//! @brief Adds a menu item to the Popup Menu
-//!        Note: Popup Menu keeps a shared pointer so it is not necessary to keep the menu item in scope
-//!
-//! @param[in] cpMenuItem Menu Item to add to the Popup Menu
-//!
-//! @return None
 void PopupMenu::addItem(const std::shared_ptr<MenuItem> cpMenuItem)
 {
   // default to left most position, later add center and right
-  mComponents.push_back(cpMenuItem);
+  mItems.push_back(cpMenuItem);
 
   cpMenuItem->setPos({mBounds.left + (cpMenuItem->getSize().x / 2.0f), 
                       mBounds.top + mBounds.height + (cpMenuItem->getSize().y / 2.0f)});
@@ -32,15 +26,23 @@ void PopupMenu::addItem(const std::shared_ptr<MenuItem> cpMenuItem)
 
   if(popupMenu)
   {
-    popupMenu->addPopupMenuListerner(this);
+    popupMenu->addPopupMenuListener(mPopupEventSub);
+  }
+  else
+  {
+    cpMenuItem->addButtonEventListener(mButtonEventSub);
   }
 
   mBounds.height += cpMenuItem->getSize().y;
+  mUpdateUI = true;
 }
 
-//! @brief Updates the position of the menu items in the PopupMenu
-//!
-//! @return None
+PopupMenu& PopupMenu::addPopupMenuListener(EventSubscriber<PopupMenuEvent>& rListener)
+{
+  mDispatcher.registerToEvent(rListener);
+  return *this;
+}
+
 void PopupMenu::updatePopupMenuItemPositions()
 { 
   mBounds.height = 0;
@@ -49,7 +51,7 @@ void PopupMenu::updatePopupMenuItemPositions()
   mBounds.top = mModifier.getPos().y;
   std::shared_ptr<PopupMenu> popupMenu;
 
-  for(auto& item : mComponents)
+  for(auto& item : mItems)
   {
     if(mPreferredSize != glm::vec2{0, 0})
     {
@@ -72,9 +74,6 @@ void PopupMenu::updatePopupMenuItemPositions()
   }
 }
 
-//! @brief Draws the Popup Menu if it is visible
-//!
-//! @return None
 void PopupMenu::draw()
 {
   if(mUpdateUI)
@@ -84,19 +83,13 @@ void PopupMenu::draw()
 
   if(mVisible)
   {
-    for(auto& item : mComponents)
+    for(auto& item : mItems)
     {
       item->draw();
     }
   }
 }
 
-//! @brief Sets the preferred size of all Popup Menu Items
-//!
-//! @param[in] cWidth  Width to set Menu Items
-//! @param[in] cHeight Height to set Menu Items
-//!
-//! @return Popup Menu reference to chain calls
 PopupMenu& PopupMenu::setPreferredSize(const float cWidth, const float cHeight)
 {
   mPreferredSize = {cWidth, cHeight};
@@ -104,204 +97,149 @@ PopupMenu& PopupMenu::setPreferredSize(const float cWidth, const float cHeight)
   return *this;
 }
 
-//! @brief Handles incoming events
-//!
-//! @param[in] crEvent Event to handle
-//!
-//! @return None 
-void PopupMenu::handleEvent(const Event& crEvent)
-{
-  for(auto& item : mComponents)
-  {
-    item->handleEvent(crEvent);
-
-    if(item->wasClicked())
-    {
-      // If item is a Menu
-      if(item->getPopupMenu())
-      {
-        mActiveSubMenu = item->getPopupMenu().get();
-        mActiveSubMenu->setVisible(true);
-      }
-      else
-      {
-        notifyCancelled();
-        mVisible = false;
-        if(mActiveSubMenu)
-        {
-          mActiveSubMenu->setVisible(false);
-          mActiveSubMenu = nullptr;
-        }
-        std::cout << item->getString() << std::endl;
-      }
-    }
-    else if(item->isHover())
-    {
-      if(mActiveSubMenu)
-      {
-        mActiveSubMenu->setVisible(false);
-        mActiveSubMenu = nullptr;
-      }
-
-      if(item->getPopupMenu())
-      {
-        mActiveSubMenu = item->getPopupMenu().get();
-        mActiveSubMenu->setVisible(true);
-      }
-    }
-    
-  }
-
-  // Check if mouse was pressed out of bounds to close popup menu
-  if(Event::EventType::MouseButtonPress == crEvent.Type && GLFW_MOUSE_BUTTON_LEFT == crEvent.MouseButton.Button)
-  {
-    checkMousePressOutOfBounds(crEvent);
-  }
-}
-
-//! @brief Checks if mouse press was out of bounds to close Popup Menu
-//!
-//! @param[in] crEvent Mouse Press Event
-//!
-//! @return None 
-void PopupMenu::checkMousePressOutOfBounds(const Event& crEvent)
-{
-  if(!mBounds.contains(crEvent.MouseButton.x, crEvent.MouseButton.y) && !mActiveSubMenu)
-  {
-    notifyCancelled();
-    mVisible = false;
-  }
-}
-
-//! @brief Sets the Popup Menu location
-//!
-//! @param[in] crPos Position to set the Popup Menu
-//!
-//! @return None 
 void PopupMenu::setMenuLocation(const glm::vec2& crPos)
 {
   mModifier.setPos(crPos);
   mUpdateUI = true;
 }
 
-//! @brief Sets the Popup Menu invoker
-//!
-//! @param[in] cpInvoker The invoker of the Popup Menu
-//!
-//! @return None 
-void PopupMenu::setInvoker(const AbstractButton* cpInvoker)
-{
-  cmpInvoker = cpInvoker;
-}
-
-//! @brief Adds a listener to this Popup Menu
-//!
-//! @param[in] cpListener Listener to add to Component
-//!
-//! @return None 
-void PopupMenu::addPopupMenuListerner(PopupMenuListener<PopupMenu>* cpListener)
-{
-  mPopupMenuListeners.push_back(cpListener);
-}
-
-//! @brief Notifies listeners that the Popup Menu was cancelled
-//!
-//! @return None
 void PopupMenu::notifyCancelled()
 {
-  for(auto& listener : mPopupMenuListeners)
-  {
-    listener->popupMenuCancelled(PopupMenuEvent(this));
-  }
+  PopupMenuEvent event(this, MenuEvent::MENU_CANCELLED);
+  mDispatcher.notify(event);
 }
 
 //! @brief Notifies the listeners that the Popup Menu will go invisible soon
 //!
 //! @return None
-void PopupMenu::notifyInvisible()
-{
-  for(auto& listener : mPopupMenuListeners)
-  {
-    listener->popupMenuWillBecomeInvisible(PopupMenuEvent(this));
-  }
-}
+// void PopupMenu::notifyInvisible()
+// {
+//   for(auto& listener : mPopupMenuListeners)
+//   {
+//     listener->popupMenuWillBecomeInvisible(PopupMenuEvent(this));
+//   }
+// }
 
-//! @brief Notifies the listeners that the Popup Menu will be visible soon
-//!
-//! @return None
 void PopupMenu::notifyVisible()
 {
-  for(auto& listener : mPopupMenuListeners)
+  PopupMenuEvent event(this, MenuEvent::MENU_SELECTED);
+  mDispatcher.notify(event);
+}
+
+void PopupMenu::onButtonEvent(AbstractButton::ButtonEvent& rButtonEvent)
+{
+  switch(rButtonEvent.mAction)
   {
-    listener->popupMenuWillBecomeVisible(PopupMenuEvent(this));
+    case GuiEvent::GUI_CLICK:
+      notifyCancelled();
+
+      if(mActiveSubMenu)
+      {
+        mActiveSubMenu->setVisible(false);
+        mActiveSubMenu = nullptr;
+      }
+
+      std::cout << rButtonEvent.mpSource->getString() << std::endl;
+      break;
+    case GuiEvent::GUI_HOVER:
+      if(mActiveSubMenu)
+      {
+        mActiveSubMenu->setVisible(false);
+        mActiveSubMenu = nullptr;
+      }
+      break;
   }
 }
 
-//! @brief Handles the Component Popup Menu cancelled event
-//!
-//! @param[in] crEvent Popup Menu Event
-//!
-//! @return None
-void PopupMenu::popupMenuCancelled(const PopupMenuEvent<PopupMenu>& crEvent)
+void PopupMenu::onPopupMenuEvent(PopupMenuEvent& rPopupMenuEvent)
 {
-  mVisible = false;
-
-  if(mActiveSubMenu)
+  switch(rPopupMenuEvent.mAction)
   {
-    mActiveSubMenu->setVisible(false);
-    mActiveSubMenu = nullptr;
+    case MenuEvent::MENU_CANCELLED:
+      if(mActiveSubMenu && *mActiveSubMenu == *rPopupMenuEvent.mpSource)
+      {
+        mActiveSubMenu = nullptr;
+      }
+      break;
+    case MenuEvent::MENU_SELECTED:
+      if(mActiveSubMenu && !(*mActiveSubMenu == *rPopupMenuEvent.mpSource))
+      {
+        mActiveSubMenu->setVisible(false);
+      }
+      mActiveSubMenu = rPopupMenuEvent.mpSource;
+      break;
   }
-
-  notifyCancelled();
 }
 
-//! @brief Handles the Component Popup Menu becoming invisible event
-//!
-//! @param[in] crEvent Popup Menu Event
-//!
-//! @return None
-void PopupMenu::popupMenuWillBecomeInvisible(const PopupMenuEvent<PopupMenu>& crEvent)
-{
-}
-
-//! @brief Handles the Component Popup Menu visible event
-//!
-//! @param[in] crEvent Popup Menu Event
-//!
-//! @return None
-void PopupMenu::popupMenuWillBecomeVisible(const PopupMenuEvent<PopupMenu>& crEvent)
-{
-}
-
-//! @brief Sets the component to be visible or not and notifies listeners
-//!
-//! @param cVisible Controls visibility of component
-//!
-//! @return None
 void PopupMenu::setVisible(const bool cVisible)
 {
+  if(mVisible == cVisible)
+  {
+    return;
+  }
+
   mVisible = cVisible;
 
   if(cVisible)
   {
+    mEnabled = true;
     notifyVisible();
   }
   else
   {
-    notifyInvisible();
+    mEnabled = false;
+    notifyCancelled();
+
+    if(mActiveSubMenu)
+    {
+      mActiveSubMenu->setVisible(false);
+      mActiveSubMenu = nullptr;
+    }
   }
+
+  mUpdateUI = true;
 }
 
-//! @brief Gets the Menu Item list
-//!
-//! @return Menu Items
 std::vector<std::shared_ptr<MenuItem>> PopupMenu::getMenuItems() const
 {
-  return mComponents;
+  return mItems;
 }
 
 void PopupMenu::updateUI()
 {
   updatePopupMenuItemPositions();
+
+  if(mUpdateUI)
+  {
+    for(auto& item : mItems)
+    {
+      item->setEnabled(mEnabled);
+    }
+  }
+
   mUpdateUI = false;
+}
+
+void PopupMenu::dispatchEvent(I_Event<lre::LestRenderEngineEvents>& rEvent)
+{
+  if(!mVisible)
+  {
+    return;
+  }
+
+  //! Below items will call callback functions that the popupmenu will handle
+  for(auto& item : mItems)
+  {
+    item->dispatchEvent(rEvent);
+  }
+
+  if(!mActiveSubMenu && lre::LestRenderEngineEvents::MOUSE_BUTTON_PRESS == rEvent.GetEventType())
+  {
+    lre::MouseButtonPressEvent& event = static_cast<lre::MouseButtonPressEvent&>(rEvent);
+
+    if(!mBounds.contains(event.getX(), event.getY()))
+    {
+      notifyCancelled();
+    }
+  }
 }

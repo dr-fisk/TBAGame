@@ -4,7 +4,7 @@
 #include "event/I_Event.hpp"
 #include "event/lestRenderEngineEvent.hpp"
 
-namespace LestRenderEngine
+namespace lre
 {
   class KeyboardEvent : public I_Event<LestRenderEngineEvents>
   {
@@ -15,9 +15,10 @@ namespace LestRenderEngine
       int32_t getScancode() const;
       int32_t getAction() const;
       int32_t getMods() const;
+      KeyboardEvent& operator=(const KeyboardEvent& rhs);
     protected:
-      KeyboardEvent(const LestRenderEngineEvents cType, const std::string& crKeyboardEventName,
-                    const int32_t cKey, const int32_t cScancode, const int32_t cAction, const int32_t cMods);
+      KeyboardEvent(const LestRenderEngineEvents cEventType, const int32_t cKey, const int32_t cScancode,
+        const int32_t cAction, const int32_t cMods);
       int32_t mKey;
       int32_t mScancode;
       int32_t mAction;

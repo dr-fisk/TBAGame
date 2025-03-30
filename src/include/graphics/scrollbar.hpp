@@ -17,21 +17,47 @@ class Scrollbar : public Component
       VERTICAL
     };
 
-
+    //! @brief Default Destructor Deleted
     Scrollbar() = delete;
+
+    //! @brief Scrollbar Constructor
+    //!
+    //! @param[in] cOrientation Orientation of the scrollbar Vertical or Horizontal 
+    //! @param[in] cMin         Min Coordinates that matches orientation of scrollbar
+    //! @param[in] cMax         Max Coordinates that matches orientation of scrollbar
     Scrollbar(const ScrollbarOrientation cOrientation, const uint32_t cMin, const uint32_t cMax);
+    
+    //! @brief Default Destructor
     ~Scrollbar() = default;
+
     Scrollbar& setButton(const std::shared_ptr<Button> cpButton);
-    void update(const Event& crEvent);
+
+    //! @brief Draws the scrollbar
+    //!
+    //! @return None
     void draw();
 
+    //! @brief Adds a component to the scrollbar
+    //!
+    //! @param[in] pComponent Component to add
+    //! 
+    //! @return Scrollbar reference to chain event 
     Scrollbar& addComponent(const std::shared_ptr<Component> pComponent);
+    
+    //! @brief Updates UI Components
+    //!
+    //! @return None
     void updateUI() override;
   private:
-    void mouseMoveEvent(const Event& crEvent);
-    void onMouseMove(LestRenderEngine::MouseMoveEvent& crEvent);
+    void moveHandler(AbstractButton::ButtonEvent& rButtonEvent);
 
+    //! @brief Button Event Handler
+    //!
+    //! @param[in] rButtonEvent Button Event 
+    void onButtonEvent(AbstractButton::ButtonEvent& rButtonEvent);
 
+    void processEvent(I_Event<lre::LestRenderEngineEvents>& rEvent) override;
+    
     enum ScrollbarState
     {
       DEFAULT_STATE,
@@ -45,7 +71,9 @@ class Scrollbar : public Component
     std::vector<std::shared_ptr<Component>> mGraphicsList;
     uint32_t mMinBound;
     uint32_t mMaxBound;
-    EventSubscriber<LestRenderEngine::MouseMoveEvent> mMouseMoveSub;
+
+    EventSubscriber<AbstractButton::ButtonEvent> mButtonClickSub;
+    EventSubscriber<lre::MouseMoveEvent> mMouseMoveSub;
 };
 
 #endif

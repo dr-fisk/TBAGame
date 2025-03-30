@@ -4,7 +4,7 @@
 #include "event/I_Event.hpp"
 #include "event/lestRenderEngineEvent.hpp"
 
-namespace LestRenderEngine
+namespace lre
 {
 
 class WindowEvent : public I_Event<LestRenderEngineEvents>
@@ -14,9 +14,9 @@ class WindowEvent : public I_Event<LestRenderEngineEvents>
     virtual ~WindowEvent() = default;
     int32_t getHeight() const;
     int32_t getWidth() const;
+    WindowEvent& operator=(const WindowEvent& rhs);
   protected:
-      WindowEvent(const LestRenderEngineEvents cType, const std::string& crWindowEventName, const int32_t cWidth,
-                  const int32_t cHeight);
+      WindowEvent(const LestRenderEngineEvents cEventType, const int32_t cWidth, const int32_t cHeight);
 
     int32_t mWidth;
     int32_t mHeight;

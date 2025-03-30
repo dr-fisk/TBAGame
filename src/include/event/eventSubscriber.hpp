@@ -12,7 +12,10 @@ class EventSubscriber
     EventSubscriber() = default;
     ~EventSubscriber()
     {
-      mUnregister(*this);
+      if (mUnregister)
+      {
+        mUnregister(*this);
+      }
     }
 
     EventSubscriber(const std::function<void(T&)>& crFunc) : mCallback(crFunc)

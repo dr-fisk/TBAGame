@@ -1,5 +1,4 @@
 #include "graphics/abstractButton.hpp"
-#include "event/lestRenderEngineEventManager.hpp"
 
 //! @brief Default Constructor
 //!
@@ -14,21 +13,32 @@ AbstractButton::AbstractButton()
   mHoverBorderColor = lg::Transparent;
   mPressedBorderColor = lg::Transparent;
   mState = ButtonState::DEFAULT_STATE;
-  SLOT(mMouseButtonPressSub, AbstractButton::onMouseButtonPress);
-  SLOT(mMouseButtonReleaseSub, AbstractButton::onMouseButtonRelease);
-  SLOT(mMouseMoveSub, AbstractButton::onMouseMove);
+
+  mDispatcher.addEventDispatcher<ButtonEvent>();
 }
 
 AbstractButton::~AbstractButton()
 {
 }
 
+AbstractButton& AbstractButton::addButtonEventListener(EventSubscriber<ButtonEvent>& rListener)
+{
+  mDispatcher.attach(rListener);
+  return *this;
+}
+
+AbstractButton& AbstractButton::removeButtonEventListener(EventSubscriber<ButtonEvent>& rListener)
+{
+  mDispatcher.detach(rListener);
+  return *this;
+}
+
 //! @brief Event Handler State Machine that calls appropiate functions
 //!
-//! @param crEvent Mouse Event to be Processed
+//! @param rEvent Mouse Event to be Processed
 //!
 //! @return None
-void AbstractButton::handleEvent(const Event& crEvent)
+void AbstractButton::handleEvent(const Event& rEvent)
 {
   mClicked = false;
   if(!mEnabled)
@@ -36,21 +46,21 @@ void AbstractButton::handleEvent(const Event& crEvent)
     return;
   }
 
-  switch(crEvent.Type)
+  switch(rEvent.Type)
   {
     case Event::EventType::MouseMove:
-      mouseMoveUpdate(crEvent.MousePos);
+      mouseMoveUpdate(rEvent.MousePos);
       break;
     case Event::EventType::MouseButtonPress:
-      if (GLFW_MOUSE_BUTTON_LEFT == crEvent.MouseButton.Button)
+      if (GLFW_MOUSE_BUTTON_LEFT == rEvent.MouseButton.Button)
       {
-        mouseButtonUpdate(crEvent.MouseButton);
+        mouseButtonUpdate(rEvent.MouseButton);
       }
       break;
     case Event::EventType::MouseButtonRelease:
-      if (GLFW_MOUSE_BUTTON_LEFT == crEvent.MouseButton.Button)
+      if (GLFW_MOUSE_BUTTON_LEFT == rEvent.MouseButton.Button)
       {
-        mouseButtonRelease(crEvent.MouseButton);
+        mouseButtonRelease(rEvent.MouseButton);
       }
       break;
     default:
@@ -61,15 +71,15 @@ void AbstractButton::handleEvent(const Event& crEvent)
 
 //! @brief Handles the Mouse Move Event for the button
 //!
-//! @param crEvent Mouse Move Event
+//! @param rEvent Mouse Move Event
 //!
 //! @return None
-void AbstractButton::mouseMoveUpdate(const Event::MouseMoveEvent& crEvent)
+void AbstractButton::mouseMoveUpdate(const Event::MouseMoveEvent& rEvent)
 {
   switch(mState)
   {
     case ButtonState::DEFAULT_STATE:
-      if(isInAABB({crEvent.x, crEvent.y}))
+      if(isInAABB({rEvent.x, rEvent.y}))
       {
         mState = ButtonState::HOVER_STATE;
         mUpdateUI = true;
@@ -78,7 +88,7 @@ void AbstractButton::mouseMoveUpdate(const Event::MouseMoveEvent& crEvent)
 
       break;
     case ButtonState::HOVER_STATE:
-      if(!isInAABB({crEvent.x, crEvent.y}))
+      if(!isInAABB({rEvent.x, rEvent.y}))
       {
         mState = ButtonState::DEFAULT_STATE;
     
@@ -87,7 +97,7 @@ void AbstractButton::mouseMoveUpdate(const Event::MouseMoveEvent& crEvent)
 
       break;
     case ButtonState::PRESSED_STATE:
-      if(!isInAABB({crEvent.x, crEvent.y}, mPressedPadding))
+      if(!isInAABB({rEvent.x, rEvent.y}, mPressedPadding))
       {
         mState = ButtonState::DEFAULT_STATE;
     
@@ -99,15 +109,15 @@ void AbstractButton::mouseMoveUpdate(const Event::MouseMoveEvent& crEvent)
 
 //! @brief Handles a Mouse Button Press
 //!
-//! @param crEvent Mouse Button Press
+//! @param rEvent Mouse Button Press
 //!
 //! @return None
-void AbstractButton::mouseButtonUpdate(const Event::MouseButtonEvent& crEvent)
+void AbstractButton::mouseButtonUpdate(const Event::MouseButtonEvent& rEvent)
 {
   switch(mState)
   {
     case ButtonState::HOVER_STATE:
-      if(isInAABB({crEvent.x, crEvent.y}))
+      if(isInAABB({rEvent.x, rEvent.y}))
       { 
         mState = ButtonState::PRESSED_STATE;
     
@@ -120,29 +130,17 @@ void AbstractButton::mouseButtonUpdate(const Event::MouseButtonEvent& crEvent)
 
 //! @brief Handles Mouse Button Release Event
 //!
-//! @param crEvent Mouse Button Release Event
+//! @param rEvent Mouse Button Release Event
 //!
 //! @return returns true if Button clicked false otherwise
-void AbstractButton::mouseButtonRelease(const Event::MouseButtonEvent& crEvent)
+void AbstractButton::mouseButtonRelease(const Event::MouseButtonEvent& rEvent)
 {
   switch(mState)
   {
     case ButtonState::PRESSED_STATE:
-      if(isInAABB({crEvent.x, crEvent.y}))
+      if(isInAABB({rEvent.x, rEvent.y}))
       {
         buttonClicked();
-    
-        for(const auto& actionListener : mActionListeners)
-        {
-          actionListener->performAction(ActionEvent<AbstractButton>(this, 
-                                        ActionEvent<AbstractButton>::ActionEventType::ACTION_OCCURRED));
-        }
-
-        if(mCallback)
-        {
-          mCallback();
-        }
-
         mClicked = true;
       }
       else
@@ -531,92 +529,103 @@ void AbstractButton::updateUI()
   mUpdateUI = false;
 }
 
-void AbstractButton::onMouseMove(LestRenderEngine::MouseMoveEvent& crEvent)
+void AbstractButton::onMouseMove(lre::MouseMoveEvent& rEvent)
 {
   switch(mState)
   {
     case ButtonState::DEFAULT_STATE:
-      if(isInAABB({crEvent.getX(), crEvent.getY()}))
+      if(isInAABB({rEvent.getX(), rEvent.getY()}))
       {
         mState = ButtonState::HOVER_STATE;
         mUpdateUI = true;
-    
+        ButtonEvent hoverEvent(this, GuiEvent::GUI_HOVER, rEvent.getX(), rEvent.getY());
+        mDispatcher.dispatch(hoverEvent);
       }
 
       break;
     case ButtonState::HOVER_STATE:
-      if(!isInAABB({crEvent.getX(), crEvent.getY()}))
+      if(!isInAABB({rEvent.getX(), rEvent.getY()}))
       {
         mState = ButtonState::DEFAULT_STATE;
-    
         mUpdateUI = true;
+        ButtonEvent exitEvent(this, GuiEvent::GUI_EXIT, rEvent.getX(), rEvent.getY());
+        mDispatcher.dispatch(exitEvent);
+      }
+      else
+      {
+        ButtonEvent hoverEvent(this, GuiEvent::GUI_HOVER, rEvent.getX(), rEvent.getY());
+        mDispatcher.dispatch(hoverEvent);
       }
 
       break;
     case ButtonState::PRESSED_STATE:
-      if(!isInAABB({crEvent.getX(), crEvent.getY()}, mPressedPadding))
+      if(!isInAABB({rEvent.getX(), rEvent.getY()}, mPressedPadding))
       {
-        mState = ButtonState::DEFAULT_STATE;
-    
+        mState = ButtonState::DEFAULT_STATE;    
         mUpdateUI = true;
+        ButtonEvent exitEvent(this, GuiEvent::GUI_EXIT, rEvent.getX(), rEvent.getY());
+        mDispatcher.dispatch(exitEvent);
+      }
+      else
+      {
+        ButtonEvent buttonPress(this, GuiEvent::GUI_PRESS, rEvent.getX(), rEvent.getY());
+        mDispatcher.dispatch(buttonPress);
       }
       break;
   }
 }
 
-void AbstractButton::onMouseButtonPress(LestRenderEngine::MouseButtonPressEvent& crEvent)
+void AbstractButton::onMouseButtonPress(lre::MouseButtonPressEvent& rEvent)
 {
-  if (GLFW_MOUSE_BUTTON_LEFT == crEvent.getMouseButton() && mState == ButtonState::HOVER_STATE)
+  if (GLFW_MOUSE_BUTTON_LEFT == rEvent.getMouseButton() && mState == ButtonState::HOVER_STATE)
   {
     mState = ButtonState::PRESSED_STATE;
-    mUpdateUI = true;
-    // switch(mState)
-    // {
-    //   case ButtonState::HOVER_STATE:
-    //     if(isInAABB({crEvent.getX(), crEvent.getY()}))
-    //     { 
-    //       mState = ButtonState::PRESSED_STATE;
-      
-    //       mUpdateUI = true;
-    //     }
 
-    //     break;
-    // }
+    ButtonEvent buttonPress(this, GuiEvent::GUI_PRESS, rEvent.getX(), rEvent.getY());
+    mDispatcher.dispatch(buttonPress);
+    rEvent.setHandled();
+    mUpdateUI = true;
   }
 }
 
-void AbstractButton::onMouseButtonRelease(LestRenderEngine::MouseButtonReleaseEvent& crEvent)
+void AbstractButton::onMouseButtonRelease(lre::MouseButtonReleaseEvent& rEvent)
 {
-  if (GLFW_MOUSE_BUTTON_LEFT == crEvent.getMouseButton())
+  if (GLFW_MOUSE_BUTTON_LEFT == rEvent.getMouseButton())
   {
     switch(mState)
     {
       case ButtonState::PRESSED_STATE:
-        if(isInAABB({crEvent.getX(), crEvent.getY()}))
+        if(isInAABB({rEvent.getX(), rEvent.getY()}))
         {
           buttonClicked();
-      
-          for(const auto& actionListener : mActionListeners)
-          {
-            actionListener->performAction(ActionEvent<AbstractButton>(this, 
-                                          ActionEvent<AbstractButton>::ActionEventType::ACTION_OCCURRED));
-          }
-
-          if(mCallback)
-          {
-            mCallback();
-          }
-
+          ButtonEvent click(this, GuiEvent::GUI_CLICK, rEvent.getX(), rEvent.getY());
+          mDispatcher.dispatch(click);
           mClicked = true;
         }
         else
         {
           mState = ButtonState::DEFAULT_STATE;
-      
         }
 
         mUpdateUI = true;
         break;
     }
+  }
+}
+
+void AbstractButton::processEvent(I_Event<lre::LestRenderEngineEvents>& rEvent)
+{
+  mClicked = false;
+  switch(rEvent.GetEventType())
+  {
+    case lre::LestRenderEngineEvents::MOUSE_BUTTON_PRESS:
+      onMouseButtonPress(static_cast<lre::MouseButtonPressEvent&>(rEvent));
+      break;
+    case lre::LestRenderEngineEvents::MOUSE_BUTTON_RELEASE:
+      onMouseButtonRelease(static_cast<lre::MouseButtonReleaseEvent&>(rEvent));
+      break;
+    case lre::LestRenderEngineEvents::MOUSE_MOVE:
+      onMouseMove(static_cast<lre::MouseMoveEvent&>(rEvent));
+      break;
   }
 }

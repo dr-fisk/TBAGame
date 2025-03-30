@@ -73,10 +73,10 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
   // Solution in my mind: Constraints in Modifier() class. This way parent can propagate sizes down and calc constraints
   // when an update happens
   mButton->setLabel(
-              Label("ABCDEFGHIJKLMNOPQRSTUV",
+              Label("Menu",
                 TextModifier().setTextColor(lg::Black)
                   .setFont(mNewFont)
-                  .setFontSize(18),
+                  .setFontSize(24),
                 Modifier().setVerticalAlign(VerticalAlign::CENTER)
                   .setHorizontalAlign(HorizontalAlign::CENTER)))
            .setDefaultTexture(btnTexture)
@@ -196,7 +196,7 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
   menu3->addMenuItem(tempMenu);
   mMenu->addMenuItem(menu3);
 
-  mpCheckbox = std::make_unique<ToggleButton>();
+  mpCheckbox = std::make_shared<ToggleButton>();
   mpCheckbox->resize({32,32})
             .setPos({550, 550})
             .setBackgroundColor(ButtonState::DEFAULT_STATE, lg::White)
@@ -223,6 +223,15 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
   curr_pos = mSprite->getPos();
   xMove = 0.0f;
   yMove = 0.0f;
+
+  mpFrame = std::make_shared<Frame>();
+  mpFrame->setPos({0, 0});
+  mpFrame->resize({1080, 1920});
+  mpFrame->addComponent(mButton);
+  mpFrame->addComponent(mpCheckbox);
+  mpFrame->addComponent(mScroll);
+  mpFrame->addComponent(mScroll2);
+  mpFrame->addComponent(mMenu);
 }
 
 void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const double cDeltaTime)
@@ -312,22 +321,22 @@ void MainMenu::buttonCallback()
   std::cout << "Clicked\n";
 }
 
-void MainMenu::OnMouseMove(LestRenderEngine::MouseMoveEvent& crEvent)
+void MainMenu::OnMouseMove(lre::MouseMoveEvent& crEvent)
 {
   // std::cout << "We are fucking here\n";
 }
 
-void MainMenu::OnMousePress(LestRenderEngine::MouseButtonPressEvent& crEvent)
+void MainMenu::OnMousePress(lre::MouseButtonPressEvent& crEvent)
 {
   // std::cout << "Mouse press lesgo\n";
 }
 
-void MainMenu::OnMouseRelease(LestRenderEngine::MouseButtonReleaseEvent& crEvent)
+void MainMenu::OnMouseRelease(lre::MouseButtonReleaseEvent& crEvent)
 {
   // std::cout << "Mouse release lesgo\n";
 }
 
-void MainMenu::OnKeyboardPress(LestRenderEngine::KeyboardPressEvent& crEvent)
+void MainMenu::OnKeyboardPress(lre::KeyboardPressEvent& crEvent)
 {
   switch(crEvent.getKey())
   {
@@ -348,7 +357,7 @@ void MainMenu::OnKeyboardPress(LestRenderEngine::KeyboardPressEvent& crEvent)
   }
 }
 
-void MainMenu::OnKeyboardRelease(LestRenderEngine::KeyboardReleaseEvent& crEvent)
+void MainMenu::OnKeyboardRelease(lre::KeyboardReleaseEvent& crEvent)
 {
   switch(crEvent.getKey())
   {
@@ -369,7 +378,7 @@ void MainMenu::OnKeyboardRelease(LestRenderEngine::KeyboardReleaseEvent& crEvent
   }
 }
 
-void MainMenu::OnWindowResize(LestRenderEngine::WindowResizeEvent& crEvent)
+void MainMenu::OnWindowResize(lre::WindowResizeEvent& crEvent)
 {
     lg::Window::WindowView view = lg::Window::getView();
     mCam->setProjection(view.x, crEvent.getWidth(), crEvent.getHeight(), view.y);

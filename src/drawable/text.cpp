@@ -119,7 +119,7 @@ void Text::gridfitText(const glm::vec2& crTopLeft)
     updateQuadColor(tempTextVert.Vertexes);
 
     mTextVertexes.push_back(tempTextVert);
-    left += mpFont->getAdvancedWidth(mText[i], mCharSize);//dim.x + mpFont->getLeftSideBearing(mText[i], mCharSize);
+    left += mpFont->getAdvancedWidth(mText[i], mCharSize);
   }
 
   mBox.setBoxTopLeft(crTopLeft, {left - crTopLeft.x, (top + mCharSize) - crTopLeft.y});

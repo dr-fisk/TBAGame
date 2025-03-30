@@ -1,10 +1,10 @@
 #include "input/windowEvent.hpp"
 
-namespace LestRenderEngine
+namespace lre
 {
 
-WindowEvent::WindowEvent(const LestRenderEngineEvents cType, const std::string& crWindowEventName, const int32_t cWidth,
-                         const int32_t cHeight) : I_Event(cType, crWindowEventName), mWidth(cWidth), mHeight(cHeight)
+WindowEvent::WindowEvent(const LestRenderEngineEvents cEventType, const int32_t cWidth, const int32_t cHeight) :
+  I_Event(cEventType), mWidth(cWidth), mHeight(cHeight)
 {
 }
 
@@ -18,14 +18,25 @@ int32_t WindowEvent::getWidth() const
   return mWidth;
 }
 
+WindowEvent& WindowEvent::operator=(const WindowEvent& rhs)
+{
+  if(this == &rhs)
+  {
+    return *this;
+  }
 
-WindowResizeEvent::WindowResizeEvent()
- : WindowEvent(LestRenderEngineEvents::WINDOW_RESIZE, "WindowResizeEvent", 0, 0)
+  mHeight = rhs.getHeight();
+  mWidth = rhs.getWidth();
+
+  return *this;
+}
+
+WindowResizeEvent::WindowResizeEvent() : WindowEvent(LestRenderEngineEvents::WINDOW_RESIZE, 0, 0)
  {
  }
 
-WindowResizeEvent::WindowResizeEvent(const int32_t cWidth, const int32_t cHeight)
- : WindowEvent(LestRenderEngineEvents::WINDOW_RESIZE, "WindowResizeEvent", cWidth, cHeight)
+WindowResizeEvent::WindowResizeEvent(const int32_t cWidth, const int32_t cHeight) :
+  WindowEvent(LestRenderEngineEvents::WINDOW_RESIZE, cWidth, cHeight)
 {
 }
 

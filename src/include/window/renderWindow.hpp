@@ -36,7 +36,7 @@ class RenderWindow : public RenderTarget
       std::string mTitle;
       GLFWwindow *mpWindow;
       std::mutex mDataAccesMutex;
-      LestRenderEngine::ApplicationEventDispatcher<LestRenderEngine::LestRenderEngineEvents> mEventDispatcher;
+      lre::ApplicationEventDispatcher<lre::LestRenderEngineEvents> mEventDispatcher;
       static bool msFirstInit;
 };
 

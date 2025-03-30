@@ -8,7 +8,7 @@
 #include <memory>
 #include <iostream>
 
-namespace LestRenderEngine
+namespace lre
 {
 // Strengths of this Event handler, it ensures type safety and will deliver right event type to function callback
 // Downside currently is all the temporary consructions of classes to get type
@@ -41,6 +41,16 @@ class ApplicationEventDispatcher
     void detach(const EventSubscriber<T>& crSub)
     {
       static_cast<EventDispatcher<T>*>(mDispatcher.at(T::GetStaticType()).get())->unregisterFromEvent(crSub);
+    }
+
+    std::map<Key, std::unique_ptr<I_EventDispatcher>> getDispatchers() const
+    {
+      return mDispatcher;
+    }
+
+    bool hasEventDispatcher(const Key& crKey) const
+    {
+      return mDispatcher.find(crKey) != mDispatcher.end();
     }
   private:
     std::map<Key, std::unique_ptr<I_EventDispatcher>> mDispatcher;

@@ -25,6 +25,7 @@
 #include "input/mouseEvent.hpp"
 #include "input/keyboardEvent.hpp"
 #include "input/windowEvent.hpp"
+#include "graphics/frame.hpp"
 
 class MainMenu : public State
 {
@@ -37,14 +38,15 @@ class MainMenu : public State
 
   private:
     static void buttonCallback();
-    void OnMouseMove(LestRenderEngine::MouseMoveEvent& crEvent);
-    void OnMousePress(LestRenderEngine::MouseButtonPressEvent& crEvent);
-    void OnMouseRelease(LestRenderEngine::MouseButtonReleaseEvent& crEvent);
-    void OnKeyboardPress(LestRenderEngine::KeyboardPressEvent& crEvent);
-    void OnKeyboardRelease(LestRenderEngine::KeyboardReleaseEvent& crEvent);
-    void OnWindowResize(LestRenderEngine::WindowResizeEvent& crEvent);
+    void OnMouseMove(lre::MouseMoveEvent& crEvent);
+    void OnMousePress(lre::MouseButtonPressEvent& crEvent);
+    void OnMouseRelease(lre::MouseButtonReleaseEvent& crEvent);
+    void OnKeyboardPress(lre::KeyboardPressEvent& crEvent);
+    void OnKeyboardRelease(lre::KeyboardReleaseEvent& crEvent);
+    void OnWindowResize(lre::WindowResizeEvent& crEvent);
 
     // static void dropdownCallbacK(const Button<glm::ivec2>& rVal);s
+    std::shared_ptr<Frame> mpFrame;
     LestTrueType ttf;
     Font mNewFont;
     std::shared_ptr<Text> mText;
@@ -61,7 +63,7 @@ class MainMenu : public State
     std::shared_ptr<OrthCamera> mCam;
     std::shared_ptr<Label> mLabel;
     std::unique_ptr<SlicedSprite> mNineSliced;
-    std::unique_ptr<ToggleButton> mpCheckbox;
+    std::shared_ptr<ToggleButton> mpCheckbox;
     glm::vec2 sprite_pos;
     glm::vec2 curr_pos;
     float xMove;
@@ -69,12 +71,12 @@ class MainMenu : public State
     Texture2D spriteTexture;
     Texture2D sprite2Texture;
     Texture2D borderedImgTest;
-    EventSubscriber<LestRenderEngine::MouseMoveEvent> mEventSub;
-    EventSubscriber<LestRenderEngine::MouseButtonPressEvent> mEventSub1;
-    EventSubscriber<LestRenderEngine::MouseButtonReleaseEvent> mEventSub2;
-    EventSubscriber<LestRenderEngine::KeyboardPressEvent> mEventSub3;
-    EventSubscriber<LestRenderEngine::KeyboardReleaseEvent> mEventSub4;
-    EventSubscriber<LestRenderEngine::WindowResizeEvent> mEventSub5;
+    EventSubscriber<lre::MouseMoveEvent> mEventSub;
+    EventSubscriber<lre::MouseButtonPressEvent> mEventSub1;
+    EventSubscriber<lre::MouseButtonReleaseEvent> mEventSub2;
+    EventSubscriber<lre::KeyboardPressEvent> mEventSub3;
+    EventSubscriber<lre::KeyboardReleaseEvent> mEventSub4;
+    EventSubscriber<lre::WindowResizeEvent> mEventSub5;
 };
 
 #endif

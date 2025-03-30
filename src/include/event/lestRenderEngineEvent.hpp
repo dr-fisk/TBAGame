@@ -1,7 +1,7 @@
 #ifndef LEST_RENDER_ENGINE_EVENT_HPP
 #define LEST_RENDER_ENGINE_EVENT_HPP
 
-namespace LestRenderEngine
+namespace lre
 {
 enum class LestRenderEngineEvents
 {

@@ -8,7 +8,7 @@ namespace lg
 {
   namespace Keyboard
   {
-    using LestApplicationDispatcher = LestRenderEngine::ApplicationEventDispatcher<LestRenderEngine::LestRenderEngineEvents>;
+    using LestApplicationDispatcher = lre::ApplicationEventDispatcher<lre::LestRenderEngineEvents>;
 
     void keyCallback(GLFWwindow* pWindow, const int32_t cKey, const int32_t cScancode, int32_t cAction,
                      const int32_t cMods)
@@ -25,16 +25,16 @@ namespace lg
       {
         case GLFW_PRESS:
         {
-          LestRenderEngine::KeyboardPressEvent keyPressEvent(cKey, cScancode, cAction, cMods);
-          dispatcher->dispatch<LestRenderEngine::KeyboardPressEvent>(keyPressEvent);
+          lre::KeyboardPressEvent keyPressEvent(cKey, cScancode, cAction, cMods);
+          dispatcher->dispatch<lre::KeyboardPressEvent>(keyPressEvent);
           break;
         }
         case GLFW_REPEAT:
           break;
         case GLFW_RELEASE:
         {
-          LestRenderEngine::KeyboardReleaseEvent keyReleaseEvent(cKey, cScancode, cAction, cMods);
-          dispatcher->dispatch<LestRenderEngine::KeyboardReleaseEvent>(keyReleaseEvent);
+          lre::KeyboardReleaseEvent keyReleaseEvent(cKey, cScancode, cAction, cMods);
+          dispatcher->dispatch<lre::KeyboardReleaseEvent>(keyReleaseEvent);
           break;
         }
       }

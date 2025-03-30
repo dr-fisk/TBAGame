@@ -50,12 +50,12 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
     msFirstInit = false;
   }
 
-  mEventDispatcher.addEventDispatcher<LestRenderEngine::MouseMoveEvent>();
-  mEventDispatcher.addEventDispatcher<LestRenderEngine::MouseButtonPressEvent>();
-  mEventDispatcher.addEventDispatcher<LestRenderEngine::MouseButtonReleaseEvent>();
-  mEventDispatcher.addEventDispatcher<LestRenderEngine::KeyboardPressEvent>();
-  mEventDispatcher.addEventDispatcher<LestRenderEngine::KeyboardReleaseEvent>();
-  mEventDispatcher.addEventDispatcher<LestRenderEngine::WindowResizeEvent>();
+  mEventDispatcher.addEventDispatcher<lre::MouseMoveEvent>();
+  mEventDispatcher.addEventDispatcher<lre::MouseButtonPressEvent>();
+  mEventDispatcher.addEventDispatcher<lre::MouseButtonReleaseEvent>();
+  mEventDispatcher.addEventDispatcher<lre::KeyboardPressEvent>();
+  mEventDispatcher.addEventDispatcher<lre::KeyboardReleaseEvent>();
+  mEventDispatcher.addEventDispatcher<lre::WindowResizeEvent>();
 
   //Vsync off later make it toggable (limits fps)
   glfwSwapInterval(0);

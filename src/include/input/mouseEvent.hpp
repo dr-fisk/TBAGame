@@ -4,7 +4,7 @@
 #include "event/I_Event.hpp"
 #include "event/lestRenderEngineEvent.hpp"
 
-namespace LestRenderEngine
+namespace lre
 {
 
 class MouseButtonEvent : public I_Event<LestRenderEngineEvents>
@@ -15,9 +15,9 @@ class MouseButtonEvent : public I_Event<LestRenderEngineEvents>
     int32_t getMouseButton() const;
     float getX() const;
     float getY() const;
+    MouseButtonEvent& operator=(const MouseButtonEvent& rhs);
   protected:
-    MouseButtonEvent(const LestRenderEngineEvents cType, const std::string& crMouseEventName,
-                     int32_t cMouseButton, const float cX, const float cY);
+    MouseButtonEvent(const LestRenderEngineEvents cEventType, int32_t cMouseButton, const float cX, const float cY);
 
     int32_t mMouseButton;
     float mX;

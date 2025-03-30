@@ -21,7 +21,7 @@ int32_t calcMetric(const int32_t cDimensions, const float cPointSize, const uint
 {
   float lsb = calculatePixelSize(cDimensions, cPointSize, cUnitsPerEm);
 
-  return std::ceil(lsb);
+  return static_cast<int32_t>(std::round(lsb));
 }
 
 //! @brief Constructs Font
@@ -497,11 +497,14 @@ void Font::readTtfFile(const std::string& crPath, LestTrueType &rTtf)
   OS2Table os2 = rTtf.getOS2Table();
   HeadHeader head = rTtf.getHeadHeaderTable();
   mCapHeight = os2.sCapHeight;
+  mLowerCaseHeight = os2.sxHeight;
   mMaxWidth = head.xMax - head.xMin;
   mMaxHeight = head.yMax - head.yMin;
   mUnitsPerEm = head.unitsPerEm;
   HheaHeader hhea = rTtf.getHheaHeader();
   mAdvancedWidth = hhea.advancedWidthMax;
+
+  std::cout << "Cap Height: " << mCapHeight << "\n LC Height: " << mLowerCaseHeight << std::endl;
 }
 
 //! @brief Generates Glyf Data for given character
@@ -597,11 +600,6 @@ void Font::loadGlyphs(const uint32_t cCharSize) const
         offset.y += fontPage->Dimensions.y;
 
         fontPage->YHint = calcMetric(mCapHeight - glyfData->FontHeader.yMax, PT_SIZE, mUnitsPerEm);
-
-        if('W' == currChar)
-        {
-          std::cout << "YHint: " << (fontPage->Dimensions.x + fontPage->LeftSideBearing)<< std::endl;
-        }
     }
   }
 

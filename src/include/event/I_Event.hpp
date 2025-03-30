@@ -10,33 +10,77 @@ template <typename T>
 class I_Event
 {
   public:
-    I_Event() = default;
-    I_Event(const T cType, const std::string& crName) : mType(cType), mName(crName) {}
+    //! @brief Default Constructor
+    I_Event(const T cEventType)
+    {
+      mType = cEventType;
+    }
+
+    //! @brief Default Destructor
     virtual ~I_Event() = default;
     
-    T getType() const
+    //! @brief Sets if the event was handled
+    //!
+    //! @return None 
+    void setHandled()
     {
-      return mType;
+      mHandled = true;
     }
 
-    std::string getName() const
+    //! @brief Sets the stop propogating flag, dispatchers will not notify any listeners once set
+    //!
+    //! @return None
+    void stopPropagating()
     {
-      return mName;
+      mStopPropagating = true;
     }
 
-    virtual void setHandled(const bool cHandled)
+    //! @brief Sets whether propagation should bubble (down->up)
+    //!
+    //! @param cBubble Should/Should not bubble
+    //!
+    //! @return None 
+    void bubbleEvent(const bool cBubble)
     {
-      mHandled = cHandled;
+      mBubbleEvent = cBubble;
     }
 
-    virtual bool isHandled() const
+    //! @brief Checks if event was handled
+    //!
+    //! @return true if handled
+    //! @return false if not handled 
+    bool isHandled() const
     {
       return mHandled;
     }
+
+    //! @brief Check if event should stop propagating
+    //!
+    //! @return true if event should stop propagating
+    //! @return false otherwise
+    bool stopEvent() const
+    {
+      return mStopPropagating;
+    }
+
+    //! @brief Check if event should be bubbled
+    //!
+    //! @return true if event should bubble
+    //! @return false if event should not bubble
+    bool shouldBubble() const
+    {
+      return mBubbleEvent;
+    }
+
+    T GetEventType()
+    {
+      return mType;
+    }
   protected:
-    T mType;
-    std::string mName;
     bool mHandled = false;
+    bool mStopPropagating = false;
+    bool mBubbleEvent = false;
+    T mType;
 };
 
 #endif

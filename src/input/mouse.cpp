@@ -14,7 +14,7 @@ namespace lg
 {
   namespace Mouse
   {
-    using LestApplicationDispatcher = LestRenderEngine::ApplicationEventDispatcher<LestRenderEngine::LestRenderEngineEvents>;
+    using LestApplicationDispatcher = lre::ApplicationEventDispatcher<lre::LestRenderEngineEvents>;
     static glm::dvec2 gMousePos = glm::dvec2(0, 0);
 
     //! @brief Callback to receive Mouse Input
@@ -37,7 +37,7 @@ namespace lg
         return;
       }
      
-      LestRenderEngine::MouseMoveEvent mouseMoveEvent(cX, cY);
+      lre::MouseMoveEvent mouseMoveEvent(cX, cY);
       dispatcher->dispatch(mouseMoveEvent);
       Event tempEvent;
       tempEvent.Type = Event::EventType::MouseMove;
@@ -69,16 +69,16 @@ namespace lg
       {
         case GLFW_PRESS:
         {
-          LestRenderEngine::MouseButtonPressEvent mousePressEvent(cButton, x, y);
+          lre::MouseButtonPressEvent mousePressEvent(cButton, x, y);
           tempEvent.Type = Event::EventType::MouseButtonPress;
-          dispatcher->dispatch<LestRenderEngine::MouseButtonPressEvent>(mousePressEvent);
+          dispatcher->dispatch<lre::MouseButtonPressEvent>(mousePressEvent);
           break;
         }
         case GLFW_RELEASE:
         {
-          LestRenderEngine::MouseButtonReleaseEvent mouseButtonReleaseEvent(cButton, x, y);
+          lre::MouseButtonReleaseEvent mouseButtonReleaseEvent(cButton, x, y);
           tempEvent.Type = Event::EventType::MouseButtonRelease;
-          dispatcher->dispatch<LestRenderEngine::MouseButtonReleaseEvent>(mouseButtonReleaseEvent);
+          dispatcher->dispatch<lre::MouseButtonReleaseEvent>(mouseButtonReleaseEvent);
           break;
         }
       }

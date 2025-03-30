@@ -51,7 +51,7 @@ private:
   std::string mDefaultText;
   TextBoxState mState;
   std::shared_ptr<Sprite> mBox;
-  EventSubscriber<LestRenderEngine::KeyboardPressEvent> mKeyPressSub;
+  EventSubscriber<lre::KeyboardPressEvent> mKeyPressSub;
 };
 
 #endif

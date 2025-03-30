@@ -7,7 +7,7 @@ namespace lg
 {
   namespace Window
   {
-    using LestApplicationDispatcher = LestRenderEngine::ApplicationEventDispatcher<LestRenderEngine::LestRenderEngineEvents>;
+    using LestApplicationDispatcher = lre::ApplicationEventDispatcher<lre::LestRenderEngineEvents>;
 
     WindowView gView;
 
@@ -28,8 +28,8 @@ namespace lg
       gView.y = view[1];
       gView.WindowWidth = cWidth;
       gView.WindowHeight = cHeight;
-      LestRenderEngine::WindowResizeEvent resizeEvent(cWidth, cHeight);
-      dispatcher->dispatch<LestRenderEngine::WindowResizeEvent>(resizeEvent);
+      lre::WindowResizeEvent resizeEvent(cWidth, cHeight);
+      dispatcher->dispatch<lre::WindowResizeEvent>(resizeEvent);
     }
   
     const WindowView& getView()

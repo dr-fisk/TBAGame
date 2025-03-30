@@ -1,8 +1,5 @@
 #include "graphics/menu.hpp"
 
-//! @brief Default Constructor
-//!
-//! @return None
 Menu::Menu()
 {
   // initial bounds should be set to pos + size/2 as button pos is tracked from it's center
@@ -10,15 +7,14 @@ Menu::Menu()
   mDropDownState = MENU_LIST_HIDE;
   mTopLevel = false;
   mpPopupMenu = std::make_shared<PopupMenu>();
-  mpPopupMenu->setInvoker(this);
   mpPopupMenu->setVisible(false);
+  mButtonEventSub.setCallback(BIND_EVENT_FN(Menu::onButtonEvent));
+  mPopupMenuEventSub.setCallback(BIND_EVENT_FN(Menu::onPopupMenuEvent));
+  mpPopupMenu->addPopupMenuListener(mPopupMenuEventSub);
+  mDispatcher.attach(mButtonEventSub);
+  mUpdateUI = true;
 }
 
-//! @brief Performs Menu Specific action upon being clicked
-//!
-//! @param[in] crEvent Action Event
-//!
-//! @return None
 void Menu::buttonClicked()
 {
   mState = ButtonState::HOVER_STATE;
@@ -32,30 +28,22 @@ void Menu::buttonClicked()
   {
     case MENU_LIST_SHOW:
       mDropDownState = MENU_LIST_HIDE;
-      notifyMenuDeselected();
+      // notifyMenuDeselected();
       break;
     case MENU_LIST_HIDE:
       mDropDownState = MENU_LIST_SHOW;
-      notifyMenuSelected();
+      // notifyMenuSelected();
       break;
     default:
       break;
   }
 }
 
-//! @brief Adds a Menu Item to the Popup Menu
-//!
-//! @param[in] cpMenuItem Menu Item to be added
-//!
-//! @return None 
 void Menu::addMenuItem(const std::shared_ptr<MenuItem> cpMenuItem)
 {
   mpPopupMenu->addItem(cpMenuItem);
 }
 
-//! @brief Draws the Menu
-//!
-//! @return None
 void Menu::draw()
 {
   if(mUpdateUI)
@@ -67,53 +55,6 @@ void Menu::draw()
   mpPopupMenu->draw();
 }
 
-//! @brief Handles the incoming Event
-//!
-//! @param[in] crEvent Event to be handled
-//!
-//! @return None
-void Menu::handleEvent(const Event& crEvent)
-{
-  if(!mEnabled)
-  {
-    return;
-  }
-
-  AbstractButton::handleEvent(crEvent);
-
-  switch(mDropDownState)
-  {
-    case MENU_LIST_HIDE:
-      if(!mTopLevel && isHover())
-      {
-        mDropDownState = MENU_LIST_SHOW;
-        mpPopupMenu->setVisible(true);
-      }
-      break;
-    case MENU_LIST_SHOW:
-      // Handle events if Menu is not pressed
-      if(!isPressed())
-      {
-        mpPopupMenu->handleEvent(crEvent);
-
-        // Change state to MENU_LIST_HIDE since Popup Menu is hidden
-        if(!mpPopupMenu->isVisible())
-        {
-          mDropDownState = MENU_LIST_HIDE;
-        }
-      }
-
-      break;
-    default:
-      break;
-  }
-}
-
-//! @brief Sets the Popup Menu location TopLeft pos
-//!
-//! @param[in] crPos Position to set Popup Menu
-//!
-//! @return Menu reference to chain calls
 Menu& Menu::setMenuLocation(const glm::vec2& crPos)
 {
   mpPopupMenu->setMenuLocation(crPos);
@@ -125,90 +66,77 @@ Menu& Menu::setMenuLocation(const glm::vec2& crPos)
 //! @param[in] pListener Listener to add to list
 //!
 //! @return None
-Menu& Menu::addMenuListener(MenuListener* pListener)
-{
-  mMenuListeners.push_back(pListener);
-  return *this;
-}
+// Menu& Menu::addMenuListener(MenuListener* pListener)
+// {
+//   mMenuListeners.push_back(pListener);
+//   return *this;
+// }
 
 //! @brief Removes Menu Listner from the list
 //!
 //! @param[in] cpListener Listner to remove from the list
 //!
 //! @return None
-void Menu::removeMenuListener(const MenuListener* cpListener)
-{
-  for(auto itr = mMenuListeners.begin(); itr != mMenuListeners.end(); itr++)
-  {
-    if(*itr == cpListener)
-    {
-      mMenuListeners.erase(itr);
-      break;
-    }
-  }
-}
+// void Menu::removeMenuListener(const MenuListener* cpListener)
+// {
+//   for(auto itr = mMenuListeners.begin(); itr != mMenuListeners.end(); itr++)
+//   {
+//     if(*itr == cpListener)
+//     {
+//       mMenuListeners.erase(itr);
+//       break;
+//     }
+//   }
+// }
 
 //! @brief Notifies listeners when Menu is selected
 //!
 //! @return None
-void Menu::notifyMenuSelected()
-{
-  for(const auto& menuListener : mMenuListeners)
-  {
-    menuListener->menuSelected(MenuEvent(this));
-  }
-}
+// void Menu::notifyMenuSelected()
+// {
+//   for(const auto& menuListener : mMenuListeners)
+//   {
+//     menuListener->menuSelected(MenuEvent(this));
+//   }
+// }
 
-//! @brief Notifies listeners when Menu is deselected
+//! @brief Notifies listeners when Menu is deselectedp
 //!
 //! @return None
-void Menu::notifyMenuDeselected()
-{
-  for(const auto& menuListener : mMenuListeners)
-  {
-    menuListener->menuDeselected(MenuEvent(this));
-  }
-}
+// void Menu::notifyMenuDeselected()
+// {
+//   for(const auto& menuListener : mMenuListeners)
+//   {
+//     menuListener->menuDeselected(MenuEvent(this));
+//   }
+// }
 
 //! @brief Notifies listeners when Menu is cancelled
 //!
 //! @return None
-void Menu::notifyMenuCancelled()
-{
-  for(const auto& menuListener : mMenuListeners)
-  {
-    menuListener->menuCancelled(MenuEvent(this));
-  }
-}
+// void Menu::notifyMenuCancelled()
+// {
+//   for(const auto& menuListener : mMenuListeners)
+//   {
+//     menuListener->menuCancelled(MenuEvent(this));
+//   }
+// }
 
-//! @brief Sets whether this is a top level menu
-//! TODO: find a better way to do this
-//!
-//! @return None
 void Menu::setIsTopLevel(const bool cTop)
 {
   mTopLevel = cTop;
 }
 
-//! @brief Returns if this Menu is Top Level
-//!
-//! @return true if is Top Level, false otherwise
 bool Menu::isTopLevel() const
 {
   return mTopLevel;
 }
 
-//! @brief Returns the Popup Menu assign to this Menu
-//!
-//! @return Popup Menu pointer 
 std::shared_ptr<PopupMenu> Menu::getPopupMenu() const
 {
   return mpPopupMenu;
 }
 
-//! @brief Gets whether the Popup Menu is visible
-//!
-//! @return true if Popup Menu is visible, false otherwise 
 bool Menu::isPopupMenuVisible() const
 {
   return mpPopupMenu->isVisible();
@@ -219,34 +147,31 @@ bool Menu::isPopupMenuVisible() const
 //! @param[in] crEvent Event to handle 
 //!
 //! @return None
-void Menu::popupMenuCancelled(const PopupMenuEvent<PopupMenu>& crEvent)
-{
-  mDropDownState = MENU_LIST_HIDE;
-}
+// void Menu::popupMenuCancelled(const PopupMenuEvent<PopupMenu>& crEvent)
+// {
+//   mDropDownState = MENU_LIST_HIDE;
+// }
 
 //! @brief Popup Menu Will Become Invisible callback handler
 //!
 //! @param[in] crEvent Event to handle 
 //!
 //! @return None
-void Menu::popupMenuWillBecomeInvisible(const PopupMenuEvent<PopupMenu>& crEvent)
-{
-  mDropDownState = MENU_LIST_HIDE;
-}
+// void Menu::popupMenuWillBecomeInvisible(const PopupMenuEvent<PopupMenu>& crEvent)
+// {
+//   mDropDownState = MENU_LIST_HIDE;
+// }
 
 //! @brief Popup Menu Will Become Visible callback handler
 //!
 //! @param[in] crEvent Event to handle 
 //!
 //! @return None
-void Menu::popupMenuWillBecomeVisible(const PopupMenuEvent<PopupMenu>& crEvent)
-{
-  mDropDownState = MENU_LIST_SHOW;
-}
+// void Menu::popupMenuWillBecomeVisible(const PopupMenuEvent<PopupMenu>& crEvent)
+// {
+//   mDropDownState = MENU_LIST_SHOW;
+// }
 
-//! @brief Gets the Menu Item list
-//!
-//! @return Menu Items
 std::vector<std::shared_ptr<MenuItem>> Menu::getMenuItems() const
 {
   return mpPopupMenu->getMenuItems();
@@ -269,4 +194,38 @@ void Menu::updateUI()
   AbstractButton::updateUI();
 
   mUpdateUI = false;
+}
+
+void Menu::onButtonEvent(AbstractButton::ButtonEvent& rButtonEvent)
+{
+  switch(rButtonEvent.mAction)
+  {
+    case GuiEvent::GUI_HOVER:
+    case GuiEvent::GUI_PRESS:
+    case GuiEvent::GUI_CLICK:
+      if(!mTopLevel)
+      {
+        mDropDownState = MENU_LIST_SHOW;
+        mpPopupMenu->setVisible(true);
+      }
+      break;
+  }
+}
+
+void Menu::onPopupMenuEvent(PopupMenu::PopupMenuEvent& rPopupMenuEvent)
+{
+  if(MenuEvent::MENU_CANCELLED == rPopupMenuEvent.mAction)
+  {
+    mpPopupMenu->setVisible(false);
+  }
+}
+
+void Menu::dispatchEvent(I_Event<lre::LestRenderEngineEvents>& rEvent)
+{
+  mpPopupMenu->dispatchEvent(rEvent);
+
+  if(mVisible)
+  {
+    processEvent(rEvent);
+  }
 }

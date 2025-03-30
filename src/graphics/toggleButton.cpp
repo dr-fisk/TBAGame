@@ -35,7 +35,6 @@ void ToggleButton::setButtonTexture()
           break;
         case ButtonState::PRESSED_STATE:
           mLabel.setBorderColor(mPressedBorderColor);
-
           break;
         default:
           break;
