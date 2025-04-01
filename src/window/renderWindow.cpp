@@ -14,14 +14,6 @@
 
 bool RenderWindow::msFirstInit = true;
 
-//! @brief Initializes opengl window
-//!
-//! @param[in]  cWindowWidth  Window width
-//! @param[in]  cWindowHeight Window height
-//! @param[in]  cpTitle       Window title
-//! @param[out] pWindow       Allows sharing of resources for when needing multiple windows, is NULL otherwise
-//!
-//! @return None
 RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHeight, const char *cpTitle,
                            GLFWwindow *pWindow)
 { 
@@ -56,6 +48,9 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
   mEventDispatcher.addEventDispatcher<lre::KeyboardPressEvent>();
   mEventDispatcher.addEventDispatcher<lre::KeyboardReleaseEvent>();
   mEventDispatcher.addEventDispatcher<lre::WindowResizeEvent>();
+  mEventDispatcher.addEventDispatcher<lre::WindowFocusEvent>();
+  mFocusSub.setCallback(BIND_EVENT_FN(RenderWindow::onWindowFocusEvent));
+  mEventDispatcher.attach(mFocusSub);
 
   //Vsync off later make it toggable (limits fps)
   glfwSwapInterval(0);
@@ -65,43 +60,33 @@ RenderWindow::RenderWindow(const uint32_t cWindowWidth, const uint32_t cWindowHe
   glfwSetWindowUserPointer(mpWindow, &mEventDispatcher);
   int w, h;
   glfwGetWindowSize(mpWindow, &w, &h);
+  glfwSetInputMode(mpWindow, GLFW_LOCK_KEY_MODS, GLFW_TRUE);
+  mFocused = true;
 }
 
-//! @brief Handles displaying data stored in all buffers
-//!
-//! @return None
 void RenderWindow::display()
 {
-  glfwSwapBuffers(mpWindow);
+  if(mFocused)
+  {
+    glfwSwapBuffers(mpWindow);
+  }
 }
 
-//! @brief Gets window width
-//!
-//! @return Window width
 uint32_t RenderWindow::getWindowWidth()
 {
     return mWindowSize.x;
 }
 
-//! @brief Gets window height
-//!
-//! @return Window height
 uint32_t RenderWindow::getWindowHeight()
 {
   return mWindowSize.y;
 }
 
-//! @brief  Gets the Window Size
-//!
-//! @return Window Size in Vector format
 const glm::uvec2& RenderWindow::getWindowSize()
 {
   return mWindowSize;
 }
 
-//! @brief Checks whether window has been closed
-//!
-//! @return true if Window is open false otherwise
 bool RenderWindow::isOpen()
 {
   std::unique_lock<std::mutex> lock(mDataAccesMutex);
@@ -115,9 +100,6 @@ RenderWindow::~RenderWindow()
   glfwDestroyWindow(mpWindow);
 }
 
-//! @brief Sets the current window to be the Current OpenGL context useful for working with multiple windows must be called before any GL Funciton Call
-//!
-//! @return None
 void RenderWindow::setActive()
 {
   glfwMakeContextCurrent(mpWindow);
@@ -125,31 +107,15 @@ void RenderWindow::setActive()
   glewInit();
 }
 
-//! @brief Getter function for getting a reference to the currnet Gl Window
-//! 
-//! @return GLFWwindow* - A refernce to the GL Window
 GLFWwindow* RenderWindow::getGlWindow()
 {
   return mpWindow;
 }
 
-//! @brief Inits GL Attributes and must be called after setActive
-//!
-//! @return None
 void RenderWindow::initWindow()
 {
   GLCall(glClearColor(0.3, 0.0, 0.0, 1.0));
   // glClear(GL_COLOR_BUFFER_BIT);
-}
-
-//! @brief Polls Event queue
-//!
-//! @param[out] rEvent Event returned from Event Queue
-//!
-//! @return True if event returned, false otherwise
-bool RenderWindow::pollEvent(Event& rEvent)
-{
-  return lg::Input::popEvent(rEvent, mpWindow);
 }
 
 std::shared_ptr<RenderWindow> RenderWindow::createSharedWindow()
@@ -166,18 +132,26 @@ std::shared_ptr<RenderWindow> RenderWindow::createSharedWindow()
   return window;
 }
 
-//! @brief Sets all callbacks used by LestGui
-//!
-//! @return None
 void RenderWindow::setCallbacks()
 {
   glfwSetCursorPosCallback(mpWindow, lg::Mouse::mousePositionCallback);
   glfwSetMouseButtonCallback(mpWindow, lg::Mouse::mouseButtonCallback);
   glfwSetKeyCallback(mpWindow, lg::Keyboard::keyCallback);
   glfwSetWindowSizeCallback(mpWindow, lg::Window::windowResizeCallback);
+  glfwSetWindowFocusCallback(mpWindow, lg::Window::windowFocusCallback);
 }
 
 void RenderWindow::setWindowTitle(const std::string& crTitle)
 {
   glfwSetWindowTitle(mpWindow, crTitle.c_str());
+}
+
+void RenderWindow::onWindowFocusEvent(lre::WindowFocusEvent& rEvent)
+{
+  mFocused = rEvent.isFocused();
+}
+
+bool RenderWindow::isFocused() const
+{
+  return mFocused;
 }

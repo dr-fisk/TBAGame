@@ -17,6 +17,21 @@ AbstractButton::AbstractButton()
   mDispatcher.addEventDispatcher<ButtonEvent>();
 }
 
+AbstractButton::AbstractButton(const Modifier& crModifier, const TextModifier& crTextModifier)
+{
+  mModifier = crModifier;
+  mLabel = Label("", crModifier, crTextModifier);
+  mDefaultBackgroundColor = lg::Grey;
+  mHoverBackgroundColor = lg::Green;
+  mPressedBackgroundColor = lg::Red;
+  mDefaultBorderColor = lg::Transparent;
+  mHoverBorderColor = lg::Transparent;
+  mPressedBorderColor = lg::Transparent;
+  mState = ButtonState::DEFAULT_STATE;
+
+  mDispatcher.addEventDispatcher<ButtonEvent>();
+}
+
 AbstractButton::~AbstractButton()
 {
 }

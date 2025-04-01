@@ -113,7 +113,8 @@ graphicsFiles = component.cpp \
                 modifier.cpp \
 								textModifier.cpp \
 								componentManager.cpp \
-								frame.cpp
+								frame.cpp \
+								textbox.cpp
 
 graphicsEventsFiles = itemEvent.cpp
 

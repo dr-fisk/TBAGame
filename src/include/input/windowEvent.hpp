@@ -31,6 +31,17 @@ class WindowResizeEvent : public WindowEvent
     EVENT_CLASS_SCOPED_TYPE(LestRenderEngineEvents, WINDOW_RESIZE)
 };
 
+class WindowFocusEvent : public I_Event<LestRenderEngineEvents>
+{
+  public:
+    WindowFocusEvent();
+    WindowFocusEvent(const bool cFocused);
+    bool isFocused() const;
+    EVENT_CLASS_SCOPED_TYPE(LestRenderEngineEvents, WINDOW_FOCUS);
+  private:
+    bool mFocus;
+};
+
 }
 
 #endif

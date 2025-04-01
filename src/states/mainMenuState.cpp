@@ -217,6 +217,23 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
   // mView = std::make_shared<Sprite>(glm::vec2{gWindowWidth / 2.0f, gWindowHeight / 2.0f}, glm::vec2{gWindowWidth, gWindowHeight}, lg::White);
 
   // mView->setTexture(mFbo->getTexture(), true);
+
+  mpTextbox = std::make_shared<TextBox>(
+      Modifier().setVerticalAlign(VerticalAlign::CENTER)
+        .setHorizontalAlign(HorizontalAlign::CENTER)
+        .setPos({100, 100})
+        .setScale({32, 32}),
+      TextModifier().setTextColor(lg::Black)
+        .setFont(mNewFont)
+        .setFontSize(16),
+      "Default");
+//  .setBorderColor(ButtonState::DEFAULT_STATE, lg::Color(135, 135, 135))
+//  .setBorderColor(ButtonState::HOVER_STATE, lg::Color(175, 175, 175))
+//  .setBorderColor(ButtonState::PRESSED_STATE, lg::Color(230, 230, 230))
+//  .setBorderColor(ButtonState::DEFAULT_STATE, lg::Black)
+//  .setBorderColor(ButtonState::HOVER_STATE, lg::Black)
+//  .setBorderColor(ButtonState::PRESSED_STATE, lg::Black)
+//  .onClick(&MainMenu::buttonCallback);
   mCam = std::make_shared<OrthCamera>(0, 1920, 1080, 0);
   Box<glm::vec2> testBox = mSprite->getGlobalBounds(*mCam);
   // mCam.setPosition({0.0f, 0.0f, 0.0f});
@@ -232,6 +249,7 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
   mpFrame->addComponent(mScroll);
   mpFrame->addComponent(mScroll2);
   mpFrame->addComponent(mMenu);
+  mpFrame->addComponent(mpTextbox);
 }
 
 void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const double cDeltaTime)
@@ -239,17 +257,7 @@ void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const
   // std::string temp = "FPS: " + std::to_string(gFps);
   // mText->updateText(temp);
 
-  Event tempEvent;
   sprite_pos = mSprite->getPos();
-  while(crpTarget->pollEvent(tempEvent))
-  {
-    // mButton->handleEvent(tempEvent);
-    // mScroll->update(tempEvent);
-    // mScroll2->update(tempEvent);
-    // mMenu->handleEvent(tempEvent);
-    // mpCheckbox->handleEvent(tempEvent);
-  }
-
   float xDir = 300.0f;
   float yDir = 300.0f;
   static glm::vec2 vel(0.0f, 0.0f);
@@ -304,6 +312,7 @@ void MainMenu::render(const std::shared_ptr<RenderTarget>& crpTarget, const doub
   mLabel->draw();
   mNineSliced->draw();
   mpCheckbox->draw();
+  mpTextbox->draw();
   Renderer2D::endScene();
 }
 

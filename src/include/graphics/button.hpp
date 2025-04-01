@@ -16,6 +16,7 @@ class Button : public AbstractButton
 {
   public:
     Button();
+    Button(const Modifier& crModifier, const TextModifier& crTextModifier);
     Button& setPos(const glm::vec2& crPos, const bool cCheckIfMouseHovering=true);
     void disableCallback(const bool cEnable);
     Button& setRender(const bool cEnable);

@@ -26,6 +26,7 @@
 #include "input/keyboardEvent.hpp"
 #include "input/windowEvent.hpp"
 #include "graphics/frame.hpp"
+#include "graphics/textbox.hpp"
 
 class MainMenu : public State
 {
@@ -64,6 +65,7 @@ class MainMenu : public State
     std::shared_ptr<Label> mLabel;
     std::unique_ptr<SlicedSprite> mNineSliced;
     std::shared_ptr<ToggleButton> mpCheckbox;
+    std::shared_ptr<TextBox> mpTextbox;
     glm::vec2 sprite_pos;
     glm::vec2 curr_pos;
     float xMove;

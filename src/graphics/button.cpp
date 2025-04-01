@@ -16,6 +16,11 @@ Button::Button()
   mPressedPadding = glm::vec2(0, 0);
 }
 
+Button::Button(const Modifier& crModifier, const TextModifier& crTextModifier) :
+  AbstractButton(crModifier, crTextModifier)
+{
+}
+
 //! @brief Sets the Button Position
 //!
 //! @param[in] crPos The new button Position

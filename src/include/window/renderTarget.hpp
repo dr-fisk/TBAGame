@@ -4,7 +4,6 @@
 #include <cstdint>
 
 #include "utility/net_utility.hpp"
-#include "event/event.hpp"
 #include "glm/vec2.hpp"
 
 class RenderTarget
@@ -17,7 +16,6 @@ class RenderTarget
       virtual uint32_t getWindowWidth() = 0;
       virtual const glm::uvec2& getWindowSize() = 0;
       virtual void setActive() = 0;
-      virtual bool pollEvent(Event&) = 0;
     private:
 };
 

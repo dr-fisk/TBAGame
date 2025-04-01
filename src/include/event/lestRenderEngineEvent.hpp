@@ -10,7 +10,8 @@ enum class LestRenderEngineEvents
   MOUSE_MOVE,
   KEY_PRESS,
   KEY_RELEASE,
-  WINDOW_RESIZE
+  WINDOW_RESIZE,
+  WINDOW_FOCUS
 };
 }
 

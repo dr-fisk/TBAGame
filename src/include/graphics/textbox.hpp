@@ -5,7 +5,6 @@
 #include "graphics/label.hpp"
 #include "event/event.hpp"
 #include "event/eventSubscriber.hpp"
-#include "input/keyboardEvent.hpp"
 
 class TextBox : public Component
 {
@@ -13,12 +12,10 @@ public:
 
   //! @brief Textbox Constructor
   //!
-  //! @param[in] crPos Postion of the TextBox
-  //! @param[in] crSize Size of the TextBox
+  //! @param[in] crModifier
+  //! @param[in] crTextModifier
   //! @param[in] crDefaultText Default Text to set to label
-  //! @param[in] crColor Textbox color (TODO determine if wanted)
-  TextBox(const glm::vec2& crPos, const glm::vec2& crSize, const std::string& crDefaultText,
-    const lg::Color& crColor=lg::White);
+  TextBox(const Modifier& crModifier, const TextModifier& crTextModifier, const std::string& crDefaultText);
   
   //! @brief Delete Default Constructor
   TextBox() = delete;
@@ -40,7 +37,17 @@ public:
   //!
   //! @return Textbox reference to chain calls 
   TextBox& setDefaultText(const std::string& crText);
+
+  void dispatchEvent(I_Event<lre::LestRenderEngineEvents>& rEvent) override;
+
+  void onButtonEvent(AbstractButton::ButtonEvent& rEvent);
+
+  void updateUI() override;
 private:
+  void processEvent(I_Event<lre::LestRenderEngineEvents>& rEvent) override;
+
+  void onKeyPress(lre::KeyboardPressEvent& rEvent);
+
   enum TextBoxState
   {
     UNFOCUSED_STATE,
@@ -49,9 +56,12 @@ private:
 
   // std::shared_ptr<Texture2D> mMouseTexture;
   std::string mDefaultText;
+  std::string mInputText;
+  int mCursorIndexPos;
   TextBoxState mState;
   std::shared_ptr<Sprite> mBox;
-  EventSubscriber<lre::KeyboardPressEvent> mKeyPressSub;
+  std::shared_ptr<Button> mpButton;
+  EventSubscriber<AbstractButton::ButtonEvent> mButtonEventSub;
 };
 
 #endif

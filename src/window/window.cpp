@@ -11,7 +11,7 @@ namespace lg
 
     WindowView gView;
 
-    void windowResizeCallback(GLFWwindow *pWindow, const int32_t cWidth, const int32_t cHeight)
+    void windowResizeCallback(GLFWwindow* pWindow, const int32_t cWidth, const int32_t cHeight)
     {
       LestApplicationDispatcher* dispatcher = 
       static_cast<LestApplicationDispatcher*>(glfwGetWindowUserPointer(glfwGetCurrentContext()));
@@ -35,6 +35,23 @@ namespace lg
     const WindowView& getView()
     {
       return gView;
+    }
+
+    void windowFocusCallback(GLFWwindow* pWindow, const int cFocus)
+    {
+      LestApplicationDispatcher* dispatcher = 
+      static_cast<LestApplicationDispatcher*>(glfwGetWindowUserPointer(glfwGetCurrentContext()));
+
+      if(cFocus)
+      {
+        lre::WindowFocusEvent event(true);
+        dispatcher->dispatch<lre::WindowFocusEvent>(event);
+      }
+      else
+      {
+        lre::WindowFocusEvent event(false);
+        dispatcher->dispatch<lre::WindowFocusEvent>(event);
+      }
     }
   }
 }

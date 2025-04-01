@@ -40,4 +40,18 @@ WindowResizeEvent::WindowResizeEvent(const int32_t cWidth, const int32_t cHeight
 {
 }
 
+WindowFocusEvent::WindowFocusEvent() : I_Event(LestRenderEngineEvents::WINDOW_FOCUS), mFocus(false)
+{
+}
+
+WindowFocusEvent::WindowFocusEvent(const bool cFocused) : I_Event(LestRenderEngineEvents::WINDOW_FOCUS),
+  mFocus(cFocused)
+{
+}
+
+bool WindowFocusEvent::isFocused() const
+{
+  return mFocus;
+}
+
 }

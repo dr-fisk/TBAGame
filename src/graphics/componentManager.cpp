@@ -85,7 +85,10 @@ void ComponentManager::onMouseMoveEvent(lre::MouseMoveEvent& rMouseMoveEvent)
 void ComponentManager::onKeyboardPressEvent(lre::KeyboardPressEvent& rKeyboardPressEvent)
 {
   lre::KeyboardPressEvent event = rKeyboardPressEvent;
-  mDispatcher.dispatch(event);
+  for(auto& component : mComponents)
+  {
+      component->dispatchEvent(event);
+  }
 }
 
 void ComponentManager::onKeyboardReleaseEvent(lre::KeyboardReleaseEvent& rKeyboardReleaseEvent)

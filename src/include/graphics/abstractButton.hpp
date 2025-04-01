@@ -26,6 +26,7 @@ class AbstractButton : public Component
     using ButtonEvent = GuiActionEvent<AbstractButton>;
 
     AbstractButton();
+    AbstractButton(const Modifier& crModifier, const TextModifier& crTextModifier);
     virtual ~AbstractButton();
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
