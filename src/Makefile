@@ -89,7 +89,7 @@ renderEngineFiles = indexBuffer.cpp \
 										vertexBuffer.cpp \
 										vertexArray.cpp \
 										texture2D.cpp \
-										frameBuffer.cpp
+										frameBuffer.cpp 
 
 rendererFiles = renderer2D.cpp \
                 camera.cpp
@@ -122,7 +122,8 @@ lestEngineEventFiles =
 dynLibFiles = png.cpp
 
 utilityFiles = edgeTable.cpp \
-							 transform.cpp
+							 transform.cpp \
+							 vertexUtility.cpp
 
 objs := $(patsubst %.cxx, %.o, $(entrypoint))
 
