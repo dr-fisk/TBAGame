@@ -234,7 +234,9 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
 //  .setBorderColor(ButtonState::HOVER_STATE, lg::Black)
 //  .setBorderColor(ButtonState::PRESSED_STATE, lg::Black)
 //  .onClick(&MainMenu::buttonCallback);
-  mCam = std::make_shared<OrthCamera>(0, 1920, 1080, 0);
+
+  // Need to figure out a way of setting a camera dimensions and getting window dimensions
+  mCam = std::make_shared<OrthCamera>(0, 1920, 1061, 0);
   Box<glm::vec2> testBox = mSprite->getGlobalBounds(*mCam);
   // mCam.setPosition({0.0f, 0.0f, 0.0f});
   curr_pos = mSprite->getPos();

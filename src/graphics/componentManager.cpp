@@ -60,7 +60,7 @@ void ComponentManager::onMouseButtonPressEvent(lre::MouseButtonPressEvent& rMous
     {
       break;
     }
-      component->dispatchEvent(event);
+    component->dispatchEvent(event);
   }
 }
 

@@ -239,8 +239,7 @@ bool AbstractButton::isInAABB(const glm::vec2& crPos)
 {
   glm::vec2 topLeft = mModifier.getPos() - (mModifier.getScale() / 2.0f);
 
-  return (crPos.x > topLeft.x) && (crPos.x < (topLeft.x + mModifier.getScale().x)) &&
-        (crPos.y > topLeft.y) && (crPos.y < (topLeft.y + mModifier.getScale().y));
+  return mModifier.getTransform().contains(crPos.x, crPos.y);
 }
 
 //! @brief Determines if Mouse Position is in AABB of button
@@ -359,7 +358,7 @@ AbstractButton& AbstractButton::setPos(const glm::vec2& crPos)
 //!
 //! @param[in] crSize Size of Button
 //!
-//! @return None
+//! @return Abstract Button reference to chain calls
 AbstractButton& AbstractButton::resize(const glm::vec2& crSize)
 {
   mModifier.setScale(crSize);
@@ -595,7 +594,6 @@ void AbstractButton::onMouseButtonPress(lre::MouseButtonPressEvent& rEvent)
   if (GLFW_MOUSE_BUTTON_LEFT == rEvent.getMouseButton() && mState == ButtonState::HOVER_STATE)
   {
     mState = ButtonState::PRESSED_STATE;
-
     ButtonEvent buttonPress(this, GuiEvent::GUI_PRESS, rEvent.getX(), rEvent.getY());
     mDispatcher.dispatch(buttonPress);
     rEvent.setHandled();
