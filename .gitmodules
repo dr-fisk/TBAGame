@@ -1,0 +1,3 @@
+[submodule "LestRenderEngine"]
+	path = LestRenderEngine
+	url = git@github.com:dr-fisk/LestRenderEngine.git

@@ -5,7 +5,6 @@
 #include "renderEngine/texture2D.hpp"
 #include "glm/vec2.hpp"
 #include "renderer/camera.hpp"
-#include "shapes/box.hpp"
 #include "utility/transform.hpp"
 
 enum PrimitiveType

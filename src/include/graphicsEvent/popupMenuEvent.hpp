@@ -1,19 +1,38 @@
 #ifndef POPUP_MENU_EVENT_HPP
 #define POPUP_MENU_EVENT_HPP
 
-#include "graphics/component.hpp"
+#include "event/I_Event.hpp"
 
-template <typename T>
-class PopupMenuEvent
+enum class PopupMenuActionEvent
 {
-  public:
-    PopupMenuEvent() = delete;
-    PopupMenuEvent(T* cpSource);
-    ~PopupMenuEvent() = default;
-
-    T* mpSource;
+  MENU_CANCELLED,
+  MENU_OPENED
 };
 
-#include "../../graphicsEvent/popupMenuEvent.cpp"
+template <typename T>
+class PopupMenuActionEvent : public I_Event<std::string>
+{
+  public:
+    //! @brief Delete Default Constructor
+    PopupMenuActionEvent() = delete;
+
+    //! @brief Default Destructor
+    ~PopupMenuActionEvent() = default;
+
+    //! @brief Constructor
+    //!
+    //! @tparam[in] pSrc Source of Event 
+    //! @param[in] cX X Mouse Position
+    //! @param[in] cY Y MousePosition
+    PopupMenuActionEvent(T* pSource, const GuiEvent cAction, const float cX, const float cY) : 
+     I_Event("POPUPACTION"), mpSource(pSource), mAction(cAction), x(cX), y(cY){}
+
+    EVENT_CLASS_SCOPELESS_TYPE(std::string, "POPUPACTION");
+
+    T* mpSource;
+    PopupMenuActionEvent mAction;
+    float x = 0;
+    float y = 0;
+};
 
 #endif

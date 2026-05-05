@@ -13,7 +13,7 @@ class ToggleButton : public AbstractButton
     virtual void buttonClicked() override;
     void setButtonTexture() override;
 
-    std::shared_ptr<Texture2D> mpCheckedTexture;
+    std::shared_ptr<FrameSource> mpCheckedTexture;
     bool mToggled;
 };
 

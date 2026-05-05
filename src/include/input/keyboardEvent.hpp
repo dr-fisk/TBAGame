@@ -4,24 +4,26 @@
 #include "event/I_Event.hpp"
 #include "event/lestRenderEngineEvent.hpp"
 
-namespace LestRenderEngine
+namespace lre
 {
   class KeyboardEvent : public I_Event<LestRenderEngineEvents>
   {
     public:
-      KeyboardEvent() = delete;
+      KeyboardEvent() = default;
       virtual ~KeyboardEvent() = default;
       int32_t getKey() const;
       int32_t getScancode() const;
       int32_t getAction() const;
       int32_t getMods() const;
+      KeyboardEvent& operator=(const KeyboardEvent& rhs);
+      KeyboardEvent(const KeyboardEvent& crKeyboardEvent);
     protected:
-      KeyboardEvent(const LestRenderEngineEvents cType, const std::string& crKeyboardEventName,
-                    const int32_t cKey, const int32_t cScancode, const int32_t cAction, const int32_t cMods);
-      int32_t mKey;
-      int32_t mScancode;
-      int32_t mAction;
-      int32_t mMods;
+      KeyboardEvent(const LestRenderEngineEvents cEventType, const int32_t cKey, const int32_t cScancode,
+        const int32_t cAction, const int32_t cMods);
+      int32_t mKey = 0;
+      int32_t mScancode = 0;
+      int32_t mAction = 0;
+      int32_t mMods = 0;
   };
 
   class KeyboardPressEvent : public KeyboardEvent

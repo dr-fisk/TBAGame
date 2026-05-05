@@ -11,8 +11,32 @@ class Transform
     ~Transform() = default;
 
     Transform& setRotation(const float cRotation);
-    Transform& setPos(const glm::vec2& crPos);
+    Transform& setOrigin(const glm::vec2& crPos);
     Transform& setScale(const glm::vec2& crScale);
+
+    //! @brief Sets Width
+    //!
+    //! @param[in] cWidth Width
+    //! 
+    //! @return Transform Reference
+    Transform& setWidth(const float cWidth);
+
+    //! @brief Sets Height
+    //!
+    //! @param[in] cHeight Height
+    //! 
+    //! @return Transform Reference 
+    Transform& setHeight(const float cHeight);
+
+    //! @brief Checks if coordinates are within Transform bounds
+    //!
+    //! @param[in] cX X coordinate
+    //! @param[in] cY Y coordinate
+    //! 
+    //! @return true if coordinates are within bounds
+    //! @return false if not in bounds
+    bool contains(const float cX, const float cY);
+
     glm::vec2 getPos() const;
     glm::vec2 getScale() const;
     float getRotation() const;

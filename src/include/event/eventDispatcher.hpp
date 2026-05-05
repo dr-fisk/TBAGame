@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <functional>
+#include <iostream>
 
 class I_EventDispatcher
 {
@@ -24,11 +25,31 @@ class EventDispatcher : public I_EventDispatcher
       mObservers.push_back(&crSub);
     }
 
-    void notify(const T& crEvent) const
+    void notify(T& rEvent) const
     {
-      for(auto& observer : mObservers)
+      if(rEvent.shouldBubble())
       {
-        observer->notify(crEvent);
+        for(auto itr = mObservers.rbegin(); itr != mObservers.rend(); ++itr)
+        {
+          (*itr)->notify(rEvent);
+
+          if(rEvent.stopEvent())
+          {
+            break;
+          }
+        }
+      }
+      else
+      {
+        for(auto& observer : mObservers)
+        {
+          observer->notify(rEvent);
+
+          if(rEvent.stopEvent())
+          {
+            break;
+          }
+        }
       }
     }
 
@@ -36,7 +57,7 @@ class EventDispatcher : public I_EventDispatcher
     {
       for(auto itr = mObservers.begin(); itr != mObservers.end();)
       {
-        if(*itr == crSub)
+        if(*itr == &crSub)
         {
           itr = mObservers.erase(itr);
         }
@@ -47,6 +68,15 @@ class EventDispatcher : public I_EventDispatcher
       }
     }
 
+    std::vector<const EventSubscriber<T>*> getObservers() const
+    {
+      return mObservers;
+    }
+
+    void insert(const std::vector<const EventSubscriber<T>*>& crObservers)
+    {
+      mObservers.insert(mObservers.end(), crObservers.begin(), crObservers.end());
+    }
   private:
     std::vector<const EventSubscriber<T>*> mObservers;
 };

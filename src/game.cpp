@@ -8,7 +8,7 @@
 #include "game.hpp"
 #include "states/mainMenuState.hpp"
 #include "states/exceptionState.hpp"
-#include "states/sandboxState.hpp"
+// #include "states/sandboxState.hpp"
 #include "renderer/renderer2D.hpp"
 #include "renderer/renderCommand.hpp"
 #include "glm/vec2.hpp"
@@ -207,20 +207,23 @@ void Game::runGame()
       mStates.pop();
     }
     
-    mStates.top()->update(mpWindow, deltaTime);
-
-    while(smoothDeltaTime >= FIXED_TIMESTEP)
+    if(mpWindow->isFocused())
     {
-      mStates.top()->fixedUpdate(mpWindow, FIXED_TIMESTEP);
-      smoothDeltaTime -= FIXED_TIMESTEP;
+      mStates.top()->update(mpWindow, deltaTime);
+
+      while(smoothDeltaTime >= FIXED_TIMESTEP)
+      {
+        mStates.top()->fixedUpdate(mpWindow, FIXED_TIMESTEP);
+        smoothDeltaTime -= FIXED_TIMESTEP;
+      }
+
+      // Need another delta time here
+      mStates.top()->lateUpdate(mpWindow, FIXED_TIMESTEP);
+
+      mStates.top()->render(mpWindow, smoothDeltaTime / FIXED_TIMESTEP);
     }
 
-    // Need another delta time here
-    mStates.top()->lateUpdate(mpWindow, FIXED_TIMESTEP);
-
-    mStates.top()->render(mpWindow, smoothDeltaTime / FIXED_TIMESTEP);
     mpWindow->display();
-
     RenderCommand::pollEvents();
 
     // queueMutex.lock();

@@ -1,7 +1,7 @@
 #ifndef LEST_RENDER_ENGINE_EVENT_HPP
 #define LEST_RENDER_ENGINE_EVENT_HPP
 
-namespace LestRenderEngine
+namespace lre
 {
 enum class LestRenderEngineEvents
 {
@@ -10,7 +10,10 @@ enum class LestRenderEngineEvents
   MOUSE_MOVE,
   KEY_PRESS,
   KEY_RELEASE,
-  WINDOW_RESIZE
+  WINDOW_RESIZE,
+  WINDOW_FOCUS,
+  WINDOW_CLOSE,
+  UNKNOWN
 };
 }
 

@@ -106,7 +106,7 @@ uint32_t PlotUtility<T>::tessellateQuadBezier(std::vector<T>& crPoints, const ui
   #endif
   uint32_t itemsAdded = 0;
 
-  for(int i = 1; i <= cSubDiv; i ++)
+  for(uint32_t i = 1; i <= cSubDiv; i ++)
   {
     #ifdef GLEW_STATIC
     t = static_cast<GLfloat>(i) * step;

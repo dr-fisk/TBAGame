@@ -20,6 +20,8 @@ namespace lg
 
     void windowResizeCallback(GLFWwindow *pWindow, const int32_t cWidth, const int32_t cHeight);
     const WindowView& getView();
+    void windowFocusCallback(GLFWwindow* pWindow, const int cFocus);
+    void windowClosecallback(GLFWwindow* pWindow);
   }
 }
 

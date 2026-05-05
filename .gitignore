@@ -36,3 +36,7 @@
 
 # Directory
 objs-wind64/
+
+build
+
+.vscode

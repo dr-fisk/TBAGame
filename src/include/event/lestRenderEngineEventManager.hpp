@@ -3,17 +3,27 @@
 
 #include "event/applicationEventDispatcher.hpp"
 #include "event/lestRenderEngineEvent.hpp"
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
-namespace LestRenderEngine
+#define SLOT(sub, func){ \
+  sub.setCallback(BIND_EVENT_FN(func));\
+  lre::LestRenderEngineEventManager::registerToEvent(sub);}
+
+#define UNREGISTER(sub){ \
+ lre::LestRenderEngineEventManager::unregisterFromEvent(sub);}
+
+namespace lre
 {
 
 class LestRenderEngineEventManager
 {
   private:
-    using LestApplicationDispatcher = LestRenderEngine::ApplicationEventDispatcher<LestRenderEngine::LestRenderEngineEvents>;
+    using LestApplicationDispatcher = lre::ApplicationEventDispatcher<lre::LestRenderEngineEvents>;
   public:
     template<typename T>
-    static bool registerToEvent(const EventSubscriber<T>& crSub)
+    static bool registerToEvent(EventSubscriber<T>& crSub)
     {
       LestApplicationDispatcher* dispatcher = static_cast<LestApplicationDispatcher*>(glfwGetWindowUserPointer(glfwGetCurrentContext()));
 
@@ -22,6 +32,7 @@ class LestRenderEngineEventManager
         return false;
       }
 
+      crSub.setUnregisterFunc(LestRenderEngineEventManager::unregisterFromEvent<T>);
       dispatcher->attach(crSub);
       return true;
     }
@@ -36,7 +47,8 @@ class LestRenderEngineEventManager
         return false;
       }
 
-      return dispatcher->detach(crSub);
+      dispatcher->detach(crSub);
+      return true;
     }
 };
 

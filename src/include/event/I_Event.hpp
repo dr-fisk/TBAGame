@@ -3,7 +3,6 @@
 
 #include <string>
 
-#define BIND_EVENT_FN(fn) [this](auto&&...args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 #define EVENT_CLASS_SCOPED_TYPE(scope, type) static scope GetStaticType() {  return scope::type; }
 #define EVENT_CLASS_SCOPELESS_TYPE(datatype, type) static datatype GetStaticType() { return type; }
 
@@ -12,27 +11,98 @@ class I_Event
 {
   public:
     I_Event() = default;
-    I_Event(const T cType, const std::string& crName) : mType(cType), mName(crName) {}
+
+    //! @brief Constructor
+    I_Event(const T cEventType)
+    {
+      mType = cEventType;
+    }
+
+    I_Event(const I_Event& crEvent)
+    {
+      *this = crEvent;
+    }
+
+    virtual I_Event<T>& operator=(const I_Event<T>& rhs)
+    {
+      if(this == &rhs)
+      {
+        return *this;
+      }
+
+      mType = rhs.mType;
+      mStopPropagating = rhs.mStopPropagating;
+      mHandled = rhs.mHandled;
+      mBubbleEvent = rhs.mBubbleEvent;
+
+      return *this;
+    }
+
+    //! @brief Default Destructor
     virtual ~I_Event() = default;
     
-    T getType() const
+    //! @brief Sets if the event was handled
+    //!
+    //! @return None 
+    void setHandled()
     {
-      return mType;
+      mHandled = true;
     }
 
-    std::string getName() const
+    //! @brief Sets the stop propogating flag, dispatchers will not notify any listeners once set
+    //!
+    //! @return None
+    void stopPropagating()
     {
-      return mName;
+      mStopPropagating = true;
     }
 
-    virtual bool isHandled() const
+    //! @brief Sets whether propagation should bubble (down->up)
+    //!
+    //! @param cBubble Should/Should not bubble
+    //!
+    //! @return None 
+    void bubbleEvent(const bool cBubble)
+    {
+      mBubbleEvent = cBubble;
+    }
+
+    //! @brief Checks if event was handled
+    //!
+    //! @return true if handled
+    //! @return false if not handled 
+    bool isHandled() const
     {
       return mHandled;
     }
+
+    //! @brief Check if event should stop propagating
+    //!
+    //! @return true if event should stop propagating
+    //! @return false otherwise
+    bool stopEvent() const
+    {
+      return mStopPropagating;
+    }
+
+    //! @brief Check if event should be bubbled
+    //!
+    //! @return true if event should bubble
+    //! @return false if event should not bubble
+    bool shouldBubble() const
+    {
+      return mBubbleEvent;
+    }
+
+    T GetEventType()
+    {
+      return mType;
+    }
   protected:
-    T mType;
-    std::string mName;
     bool mHandled = false;
+    bool mStopPropagating = false;
+    bool mBubbleEvent = false;
+    T mType;
 };
 
 #endif

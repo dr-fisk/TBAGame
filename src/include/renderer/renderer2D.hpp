@@ -4,14 +4,11 @@
 #include <memory>
 #include <array>
 
-#include "renderEngine/vertexArray.hpp"
-#include "renderEngine/vertexBuffer.hpp"
-#include "renderEngine/indexBuffer.hpp"
-#include "renderEngine/shader.hpp"
-#include "renderEngine/texture2D.hpp"
 #include "renderer/camera.hpp"
 #include "vertex.hpp"
 #include "utility/transform.hpp"
+#include "renderEngine/texture2D.hpp"
+#include "shapes/rect.hpp"
 
 class Renderer2D
 {
@@ -26,11 +23,16 @@ class Renderer2D
                              const glm::vec2& cOffset);
     static void registerQuad(const Transform& crTransform,
                              std::array<Vertex, sNumQuadVerts>& rVertexes,
-                             const Texture2D* &crpTexture,
+                             const Texture2D* cpTexture,
+                             const glm::vec2& cOffset);
+    static void registerQuad(const Transform& crTransform,
+                             std::array<Vertex, sNumQuadVerts>& rVertexes,
+                             const Texture2D* cpTexture,
+                             const Rect<uint32_t>& crScissor,
                              const glm::vec2& cOffset);
     static void registerQuad(const glm::vec2& crPos, const glm::vec2& crSize,
                              std::array<Vertex, sNumQuadVerts>& rVertexes,
-                             const Texture2D* &crpTexture,
+                             const Texture2D* cpTexture,
                              const bool cGeometryNeedUpdate);
     static void endScene();
     static void flush();

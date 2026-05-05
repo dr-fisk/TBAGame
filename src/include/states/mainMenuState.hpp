@@ -24,31 +24,38 @@
 #include "event/eventSubscriber.hpp"
 #include "input/mouseEvent.hpp"
 #include "input/keyboardEvent.hpp"
+#include "input/windowEvent.hpp"
+#include "graphics/frame.hpp"
+#include "graphics/textbox.hpp"
 
 class MainMenu : public State
 {
   public:
     MainMenu(const std::stack<std::shared_ptr<State>>& crStates);
     ~MainMenu();
+    void update(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);
     void fixedUpdate(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);
     void render(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);
     bool shouldStateExit();
 
   private:
     static void buttonCallback();
-    void OnMouseMove(const LestRenderEngine::MouseMoveEvent& crEvent);
-    void OnMousePress(const LestRenderEngine::MouseButtonPressEvent& crEvent);
-    void OnMouseRelease(const LestRenderEngine::MouseButtonReleaseEvent& crEvent);
-    void OnKeyboardPress(const LestRenderEngine::KeyboardPressEvent& crEvent);
-    void OnKeyboardRelease(const LestRenderEngine::KeyboardReleaseEvent& crEvent);
-
-    // static void dropdownCallbacK(const Button<glm::ivec2>& rVal);
+    void OnMouseMove(lre::MouseMoveEvent& crEvent);
+    void OnMousePress(lre::MouseButtonPressEvent& crEvent);
+    void OnMouseRelease(lre::MouseButtonReleaseEvent& crEvent);
+    void OnKeyboardPress(lre::KeyboardPressEvent& crEvent);
+    void OnKeyboardRelease(lre::KeyboardReleaseEvent& crEvent);
+    void OnWindowResize(lre::WindowResizeEvent& crEvent);
+    void onSubmit(SubmitEvent<Component>& rEvent);
+    // static void dropdownCallbacK(const Button<glm::ivec2>& rVal);s
+    std::shared_ptr<Frame> mpFrame;
     LestTrueType ttf;
     Font mNewFont;
     std::shared_ptr<Text> mText;
     std::shared_ptr<Sprite> mSprite;
     std::shared_ptr<Sprite> mSprite2;
     std::shared_ptr<Sprite> mSprite3;
+    std::shared_ptr<Sprite> mGifSprite;
     std::shared_ptr<Button> mButton;
     std::shared_ptr<Scrollbar> mScroll;
     std::shared_ptr<Scrollbar> mScroll2;
@@ -59,19 +66,19 @@ class MainMenu : public State
     std::shared_ptr<OrthCamera> mCam;
     std::shared_ptr<Label> mLabel;
     std::unique_ptr<SlicedSprite> mNineSliced;
-    std::unique_ptr<ToggleButton> mpCheckbox;
+    std::shared_ptr<ToggleButton> mpCheckbox;
+    std::shared_ptr<TextBox> mpTextbox;
     glm::vec2 sprite_pos;
     glm::vec2 curr_pos;
     float xMove;
     float yMove;
-    Texture2D spriteTexture;
-    Texture2D sprite2Texture;
-    Texture2D borderedImgTest;
-    EventSubscriber<LestRenderEngine::MouseMoveEvent> mEventSub;
-    EventSubscriber<LestRenderEngine::MouseButtonPressEvent> mEventSub1;
-    EventSubscriber<LestRenderEngine::MouseButtonReleaseEvent> mEventSub2;
-    EventSubscriber<LestRenderEngine::KeyboardPressEvent> mEventSub3;
-    EventSubscriber<LestRenderEngine::KeyboardReleaseEvent> mEventSub4;
+    EventSubscriber<lre::MouseMoveEvent> mEventSub;
+    EventSubscriber<lre::MouseButtonPressEvent> mEventSub1;
+    EventSubscriber<lre::MouseButtonReleaseEvent> mEventSub2;
+    EventSubscriber<lre::KeyboardPressEvent> mEventSub3;
+    EventSubscriber<lre::KeyboardReleaseEvent> mEventSub4;
+    EventSubscriber<lre::WindowResizeEvent> mEventSub5;
+    EventSubscriber<SubmitEvent<Component>> mEventSub6;
 };
 
 #endif
