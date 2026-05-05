@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "graphics/menuItem.hpp"
-#include "shapes/box2D.hpp"
+#include "shapes/rect.hpp"
 #include "graphics/popupMenu.hpp"
 
 class Menu : public MenuItem
@@ -105,7 +105,7 @@ class Menu : public MenuItem
 
     std::shared_ptr<PopupMenu> mpPopupMenu;
     DropDownMenuState mDropDownState;
-    Box2D<float> mMenuBounds;
+    Rect<float> mMenuBounds;
     bool mDefaultMenuLocation;
     bool mTopLevel;
 

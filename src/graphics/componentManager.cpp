@@ -2,7 +2,7 @@
 
 #include "graphics/componentManager.hpp"
 #include "event/lestRenderEngineEventManager.hpp"
-
+#include <iostream>
 ComponentManager::ComponentManager()
 {
   SLOT(mMouseButtonPressSub, ComponentManager::onMouseButtonPressEvent);
@@ -11,6 +11,7 @@ ComponentManager::ComponentManager()
   SLOT(mKeyboardPressSub, ComponentManager::onKeyboardPressEvent);
   SLOT(mKeyboardReleaseSub, ComponentManager::onKeyboardReleaseEvent);
   SLOT(mWindowResizeSub, ComponentManager::onWindowResizeEvent);
+  SLOT(mWindowCloseSub, ComponentManager::onWindowCloseEvent);
   mDispatcher.addEventDispatcher<lre::MouseButtonPressEvent>();
   mDispatcher.addEventDispatcher<lre::MouseButtonReleaseEvent>();
   mDispatcher.addEventDispatcher<lre::MouseMoveEvent>();
@@ -101,4 +102,15 @@ void ComponentManager::onWindowResizeEvent(lre::WindowResizeEvent& rWindowResize
 {
   lre::WindowResizeEvent event = rWindowResizeEvent;
   mDispatcher.dispatch(event);
+}
+
+void ComponentManager::onWindowCloseEvent(lre::WindowCloseEvent&)
+{
+  UNREGISTER(mMouseButtonPressSub);
+  UNREGISTER(mMouseButtonReleaseSub);
+  UNREGISTER(mMouseButtonMoveSub);
+  UNREGISTER(mKeyboardPressSub);
+  UNREGISTER(mKeyboardReleaseSub);
+  UNREGISTER(mWindowResizeSub);
+  UNREGISTER(mWindowCloseSub);
 }

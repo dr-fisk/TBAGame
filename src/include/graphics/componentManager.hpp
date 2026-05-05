@@ -115,6 +115,8 @@ class ComponentManager
     //! @return None 
     void onWindowResizeEvent(lre::WindowResizeEvent& rWindowResizeEvent);
 
+    void onWindowCloseEvent(lre::WindowCloseEvent& rWindowCloseEvent);
+
     uint64_t mIdCounter = 0;
     std::vector<Component*> mComponents;
     lre::ApplicationEventDispatcher<lre::LestRenderEngineEvents> mDispatcher;
@@ -124,6 +126,7 @@ class ComponentManager
     EventSubscriber<lre::KeyboardPressEvent> mKeyboardPressSub;
     EventSubscriber<lre::KeyboardReleaseEvent> mKeyboardReleaseSub;
     EventSubscriber<lre::WindowResizeEvent> mWindowResizeSub;
+    EventSubscriber<lre::WindowCloseEvent> mWindowCloseSub;
 };
 
 #endif

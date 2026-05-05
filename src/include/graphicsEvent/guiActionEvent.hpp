@@ -1,5 +1,5 @@
-#ifndef GUI_ACTION_EVENT
-#define GUI_ACTION_EVENT
+#ifndef GUI_ACTION_EVENT_HPP
+#define GUI_ACTION_EVENT_HPP
 
 #include "event/I_Event.hpp"
 

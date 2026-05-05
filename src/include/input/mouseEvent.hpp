@@ -10,18 +10,21 @@ namespace lre
 class MouseButtonEvent : public I_Event<LestRenderEngineEvents>
 {
   public:
-    MouseButtonEvent() = delete;
+    MouseButtonEvent() = default;
     virtual ~MouseButtonEvent() = default;
     int32_t getMouseButton() const;
     float getX() const;
     float getY() const;
+    float getXWorldSpace() const;
+    float getYWorldSpace() const;
     MouseButtonEvent& operator=(const MouseButtonEvent& rhs);
+    MouseButtonEvent(const MouseButtonEvent& crMouseButtonEvent);
   protected:
     MouseButtonEvent(const LestRenderEngineEvents cEventType, int32_t cMouseButton, const float cX, const float cY);
 
-    int32_t mMouseButton;
-    float mX;
-    float mY;
+    int32_t mMouseButton = 0;
+    float mX = 0;
+    float mY = 0;
 };
 
 class MouseButtonPressEvent : public MouseButtonEvent
@@ -54,11 +57,14 @@ class MouseMoveEvent : public I_Event<LestRenderEngineEvents>
 
     float getX() const;
     float getY() const;
-
+    float getXWorldSpace() const;
+    float getYWorldSpace() const;
+    MouseMoveEvent& operator=(const MouseMoveEvent& rhs);
+    MouseMoveEvent(const MouseMoveEvent &crMouseMoveEvent);
     EVENT_CLASS_SCOPED_TYPE(LestRenderEngineEvents, MOUSE_MOVE)
   private:
-    float mX;
-    float mY;
+    float mX = 0;
+    float mY = 0;
 };
 
 }

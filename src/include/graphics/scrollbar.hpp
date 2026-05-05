@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-#include "graphics/Component.hpp"
+#include "graphics/component.hpp"
 #include "graphics/button.hpp"
 #include "glm/vec2.hpp"
 

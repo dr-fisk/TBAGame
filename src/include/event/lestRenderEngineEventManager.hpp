@@ -11,6 +11,9 @@
   sub.setCallback(BIND_EVENT_FN(func));\
   lre::LestRenderEngineEventManager::registerToEvent(sub);}
 
+#define UNREGISTER(sub){ \
+ lre::LestRenderEngineEventManager::unregisterFromEvent(sub);}
+
 namespace lre
 {
 

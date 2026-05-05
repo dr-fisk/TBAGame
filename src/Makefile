@@ -4,9 +4,9 @@ CC = x86_64-w64-mingw32-g++-posix
 programs = lestgame.exe
 entrypoint = main.cxx
 
-ifeq (lin64, $(TARGET))
+ifeq (linux, $(TARGET))
   CC = g++
-  programs = main.out
+  programs = lestgame
 else ifeq (win64, $(TARGET))
   CC = x86_64-w64-mingw32-g++
   programs = lestgame.exe
@@ -27,6 +27,7 @@ SRC = ./src
 SHADERSPATH = ./shaders
 FONTSPATH = ./fonts
 LESTTTFPATH = ../lestttf
+LESTRENDERENGINEPATH = ../include/LestRenderEngine/include
 FONTPATH = ../TtfFont
 
 SHADER = $(SHADERSPATH)/shader1.txt
@@ -41,15 +42,17 @@ ifeq (release, $(BUILD))
 CFLAGS += -Wl,-subsystem,windows
 endif
 
-CFLAGS  += -std=c++17 -Wall -Wextra -MMD -MD -I$(INCLPATH) -I$(SRCINCLPATH) -I$(HEADERS) -I$(LESTTTFPATH)
+CFLAGS  += -std=c++17 -g -Wall -Wextra -MMD -MD -I$(LESTTTFPATH) -I$(LESTRENDERENGINEPATH) -I$(INCLPATH) -I$(SRCINCLPATH)
 
-LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -pthread -llestrenderengine -llestpng -llestttf -static-libgcc -static-libstdc++
+LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -pthread -llestrenderengine -llestmedia -llestttf -static-libgcc -static-libstdc++
 SOLDFLAGS = -L$(LIBPATH) -lzlib1 -lws2_32 -shared -static-libgcc -static-libstdc++
 
-ifeq (lin64, $(TARGET))
-  LDFLAGS = -L$(LIBPATH) -lglfw3dll -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lz
+ifeq (linux, $(TARGET))
+  LIBPATH = ../liblinux
+  CFLAGS += -Wl,-rpath='$(LIBPATH)'
+  LDFLAGS = -L$(LIBPATH) -lglfw -lGLU -lGLEW -lGL -lz -llestmedia -llestttf -llestrenderengine
 else ifeq (win64, $(TARGET))
-  LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -llestpng -pthread -static-libgcc -static-libstdc++ -llestttf
+  LDFLAGS = -L$(LIBPATH) -lglfw3dll -lws2_32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -lzlib1 -llestmedia -pthread -static-libgcc -static-libstdc++ -llestttf
 endif
 
 
@@ -65,23 +68,21 @@ stateFiles = state.cpp \
              exceptionState.cpp
 
 graphicsFiles = component.cpp \
-                label.cpp \
-								abstractButton.cpp \
-								toggleButton.cpp \
-								button.cpp \
-								scrollbar.cpp \
-								menuItem.cpp \
-								menu.cpp \
-								popupMenu.cpp \
-                modifier.cpp \
-								textModifier.cpp \
-								componentManager.cpp \
-								frame.cpp \
-								textbox.cpp
+				label.cpp \
+				abstractButton.cpp \
+				toggleButton.cpp \
+				button.cpp \
+				scrollbar.cpp \
+				menuItem.cpp \
+				menu.cpp \
+				popupMenu.cpp \
+				modifier.cpp \
+				textModifier.cpp \
+				componentManager.cpp \
+				frame.cpp \
+				textbox.cpp
 
 graphicsEventsFiles = itemEvent.cpp
-
-lestEngineEventFiles =
 
 objs := $(patsubst %.cxx, %.o, $(entrypoint))
 
@@ -113,7 +114,7 @@ endif
 
 export
 
-$(STATEPATH): $(WINDOWPATH)
+$(STATEPATH):
 	@echo "MAKE	States"
 	$(Q)$(MAKE)  V=$(V) D=$(D) -C $(STATEPATH)
 
@@ -124,11 +125,7 @@ $(GRAPHICSPATH):
 $(GRAPHICSEVENTPATH):
 	@echo "MAKE	Graphics Events"
 	$(Q)$(MAKE) V=$(V) D=$(D) -C $(GRAPHICSEVENTPATH)
-
-$(LESTENGINEEVENTSPATH):
-	@echo "MAKE	Lest Engine Events"
-	$(Q)$(MAKE) V=$(V) D=$(D) -C $(LESTENGINEEVENTSPATH)
-
+	
 shader:
 		@echo "Copying Shaders"
 		$(Q)cp -r $(SHADERSPATH) $(PATHTOEXEC)
@@ -137,11 +134,12 @@ font:
 		@echo "Copying Fonts"
 		$(Q)cp -r $(FONTSPATH) $(PATHTOEXEC)
 
+ifneq (linux, $(TARGET))
 $(programs): $(objs) $(STATEPATH) \
-       $(GRAPHICSPATH) $(GRAPHICSEVENTPATH) $(LESTENGINEEVENTSPATH)
+       $(GRAPHICSPATH) $(GRAPHICSEVENTPATH)
 	@echo "MAKE $@"
-	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(windowObjs) $(drawableObjs) \
-	$(graphicsObjs) $(graphicsEventsObjs) $(lestEngineEventsObjs) $(LDFLAGS)
+	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) \
+	$(graphicsObjs) $(graphicsEventsObjs) $(LDFLAGS)
 	@echo "Checking DIR"
 	$(Q)if [ ! -d $(PATHTOEXEC) ]; then \
 		echo "Creating Win DIR"; \
@@ -152,7 +150,7 @@ $(programs): $(objs) $(STATEPATH) \
 		cp $(LIBPATH)/zlib1.dll $(PATHTOEXEC); \
 		cp $(LIBPATH)/libwinpthread-1.dll $(PATHTOEXEC); \
 		echo "Adding custom dll"; \
-		cp $(LIBPATH)/lestpng.dll $(PATHTOEXEC); \
+		cp $(LIBPATH)/lestmedia.dll $(PATHTOEXEC); \
 		cp $(LIBPATH)/lestrenderengine.dll $(PATHTOEXEC); \
 		cp $(LIBPATH)/lestttf.dll $(PATHTOEXEC); \
 		cp $(FONTPATH)/Envy\ Code\ R.ttf $(PATHTOEXEC); \
@@ -160,8 +158,8 @@ $(programs): $(objs) $(STATEPATH) \
 		cp -r $(FONTSPATH) $(PATHTOEXEC); \
 	else \
 		echo "Checking dynamic libraries exist"; \
-		if [ ! -f $(PATHTOEXEC)/lestpng.dll ]; then \
-			cp $(LIBPATH)/lestpng.dll $(PATHTOEXEC)/lestpng.dll; \
+		if [ ! -f $(PATHTOEXEC)/lestmedia.dll ]; then \
+			cp $(LIBPATH)/lestmedia.dll $(PATHTOEXEC)/lestmedia.dll; \
 		fi; \
 		if [ ! -f $(PATHTOEXEC)/lestrenderengine.dll ]; then \
 			cp $(LIBPATH)/lestrenderengine.dll $(PATHTOEXEC)/lestrenderengine.dll; \
@@ -184,8 +182,37 @@ $(programs): $(objs) $(STATEPATH) \
 	fi
 	@echo "Transferring .exe"
 	$(Q)cp $@ $(PATHTOEXEC)
+else
+$(programs): $(objs) $(STATEPATH) $(GRAPHICSPATH) $(GRAPHICSEVENTPATH)
+	@echo "MAKE $@"
+	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(graphicsObjs) $(graphicsEventsObjs) $(LDFLAGS)
+	@echo "Checking DIR"
+	$(Q)if [ ! -d "$(PATHTOEXEC)" ]; then \
+		echo "Creating Win DIR"; \
+		mkdir $(PATHTOEXEC); \
+		cp $(LIBPATH)/liblestmedia.so $(PATHTOEXEC); \
+		cp $(LIBPATH)/liblestrenderengine.so $(PATHTOEXEC); \
+		cp $(LIBPATH)/liblestttf.so $(PATHTOEXEC); \
+		cp $(FONTPATH)/Envy\ Code\ R.ttf $(PATHTOEXEC); \
+		cp -r $(SHADERSPATH) $(PATHTOEXEC); \
+		cp -r $(FONTSPATH) $(PATHTOEXEC); \
+	else \
+		echo "Checking dynamic libraries exist"; \
+		if [ ! -f $(PATHTOEXEC)/liblestmedia.so ]; then \
+			cp $(LIBPATH)/liblestmedia.so $(PATHTOEXEC)/liblestmedia.so; \
+		fi; \
+		if [ ! -f $(PATHTOEXEC)/liblestrenderengine.so ]; then \
+			cp $(LIBPATH)/liblestrenderengine.so $(PATHTOEXEC)/liblestrenderengine.so; \
+		fi; \
+		if [ ! -f $(PATHTOEXEC)/liblestttf.so ]; then \
+			cp $(LIBPATH)/liblestttf.so $(PATHTOEXEC)/liblestttf.so; \
+		fi; \
+	fi
+	@echo "Transferring .exe"
+	$(Q)cp $@ $(PATHTOEXEC)
+endif
 
-%.out: $(objs) $(STATEPATH) $(DRAWABLESPATH) $(WINDOWPATH) $(UTILITYPATH)
+%.out: $(objs) $(STATEPATH) $(DRAWABLESPATH) $(UTILITYPATH)
 	@echo "MAKE $@"
 	$(Q)$(CC) $(CFLAGS) -o $@ $(objs) $(stateObjs) $(windowObjs) $(drawableObjs) $(utilitiesObjs) $(LDFLAGS)
 	@echo "Checking DIR"
@@ -196,7 +223,7 @@ $(programs): $(objs) $(STATEPATH) \
 		cp $(LIBPATH)/glfw3.dll $(PATHTOEXECLINUX); \
 		cp $(LIBPATH)/glew32.dll $(PATHTOEXECLINUX); \
 		echo "Adding custom dll"; \
-		cp $(DYNLIBSPATH)/liblestpng.dll $(PATHTOEXECLINUX); \
+		cp $(DYNLIBSPATH)/liblestmedia.dll $(PATHTOEXECLINUX); \
 		cp -r $(SHADERSPATH) $(PATHTOEXECLINUX); \
 		cp -r $(FONTSPATH) $(PATHTOEXECLINUX); \
 	fi
@@ -261,7 +288,6 @@ clean_dep:
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(STATEPATH)
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(GRAPHICSPATH)
 	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(GRAPHICSEVENTPATH)
-	$(Q)$(MAKE) clean_dep V=$(V) D=$(D) -C $(LESTENGINEEVENTSPATH)
 
 clean_exe:
 	@echo "Clean Executable"

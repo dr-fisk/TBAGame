@@ -31,7 +31,7 @@ Frame& Frame::addComponent(std::shared_ptr<Component> pComponent)
   return *this;
 }
 
-void Frame::onMousePress(lre::MouseButtonPressEvent& rMouseButtonPressEvent)
+void Frame::onMousePress(lre::MouseButtonPressEvent&)
 {
   // if(mVisible)
   // for(auto& component : mComponents)
@@ -43,22 +43,22 @@ void Frame::onMousePress(lre::MouseButtonPressEvent& rMouseButtonPressEvent)
   // }
 }
 
-void Frame::onMouseRelease(lre::MouseButtonReleaseEvent& rMouseButtonReleaseEvent)
+void Frame::onMouseRelease(lre::MouseButtonReleaseEvent&)
 {
 
 }
 
-void Frame::onMouseMove(lre::MouseMoveEvent& rMouseMoveEvent)
+void Frame::onMouseMove(lre::MouseMoveEvent&)
 {
 
 }
 
-void Frame::onKeyPress(lre::KeyboardPressEvent& rKeyboardPressEvent)
+void Frame::onKeyPress(lre::KeyboardPressEvent&)
 {
 
 }
 
-void Frame::onKeyRelease(lre::KeyboardReleaseEvent& rKeyboardReleaseEvent)
+void Frame::onKeyRelease(lre::KeyboardReleaseEvent&)
 {
 
 }

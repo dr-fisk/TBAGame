@@ -33,6 +33,7 @@ class MainMenu : public State
   public:
     MainMenu(const std::stack<std::shared_ptr<State>>& crStates);
     ~MainMenu();
+    void update(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);
     void fixedUpdate(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);
     void render(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime);
     bool shouldStateExit();
@@ -45,7 +46,7 @@ class MainMenu : public State
     void OnKeyboardPress(lre::KeyboardPressEvent& crEvent);
     void OnKeyboardRelease(lre::KeyboardReleaseEvent& crEvent);
     void OnWindowResize(lre::WindowResizeEvent& crEvent);
-
+    void onSubmit(SubmitEvent<Component>& rEvent);
     // static void dropdownCallbacK(const Button<glm::ivec2>& rVal);s
     std::shared_ptr<Frame> mpFrame;
     LestTrueType ttf;
@@ -54,6 +55,7 @@ class MainMenu : public State
     std::shared_ptr<Sprite> mSprite;
     std::shared_ptr<Sprite> mSprite2;
     std::shared_ptr<Sprite> mSprite3;
+    std::shared_ptr<Sprite> mGifSprite;
     std::shared_ptr<Button> mButton;
     std::shared_ptr<Scrollbar> mScroll;
     std::shared_ptr<Scrollbar> mScroll2;
@@ -70,15 +72,13 @@ class MainMenu : public State
     glm::vec2 curr_pos;
     float xMove;
     float yMove;
-    Texture2D spriteTexture;
-    Texture2D sprite2Texture;
-    Texture2D borderedImgTest;
     EventSubscriber<lre::MouseMoveEvent> mEventSub;
     EventSubscriber<lre::MouseButtonPressEvent> mEventSub1;
     EventSubscriber<lre::MouseButtonReleaseEvent> mEventSub2;
     EventSubscriber<lre::KeyboardPressEvent> mEventSub3;
     EventSubscriber<lre::KeyboardReleaseEvent> mEventSub4;
     EventSubscriber<lre::WindowResizeEvent> mEventSub5;
+    EventSubscriber<SubmitEvent<Component>> mEventSub6;
 };
 
 #endif

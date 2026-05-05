@@ -5,8 +5,9 @@ INCLPATH = ../../include
 SRCINCLPATH=../include
 HEADERS= ../headers
 LESTTTFPATH= ../../lestttf
+LESTRENDERENGINEPATH = ../../include/LestRenderEngine/include
 
-CFLAGS = -g -std=c++17 -MMD -I$(INCLPATH) -I$(SRCINCLPATH) -I$(LIBPATH) -I$(HEADERS) -I$(LESTTTFPATH)
+CFLAGS  += -std=c++17 -Wall -g -Wextra -MMD -MD -I$(LESTTTFPATH) -I$(LESTRENDERENGINEPATH)  -I$(INCLPATH) -I$(SRCINCLPATH)
 GRAPHICSDEPS := $(patsubst %.o, %.d, $(graphics))
 -include $(GRAPHICSDEPS)
 

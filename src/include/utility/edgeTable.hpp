@@ -42,7 +42,7 @@ namespace EdgeTable
     float dy = 0;
     T p1 = {0, 0};
     T p2 = {0, 0};
-    for (int32_t i = 0; i < crEdges.size(); i ++)
+    for (size_t i = 0; i < crEdges.size(); i ++)
     {
       p1.x = crEdges[i].p1.x;
       p1.y = crEdges[i].p1.y;
@@ -95,7 +95,7 @@ namespace EdgeTable
   //! @return None
   template<typename T>
   static void scanLineFill(const std::vector<Edges<T>>& crEdges, const glm::uvec2& crDimensions,
-                           std::vector<uint32_t>& rBitmap, const lg::Color &crColor, const int32_t cMinY, char cha)
+                           std::vector<uint32_t>& rBitmap, const lg::Color &crColor, const int32_t cMinY)
   {
     std::vector<EdgeTableNode> edgeTable(crEdges.size());
     std::vector<EdgeTableNode> activeEdgeTable(crEdges.size());
@@ -111,26 +111,21 @@ namespace EdgeTable
     float endIntersection = 0;
     int32_t endIndex = 0;
     float endCovered = 0;
-    float scanline = 0;
     int32_t idx1 = 0;
     int32_t idx2 = 0;
     lg::Color tempColor;
     uint8_t alpha = 0;
     float dy = 0;
-    int intersection = 0;
-    int prevStartIndex = -1;
-    float pixelCoverage = 0;
 
     fillEdgeTable(crEdges, edgeTable, numEdges);
 
-    for(int32_t y = cMinY; y < crDimensions.y; y ++)
+    for(uint32_t y = cMinY; y < crDimensions.y; y ++)
     {
       dy = y;
       for(int32_t dx = 0; dx < scanlineSubDiv; dx++)
       {
         fillActiveEdgeTable(edgeTable, activeEdgeTable, edgeTableIdx, numEdges, activeEdgeTableIdx, dy);
-        intersection = 0;
-        for(int32_t i = 0; i < activeEdgeTableIdx && activeEdgeTableIdx > 1;)
+        for(size_t i = 0; i < activeEdgeTableIdx && activeEdgeTableIdx > 1;)
         {
           startIntersection = activeEdgeTable[i].xIntersect;
           startIndex = static_cast<int32_t>(activeEdgeTable[i].xIntersect);
@@ -149,7 +144,6 @@ namespace EdgeTable
           if(startIndex == endIndex)
           {
             idx1 = (y * crDimensions.x) + startIndex;
-            uint8_t currAlpha = lg::Color::getAlpha(rBitmap[idx1]);
             alpha = lg::Color::getAlpha(rBitmap[idx1]);
             alpha += static_cast<uint8_t>(alphaWeight * startCovered);
             lg::Color::setAlpha(rBitmap[idx1], alpha);
@@ -158,12 +152,9 @@ namespace EdgeTable
           {
             idx1 = (y * crDimensions.x) + startIndex;
             idx2 = (y * crDimensions.x) + endIndex;
-            uint8_t currAlpha = lg::Color::getAlpha(rBitmap[idx1]);
-
             alpha = lg::Color::getAlpha(rBitmap[idx1]);
             alpha += static_cast<uint8_t>(alphaWeight * startCovered);
             lg::Color::setAlpha(rBitmap[idx1], alpha);
-            currAlpha = lg::Color::getAlpha(rBitmap[idx2]);
 
             alpha = lg::Color::getAlpha(rBitmap[idx2]);
             alpha += static_cast<uint8_t>(alphaWeight * endCovered);
@@ -172,7 +163,6 @@ namespace EdgeTable
 
           for (int32_t x = startIndex + 1; x < endIndex; x ++)
           {	
-            uint8_t currAlpha = lg::Color::getAlpha(rBitmap[crDimensions.x * y + x]);
             alpha = lg::Color::getAlpha(rBitmap[crDimensions.x * y + x]);
             alpha += static_cast<uint8_t>(alphaWeight);
             lg::Color::setAlpha(rBitmap[crDimensions.x * y + x], alpha);

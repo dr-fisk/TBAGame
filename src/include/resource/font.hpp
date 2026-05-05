@@ -6,7 +6,7 @@
 #include <cstdint>
 
 #include "color.hpp"
-#include "lestTtf.hpp"
+#include "lestttf/lestTtf.hpp"
 #include "utility/edgeTypeDefs.hpp"
 #include "renderEngine/texture2D.hpp"
 #include "glm/vec2.hpp"

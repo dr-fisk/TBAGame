@@ -10,10 +10,32 @@ template <typename T>
 class I_Event
 {
   public:
-    //! @brief Default Constructor
+    I_Event() = default;
+
+    //! @brief Constructor
     I_Event(const T cEventType)
     {
       mType = cEventType;
+    }
+
+    I_Event(const I_Event& crEvent)
+    {
+      *this = crEvent;
+    }
+
+    virtual I_Event<T>& operator=(const I_Event<T>& rhs)
+    {
+      if(this == &rhs)
+      {
+        return *this;
+      }
+
+      mType = rhs.mType;
+      mStopPropagating = rhs.mStopPropagating;
+      mHandled = rhs.mHandled;
+      mBubbleEvent = rhs.mBubbleEvent;
+
+      return *this;
     }
 
     //! @brief Default Destructor

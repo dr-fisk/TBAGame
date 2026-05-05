@@ -1,14 +1,11 @@
 #include "graphics/toggleButton.hpp"
-#include "resource/image.hpp"
+#include "resource/imageImporter.hpp"
 #include <iostream>
 
 ToggleButton::ToggleButton() : mToggled(false)
 {
   // Move this out, checkbox and radio will have their own textures
-  Image temp_img("../src/Check.png");
-  mpCheckedTexture = std::make_shared<Texture2D>();
-  mpCheckedTexture->create(temp_img.getDimensions().y, temp_img.getDimensions().x, temp_img.getInternalFormat());
-  mpCheckedTexture->update(temp_img.getImgData().data(), temp_img.getDimensions(), temp_img.getOffset(), temp_img.getFormat(), temp_img.getType());
+  mpCheckedTexture = ImageImporter::buildStaticFrame("../Check.png");
 }
 
 void ToggleButton::buttonClicked()
@@ -21,7 +18,7 @@ void ToggleButton::setButtonTexture()
 {
   if(mToggled)
   {
-    mLabel.setTexture(mpCheckedTexture);
+    mLabel.setFrameSource(mpCheckedTexture);
 
     if(mLabel.hasBorder())
     {

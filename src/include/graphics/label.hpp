@@ -8,6 +8,7 @@
 // TODO move into subfolder
 #include "graphics/modifier.hpp"
 #include "graphics/textModifier.hpp"
+#include "resource/frameSource.hpp"
 
 class Label : public Component
 {
@@ -53,10 +54,10 @@ class Label : public Component
 
     //! @brief Sets the texture of the sprite associated with the label
     //!
-    //! @param[in] pTexture Texture to set
+    //! @param[in] cpFrameSource Texture to set
     //!
     //! @return Label reference to chain calls
-    Label& setTexture(std::shared_ptr<Texture2D> pTexture);
+    Label& setFrameSource(const std::shared_ptr<FrameSource> cpFrameSource);
 
     //! @brief Sets the backgrounds color of the sprite
     //!        Note: If sprite is textured this won't be used
@@ -170,8 +171,7 @@ class Label : public Component
     SlicedSprite mSprite;
     Text mText;
     Transform mTextTransform;
-    std::shared_ptr<Texture2D> mpTexture;
-    Modifier mModifier;
+    std::shared_ptr<FrameSource> mpTexture;
     TextModifier mTextModifier;
     float mBorderSizePx = 0.0f;
     lg::Color mBorderColor;

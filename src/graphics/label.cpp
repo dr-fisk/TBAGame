@@ -42,17 +42,16 @@ void Label::verticalAlign()
   {
     case VerticalAlign::TOP:
     {
-      glm::vec2 textSize = mText.getSize();
       glm::vec2 labelCenter = mModifier.getPos();
       glm::vec2 labelScale = mModifier.getScale();
-      mTextTransform.setPos({mTextTransform.getPos().x, labelCenter.y - (labelScale.y / 2.0f)} );
+      mTextTransform.setOrigin({mTextTransform.getPos().x, labelCenter.y - (labelScale.y / 2.0f)} );
       break;
     }
     case VerticalAlign::CENTER:
     {
       glm::vec2 textSize = mText.getSize();
       glm::vec2 labelCenter = mModifier.getPos();
-      mTextTransform.setPos({mTextTransform.getPos().x, labelCenter.y - (textSize.y / 2.0f)});
+      mTextTransform.setOrigin({mTextTransform.getPos().x, labelCenter.y - (textSize.y / 2.0f)});
       break;
     }
     case VerticalAlign::BOTTOM:
@@ -60,7 +59,7 @@ void Label::verticalAlign()
       glm::vec2 textSize = mText.getSize();
       glm::vec2 labelCenter = mModifier.getPos();
       glm::vec2 labelScale = mModifier.getScale();
-      mTextTransform.setPos({mTextTransform.getPos().x, labelCenter.y + (labelScale.y / 2.0f) - textSize.y});
+      mTextTransform.setOrigin({mTextTransform.getPos().x, labelCenter.y + (labelScale.y / 2.0f) - textSize.y});
       break;
      }
     case VerticalAlign::NONE:
@@ -83,17 +82,16 @@ void Label::horizontalAlign()
   {
     case HorizontalAlign::LEFT:
     {
-      glm::vec2 textSize = mText.getSize();
       glm::vec2 labelCenter = mModifier.getPos();
       glm::vec2 labelScale = mModifier.getScale();
-      mTextTransform.setPos({labelCenter.x - (labelScale.x / 2.0f), mTextTransform.getPos().y} );
+      mTextTransform.setOrigin({labelCenter.x - (labelScale.x / 2.0f), mTextTransform.getPos().y} );
       break;
     }
     case HorizontalAlign::CENTER:
      {
       glm::vec2 textSize = mText.getSize();
       glm::vec2 labelCenter = mModifier.getPos();
-      mTextTransform.setPos({labelCenter.x - (textSize.x / 2.0f), mTextTransform.getPos().y});
+      mTextTransform.setOrigin({labelCenter.x - (textSize.x / 2.0f), mTextTransform.getPos().y});
       break;
      }
     case HorizontalAlign::RIGHT:
@@ -101,7 +99,7 @@ void Label::horizontalAlign()
       glm::vec2 textSize = mText.getSize();
       glm::vec2 labelCenter = mModifier.getPos();
       glm::vec2 labelScale = mModifier.getScale();
-      mTextTransform.setPos({labelCenter.x + (labelScale.x / 2.0f)  - textSize.x, mTextTransform.getPos().y} );
+      mTextTransform.setOrigin({labelCenter.x + (labelScale.x / 2.0f)  - textSize.x, mTextTransform.getPos().y} );
       break;
     }
     case HorizontalAlign::NONE:
@@ -111,10 +109,10 @@ void Label::horizontalAlign()
   }
 }
 
-Label& Label::setTexture(std::shared_ptr<Texture2D> pTexture)
+Label& Label::setFrameSource(const std::shared_ptr<FrameSource> cpFrameSource)
 {
-  mpTexture = pTexture;
-  mSprite.setTexture(*mpTexture);
+  mpTexture = cpFrameSource;
+  mSprite.setFrameSource(mpTexture);
   return *this;
 }
 
@@ -146,7 +144,7 @@ Label& Label::resize(const glm::vec2& crSize)
 }
 
 // TODO
-Label& Label::setPadding(const glm::vec2& crPadding)
+Label& Label::setPadding(const glm::vec2&)
 {
   return *this;
 }
@@ -160,6 +158,8 @@ void Label::alignText()
 Label& Label::setString(const std::string& crString)
 {
   mText.setString(crString);
+  alignText();
+  mText.setPos(mTextTransform.getPos());
   mUpdateUI = true;
   return *this;
 }
@@ -182,7 +182,7 @@ Label& Label::setTextColor(const lg::Color& crColor)
 
 Label& Label::setTextPosition(const glm::vec2& crPos)
 {
-  mTextTransform.setPos(crPos);
+  mTextTransform.setOrigin(crPos);
   mUpdateUI = true;
   return *this;
 }
@@ -217,5 +217,6 @@ void Label::updateUI()
   mSprite.setTransform(mModifier.getTransform());
   alignText();
   mText.setPos(mTextTransform.getPos());
+  mText.updateGeometry();
   mUpdateUI = false;
 }

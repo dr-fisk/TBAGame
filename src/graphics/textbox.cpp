@@ -48,18 +48,26 @@ static char shiftCharConversion(const int cChar)
       return '}';
     case 96:
       return '~';
+    default:
+      return '\0';
   }
 
   return ';';
 }
 
 TextBox::TextBox(const Modifier& crModifier, const TextModifier& crTextModifier, const std::string& crDefaultText)
+  : mrModifier(crModifier), mrTextModifier(crTextModifier)
 {
   mDefaultText = crDefaultText;
+  mpCursor = std::make_shared<Sprite>();
+  mpCursor->setColor(lg::White);
+  mpCursor->resize({1.0f, static_cast<float>(crTextModifier.getFontSize())});
   mpButton = std::make_shared<Button>(crModifier, crTextModifier);
   mUpdateUI = true;
   mButtonEventSub.setCallback(BIND_EVENT_FN(TextBox::onButtonEvent));
+  mFocusSub.setCallback(BIND_EVENT_FN(TextBox::onFocusEvent));
   mpButton->addButtonEventListener(mButtonEventSub);
+  mpButton->addFocusEventListener(mFocusSub);
   mCursorIndexPos = 0;
 }
 
@@ -90,6 +98,17 @@ void TextBox::draw()
   if(mVisible)
   {
     mpButton->draw();
+
+    if(mIsFocused)
+    {
+      auto time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - mCursorClock);
+      if(time.count() >= 500)
+      {
+        mpCursor->setColor(mpCursor->getColor().getAlpha() == 0 ? lg::White : lg::Transparent);
+        mCursorClock = std::chrono::steady_clock::now();
+      }
+      mpCursor->draw();
+    }
   }
 }
 
@@ -99,6 +118,8 @@ void TextBox::processEvent(I_Event<lre::LestRenderEngineEvents>& rEvent)
   {
     case lre::LestRenderEngineEvents::KEY_PRESS:
       onKeyPress(static_cast<lre::KeyboardPressEvent&>(rEvent));
+    default:
+      break;
   }
 }
 
@@ -109,7 +130,7 @@ void TextBox::onButtonEvent(AbstractButton::ButtonEvent& rEvent)
     case GuiEvent::GUI_HOVER:
       break;
     case GuiEvent::GUI_CLICK:
-      std::cout << rEvent.x << ", " << rEvent.y << std::endl;
+      // std::cout << rEvent.x << ", " << rEvent.y << std::endl;
 
       if(0 != mInputText.size())
       {
@@ -118,16 +139,16 @@ void TextBox::onButtonEvent(AbstractButton::ButtonEvent& rEvent)
         // Could update to take into account the size of text later
         // need to account for y pos later too
         mCursorIndexPos = 0;
-        for(int i = 0; i < mInputText.size(); i ++)
+        for(size_t i = 0; i < mInputText.size(); i ++)
         {
-          std::cout << "Char: " << prev_pos.x << ", " << text.getCharSize(i).x << std::endl;
+          // std::cout << "Char: " << prev_pos.x << ", " << text.getCharSize(i).x << std::endl;
           if(prev_pos.x < rEvent.x && prev_pos.x + (text.getCharSize(i).x) / 2.0 > rEvent.x)
           {
             mCursorIndexPos = i;
             std::cout << "Selected char: " << mInputText[i] << std::endl;
             break;
           }
-          else if(i + 1 > mInputText.size())
+          else if(i + 1 >= mInputText.size())
           {
             mCursorIndexPos = i;
           }
@@ -138,11 +159,18 @@ void TextBox::onButtonEvent(AbstractButton::ButtonEvent& rEvent)
       break;
     case GuiEvent::GUI_PRESS:
       break;
+    default:
+      break;
   }
 }
 
 void TextBox::onKeyPress(lre::KeyboardPressEvent& rEvent)
 {
+  if(!mIsFocused)
+  {
+    return;
+  }
+
   const char* key = glfwGetKeyName(rEvent.getKey(), rEvent.getScancode());
   if(nullptr != key)
   {
@@ -176,7 +204,6 @@ void TextBox::onKeyPress(lre::KeyboardPressEvent& rEvent)
     switch(rEvent.getKey())
     {
       case GLFW_KEY_BACKSPACE:
-        //temp
         if(0 != mInputText.size() && mCursorIndexPos > 0)
         {
           mInputText.erase(mInputText.begin() + mCursorIndexPos - 1);
@@ -207,6 +234,11 @@ void TextBox::onKeyPress(lre::KeyboardPressEvent& rEvent)
           mInputText.insert(mCursorIndexPos, 1, '\n');
           mCursorIndexPos ++;
         }
+        else
+        {
+          SubmitEvent<Component> event(this, mInputText);
+          mSubmitEventDispatcher.notify(event);
+        }
         break;
       case GLFW_KEY_LEFT:
         if(0 != mCursorIndexPos)
@@ -220,6 +252,12 @@ void TextBox::onKeyPress(lre::KeyboardPressEvent& rEvent)
           mCursorIndexPos++;
         }
         break;
+      case GLFW_KEY_SPACE:
+        mCursorIndexPos++;
+        mInputText += " ";
+        break;
+      default:
+        break;
     }
   }
 
@@ -228,15 +266,40 @@ void TextBox::onKeyPress(lre::KeyboardPressEvent& rEvent)
 
 void TextBox::updateUI()
 {
+  auto& label = mpButton->getLabel();
   if(0 == mInputText.size())
   {
-    mpButton->getLabel().setString(mDefaultText);
+    label.setString(mDefaultText);
     mCursorIndexPos = 0;
   }
   else
   {
-    mpButton->getLabel().setString(mInputText);
+    // glm::vec2 size = mrTextModifier.getFont().getCharacterDimensions(mrTextModifier.getFontSize(), mInputText.back());
+    // if()
+    // {
+      label.setString(mInputText);
+    // }
+  }
+
+  label.updateUI();
+
+  if(!mInputText.empty() && mCursorIndexPos > 0)
+  {
+    glm::vec2 pos = label.getText().getCharPos(mCursorIndexPos - 1);
+    glm::vec2 size = label.getText().getCharSize(mCursorIndexPos - 1);
+    mpCursor->setPos({pos.x + size.x + mpCursor->getSize().x / 2.0f, pos.y + size.y / 2.0f });
+  }
+  else if(!mDefaultText.empty())
+  {
+    mpCursor->setPos({label.getText().getCharPos(0).x - mpCursor->getSize().x / 2.0f, label.getText().getCharPos(0).y + label.getText().getCharSize(0).y / 2.0f});
   }
 
   mUpdateUI = false;
+}
+
+void TextBox::onFocusEvent(FocusEvent<Component>& rFocusEvent)
+{
+  setFocus(rFocusEvent.mFocus);
+  mCursorClock = std::chrono::steady_clock::now();
+  mpCursor->setColor(lg::White);
 }

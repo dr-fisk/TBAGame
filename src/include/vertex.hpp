@@ -4,6 +4,10 @@
 #include "color.hpp"
 #include "glm/vec2.hpp"
 
+#include <array>
+
+static const uint8_t sNumQuadVerts = 4;
+
 struct Vertex
 {
   glm::vec2 Pos;
@@ -12,7 +16,5 @@ struct Vertex
   float TextureIndex{-1.0f};
   float OverrideSampleColor{-1.0f};
 };
-
-static const uint8_t sNumQuadVerts = 4;
 
 #endif

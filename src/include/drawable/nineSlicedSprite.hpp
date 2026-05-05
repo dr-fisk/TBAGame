@@ -40,20 +40,20 @@ class SlicedSprite : public I_Sprite
     SlicedSprite& setPos(const glm::vec2& crPos) override;
     SlicedSprite& resize(const glm::vec2& crSize) override;
     SlicedSprite& setTransform(const Transform& crTransform) override;
-    SlicedSprite& setTexture(const Texture2D& crTexture, const bool cInvert=false) override;
-    SlicedSprite& setBox(const Box<glm::vec2>& crBox) override;
+    SlicedSprite& setFrameSource(const std::shared_ptr<FrameSource> cpFrameSource, const bool cInvert=false) override;
+    SlicedSprite& setBox(const Rect<float>& crBox) override;
     SlicedSprite& setSpecificSliceColor(const NineSliceTypes cSplice, const lg::Color crColor);
     void clearColor();
     void draw();
     glm::vec2 getSize() const;
     glm::vec2 getPos() const;
-
+    SlicedSprite& update(const float cDt) override{}
     void setSpecificBorder(const SliceBorder cBorder, const float cSize);
     void setBorders(const float cLeft, const float cTop, const float cRight, const float cBottom);
     void fillBorderColor(const lg::Color& crColor);
     void removeBorderColor();
   private:
-    void updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize) override;
+    void updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize);
     void setOffset(const NineSliceTypes cType, const glm::vec2& crOffset, glm::vec2& rResult);
     void updateGeometry();
     struct SlicedQuadData

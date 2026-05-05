@@ -27,23 +27,11 @@ Button::Button(const Modifier& crModifier, const TextModifier& crTextModifier) :
 //! @param[in] cCheckIfMouseHovering Flag to check if mouse is in AABB of button after moving pos
 //!
 //! @return None
-Button& Button::setPos(const glm::vec2& crPos, const bool cCheckIfMouseHovering)
+Button& Button::setPos(const glm::vec2& crPos, const bool)
 {
   mModifier.setPos(crPos);
 
   // onButtonMoveUpdate(cCheckIfMouseHovering);
-  return *this;
-}
-
-//! @brief Sets whether to render Button or not
-//!
-//! @param[in] cEnable Enable/Disable Rendering for button
-//!
-//! @return None
-Button& Button::setRender(const bool cEnable)
-{
-  // mBox.setRender(cEnable);
-  // mText.setRender(cEnable);
   return *this;
 }
 
@@ -72,7 +60,7 @@ int64_t Button::getId() const
 //! @param[in] cEnable Enable or Disable Callback
 //!
 //! @return None 
-void Button::disableCallback(const bool cEnable)
+void Button::disableCallback(const bool)
 {
   // mCallbackDisabled = cEnable;
 }

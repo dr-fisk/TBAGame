@@ -15,6 +15,7 @@ class WindowEvent : public I_Event<LestRenderEngineEvents>
     int32_t getHeight() const;
     int32_t getWidth() const;
     WindowEvent& operator=(const WindowEvent& rhs);
+    WindowEvent(const WindowEvent& crWindowEvent);
   protected:
       WindowEvent(const LestRenderEngineEvents cEventType, const int32_t cWidth, const int32_t cHeight);
 
@@ -37,9 +38,21 @@ class WindowFocusEvent : public I_Event<LestRenderEngineEvents>
     WindowFocusEvent();
     WindowFocusEvent(const bool cFocused);
     bool isFocused() const;
+    WindowFocusEvent& operator=(const WindowFocusEvent& rhs);
+    WindowFocusEvent(const WindowFocusEvent& crWindowEvent);
     EVENT_CLASS_SCOPED_TYPE(LestRenderEngineEvents, WINDOW_FOCUS);
   private:
     bool mFocus;
+};
+
+class WindowCloseEvent : public I_Event<LestRenderEngineEvents>
+{
+  public:
+    WindowCloseEvent();
+    WindowCloseEvent(const WindowCloseEvent& crWindowEvent);
+    WindowCloseEvent& operator=(const WindowCloseEvent& rhs);
+
+    EVENT_CLASS_SCOPED_TYPE(LestRenderEngineEvents, WINDOW_CLOSE);
 };
 
 }

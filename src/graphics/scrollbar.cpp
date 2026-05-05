@@ -106,9 +106,11 @@ void Scrollbar::onButtonEvent(AbstractButton::ButtonEvent& rButtonEvent)
     case GuiEvent::GUI_PRESS:
       moveHandler(rButtonEvent);
       break;
+    default:
+      break;
   }
 }
 
-void Scrollbar::processEvent(I_Event<lre::LestRenderEngineEvents>& rEvent)
+void Scrollbar::processEvent(I_Event<lre::LestRenderEngineEvents>&)
 {
 }

@@ -15,40 +15,32 @@
 #include "math/lestMath.hpp"
 #include "event/lestRenderEngineEventManager.hpp"
 #include "window/window.hpp"
+#include "resource/imageImporter.hpp"
+#include "resource/gifImporter.hpp"
 
 MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
                    State(crStates)
 {
-  std::string temp = "../TtfFont/Limelight.ttf"; //"Envy Code R.ttf";
+  std::string temp = "./Envy Code R.ttf"; //"Envy Code R.ttf";
   mStartTime = std::chrono::system_clock::now();
   mNewFont.loadFromFile(temp, 5);
   mText = std::make_shared<Text>(mNewFont, "FPS: 0", 12);
   mText->setPos({200.0f, 50.0f});
   mText->setColor(lg::Blue);
-  Image temp_img("../src/art.png");
-  spriteTexture.create(temp_img.getDimensions().y, temp_img.getDimensions().x, temp_img.getInternalFormat());
-  spriteTexture.update(temp_img.getImgData().data(), temp_img.getDimensions(), temp_img.getOffset(), temp_img.getFormat(), temp_img.getType());
-  mSprite = std::make_shared<Sprite>(spriteTexture, Box(glm::vec2{200.0f, 200.0f}, glm::vec2{16, 16}));
-  Image temp_img2("../src/heart.png");
-  sprite2Texture.create(temp_img2.getDimensions().y, temp_img2.getDimensions().x, temp_img2.getInternalFormat());
-  sprite2Texture.update(temp_img2.getImgData().data(), temp_img2.getDimensions(), temp_img2.getOffset(), temp_img2.getFormat(), temp_img2.getType());
-  mSprite3 = std::make_shared<Sprite>(sprite2Texture, Box(glm::vec2{50.0f, 300.0f}, glm::vec2{16, 16}));
-  mSprite2 = std::make_shared<Sprite>(spriteTexture, Box(glm::vec2{600.0f, 600.0f}, glm::vec2{16, 16}));
-  Image tempImg("../src/SquareWBorder.png");
-  std::shared_ptr<Texture2D> tempTexture = std::make_shared<Texture2D>();
-  borderedImgTest.create(tempImg.getDimensions().y, tempImg.getDimensions().x, tempImg.getInternalFormat());
-  borderedImgTest.update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
+  std::shared_ptr<FrameSource> heartPng = ImageImporter::buildStaticFrame("../art.png");
+  mSprite = std::make_shared<Sprite>(heartPng, Rect<float>(200.0f, 200.0f, 16, 16));
+  mSprite3 = std::make_shared<Sprite>(ImageImporter::buildStaticFrame("../heart.png"), Rect<float>(50.0f, 300.0f, 16, 16));
+  mSprite2 = std::make_shared<Sprite>(heartPng, Rect<float>(600.0f, 600.0f, 16, 16));
+  Image tempImg("../SquareWBorder.png");
   tempImg.recolorBorderedShape(lg::Color(135, 135, 135), lg::Color(170, 170, 170), lg::White);
-  tempTexture->create(tempImg.getDimensions().y, tempImg.getDimensions().x, tempImg.getInternalFormat());
-  tempTexture->update(tempImg.getImgData().data(), tempImg.getDimensions(), tempImg.getOffset(), tempImg.getFormat(), tempImg.getType());
-  Image btnImg("../src/ButtonTexture.png");
-  Image btnImg2("../src/InvertedButtonTexture.png");
-  std::shared_ptr<Texture2D> btnTexture = std::make_shared<Texture2D>();
-  btnTexture->create(btnImg.getDimensions().y, btnImg.getDimensions().x, btnImg.getInternalFormat());
-  btnTexture->update(btnImg.getImgData().data(), btnImg.getDimensions(), btnImg.getOffset(), btnImg.getFormat(), btnImg.getType());
-  std::shared_ptr<Texture2D> btnTexture2 = std::make_shared<Texture2D>();
-  btnTexture2->create(btnImg2.getDimensions().y, btnImg2.getDimensions().x, btnImg2.getInternalFormat());
-  btnTexture2->update(btnImg2.getImgData().data(), btnImg2.getDimensions(), btnImg2.getOffset(), btnImg2.getFormat(), btnImg2.getType());
+  std::shared_ptr<FrameSource> tempTexture = ImageImporter::buildStaticFrame(tempImg);
+  std::shared_ptr<FrameSource> btn1 = ImageImporter::buildStaticFrame("../ButtonTexture.png");
+  std::shared_ptr<FrameSource> btn2 = ImageImporter::buildStaticFrame("../InvertedButtonTexture.png");
+  std::shared_ptr<FrameSource> gif = GifImporter::buildAnimatedFrameSource("../dancing-banana.gif", true);
+  
+  mGifSprite = std::make_shared<Sprite>(gif, Rect<float>(400.0f, 400.0f, gif->getCurrentUv().width, gif->getCurrentUv().height), false);
+
+  
   SLOT(mEventSub, MainMenu::OnMouseMove);
   SLOT(mEventSub1, MainMenu::OnMousePress);
   SLOT(mEventSub2, MainMenu::OnMouseRelease);
@@ -57,9 +49,9 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
   SLOT(mEventSub5, MainMenu::OnWindowResize);
   mNineSliced = std::make_unique<SlicedSprite>();
   Transform test;
-  test.setPos({650.0f, 650.0f});
+  test.setOrigin({650.0f, 650.0f});
   test.setScale({200.0f, 50.0f});
-  mNineSliced->setTexture(borderedImgTest);
+  mNineSliced->setFrameSource(tempTexture);
   mNineSliced->setBorders(5, 5, 5, 5);
   mNineSliced->fillBorderColor(lg::Red);
   mNineSliced->setTransform(test);
@@ -79,9 +71,9 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
                   .setFontSize(24),
                 Modifier().setVerticalAlign(VerticalAlign::CENTER)
                   .setHorizontalAlign(HorizontalAlign::CENTER)))
-           .setDefaultTexture(btnTexture)
-           .setHoverTexture(btnTexture2)
-           .setPressedTexture(btnTexture2)
+           .setDefaultTexture(btn1)
+           .setHoverTexture(btn2)
+           .setPressedTexture(btn2)
            .setPos({250.0f, 250.0f})
            .resize({300, 62})
            .setBorder(2)
@@ -222,11 +214,14 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
       Modifier().setVerticalAlign(VerticalAlign::CENTER)
         .setHorizontalAlign(HorizontalAlign::CENTER)
         .setPos({100, 100})
-        .setScale({32, 32}),
+        .setScale({160, 32}),
       TextModifier().setTextColor(lg::Black)
         .setFont(mNewFont)
         .setFontSize(16),
       "Default");
+
+      mEventSub6.setCallback(BIND_EVENT_FN(MainMenu::onSubmit));
+      mpTextbox->addSubmitEventListener(mEventSub6);
 //  .setBorderColor(ButtonState::DEFAULT_STATE, lg::Color(135, 135, 135))
 //  .setBorderColor(ButtonState::HOVER_STATE, lg::Color(175, 175, 175))
 //  .setBorderColor(ButtonState::PRESSED_STATE, lg::Color(230, 230, 230))
@@ -237,7 +232,7 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
 
   // Need to figure out a way of setting a camera dimensions and getting window dimensions
   mCam = std::make_shared<OrthCamera>(0, 1920, 1061, 0);
-  Box<glm::vec2> testBox = mSprite->getGlobalBounds(*mCam);
+  Rect<float> testBox = mSprite->getGlobalBounds(*mCam);
   // mCam.setPosition({0.0f, 0.0f, 0.0f});
   curr_pos = mSprite->getPos();
   xMove = 0.0f;
@@ -254,7 +249,12 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
   mpFrame->addComponent(mpTextbox);
 }
 
-void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const double cDeltaTime)
+void MainMenu::update(const std::shared_ptr<RenderTarget>&, const double cDeltaTime)
+{
+  mGifSprite->update(cDeltaTime);
+}
+
+void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget>&, const double cDeltaTime)
 {
   // std::string temp = "FPS: " + std::to_string(gFps);
   // mText->updateText(temp);
@@ -295,7 +295,7 @@ void MainMenu::fixedUpdate(const std::shared_ptr<RenderTarget> &crpTarget, const
   mSprite->setPos(temp);
 }
 
-void MainMenu::render(const std::shared_ptr<RenderTarget>& crpTarget, const double cDeltaTime)
+void MainMenu::render(const std::shared_ptr<RenderTarget>&, const double)
 {
   // std::cout << glm::to_string(lg::Math::lerp(sprite_pos, mSprite->getPos(), (float)cDeltaTime)) << std::endl;
   // std::cout << cDeltaTime << std::endl;
@@ -315,6 +315,7 @@ void MainMenu::render(const std::shared_ptr<RenderTarget>& crpTarget, const doub
   mNineSliced->draw();
   mpCheckbox->draw();
   mpTextbox->draw();
+  mGifSprite->draw();
   Renderer2D::endScene();
 }
 
@@ -332,17 +333,17 @@ void MainMenu::buttonCallback()
   std::cout << "Clicked\n";
 }
 
-void MainMenu::OnMouseMove(lre::MouseMoveEvent& crEvent)
+void MainMenu::OnMouseMove(lre::MouseMoveEvent&)
 {
   // std::cout << "We are fucking here\n";
 }
 
-void MainMenu::OnMousePress(lre::MouseButtonPressEvent& crEvent)
+void MainMenu::OnMousePress(lre::MouseButtonPressEvent&)
 {
   // std::cout << "Mouse press lesgo\n";
 }
 
-void MainMenu::OnMouseRelease(lre::MouseButtonReleaseEvent& crEvent)
+void MainMenu::OnMouseRelease(lre::MouseButtonReleaseEvent&)
 {
   // std::cout << "Mouse release lesgo\n";
 }
@@ -394,4 +395,9 @@ void MainMenu::OnWindowResize(lre::WindowResizeEvent& crEvent)
     lg::Window::WindowView view = lg::Window::getView();
     mCam->setProjection(view.x, crEvent.getWidth(), crEvent.getHeight(), view.y);
     glViewport(view.x, view.y, crEvent.getWidth(), crEvent.getHeight());
+}
+
+void MainMenu::onSubmit(SubmitEvent<Component>& rEvent)
+{
+  std::cout << rEvent.mValue << std::endl;
 }

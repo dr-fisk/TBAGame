@@ -9,7 +9,7 @@ SandboxState::SandboxState(const std::stack<std::shared_ptr<State>>& crStates) :
 
   Transform trans;
   trans.setScale({2.0f, 2.0f});
-  trans.setPos({1.0f, 1.0f});
+  trans.setOrigin({1.0f, 1.0f});
   for(size_t i = 0; i < num_sprites; i++)
   {
     mSprites.push_back(Sprite());

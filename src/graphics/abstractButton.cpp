@@ -140,6 +140,8 @@ void AbstractButton::mouseButtonUpdate(const Event::MouseButtonEvent& rEvent)
       }
 
       break;
+    default:
+      break;
   }
 }
 
@@ -165,6 +167,8 @@ void AbstractButton::mouseButtonRelease(const Event::MouseButtonEvent& rEvent)
       }
 
       mUpdateUI = true;
+      break;
+    default:
       break;
   }
 }
@@ -192,12 +196,12 @@ std::string AbstractButton::getString() const
 //! @brief Sets the Default Texture for Button to reference
 //!        If Button is in Default State, Texture will be applied here
 //!
-//! @param crpTexture Texture to set
+//! @param cpFrameSource Texture to set
 //!
 //! @return None
-AbstractButton& AbstractButton::setDefaultTexture(const std::shared_ptr<Texture2D>& crpTexture)
+AbstractButton& AbstractButton::setDefaultTexture(const std::shared_ptr<FrameSource> cpFrameSource)
 {
-  mpDefaultTexture = crpTexture;
+  mpDefaultTexture = cpFrameSource;
   mUpdateUI = true;
 
   return *this;
@@ -206,12 +210,12 @@ AbstractButton& AbstractButton::setDefaultTexture(const std::shared_ptr<Texture2
 //! @brief Sets the Hover Texture for Button to reference
 //!        If Button is in Hover State, Texture will be applied here
 //!
-//! @param crpTexture Texture to set
+//! @param cpFrameSource Texture to set
 //!
 //! @return None
-AbstractButton& AbstractButton::setHoverTexture(const std::shared_ptr<Texture2D>& crpTexture)
+AbstractButton& AbstractButton::setHoverTexture(const std::shared_ptr<FrameSource> cpFrameSource)
 {
-  mpHoverTexture = crpTexture;
+  mpHoverTexture = cpFrameSource;
   mUpdateUI = true;
 
   return *this;
@@ -220,12 +224,12 @@ AbstractButton& AbstractButton::setHoverTexture(const std::shared_ptr<Texture2D>
 //! @brief Sets the Pressed Texture for Button to reference
 //!        Texture not automatically applied as it only happens on click events
 //!
-//! @param crpTexture Texture to set
+//! @param cpFrameSource Texture to set
 //!
 //! @return None
-AbstractButton& AbstractButton::setPressedTexture(const std::shared_ptr<Texture2D>& crpTexture)
+AbstractButton& AbstractButton::setPressedTexture(const std::shared_ptr<FrameSource> cpFrameSource)
 {
-  mpPressedTexture = crpTexture;
+  mpPressedTexture = cpFrameSource;
   mUpdateUI = true;
   return *this;
 }
@@ -237,8 +241,6 @@ AbstractButton& AbstractButton::setPressedTexture(const std::shared_ptr<Texture2
 //! @return True if Mouse is in AABB false otherwise
 bool AbstractButton::isInAABB(const glm::vec2& crPos)
 {
-  glm::vec2 topLeft = mModifier.getPos() - (mModifier.getScale() / 2.0f);
-
   return mModifier.getTransform().contains(crPos.x, crPos.y);
 }
 
@@ -268,14 +270,19 @@ void AbstractButton::setButtonTexture()
     case ButtonState::DEFAULT_STATE:
       if(nullptr != mpDefaultTexture)
       {
-        mLabel.setTexture(mpDefaultTexture);
+        mLabel.setFrameSource(mpDefaultTexture);
       }
       else
       {
         mLabel.setBackgroundColor(mDefaultBackgroundColor);
       }
 
-      if(mLabel.hasBorder())
+      if(mIsFocused)
+      {
+        mLabel.setBorder(2.0f);
+        mLabel.setBorderColor(lg::Blue);
+      }
+      else if(mLabel.hasBorder())
       {
         mLabel.setBorderColor(mDefaultBorderColor);
       }
@@ -283,14 +290,19 @@ void AbstractButton::setButtonTexture()
     case ButtonState::HOVER_STATE:
       if(nullptr != mpHoverTexture)
       {
-        mLabel.setTexture(mpHoverTexture);
+        mLabel.setFrameSource(mpHoverTexture);
       }
       else
       {
         mLabel.setBackgroundColor(mHoverBackgroundColor);
       }
 
-      if(mLabel.hasBorder())
+      if(mIsFocused)
+      {
+        mLabel.setBorder(2.0f);
+        mLabel.setBorderColor(lg::Blue);
+      }
+      else if(mLabel.hasBorder())
       {
         mLabel.setBorderColor(mHoverBorderColor);
       }
@@ -298,14 +310,19 @@ void AbstractButton::setButtonTexture()
     case ButtonState::PRESSED_STATE:
       if(nullptr != mpPressedTexture)
       {
-        mLabel.setTexture(mpPressedTexture);
+        mLabel.setFrameSource(mpPressedTexture);
       }
       else
       {
         mLabel.setBackgroundColor(mPressedBackgroundColor);
       }
 
-      if(mLabel.hasBorder())
+      if(mIsFocused)
+      {
+        mLabel.setBorder(2.0f);
+        mLabel.setBorderColor(lg::Blue);
+      }
+      else if(mLabel.hasBorder())
       {
         mLabel.setBorderColor(mPressedBorderColor);
       }
@@ -313,9 +330,6 @@ void AbstractButton::setButtonTexture()
   }
 }
 
-//! @brief Draws Button
-//!
-//! @return None
 void AbstractButton::draw()
 {
   // Abstract buttons do not need to update anything itself, other classes that extend may have to
@@ -395,64 +409,40 @@ glm::vec2 AbstractButton::getPos() const
 
 //! @brief Gets the size of button
 //!
-//! @return Size of button 
+//! @return Size of button
 glm::vec2 AbstractButton::getSize() const
 {
   return mModifier.getScale();
 }
 
-//! @brief Sets padding to allow users to click on button
-//!
-//! @param[in] crPadding Padding to set on button 
-//!
-//! @return Abstract Button to chain calls
 AbstractButton& AbstractButton::setPadding(const glm::vec2& crPadding)
 {
   mPressedPadding = crPadding;
   return *this;
 }
 
-//! @brief Returns whether the button was clicked
-//!
-//! @return true if clicked, false otherwise 
 bool AbstractButton::wasClicked() const
 {
   return mClicked;
 }
 
-//! @brief Returns whether Button is pressed
-//!
-//! @return true if pressed, false otherwise 
 bool AbstractButton::isPressed() const
 {
   return mState == ButtonState::PRESSED_STATE;
 }
 
-//! @brief TODO
-//! @param pItemListener 
-//! @return 
 AbstractButton& AbstractButton::addItemListener(ItemListener* pItemListener)
 {
   mItemListeners.push_back(pItemListener);
   return *this;
 }
 
-//! @brief Adds action listener to listeners list
-//!
-//! @param[in] pActionListener Listener 
-//!
-//! @return Abstract Button reference to chain calls
 AbstractButton& AbstractButton::addActionListener(ActionListener<AbstractButton>* pActionListener)
 {
   mActionListeners.push_back(pActionListener);
   return *this;
 }
 
-//! @brief Removes action listener from list
-//!
-//! @param[in] cpActionListener Listener
-//!
-//! @return None
 void AbstractButton::removeActionListener(const ActionListener<AbstractButton>* cpActionListener)
 {
   for(auto itr = mActionListeners.begin(); itr != mActionListeners.end();)
@@ -472,17 +462,11 @@ Label& AbstractButton::getLabel()
   return mLabel;
 }
 
-//! @brief Returns whether Button has mouse hovering over it
-//!
-//! @return true if mouse hovering over button, false otherwise 
 bool AbstractButton::isHover() const
 {
   return mState == ButtonState::HOVER_STATE;
 }
 
-//! @brief Returns whether Button is in a default state meaning not pressed, not hover
-//!
-//! @return true if button is in default state, false otherwise 
 bool AbstractButton::isDefault() const
 {
   return mState == ButtonState::DEFAULT_STATE;
@@ -614,13 +598,24 @@ void AbstractButton::onMouseButtonRelease(lre::MouseButtonReleaseEvent& rEvent)
           ButtonEvent click(this, GuiEvent::GUI_CLICK, rEvent.getX(), rEvent.getY());
           mDispatcher.dispatch(click);
           mClicked = true;
+          setFocus(true);
         }
         else
         {
+          if(mIsFocused)
+          {
+            setFocus(false);
+          }
           mState = ButtonState::DEFAULT_STATE;
         }
 
         mUpdateUI = true;
+        break;
+      default:
+        if(mIsFocused)
+        {
+          setFocus(false);
+        }
         break;
     }
   }
@@ -639,6 +634,8 @@ void AbstractButton::processEvent(I_Event<lre::LestRenderEngineEvents>& rEvent)
       break;
     case lre::LestRenderEngineEvents::MOUSE_MOVE:
       onMouseMove(static_cast<lre::MouseMoveEvent&>(rEvent));
+      break;
+    default:
       break;
   }
 }

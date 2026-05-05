@@ -61,20 +61,6 @@ class Modifier
     //! @return Modifier Reference
     Modifier& setHeight(const float cHeight);
 
-    //! @brief Sets X Position
-    //!
-    //! @param[in] cLeft X Position
-    //!
-    //! @return Modifier Reference
-    Modifier& setLeft(const float cLeft);
-    
-    //! @brief Sets Top
-    //!
-    //! @param[in] cTop Top
-    //!
-    //! @return Modifier Reference
-    Modifier& setTop(const float cTop);
-
     //! @brief Sets the transform position
     //!
     //! @param crPos Position
@@ -127,16 +113,6 @@ class Modifier
     //!
     //! @return Height
     float getHeight() const;
-
-    //! @brief Gets X Position
-    //!
-    //! @return Left
-    float getLeft() const;
-    
-    //! @brief Gets Top
-    //!
-    //! @return Top
-    float getTop() const;
 
     //! @brief Gets Rotation
     //!

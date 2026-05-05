@@ -3,9 +3,12 @@
 
 #define GLM_FORCE_CTOR_INIT
 #include "drawable/dot.hpp"
-#include "shapes/box2D.hpp"
+#include "shapes/rect.hpp"
 #include "glm/vec2.hpp"
 #include "color.hpp"
+#include "resource/frameSource.hpp"
+
+#include <memory>
 
 class I_Sprite : public Dot
 {
@@ -17,14 +20,14 @@ class I_Sprite : public Dot
     virtual I_Sprite& setPos(const glm::vec2& crPos) = 0;
     virtual I_Sprite& resize(const glm::vec2& crSize) = 0;
     virtual I_Sprite& setTransform(const Transform& crTransform) = 0;
-    virtual I_Sprite& setBox(const Box<glm::vec2>& crBox) = 0;
-    virtual I_Sprite& setTexture(const Texture2D& crTexture, const bool cInvert=false) = 0;
+    virtual I_Sprite& setBox(const Rect<float>& crBox) = 0;
+    virtual I_Sprite& setFrameSource(const std::shared_ptr<FrameSource> cpFrameSource, const bool cInvert=false) = 0;
+    virtual I_Sprite& update(const float cDt) = 0;
+
     // virtual void draw(const Transform& crTransform) = 0;
   protected:
-    virtual void updateTextureCoordinates(const glm::vec2& crOffset, const glm::vec2& crTextureSize) = 0;
-
-    Box2D<float> mBox2D;
-    const Texture2D* mpTexture;
+    Rect<float> mBox2D;
+    std::shared_ptr<FrameSource> mpFrameSource;
     Transform mTransform;
 };
 

@@ -148,6 +148,8 @@ void PopupMenu::onButtonEvent(AbstractButton::ButtonEvent& rButtonEvent)
         mActiveSubMenu = nullptr;
       }
       break;
+    default:
+      break;
   }
 }
 
@@ -167,6 +169,8 @@ void PopupMenu::onPopupMenuEvent(PopupMenuEvent& rPopupMenuEvent)
         mActiveSubMenu->setVisible(false);
       }
       mActiveSubMenu = rPopupMenuEvent.mpSource;
+      break;
+    default:
       break;
   }
 }

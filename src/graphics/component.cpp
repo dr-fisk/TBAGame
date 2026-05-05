@@ -59,6 +59,7 @@ Component& Component::setPadding(const glm::vec2& crPadding)
 void Component::setVisible(const bool cVisible)
 {
   mVisible = cVisible;
+  mUpdateUI = true;
 }
 
 bool Component::isVisible() const
@@ -175,4 +176,27 @@ void Component::dispatchEvent(I_Event<lre::LestRenderEngineEvents>& rEvent)
   {
     processEvent(rEvent);
   }
+}
+
+void Component::setFocus(const bool cFocus)
+{
+  mIsFocused = cFocus;
+  FocusEvent<Component> event(this, cFocus);
+  mFocusEventDispatcher.notify(event);
+  mUpdateUI = true;
+}
+
+bool Component::isFocused() const
+{
+  return mIsFocused;
+}
+
+void Component::addFocusEventListener(FocusEventListener& rFocusEventListener)
+{
+  mFocusEventDispatcher.registerToEvent(rFocusEventListener);
+}
+
+void Component::addSubmitEventListener(SubmitEventListener& rSubmitEventListener)
+{
+  mSubmitEventDispatcher.registerToEvent(rSubmitEventListener);
 }

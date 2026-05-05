@@ -11,22 +11,8 @@ class Transform
     ~Transform() = default;
 
     Transform& setRotation(const float cRotation);
-    Transform& setPos(const glm::vec2& crPos);
+    Transform& setOrigin(const glm::vec2& crPos);
     Transform& setScale(const glm::vec2& crScale);
-    
-    //! @brief Sets Left
-    //!
-    //! @param[in] cLeft Left
-    //! 
-    //! @return Transform Reference
-    Transform& setLeft(const float cLeft);
-
-    //! @brief Sets Top
-    //!
-    //! @param[in] cTop Top
-    //! 
-    //! @return Transform Reference
-    Transform& setTop(const float cTop);
 
     //! @brief Sets Width
     //!

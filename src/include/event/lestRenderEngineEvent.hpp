@@ -11,7 +11,9 @@ enum class LestRenderEngineEvents
   KEY_PRESS,
   KEY_RELEASE,
   WINDOW_RESIZE,
-  WINDOW_FOCUS
+  WINDOW_FOCUS,
+  WINDOW_CLOSE,
+  UNKNOWN
 };
 }
 

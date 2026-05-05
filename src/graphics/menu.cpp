@@ -209,6 +209,8 @@ void Menu::onButtonEvent(AbstractButton::ButtonEvent& rButtonEvent)
         mpPopupMenu->setVisible(true);
       }
       break;
+    default:
+      break;
   }
 }
 

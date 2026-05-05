@@ -30,21 +30,9 @@ Modifier& Modifier::setHeight(const float cHeight)
   return *this;
 }
 
-Modifier& Modifier::setLeft(const float cLeft)
-{
-  mTransform.setLeft(cLeft);
-  return *this;
-}
-
-Modifier& Modifier::setTop(const float cTop)
-{
-  mTransform.setTop(cTop);
-  return *this;
-}
-
 Modifier& Modifier::setPos(const glm::vec2& crPos)
 {
-  mTransform.setPos(crPos);
+  mTransform.setOrigin(crPos);
   return *this;
 }
 
@@ -89,16 +77,6 @@ float Modifier::getWidth() const
 float Modifier::getHeight() const
 {
   return mTransform.getScale().y;
-}
-
-float Modifier::getLeft() const
-{
-  return mTransform.getPos().x;
-}
-
-float Modifier::getTop() const
-{
-  return mTransform.getPos().y;
 }
 
 float Modifier::getRotation() const

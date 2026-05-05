@@ -5,6 +5,8 @@
 #include "graphics/label.hpp"
 #include "event/event.hpp"
 #include "event/eventSubscriber.hpp"
+#include "graphicsEvent/focusEvent.hpp"
+#include <chrono>
 
 class TextBox : public Component
 {
@@ -40,13 +42,16 @@ public:
 
   void dispatchEvent(I_Event<lre::LestRenderEngineEvents>& rEvent) override;
 
-  void onButtonEvent(AbstractButton::ButtonEvent& rEvent);
 
   void updateUI() override;
 private:
   void processEvent(I_Event<lre::LestRenderEngineEvents>& rEvent) override;
 
   void onKeyPress(lre::KeyboardPressEvent& rEvent);
+
+  void onButtonEvent(AbstractButton::ButtonEvent& rEvent);
+
+  void onFocusEvent(FocusEvent<Component>& rFocusEvent);
 
   enum TextBoxState
   {
@@ -57,11 +62,15 @@ private:
   // std::shared_ptr<Texture2D> mMouseTexture;
   std::string mDefaultText;
   std::string mInputText;
-  int mCursorIndexPos;
+  size_t mCursorIndexPos;
   TextBoxState mState;
-  std::shared_ptr<Sprite> mBox;
+  std::shared_ptr<Sprite> mpCursor;
   std::shared_ptr<Button> mpButton;
   EventSubscriber<AbstractButton::ButtonEvent> mButtonEventSub;
+  EventSubscriber<FocusEvent<Component>> mFocusSub;
+  std::chrono::steady_clock::time_point mCursorClock;
+  const Modifier& mrModifier;
+  const TextModifier& mrTextModifier;
 };
 
 #endif

@@ -6,7 +6,7 @@
 
 #include "graphics/component.hpp"
 #include "graphics/menuItem.hpp"
-#include "shapes/box2D.hpp"
+#include "shapes/rect.hpp"
 #include "graphicsEvent/menuActionEvent.hpp"
 #include "event/eventDispatcher.hpp"
 
@@ -114,7 +114,7 @@ class PopupMenu : public Component
     void onButtonEvent(AbstractButton::ButtonEvent& rButtonEvent);
 
     std::vector<std::shared_ptr<MenuItem>> mItems;
-    Box2D<float> mBounds;
+    Rect<float> mBounds;
     glm::vec2 mPreferredSize;
     const AbstractButton* cmpInvoker;
     PopupMenu* mActiveSubMenu;
