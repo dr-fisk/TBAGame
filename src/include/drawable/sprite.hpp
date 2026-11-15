@@ -41,8 +41,7 @@ class Sprite : public I_Sprite
     //! @brief Default Destructor
     ~Sprite() = default;
 
-
-    const Texture2D& getTexture() const;
+    Texture2D* getTexture() const;
   
     //! @brief Moves Sprite
     //!

@@ -84,7 +84,7 @@ namespace EdgeTable
   }
 
   //! @brief Performs the Scanline fill algorithm and stores result in rBitmap
-  //!        SubPixel AA involved TODO: Remove cha param
+  //!        SubPixel AA involved
   //!
   //! @param[in]  crEdges      Edge Table
   //! @param[in]  crDimensions Dimensions of bitmap

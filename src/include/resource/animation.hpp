@@ -31,7 +31,7 @@ public:
   //! @brief Returns the current Texture
   //!
   //! @return Current Texture of the frame
-  const Texture2D* getCurrentTexture() const;
+  Texture2D* getCurrentTexture() const;
 
   //! @brief Returns the current UV coordinates corresonding to the Texture
   //!

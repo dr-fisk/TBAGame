@@ -27,6 +27,8 @@
 #include "input/windowEvent.hpp"
 #include "graphics/frame.hpp"
 #include "graphics/textbox.hpp"
+#include "graphics/RadioButton.hpp"
+#include "graphics/buttonGroup.hpp"
 
 class MainMenu : public State
 {
@@ -68,6 +70,10 @@ class MainMenu : public State
     std::unique_ptr<SlicedSprite> mNineSliced;
     std::shared_ptr<ToggleButton> mpCheckbox;
     std::shared_ptr<TextBox> mpTextbox;
+    std::shared_ptr<RadioButton> mpRadioButton;
+    std::shared_ptr<RadioButton> mpRadioButton2;
+    std::shared_ptr<RadioButton> mpRadioButton3;
+    ButtonGroup mButtonGroup;
     glm::vec2 sprite_pos;
     glm::vec2 curr_pos;
     float xMove;

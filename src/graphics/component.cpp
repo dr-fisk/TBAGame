@@ -200,3 +200,14 @@ void Component::addSubmitEventListener(SubmitEventListener& rSubmitEventListener
 {
   mSubmitEventDispatcher.registerToEvent(rSubmitEventListener);
 }
+
+bool Component::operator!=(const Component& crComponent) const
+{
+  return !(*this == crComponent);
+}
+
+void Component::setStyleSheet(const StyleSheet crStyleSheet)
+{
+  mStyleSheet = crStyleSheet;
+  mUpdateUI = true;
+}

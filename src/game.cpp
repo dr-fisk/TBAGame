@@ -34,20 +34,17 @@ void Game::initMainState()
 Game::Game()
 {
   mpWindow = std::make_shared<RenderWindow>(1920, 1080, "Lest Window");   
-  /* NOTE: BEFORE ANY GL CALL, THAT IS NOT GLFW but GL, SET ACTIVE MUST BE CALLED OR ELSE OPENGL FAILS */
-  // mpWindow->setActive();
 
-  // //init GL attributes for window
+
+  // init GL attributes for window
   mpWindow->initWindow();
   RenderCommand::enableBlend();
-
   int32_t view[4] = {};
   glGetIntegerv(GL_VIEWPORT, view);
   gView.x = view[0];
   gView.y = view[1];
   gView.WindowWidth = view[2];
   gView.WindowHeight = view[3];
-
   // mFbo = std::make_shared<FrameBuffer>();
 
   initMainState();

@@ -23,7 +23,7 @@ public:
   //! @brief Returns the current Texture
   //!
   //! @return Current Texture of the frame
-  const Texture2D* getCurrentTexture() const override;
+  Texture2D* getCurrentTexture() const override;
 
   //! @brief Returns the current UV coordinates corresonding to the Texture
   //!

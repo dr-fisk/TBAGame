@@ -18,6 +18,11 @@
 #include "resource/imageImporter.hpp"
 #include "resource/gifImporter.hpp"
 
+/* TODO:
+  3. Figure out Nine Sliced funkiness
+
+*/
+
 MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
                    State(crStates)
 {
@@ -27,10 +32,12 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
   mText = std::make_shared<Text>(mNewFont, "FPS: 0", 12);
   mText->setPos({200.0f, 50.0f});
   mText->setColor(lg::Blue);
-  std::shared_ptr<FrameSource> heartPng = ImageImporter::buildStaticFrame("../art.png");
-  mSprite = std::make_shared<Sprite>(heartPng, Rect<float>(200.0f, 200.0f, 16, 16));
-  mSprite3 = std::make_shared<Sprite>(ImageImporter::buildStaticFrame("../heart.png"), Rect<float>(50.0f, 300.0f, 16, 16));
-  mSprite2 = std::make_shared<Sprite>(heartPng, Rect<float>(600.0f, 600.0f, 16, 16));
+  std::shared_ptr<FrameSource> artPng = ImageImporter::buildStaticFrame("../art.png");
+  mSprite = std::make_shared<Sprite>(artPng, Rect<float>(200.0f, 200.0f, 16, 16));
+  mSprite3 = std::make_shared<Sprite>(ImageImporter::buildStaticFrame("../RadioButton2.png", 7), Rect<float>(50.0f, 300.0f, 20, 20));
+  mSprite3->getTexture()->setMinFilter(GL_LINEAR_MIPMAP_NEAREST);
+  mSprite3->getTexture()->setMaxLevels(7);
+  mSprite2 = std::make_shared<Sprite>(artPng, Rect<float>(600.0f, 600.0f, 16, 16));
   Image tempImg("../SquareWBorder.png");
   tempImg.recolorBorderedShape(lg::Color(135, 135, 135), lg::Color(170, 170, 170), lg::White);
   std::shared_ptr<FrameSource> tempTexture = ImageImporter::buildStaticFrame(tempImg);
@@ -198,6 +205,65 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
             .setBorderColor(ButtonState::DEFAULT_STATE, lg::Black)
             .setBorderColor(ButtonState::HOVER_STATE, lg::Grey)
             .setBorderColor(ButtonState::PRESSED_STATE, lg::White);
+    std::shared_ptr<FrameSource> checkbox_btn = ImageImporter::buildStaticFrame("../Check.png");
+    mpCheckbox->setSelectedTexture(checkbox_btn);
+
+    // I suspect the nineslicedsprite does some funky stuff to image
+    std::shared_ptr<FrameSource> radio_btn = ImageImporter::buildStaticFrame("../RadioButton2.png", 7);
+    radio_btn->getCurrentTexture()->setMinFilter(GL_LINEAR_MIPMAP_NEAREST);
+    radio_btn->getCurrentTexture()->setMaxLevels(7);
+    mpRadioButton = std::make_shared<RadioButton>();
+    mpRadioButton->resize({20, 20})
+            .setPos({750, 400});
+    mpRadioButton->setUnSelectedTexture(radio_btn);
+    std::shared_ptr<FrameSource> radio_btn_selected = ImageImporter::buildStaticFrame("../RadioButtonSelected2.png", 7);
+    radio_btn_selected->getCurrentTexture()->setMinFilter(GL_LINEAR_MIPMAP_NEAREST);
+    radio_btn_selected->getCurrentTexture()->setMaxLevels(7);
+    mpRadioButton->setSelectedTexture(radio_btn_selected);
+
+    StyleSheet sheet;
+    sheet.mVisualHeight = 58 * (20.0f / 58.0f);
+    sheet.mVisualWidth = 58 * (20.0f / 58.0f) ;
+    sheet.mVisualLeft = 750 - 10 + (3 * (20.0f / 58.0f));
+    sheet.mVisualTop = 400 - 10 + (3 * (20.0f / 58.0f));
+    mpRadioButton->getLabel().setTextModifier(
+      TextModifier().setTextColor(lg::Black)
+      .setFont(mNewFont)
+      .setFontSize(12))
+      .setString("Add Machine");
+    mpRadioButton->setStyleSheet(sheet);
+    mpRadioButton2 = std::make_shared<RadioButton>();
+    mpRadioButton2->resize({20, 20})
+            .setPos({750, 420});
+    mpRadioButton2->setUnSelectedTexture(radio_btn);
+    mpRadioButton2->setSelectedTexture(radio_btn_selected);
+    mpRadioButton2->getLabel().setTextModifier(
+      TextModifier().setTextColor(lg::Black)
+      .setFont(mNewFont)
+      .setFontSize(12))
+      .setString("Connect Machine");
+    sheet.mVisualHeight = 58 * (20.0f / 58.0f);
+    sheet.mVisualWidth = 58 * (20.0f / 58.0f) ;
+    sheet.mVisualLeft = 750 - 10 + (3 * (20.0f / 58.0f));
+    sheet.mVisualTop = 420 - 10 + (3 * (20.0f / 58.0f));
+    mpRadioButton2->setStyleSheet(sheet);
+
+    mpRadioButton3 = std::make_shared<RadioButton>();
+    mpRadioButton3->resize({20, 20})
+            .setPos({750, 440});
+    mpRadioButton3->setUnSelectedTexture(radio_btn);
+    mpRadioButton3->setSelectedTexture(radio_btn_selected);
+    mpRadioButton3->getLabel().setTextModifier(
+      TextModifier().setTextColor(lg::Black)
+      .setFont(mNewFont)
+      .setFontSize(12))
+      .setString("None");
+
+    sheet.mVisualHeight = 58 * (20.0f / 58.0f);
+    sheet.mVisualWidth = 58 * (20.0f / 58.0f) ;
+    sheet.mVisualLeft = 750 - 10 + (3 * (20.0f / 58.0f));
+    sheet.mVisualTop = 440 - 10 + (3 * (20.0f / 58.0f));
+    mpRadioButton3->setStyleSheet(sheet);
   // mLabel->setSprite(labelSprite);
   // mLabel->setText(labelText);
   // mFbo = std::make_shared<FrameBuffer>();
@@ -231,7 +297,7 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
 //  .onClick(&MainMenu::buttonCallback);
 
   // Need to figure out a way of setting a camera dimensions and getting window dimensions
-  mCam = std::make_shared<OrthCamera>(0, 1920, 1061, 0);
+  mCam = std::make_shared<OrthCamera>(0, 1920, 1080, 0);
   Rect<float> testBox = mSprite->getGlobalBounds(*mCam);
   // mCam.setPosition({0.0f, 0.0f, 0.0f});
   curr_pos = mSprite->getPos();
@@ -247,6 +313,12 @@ MainMenu::MainMenu(const std::stack<std::shared_ptr<State>>& crStates) :
   mpFrame->addComponent(mScroll2);
   mpFrame->addComponent(mMenu);
   mpFrame->addComponent(mpTextbox);
+  mpFrame->addComponent(mpRadioButton);
+  mpFrame->addComponent(mpRadioButton2);
+  mpFrame->addComponent(mpRadioButton3);
+  mButtonGroup.addButton(mpRadioButton);
+  mButtonGroup.addButton(mpRadioButton2);
+  mButtonGroup.addButton(mpRadioButton3);
 }
 
 void MainMenu::update(const std::shared_ptr<RenderTarget>&, const double cDeltaTime)
@@ -307,14 +379,9 @@ void MainMenu::render(const std::shared_ptr<RenderTarget>&, const double)
   mSprite->draw();
   mSprite2->draw();
   mSprite3->draw();
-  mButton->draw();
-  mScroll->draw();
-  mScroll2->draw();
-  mMenu->draw();
   mLabel->draw();
+  mpFrame->draw();
   mNineSliced->draw();
-  mpCheckbox->draw();
-  mpTextbox->draw();
   mGifSprite->draw();
   Renderer2D::endScene();
 }
@@ -348,22 +415,37 @@ void MainMenu::OnMouseRelease(lre::MouseButtonReleaseEvent&)
   // std::cout << "Mouse release lesgo\n";
 }
 
+// TODO: Movement is broken
 void MainMenu::OnKeyboardPress(lre::KeyboardPressEvent& crEvent)
 {
   switch(crEvent.getKey())
   {
     case GLFW_KEY_UP:
-      yMove += -1.0f;
+      yMove = -1.0f;
       break;
     case GLFW_KEY_DOWN:
-      yMove += 1.0f;
+      yMove = 1.0f;
       break;
     case GLFW_KEY_LEFT:
-      xMove += -1.0f;
+      xMove = -1.0f;
       break;
     case GLFW_KEY_RIGHT:
-      xMove += 1.0f;
+      xMove = 1.0f;
       break;
+    case GLFW_KEY_P:
+    {
+      std::shared_ptr<FrameSource> png = ImageImporter::buildStaticFrame("../RadioButton2.png", 7);
+      png->getCurrentTexture()->setMinFilter(GL_LINEAR_MIPMAP_NEAREST);
+      mSprite3->setFrameSource(png);
+      break;
+    }
+    case GLFW_KEY_O:
+    {
+      std::shared_ptr<FrameSource> png = ImageImporter::buildStaticFrame("../RadioButtonSelected2.png", 7);
+      png->getCurrentTexture()->setMinFilter(GL_LINEAR_MIPMAP_NEAREST);
+      mSprite3->setFrameSource(png);
+      break;
+    }
     default:
       break;
   }
@@ -374,16 +456,12 @@ void MainMenu::OnKeyboardRelease(lre::KeyboardReleaseEvent& crEvent)
   switch(crEvent.getKey())
   {
     case GLFW_KEY_UP:
-      yMove -= -1.0f;
-      break;
     case GLFW_KEY_DOWN:
-      yMove -= 1.0f;
+      yMove = 0;
       break;
     case GLFW_KEY_LEFT:
-      xMove -= -1.0f;
-      break;
     case GLFW_KEY_RIGHT:
-      xMove -= 1.0f;
+      xMove = 0;
       break;
     default:
       break;

@@ -35,7 +35,7 @@ static char shiftCharConversion(const int cChar)
     case 56:
       return '*';
     case 57:
-      return ')';
+      return '(';
     case 59:
       return ':';
     case 61:
@@ -61,7 +61,7 @@ TextBox::TextBox(const Modifier& crModifier, const TextModifier& crTextModifier,
   mDefaultText = crDefaultText;
   mpCursor = std::make_shared<Sprite>();
   mpCursor->setColor(lg::White);
-  mpCursor->resize({1.0f, static_cast<float>(crTextModifier.getFontSize())});
+  mpCursor->resize({1.0f, static_cast<float>(crTextModifier.getFont().getMaxHeight(crTextModifier.getFontSize()))});
   mpButton = std::make_shared<Button>(crModifier, crTextModifier);
   mUpdateUI = true;
   mButtonEventSub.setCallback(BIND_EVENT_FN(TextBox::onButtonEvent));
@@ -191,6 +191,7 @@ void TextBox::onKeyPress(lre::KeyboardPressEvent& rEvent)
       if(rEvent.getMods() & GLFW_MOD_SHIFT)
       {
         mInputText.insert(mCursorIndexPos, 1, shiftCharConversion(static_cast<int>(*key)));
+        std::cout << static_cast<int>(*key) << std::endl;
       }
       else
       {
@@ -274,11 +275,7 @@ void TextBox::updateUI()
   }
   else
   {
-    // glm::vec2 size = mrTextModifier.getFont().getCharacterDimensions(mrTextModifier.getFontSize(), mInputText.back());
-    // if()
-    // {
-      label.setString(mInputText);
-    // }
+    label.setString(mInputText);
   }
 
   label.updateUI();
@@ -287,11 +284,11 @@ void TextBox::updateUI()
   {
     glm::vec2 pos = label.getText().getCharPos(mCursorIndexPos - 1);
     glm::vec2 size = label.getText().getCharSize(mCursorIndexPos - 1);
-    mpCursor->setPos({pos.x + size.x + mpCursor->getSize().x / 2.0f, pos.y + size.y / 2.0f });
+    mpCursor->setPos({pos.x + size.x + mpCursor->getSize().x / 2.0f, mpButton->getPos().y});
   }
   else if(!mDefaultText.empty())
   {
-    mpCursor->setPos({label.getText().getCharPos(0).x - mpCursor->getSize().x / 2.0f, label.getText().getCharPos(0).y + label.getText().getCharSize(0).y / 2.0f});
+    mpCursor->setPos({label.getText().getCharPos(0).x - mpCursor->getSize().x / 2.0f, mpButton->getPos().y});
   }
 
   mUpdateUI = false;

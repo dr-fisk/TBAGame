@@ -19,6 +19,8 @@ target_sources(lestgame
     textbox.cpp
     textModifier.cpp
     toggleButton.cpp
+    radioButton.cpp
+    buttonGroup.cpp
   PUBLIC
     FILE_SET include
     TYPE HEADERS

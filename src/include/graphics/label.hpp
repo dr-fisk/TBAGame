@@ -152,6 +152,28 @@ class Label : public Component
     //!
     //! @return None
     void updateUI() override;
+
+    //! @brief Gets the transform of the text
+    //!
+    //! @return Text Transform 
+    Transform getTextTransform() const;
+
+    //! @brief Gets the text modifier to customize label
+    //!
+    //! @return Reference to Text Modifier 
+    TextModifier& getTextModifier();
+
+    //! @brief Gets the modifier to customize label
+    //!
+    //! @return Reference to Modifier 
+    Modifier& getModifier();
+
+    //! @brief Sets Text Modifier
+    //!
+    //! @param[in] crTextModifier Text modifier
+    //!
+    //! @return Label Reference to chain calls 
+    Label& setTextModifier(const TextModifier& crTextModifier);
   private:
     //! @brief Aligns the text horizontally on the associated sprite
     //!

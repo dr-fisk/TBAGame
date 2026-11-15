@@ -21,7 +21,10 @@ Frame::Frame()
 
 void Frame::draw()
 {
-  
+  for(auto& element : mComponents)
+  {
+    element->draw();
+  }
 }
 
 Frame& Frame::addComponent(std::shared_ptr<Component> pComponent)

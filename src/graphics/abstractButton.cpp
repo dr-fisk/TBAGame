@@ -48,131 +48,6 @@ AbstractButton& AbstractButton::removeButtonEventListener(EventSubscriber<Button
   return *this;
 }
 
-//! @brief Event Handler State Machine that calls appropiate functions
-//!
-//! @param rEvent Mouse Event to be Processed
-//!
-//! @return None
-void AbstractButton::handleEvent(const Event& rEvent)
-{
-  mClicked = false;
-  if(!mEnabled)
-  {
-    return;
-  }
-
-  switch(rEvent.Type)
-  {
-    case Event::EventType::MouseMove:
-      mouseMoveUpdate(rEvent.MousePos);
-      break;
-    case Event::EventType::MouseButtonPress:
-      if (GLFW_MOUSE_BUTTON_LEFT == rEvent.MouseButton.Button)
-      {
-        mouseButtonUpdate(rEvent.MouseButton);
-      }
-      break;
-    case Event::EventType::MouseButtonRelease:
-      if (GLFW_MOUSE_BUTTON_LEFT == rEvent.MouseButton.Button)
-      {
-        mouseButtonRelease(rEvent.MouseButton);
-      }
-      break;
-    default:
-      break;
-  }
-
-}
-
-//! @brief Handles the Mouse Move Event for the button
-//!
-//! @param rEvent Mouse Move Event
-//!
-//! @return None
-void AbstractButton::mouseMoveUpdate(const Event::MouseMoveEvent& rEvent)
-{
-  switch(mState)
-  {
-    case ButtonState::DEFAULT_STATE:
-      if(isInAABB({rEvent.x, rEvent.y}))
-      {
-        mState = ButtonState::HOVER_STATE;
-        mUpdateUI = true;
-    
-      }
-
-      break;
-    case ButtonState::HOVER_STATE:
-      if(!isInAABB({rEvent.x, rEvent.y}))
-      {
-        mState = ButtonState::DEFAULT_STATE;
-    
-        mUpdateUI = true;
-      }
-
-      break;
-    case ButtonState::PRESSED_STATE:
-      if(!isInAABB({rEvent.x, rEvent.y}, mPressedPadding))
-      {
-        mState = ButtonState::DEFAULT_STATE;
-    
-        mUpdateUI = true;
-      }
-      break;
-  }
-}
-
-//! @brief Handles a Mouse Button Press
-//!
-//! @param rEvent Mouse Button Press
-//!
-//! @return None
-void AbstractButton::mouseButtonUpdate(const Event::MouseButtonEvent& rEvent)
-{
-  switch(mState)
-  {
-    case ButtonState::HOVER_STATE:
-      if(isInAABB({rEvent.x, rEvent.y}))
-      { 
-        mState = ButtonState::PRESSED_STATE;
-    
-        mUpdateUI = true;
-      }
-
-      break;
-    default:
-      break;
-  }
-}
-
-//! @brief Handles Mouse Button Release Event
-//!
-//! @param rEvent Mouse Button Release Event
-//!
-//! @return returns true if Button clicked false otherwise
-void AbstractButton::mouseButtonRelease(const Event::MouseButtonEvent& rEvent)
-{
-  switch(mState)
-  {
-    case ButtonState::PRESSED_STATE:
-      if(isInAABB({rEvent.x, rEvent.y}))
-      {
-        buttonClicked();
-        mClicked = true;
-      }
-      else
-      {
-        mState = ButtonState::DEFAULT_STATE;
-    
-      }
-
-      mUpdateUI = true;
-      break;
-    default:
-      break;
-  }
-}
-
 //! @brief Sets the string to be displayed ontop of the button
 //!
 //! @param[in] crString String to set
@@ -523,6 +398,11 @@ AbstractButton& AbstractButton::setBorderColor(const ButtonState cState, const l
 
 void AbstractButton::updateUI()
 {
+  if(mStyleSheet)
+  {
+    mLabel.setStyleSheet(mStyleSheet.value());
+  }
+
   setButtonTexture();
   mUpdateUI = false;
 }

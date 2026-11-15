@@ -2,6 +2,7 @@
 #define COMPONENT_HPP
 
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include "utility/transform.hpp"
@@ -13,6 +14,7 @@
 #include "input/windowEvent.hpp"
 #include "graphicsEvent/focusEvent.hpp"
 #include "graphicsEvent/submitEvent.hpp"
+#include "graphics/styleSheet.hpp"
 
 class PopupMenu;
 
@@ -131,6 +133,14 @@ class Component
     //! @return false if identity check fails
     bool operator==(const Component& crComponent) const;
 
+    //! @brief != comparison for component
+    //!
+    //! @param[in] crComponent Component
+    //!
+    //! @return true if not equal
+    //! @return false if equal 
+    bool operator!=(const Component& crComponent) const;
+
     //! @brief Adds MousePressListener
     //!
     //! @param[in] rMousePressListener MousePressListener
@@ -191,18 +201,37 @@ class Component
     //! @param[in] rEvent Event to dispatch
     virtual void dispatchEvent(I_Event<lre::LestRenderEngineEvents>& rEvent);
 
+    //! @brief Sets the style sheet for the component
+    //!
+    //! @param[in] crStyleSheet Style Sheet 
+    void setStyleSheet(const StyleSheet crStyleSheet);
+
   protected:
     //! @brief Processes the event received
     //!
     //! @param[in] rEvent The event to process
     virtual void processEvent(I_Event<lre::LestRenderEngineEvents>&) {}
 
+    //! Adds padding to boundaries (TODO: Implement)
     glm::vec2 mPadding;
+
+    //! Modifiers for the component
     Modifier mModifier;
+
+    //! Flag determining if component should be visible
     bool mVisible;
+
+    //! Flag determining if component needs to update UI
     bool mUpdateUI;
+    
+    //! Flag determining if component is enabled
     bool mEnabled;
+
+    //! Flag determining if component is focused
     bool mIsFocused = false;
+
+    std::optional<StyleSheet> mStyleSheet;
+
     uint64_t mID;
     std::vector<std::shared_ptr<Component>> mComponents;
     std::vector<MousePressListener*> mMousePressListeners;

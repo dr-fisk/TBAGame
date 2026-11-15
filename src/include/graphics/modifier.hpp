@@ -9,6 +9,7 @@ enum class HorizontalAlign
   LEFT,
   CENTER,
   RIGHT,
+  CENTER_OUTSIDE_RIGHT,
   NONE
 };
 

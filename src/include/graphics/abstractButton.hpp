@@ -116,11 +116,6 @@ class AbstractButton : public Component
     //! @return true if button is in default state, false otherwise 
     bool isDefault() const;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Event Handlers
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual void handleEvent(const Event& crEvent);
-
     //! @brief Draws Button
     virtual void draw() override;
 
@@ -136,9 +131,6 @@ class AbstractButton : public Component
     void onMouseButtonPress(lre::MouseButtonPressEvent& crEvent);
     void onMouseButtonRelease(lre::MouseButtonReleaseEvent& crEvent);
 
-    void mouseMoveUpdate(const Event::MouseMoveEvent& crEvent);
-    void mouseButtonUpdate(const Event::MouseButtonEvent& crEvent);
-    void mouseButtonRelease(const Event::MouseButtonEvent& crEvent);
     bool isInAABB(const glm::vec2& crPos);
     bool isInAABB(const glm::vec2& crPos, const glm::vec2& crPadding);
     virtual void setButtonTexture();

@@ -145,6 +145,13 @@ class Text : public Dot
     //! @return character size 
     glm::vec2 getCharSize(const int cCharIndex) const;
 
+    //! @brief Gets the y Ascent value of the character at the given index
+    //!
+    //! @param[in] cCharIndex Index in the string 
+    //!
+    //! @return y ascent 
+    float getYAscent(const int cCharIndex) const;
+
     //! @brief Draws the Text
     //!
     //! @return None

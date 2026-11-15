@@ -38,28 +38,32 @@ Label& Label::setVerticalAlign(const VerticalAlign cAlign)
 
 void Label::verticalAlign()
 {
+  glm::vec2 labelCenter = mModifier.getPos();
+  glm::vec2 labelScale = mModifier.getScale();
+
+  if(mStyleSheet)
+  {
+    labelCenter = {mStyleSheet.value().mVisualLeft + (mStyleSheet.value().mVisualWidth / 2.0f), mStyleSheet.value().mVisualTop + (mStyleSheet.value().mVisualHeight / 2.0f)};
+    labelScale  = {mStyleSheet.value().mVisualWidth, mStyleSheet.value().mVisualHeight};
+  }
+
   switch(mModifier.getVerticalAlign())
   {
     case VerticalAlign::TOP:
     {
-      glm::vec2 labelCenter = mModifier.getPos();
-      glm::vec2 labelScale = mModifier.getScale();
-      mTextTransform.setOrigin({mTextTransform.getPos().x, labelCenter.y - (labelScale.y / 2.0f)} );
+      mTextTransform.setOrigin({mTextTransform.getPos().x, labelCenter.y - std::round((labelScale.y / 2.0f))} );
       break;
     }
     case VerticalAlign::CENTER:
     {
       glm::vec2 textSize = mText.getSize();
-      glm::vec2 labelCenter = mModifier.getPos();
-      mTextTransform.setOrigin({mTextTransform.getPos().x, labelCenter.y - (textSize.y / 2.0f)});
+      mTextTransform.setOrigin({mTextTransform.getPos().x, labelCenter.y - std::round((textSize.y / 2.0f))});
       break;
     }
     case VerticalAlign::BOTTOM:
      {
       glm::vec2 textSize = mText.getSize();
-      glm::vec2 labelCenter = mModifier.getPos();
-      glm::vec2 labelScale = mModifier.getScale();
-      mTextTransform.setOrigin({mTextTransform.getPos().x, labelCenter.y + (labelScale.y / 2.0f) - textSize.y});
+      mTextTransform.setOrigin({mTextTransform.getPos().x, labelCenter.y + std::round((labelScale.y / 2.0f)) - textSize.y});
       break;
      }
     case VerticalAlign::NONE:
@@ -78,29 +82,38 @@ Label& Label::setHorizontalAlign(const HorizontalAlign cAlign)
 
 void Label::horizontalAlign()
 {
+  glm::vec2 labelCenter = mModifier.getPos();
+  glm::vec2 labelScale = mModifier.getScale();
+
+  if(mStyleSheet)
+  {
+    labelCenter = {mStyleSheet.value().mVisualLeft + (mStyleSheet.value().mVisualWidth / 2.0f), mStyleSheet.value().mVisualTop + (mStyleSheet.value().mVisualHeight / 2.0f)};
+    labelScale  = {mStyleSheet.value().mVisualWidth, mStyleSheet.value().mVisualHeight};
+  }
+
   switch(mModifier.getHorizontalAlign())
   {
     case HorizontalAlign::LEFT:
     {
-      glm::vec2 labelCenter = mModifier.getPos();
-      glm::vec2 labelScale = mModifier.getScale();
-      mTextTransform.setOrigin({labelCenter.x - (labelScale.x / 2.0f), mTextTransform.getPos().y} );
+      mTextTransform.setOrigin({labelCenter.x - std::round((labelScale.x / 2.0f)), mTextTransform.getPos().y} );
       break;
     }
     case HorizontalAlign::CENTER:
      {
       glm::vec2 textSize = mText.getSize();
-      glm::vec2 labelCenter = mModifier.getPos();
-      mTextTransform.setOrigin({labelCenter.x - (textSize.x / 2.0f), mTextTransform.getPos().y});
+      mTextTransform.setOrigin({labelCenter.x - std::round((textSize.x / 2.0f)), mTextTransform.getPos().y});
       break;
      }
     case HorizontalAlign::RIGHT:
     {
       glm::vec2 textSize = mText.getSize();
-      glm::vec2 labelCenter = mModifier.getPos();
-      glm::vec2 labelScale = mModifier.getScale();
-      mTextTransform.setOrigin({labelCenter.x + (labelScale.x / 2.0f)  - textSize.x, mTextTransform.getPos().y} );
+      mTextTransform.setOrigin({labelCenter.x + std::round((labelScale.x / 2.0f))  - textSize.x, mTextTransform.getPos().y});
       break;
+    }
+    case HorizontalAlign::CENTER_OUTSIDE_RIGHT:
+    {
+      glm::vec2 textSize = mText.getSize();
+      mTextTransform.setOrigin({mModifier.getPos().x + std::round((mModifier.getWidth() / 2.0f)), mTextTransform.getPos().y});
     }
     case HorizontalAlign::NONE:
       break;
@@ -219,4 +232,28 @@ void Label::updateUI()
   mText.setPos(mTextTransform.getPos());
   mText.updateGeometry();
   mUpdateUI = false;
+}
+
+Transform Label::getTextTransform() const
+{
+  return mTextTransform;
+}
+
+TextModifier& Label::getTextModifier()
+{
+  return mTextModifier;
+}
+
+Modifier& Label::getModifier()
+{
+  return mModifier;
+}
+
+Label& Label::setTextModifier(const TextModifier& crTextModifier)
+{
+  mTextModifier = crTextModifier;
+  mText.setFont(mTextModifier.getFont());
+  mText.setFontSize(mTextModifier.getFontSize());
+  mUpdateUI = true;
+  return *this;
 }
